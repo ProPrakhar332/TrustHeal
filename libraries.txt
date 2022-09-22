@@ -1,0 +1,32 @@
+npm install
+
+npm i -g expo-cli
+
+expo init TrustHeal
+>blank
+
+npm install @react-navigation/native
+
+npm install @react-navigation/bottom-tabs --force
+
+npx expo install react-native-screens react-native-safe-area-context
+
+npm install @react-navigation/native-stack --force
+
+npm i react-native-elements
+
+npm i rn-country-picker
+
+npm install @react-native-picker/picker --save
+
+npm i react-native-vector-icons
+
+npm i react-native-tab-view
+
+npm i react-native-tab-view-custom
+
+expo install react-native-gesture-handler react-native-reanimated
+
+npm i @react-native-community/datetimepicker@6.2.0
+
+npm install react-native-openanything
