@@ -17,6 +17,7 @@ npm i react-native-elements
 
 npm i rn-country-picker
 
+npx pod-install
 npm install @react-native-picker/picker --save
 
 npm i react-native-vector-icons
@@ -30,3 +31,16 @@ expo install react-native-gesture-handler react-native-reanimated
 npm i @react-native-community/datetimepicker@6.2.0
 
 npm install react-native-openanything
+
+npm install react-native-linear-gradient --save
+
+npm i @react-native-community/geolocation
+https://www.npmjs.com/package/@react-native-community/geolocation
+https://www.youtube.com/watch?v=kPD08dyP_rQ
+
+expo install expo-app-loading      (for fonts)
+
+
+npm install @react-native-community/slider --save
+https://www.npmjs.com/package/@react-native-community/slider
+https://www.youtube.com/watch?v=MwSudWtT7ps
