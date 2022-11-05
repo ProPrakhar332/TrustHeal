@@ -1,390 +1,868 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ScrollView } from "react-native";
 import {
+  Alert,
+  useWindowDimensions,
   View,
+  Modal,
   Text,
+  TextInput,
   Button,
   SafeAreaView,
   Image,
+  FlatList,
   TouchableOpacity,
   KeyboardAvoidingView,
 } from "react-native";
 import CustomButton from "../Components/CustomButton";
-import education from "../Resources/education.png";
-import affiliation from "../Resources/affiliation.png";
-import achievement from "../Resources/achievement.png";
-import interests from "../Resources/interests.png";
-import registration from "../Resources/registration.png";
-import documment from "../Resources/documment.png";
-import personal from "../Resources/personal.png";
 import { StyleSheet } from "react-native";
+import Header from "../Components/Header";
+import FAIcon from "react-native-vector-icons/FontAwesome5";
 
-function ProfileScreen({ navigation }) {
-  const [edu, setEdu] = useState(false);
-  const [aff, setAff] = useState(false);
-  const [achi, setAch] = useState(false);
-  const [int, setInt] = useState(false);
-  const [reg, setReg] = useState(false);
-  const [doc, setDoc] = useState(false);
-  const [prnsl, setPrsnl] = useState(false);
+//icons
+import doctor from "../Resources/doctor2x.png";
+import earnings from "../Icons/earnings.png";
+import notification from "../Icons/notification.png";
+import appointment from "../Icons/appointment.png";
+import help from "../Icons/help.png";
+import about from "../Icons/about.png";
+
+function BasicDesign({ navigation }) {
+  const [EarningModal, setEarningModal] = useState(false);
+  const [HelpModal, setHelpModal] = useState(false);
+
+  const logout = () => {
+    console.log("Logging out");
+    navigation.navigate("Login/SignUp");
+  };
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
+      enabled={true}
     >
-      <SafeAreaView style={{ flex: 1, backgroundColor: "#edece8" }}>
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <View>
+      <SafeAreaView
+        style={{
+          backgroundColor: "#2B8ADA",
+          width: "100%",
+        }}
+      >
+        <ScrollView
+          style={{
+            width: "100%",
+            alignSelf: "center",
+            marginTop: 30,
+            backgroundColor: "#e8f0fe",
+          }}
+          showsVerticalScrollIndicator={false}
+        >
+          <Header title="My Profile" showMenu={false} />
+          <View
+            style={{
+              width: "95%",
+              alignSelf: "center",
+              flexDirection: "column",
+            }}
+          >
+            {/* Image and Top Text */}
             <View
               style={{
-                flexDirection: "row",
-                borderBottomColor: "gray",
-                borderBottomWidth: 2,
-                backgroundColor: "white",
+                flexDirection: "column",
+                alignItems: "center",
+                marginVertical: 5,
               }}
             >
-              <Image
-                style={{
-                  width: 100,
-                  height: 100,
-                  borderRadius: 150,
-                  margin: 10,
-                }}
-                source={require("../Resources/doctor.jpg")}
-              ></Image>
               <View
                 style={{
-                  margin: 10,
+                  flexDirection: "row",
+                  alignSelf: "center",
+                  borderRadius: 85,
+                  width: 85,
+                  height: 85,
+                  borderWidth: 2,
+                  borderColor: "#2B8ADA",
+                  justifyContent: "center",
                 }}
               >
-                <Text
+                <Image
+                  source={doctor}
                   style={{
-                    fontSize: 20,
-                    fontWeight: "bold",
-                    marginVertical: 5,
+                    backgroundColor: "#2B8ADA",
+                    borderRadius: 70,
+                    width: 70,
+                    height: 70,
+                    alignSelf: "center",
                   }}
-                >
-                  Dr Zara Ahmed
+                />
+              </View>
+              <View style={{ alignSelf: "center" }}>
+                <Text style={[styles.blueUnderText, { textAlign: "center" }]}>
+                  Dr. Rohan Kumar
                 </Text>
-                <Text>Mobile : 9456335788</Text>
-                <Text>Email : Zaraahmed@gmail.com</Text>
-                <Text>Speciality : Cardiologist</Text>
+                <Text
+                  style={[
+                    styles.grayHeading,
+                    { color: "black", fontSize: 17, textAlign: "center" },
+                  ]}
+                >
+                  Delhi
+                </Text>
+                <Text style={[styles.grayHeading, { textAlign: "center" }]}>
+                  rohan@gmail.com
+                </Text>
               </View>
             </View>
 
-            <View
+            {/* Middle White Box */}
+            <View style={styles.whiteBox}>
+              <View
+                style={[
+                  styles.whiteOuterBox,
+                  { borderBottomWidth: 2, borderColor: "gray" },
+                ]}
+              >
+                <View
+                  style={[
+                    styles.whiteInnerBox,
+                    { borderRightWidth: 2, borderColor: "gray" },
+                  ]}
+                >
+                  <Text style={styles.grayHeading}>Age</Text>
+                  <Text style={styles.blueUnderText}>35 Years</Text>
+                </View>
+                <View style={[styles.whiteInnerBox]}>
+                  <Text style={styles.grayHeading}>Speciality</Text>
+                  <Text style={styles.blueUnderText}>Heart</Text>
+                </View>
+              </View>
+              <View style={styles.whiteOuterBox}>
+                <View style={[styles.whiteInnerBox]}>
+                  <Text style={styles.grayHeading}>Date of Birth</Text>
+                  <Text style={styles.blueUnderText}>01-01-1997</Text>
+                </View>
+                <View
+                  style={[
+                    styles.whiteInnerBox,
+                    { borderLeftWidth: 2, borderColor: "gray" },
+                  ]}
+                >
+                  <Text style={styles.grayHeading}>Gender</Text>
+                  <Text style={styles.blueUnderText}>Male</Text>
+                </View>
+              </View>
+            </View>
+            {/* Bottom White Box */}
+            <View style={styles.whiteBox}>
+              <TouchableOpacity
+                style={styles.whiteBoxRow}
+                onPress={() => setEarningModal(true)}
+              >
+                <View style={{ flex: 0.3 }}>
+                  <Image source={earnings} style={styles.whiteBoxRowIcon} />
+                </View>
+                <View style={{ flex: 0.6 }}>
+                  <Text style={styles.whiteBoxRowText}>My Earning</Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.whiteBoxRow} onPress={() => {}}>
+                <View style={{ flex: 0.3 }}>
+                  <Image source={notification} style={styles.whiteBoxRowIcon} />
+                </View>
+                <View style={{ flex: 0.6 }}>
+                  <Text style={styles.whiteBoxRowText}>My Notifications</Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.whiteBoxRow}
+                onPress={() => {
+                  navigation.navigate("Manage Schedule");
+                }}
+              >
+                <View style={{ flex: 0.3 }}>
+                  <Image source={appointment} style={styles.whiteBoxRowIcon} />
+                </View>
+                <View style={{ flex: 0.6 }}>
+                  <Text style={styles.whiteBoxRowText}>My Appointment</Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.whiteBoxRow}
+                onPress={() => {
+                  setHelpModal(true);
+                }}
+              >
+                <View style={{ flex: 0.3 }}>
+                  <Image source={help} style={styles.whiteBoxRowIcon} />
+                </View>
+                <View style={{ flex: 0.6 }}>
+                  <Text style={styles.whiteBoxRowText}>Help & Support</Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.whiteBoxRow, { borderBottomWidth: 0 }]}
+                onPress={() => navigation.navigate("About")}
+              >
+                <View style={{ flex: 0.3 }}>
+                  <Image source={about} style={styles.whiteBoxRowIcon} />
+                </View>
+                <View style={{ flex: 0.6 }}>
+                  <Text style={styles.whiteBoxRowText}>About Aarogya</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+            {/* Log Out Button */}
+            <CustomButton
+              text="Logout"
+              textstyle={{ color: "white" }}
               style={{
-                backgroundColor: "pink",
-                borderRadius: 20,
-                padding: 10,
-                marginVertical: 10,
-                flexDirection: "row",
-                width: "95%",
+                backgroundColor: "#2B8ADA",
+                borderRadius: 10,
+                marginVertical: 5,
+                width: "90%",
                 alignSelf: "center",
               }}
-            >
-              <Text
-                style={{
-                  alignSelf: "flex-start",
-                  fontWeight: "bold",
-                  width: "90%",
-                }}
-              >
-                Complete Your Profile
-              </Text>
-              <Text style={{ fontWeight: "bold", width: "10%" }}>45%</Text>
-            </View>
-
-            <View
-              style={{
-                backgroundColor: "white",
-                padding: 15,
-                borderRadius: 15,
-              }}
-            >
-              <View style={styles.labelHeading}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                  }}
-                >
-                  <TouchableOpacity
-                    style={{ flexDirection: "row" }}
-                    onPress={() => {
-                      setPrsnl(!prnsl);
-                      setEdu(false);
-                      setAff(false);
-                      setAch(false);
-                      setInt(false);
-                      setReg(false);
-                      setDoc(false);
-                    }}
-                  >
-                    <Image source={personal} style={styles.icon} />
-                    <Text style={styles.label}>Personal Details</Text>
-                  </TouchableOpacity>
-                  <CustomButton
-                    text="+Add/Edit"
-                    textstyle={{ color: "black" }}
-                    style={{ backgroundColor: "white" }}
-                    onPress={() => navigation.push("PersonalDetailsDoctor")}
-                  ></CustomButton>
-                </View>
-              </View>
-              {prnsl == true ? (
-                <View style={styles.card}>
-                  <Text>Name: Dr. Zara Ahmed</Text>
-                  <Text>Mobile : 9456335788</Text>
-                  <Text>Email : Zaraahmed@gmail.com</Text>
-                  <Text>Date Of Birth : 22/05/1971</Text>
-                  <Text>Speciality : Cardiologist</Text>
-                </View>
-              ) : null}
-
-              <View style={styles.labelHeading}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                  }}
-                >
-                  <TouchableOpacity
-                    style={{ flexDirection: "row" }}
-                    onPress={() => {
-                      setEdu(!edu);
-                      setPrsnl(false);
-                      setAff(false);
-                      setAch(false);
-                      setInt(false);
-                      setReg(false);
-                      setDoc(false);
-                    }}
-                  >
-                    <Image source={education} style={styles.icon} />
-                    <Text style={styles.label}>Education</Text>
-                  </TouchableOpacity>
-                  <CustomButton
-                    text="+Add/Edit"
-                    textstyle={{ color: "black" }}
-                    style={{ backgroundColor: "white" }}
-                    onPress={() => navigation.push("Education")}
-                  ></CustomButton>
-                </View>
-              </View>
-              {edu == true ? (
-                <View style={styles.card}>
-                  <Text>Institution Name: AIMS DELHI</Text>
-                  <Text>From Year : 1999</Text>
-                  <Text>To Year : 2004</Text>
-                  <Text>Member : Yes</Text>
-                </View>
-              ) : null}
-              <View style={styles.labelHeading}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                  }}
-                >
-                  <TouchableOpacity
-                    style={{ flexDirection: "row" }}
-                    onPress={() => {
-                      setEdu(false);
-                      setPrsnl(false);
-                      setAff(!aff);
-                      setAch(false);
-                      setInt(false);
-                      setReg(false);
-                      setDoc(false);
-                    }}
-                  >
-                    <Image source={affiliation} style={styles.icon} />
-                    <Text style={styles.label}>Affiliation & Membership</Text>
-                  </TouchableOpacity>
-                  <CustomButton
-                    text="+Add/Edit"
-                    textstyle={{ color: "black" }}
-                    style={{ backgroundColor: "white" }}
-                    onPress={() => navigation.push("Affiliation")}
-                  ></CustomButton>
-                </View>
-              </View>
-              {aff == true ? (
-                <View style={styles.card}>
-                  <Text>Institution Name: AIMS DELHI</Text>
-                  <Text>From Year : 1999</Text>
-                  <Text>To Year : 2004</Text>
-                  <Text>Member : Yes</Text>
-                </View>
-              ) : null}
-              <View style={styles.labelHeading}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                  }}
-                >
-                  <TouchableOpacity
-                    style={{ flexDirection: "row" }}
-                    onPress={() => {
-                      setEdu(false);
-                      setAff(false);
-                      setAch(!achi);
-                      setPrsnl(false);
-                      setInt(false);
-                      setReg(false);
-                      setDoc(false);
-                    }}
-                  >
-                    <Image source={achievement} style={styles.icon} />
-                    <Text style={styles.label}>
-                      Add Contibution/Achievement
-                    </Text>
-                  </TouchableOpacity>
-                  <CustomButton
-                    text="+Add/Edit"
-                    textstyle={{ color: "black" }}
-                    style={{ backgroundColor: "white" }}
-                    onPress={() => navigation.push("Achievement")}
-                  ></CustomButton>
-                </View>
-              </View>
-              {achi == true ? (
-                <View style={styles.card}>
-                  <Text>Institution Name: AIMS DELHI</Text>
-                  <Text>From Year : 1999</Text>
-                  <Text>Description: Successfully transplanted heart</Text>
-                  <Text>Member : Yes</Text>
-                </View>
-              ) : null}
-              <View style={styles.labelHeading}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                  }}
-                >
-                  <TouchableOpacity
-                    style={{ flexDirection: "row" }}
-                    onPress={() => {
-                      setEdu(false);
-                      setAff(false);
-                      setAch(false);
-                      setPrsnl(false);
-                      setInt(!int);
-                      setReg(false);
-                      setDoc(false);
-                    }}
-                  >
-                    <Image source={interests} style={styles.icon} />
-                    <Text style={styles.label}>Interests</Text>
-                  </TouchableOpacity>
-                  <CustomButton
-                    text="+Add/Edit"
-                    textstyle={{ color: "black" }}
-                    style={{ backgroundColor: "white" }}
-                    onPress={() => navigation.push("Interests")}
-                  ></CustomButton>
-                </View>
-              </View>
-              {int == true ? (
-                <View style={styles.card}>
-                  <Text>Hobbies: Golf, Music, Football, Reading</Text>
-                </View>
-              ) : null}
-            </View>
-
-            <View
-              style={{
-                marginVertical: 30,
-                backgroundColor: "white",
-                padding: 15,
-                borderRadius: 15,
-              }}
-            >
-              <View
-                style={{
-                  width: "95%",
-                  alignSelf: "center",
-                  borderBottomColor: "gray",
-                  borderBottomWidth: 1,
+              onPress={logout}
+            />
+            {/* Earning Modal */}
+            {EarningModal ? (
+              <Modal
+                animationType="slide"
+                transparent={true}
+                visible={EarningModal}
+                onRequestClose={() => {
+                  setEarningModal(!EarningModal);
                 }}
               >
                 <View
                   style={{
+                    height: "100%",
+                    backgroundColor: "rgba(0,0,0,0.8)",
                     flexDirection: "row",
+                    justifyContent: "center",
                   }}
                 >
-                  <TouchableOpacity
-                    style={{ flexDirection: "row" }}
-                    onPress={() => {
-                      setEdu(false);
-                      setAff(false);
-                      setAch(false);
-                      setPrsnl(false);
-                      setInt(false);
-                      setReg(!reg);
-                      setDoc(false);
-                    }}
+                  <View
+                    style={[
+                      styles.modalView,
+                      {
+                        flexDirection: "column",
+                        backgroundColor: "white",
+                        borderRadius: 34,
+                        alignSelf: "center",
+                        width: "95%",
+                      },
+                    ]}
                   >
-                    <Image source={registration} style={styles.icon} />
-                    <Text style={styles.label}>Registration</Text>
-                  </TouchableOpacity>
-                  <CustomButton
-                    text="+Add/Edit"
-                    textstyle={{ color: "black" }}
-                    style={{ backgroundColor: "white" }}
-                    onPress={() => navigation.push("Registration")}
-                  ></CustomButton>
+                    <View
+                      style={{
+                        borderBottomColor: "gray",
+                        borderBottomWidth: 1,
+                        width: "100%",
+                        flexDirection: "row",
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontSize: 18,
+                          color: "black",
+                          fontWeight: "bold",
+                          alignSelf: "center",
+                          marginBottom: 10,
+                        }}
+                      >
+                        Earning
+                      </Text>
+                      <FAIcon
+                        name="window-close"
+                        size={20}
+                        onPress={() => {
+                          setEarningModal(false);
+                        }}
+                        style={{
+                          position: "absolute",
+                          top: 0,
+                          right: 0,
+                        }}
+                      />
+                    </View>
+                    <View>
+                      {/* Total P-Consultation Earnings */}
+                      <View
+                        style={[
+                          styles.bubble,
+                          {
+                            flexDirection: "column",
+                            padding: 10,
+                            width: "100%",
+                          },
+                        ]}
+                      >
+                        <View
+                          style={{ flexDirection: "column", width: "100%" }}
+                        >
+                          <View
+                            style={{
+                              flexDirection: "row",
+                              justifyContent: "space-between",
+                              alignSelf: "center",
+                            }}
+                          >
+                            <View
+                              style={{
+                                flexDirection: "column",
+                                padding: 5,
+
+                                flex: 0.8,
+                              }}
+                            >
+                              <Text style={{ textAlign: "center" }}>
+                                Total P-Consultation Done :
+                              </Text>
+                            </View>
+                            <View
+                              style={{
+                                flexDirection: "column",
+                                padding: 5,
+
+                                flex: 0.2,
+                              }}
+                            >
+                              <Text
+                                style={{
+                                  fontWeight: "bold",
+                                  textAlign: "right",
+                                }}
+                              >
+                                12
+                              </Text>
+                            </View>
+                          </View>
+                          <View
+                            style={{
+                              flexDirection: "row",
+                              justifyContent: "space-between",
+                              alignSelf: "center",
+                            }}
+                          >
+                            <View
+                              style={{
+                                flexDirection: "column",
+                                padding: 5,
+
+                                flex: 0.8,
+                              }}
+                            >
+                              <Text style={{ textAlign: "center" }}>
+                                Total P-Consultation Earning :
+                              </Text>
+                            </View>
+                            <View
+                              style={{
+                                flexDirection: "column",
+                                padding: 5,
+
+                                flex: 0.2,
+                              }}
+                            >
+                              <Text
+                                style={{
+                                  fontWeight: "bold",
+                                  textAlign: "right",
+                                }}
+                              >
+                                ₹ 2500
+                              </Text>
+                            </View>
+                          </View>
+                        </View>
+                      </View>
+                      {/* Total E-Consultation Earnings */}
+                      <View
+                        style={[
+                          styles.bubble,
+                          {
+                            flexDirection: "column",
+                            padding: 10,
+                            width: "100%",
+                          },
+                        ]}
+                      >
+                        <View
+                          style={{ flexDirection: "column", width: "100%" }}
+                        >
+                          <View
+                            style={{
+                              flexDirection: "row",
+                              justifyContent: "space-between",
+                              alignSelf: "center",
+                            }}
+                          >
+                            <View
+                              style={{
+                                flexDirection: "column",
+                                padding: 5,
+
+                                flex: 0.8,
+                              }}
+                            >
+                              <Text style={{ textAlign: "center" }}>
+                                Total E-Consultation Done :
+                              </Text>
+                            </View>
+                            <View
+                              style={{
+                                flexDirection: "column",
+                                padding: 5,
+
+                                flex: 0.2,
+                              }}
+                            >
+                              <Text
+                                style={{
+                                  fontWeight: "bold",
+                                  textAlign: "right",
+                                }}
+                              >
+                                12
+                              </Text>
+                            </View>
+                          </View>
+                          <View
+                            style={{
+                              flexDirection: "row",
+                              justifyContent: "space-between",
+                              alignSelf: "center",
+                            }}
+                          >
+                            <View
+                              style={{
+                                flexDirection: "column",
+                                padding: 5,
+
+                                flex: 0.8,
+                              }}
+                            >
+                              <Text style={{ textAlign: "center" }}>
+                                Total E-Consultation Earning :
+                              </Text>
+                            </View>
+                            <View
+                              style={{
+                                flexDirection: "column",
+                                padding: 5,
+
+                                flex: 0.2,
+                              }}
+                            >
+                              <Text
+                                style={{
+                                  fontWeight: "bold",
+                                  textAlign: "right",
+                                }}
+                              >
+                                ₹ 2500
+                              </Text>
+                            </View>
+                          </View>
+                        </View>
+                      </View>
+                      {/* Overall Earnings */}
+                      <View
+                        style={[
+                          styles.bubble,
+                          {
+                            flexDirection: "column",
+                            padding: 10,
+                            paddingVertical: 5,
+                            width: "100%",
+                          },
+                        ]}
+                      >
+                        <View
+                          style={{ flexDirection: "column", width: "100%" }}
+                        >
+                          <View
+                            style={{
+                              flexDirection: "row",
+                              justifyContent: "space-between",
+                              alignSelf: "center",
+                            }}
+                          >
+                            <View
+                              style={{
+                                flexDirection: "column",
+                                padding: 5,
+
+                                flex: 0.8,
+                              }}
+                            >
+                              <Text style={{ textAlign: "center" }}>
+                                Overall Earning:
+                              </Text>
+                            </View>
+                            <View
+                              style={{
+                                flexDirection: "column",
+                                padding: 5,
+
+                                flex: 0.2,
+                              }}
+                            >
+                              <Text
+                                style={{
+                                  fontWeight: "bold",
+                                  textAlign: "right",
+                                }}
+                              >
+                                ₹ 5000
+                              </Text>
+                            </View>
+                          </View>
+                        </View>
+                      </View>
+                      {/* Buttons */}
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          justifyContent: "space-evenly",
+                          marginTop: 15,
+                        }}
+                      >
+                        <CustomButton
+                          text="Download"
+                          textstyle={{ fontSize: 10, color: "white" }}
+                          style={{
+                            flex: 0.3,
+                            paddingVertical: 5,
+                            backgroundColor: "#2B8ADA",
+                            borderRadius: 5,
+                          }}
+                        />
+                        <CustomButton
+                          text="Close"
+                          textstyle={{ fontSize: 10, color: "#2B8ADA" }}
+                          style={{
+                            flex: 0.3,
+                            paddingVertical: 5,
+                            borderColor: "#2B8ADA",
+                            borderWidth: 1,
+                            borderRadius: 5,
+                          }}
+                          onPress={() => {
+                            setEarningModal(false);
+                          }}
+                        />
+                        <CustomButton
+                          text="Share"
+                          textstyle={{ fontSize: 10, color: "#2B8ADA" }}
+                          style={{
+                            flex: 0.3,
+                            paddingVertical: 5,
+                            borderColor: "#2B8ADA",
+                            borderWidth: 1,
+                            borderRadius: 5,
+                          }}
+                        />
+                      </View>
+                    </View>
+                  </View>
                 </View>
-              </View>
-              {reg == true ? (
-                <View style={styles.card}>
-                  <Text>Registration Number:458514</Text>
-                  <Text>Medical Council Details : AIMS DELHI</Text>
-                  <Text>Year : 2004</Text>
-                </View>
-              ) : null}
-              <View
-                style={{
-                  width: "95%",
-                  alignSelf: "center",
-                  borderBottomColor: "gray",
-                  borderBottomWidth: 1,
+              </Modal>
+            ) : null}
+            {/* Notification Modal */}
+            {/* Help & Support */}
+            {HelpModal ? (
+              <Modal
+                animationType="slide"
+                transparent={true}
+                visible={HelpModal}
+                onRequestClose={() => {
+                  setHelpModal(!HelpModal);
                 }}
               >
                 <View
                   style={{
+                    height: "100%",
+                    backgroundColor: "rgba(0,0,0,0.8)",
                     flexDirection: "row",
+                    justifyContent: "center",
                   }}
                 >
-                  <TouchableOpacity
-                    style={{ flexDirection: "row" }}
-                    onPress={() => {
-                      setEdu(false);
-                      setAff(false);
-                      setAch(false);
-                      setPrsnl(false);
-                      setInt(false);
-                      setReg(false);
-                      setDoc(!doc);
-                    }}
+                  <View
+                    style={[
+                      styles.modalView,
+                      {
+                        borderRadius: 10,
+                        width: "95%",
+                        justifyContent: "center",
+                        alignSelf: "center",
+                      },
+                    ]}
                   >
-                    <Image source={documment} style={styles.icon} />
-                    <Text style={styles.label}>Add Document</Text>
-                  </TouchableOpacity>
-                  <CustomButton
-                    text="+Add/Edit"
-                    textstyle={{ color: "black" }}
-                    style={{ backgroundColor: "white" }}
-                    onPress={() => navigation.push("AddDocument")}
-                  ></CustomButton>
+                    <View
+                      style={{
+                        width: "100%",
+                        alignSelf: "center",
+                        marginBottom: 20,
+                        borderBottomWidth: 1,
+                        borderBottomColor: "gray",
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontWeight: "bold",
+                          fontSize: 16,
+                          padding: 5,
+                        }}
+                      >
+                        Help & Support
+                      </Text>
+                      <FAIcon
+                        name="window-close"
+                        color="black"
+                        size={26}
+                        style={{
+                          position: "absolute",
+                          top: 0,
+                          right: 0,
+                        }}
+                        onPress={() => setHelpModal(false)}
+                      />
+                    </View>
+
+                    <View style={styles.searchBar}>
+                      <TextInput placeholder="Search Question" />
+                      <FAIcon
+                        name="search"
+                        size={15}
+                        color="gray"
+                        style={styles.searchIcon}
+                      />
+                    </View>
+                    <ScrollView
+                      style={{
+                        height: 300,
+                        width: "100%",
+                        flexDirection: "column",
+                      }}
+                    >
+                      <View>
+                        <TouchableOpacity
+                          style={[
+                            styles.WhiteLabel,
+                            {
+                              borderWidth: 1,
+                              flexDirection: "row",
+                              justifyContent: "space-between",
+                              marginBottom: 0,
+                              backgroundColor: "#2B8ADA",
+                            },
+                          ]}
+                        >
+                          <Text
+                            style={[
+                              {
+                                fontWeight: "bold",
+                                fontSize: 14,
+                                color: "white",
+                              },
+                            ]}
+                          >
+                            1. I Am Infected With Viral Fever. What To Do?
+                          </Text>
+                        </TouchableOpacity>
+                        <View
+                          style={{
+                            marginTop: -6,
+                            padding: 5,
+                            borderWidth: 1,
+                            borderTopWidth: 0,
+                            width: "95%",
+                            alignSelf: "center",
+                            borderBottomRightRadius: 5,
+                            borderBottomLeftRadius: 5,
+                          }}
+                        >
+                          <Text
+                            style={{
+                              fontSize: 12,
+                              padding: 5,
+                              textAlign: "justify",
+                            }}
+                          >
+                            Lorem Ipsum Is Simply Dummy Text Of The Printing And
+                            Typesetting Industry. Lorem Ipsum Has Been The
+                            Industry's Standard Dummy Text Ever Since The 1500S,
+                            When An Unknown Printer Took A Galley Of Type And
+                            Scrambled It To Make A Type Specimen Book. It Has
+                            Survived.
+                          </Text>
+                        </View>
+                      </View>
+                      <View>
+                        <TouchableOpacity
+                          style={[
+                            styles.WhiteLabel,
+                            {
+                              borderWidth: 1,
+                              flexDirection: "row",
+                              justifyContent: "space-between",
+                              marginBottom: 0,
+                              backgroundColor: "#2B8ADA",
+                            },
+                          ]}
+                        >
+                          <Text
+                            style={[
+                              {
+                                fontWeight: "bold",
+                                fontSize: 14,
+                                color: "white",
+                              },
+                            ]}
+                          >
+                            1. I Am Infected With Viral Fever. What To Do?
+                          </Text>
+                        </TouchableOpacity>
+                        <View
+                          style={{
+                            marginTop: -6,
+                            padding: 5,
+                            borderWidth: 1,
+                            borderTopWidth: 0,
+                            width: "95%",
+                            alignSelf: "center",
+                            borderBottomRightRadius: 5,
+                            borderBottomLeftRadius: 5,
+                          }}
+                        >
+                          <Text
+                            style={{
+                              fontSize: 12,
+                              padding: 5,
+                              textAlign: "justify",
+                            }}
+                          >
+                            Lorem Ipsum Is Simply Dummy Text Of The Printing And
+                            Typesetting Industry. Lorem Ipsum Has Been The
+                            Industry's Standard Dummy Text Ever Since The 1500S,
+                            When An Unknown Printer Took A Galley Of Type And
+                            Scrambled It To Make A Type Specimen Book. It Has
+                            Survived.
+                          </Text>
+                        </View>
+                      </View>
+                      <View>
+                        <TouchableOpacity
+                          style={[
+                            styles.WhiteLabel,
+                            {
+                              borderWidth: 1,
+                              flexDirection: "row",
+                              justifyContent: "space-between",
+                              marginBottom: 0,
+                              backgroundColor: "#2B8ADA",
+                            },
+                          ]}
+                        >
+                          <Text
+                            style={[
+                              {
+                                fontWeight: "bold",
+                                fontSize: 14,
+                                color: "white",
+                              },
+                            ]}
+                          >
+                            1. I Am Infected With Viral Fever. What To Do?
+                          </Text>
+                        </TouchableOpacity>
+                        <View
+                          style={{
+                            marginTop: -6,
+                            padding: 5,
+                            borderWidth: 1,
+                            borderTopWidth: 0,
+                            width: "95%",
+                            alignSelf: "center",
+                            borderBottomRightRadius: 5,
+                            borderBottomLeftRadius: 5,
+                          }}
+                        >
+                          <Text
+                            style={{
+                              fontSize: 12,
+                              padding: 5,
+                              textAlign: "justify",
+                            }}
+                          >
+                            Lorem Ipsum Is Simply Dummy Text Of The Printing And
+                            Typesetting Industry. Lorem Ipsum Has Been The
+                            Industry's Standard Dummy Text Ever Since The 1500S,
+                            When An Unknown Printer Took A Galley Of Type And
+                            Scrambled It To Make A Type Specimen Book. It Has
+                            Survived.
+                          </Text>
+                        </View>
+                      </View>
+                      <View>
+                        <TouchableOpacity
+                          style={[
+                            styles.WhiteLabel,
+                            {
+                              borderWidth: 1,
+                              flexDirection: "row",
+                              justifyContent: "space-between",
+                              marginBottom: 0,
+                              backgroundColor: "#2B8ADA",
+                            },
+                          ]}
+                        >
+                          <Text
+                            style={[
+                              {
+                                fontWeight: "bold",
+                                fontSize: 14,
+                                color: "white",
+                              },
+                            ]}
+                          >
+                            1. I Am Infected With Viral Fever. What To Do?
+                          </Text>
+                        </TouchableOpacity>
+                        <View
+                          style={{
+                            marginTop: -6,
+                            padding: 5,
+                            borderWidth: 1,
+                            borderTopWidth: 0,
+                            width: "95%",
+                            alignSelf: "center",
+                            borderBottomRightRadius: 5,
+                            borderBottomLeftRadius: 5,
+                          }}
+                        >
+                          <Text
+                            style={{
+                              fontSize: 12,
+                              padding: 5,
+                              textAlign: "justify",
+                            }}
+                          >
+                            Lorem Ipsum Is Simply Dummy Text Of The Printing And
+                            Typesetting Industry. Lorem Ipsum Has Been The
+                            Industry's Standard Dummy Text Ever Since The 1500S,
+                            When An Unknown Printer Took A Galley Of Type And
+                            Scrambled It To Make A Type Specimen Book. It Has
+                            Survived.
+                          </Text>
+                        </View>
+                      </View>
+                    </ScrollView>
+                  </View>
                 </View>
-              </View>
-              {doc == true ? (
-                <View style={styles.card}>
-                  <Text>Medical Certificate</Text>
-                  <Text>Aadhar</Text>
-                  <Text>Passport</Text>
-                </View>
-              ) : null}
-            </View>
+              </Modal>
+            ) : null}
           </View>
         </ScrollView>
       </SafeAreaView>
@@ -393,24 +871,108 @@ function ProfileScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  icon: { width: 30, height: 30, marginRight: 5, marginTop: 5 },
-  label: { width: "70%", fontSize: 15, fontWeight: "bold", padding: 10 },
-  labelHeading: {
-    width: "95%",
-    alignSelf: "center",
-    borderBottomColor: "gray",
-    borderBottomWidth: 1,
-  },
-  card: {
-    margin: 20,
-    backgroundColor: "#e6e3e3",
-    alignSelf: "center",
-    width: "80%",
-    paddingHorizontal: 20,
-  },
   container: {
     flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#e8f0fe",
+  },
+  grayHeading: { color: "gray", fontSize: 15 },
+  blueUnderText: {
+    color: "#2B8ADA",
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  whiteInnerBox: {
+    flex: 0.45,
+    flexDirection: "column",
+    padding: 10,
+  },
+  whiteOuterBox: {
+    flexDirection: "row",
+    alignSelf: "center",
+    justifyContent: "space-evenly",
+  },
+  whiteBox: {
+    backgroundColor: "white",
+    alignSelf: "center",
+    width: "90%",
+    flexDirection: "column",
+    justifyContent: "space-evenly",
+    borderRadius: 20,
+    padding: 10,
+    marginVertical: 5,
+  },
+  whiteBoxRow: {
+    flexDirection: "row",
+    borderBottomWidth: 1,
+    borderColor: "gray",
+    padding: 5,
+    alignSelf: "center",
+  },
+  whiteBoxRowIcon: { width: 30, height: 30 },
+  whiteBoxRowText: { fontWeight: "bold", fontSize: 16 },
+  modalView: {
+    borderRadius: 10,
+    flex: 1,
+    position: "absolute",
+    width: "100%",
+    backgroundColor: "white",
+    borderTopRadius: 50,
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+  },
+  bubble: {
+    flexDirection: "row",
+    alignSelf: "center",
+    backgroundColor: "#E8F0FE",
+    padding: 5,
+    borderRadius: 15,
+    marginVertical: 5,
+    width: "100%",
+  },
+  WhiteLabel: {
+    flexDirection: "row",
+    width: "95%",
+    marginVertical: 5,
+    alignSelf: "center",
+    backgroundColor: "white",
+    marginBottom: 5,
+    padding: 10,
+    justifyContent: "space-between",
+    borderRadius: 10,
+  },
+  searchBar: {
+    flex: 1,
+    width: "95%",
+    flexDirection: "row",
+    padding: 5,
+    borderWidth: 1,
+    borderColor: "#2B8ADA",
+    backgroundColor: "white",
+    borderRadius: 25,
+    alignSelf: "center",
+    marginVertical: 10,
+  },
+  label: {
+    fontSize: 14,
+    marginLeft: 5,
+  },
+  searchBarText: {
+    width: "100%",
+  },
+  searchIcon: {
+    position: "absolute",
+    right: 0,
+    top: 0,
+    margin: 10,
   },
 });
 
-export default ProfileScreen;
+export default BasicDesign;

@@ -158,7 +158,9 @@ const Item = ({ title, spl, exp, qual, img }) => (
       text="Consult Now"
       textstyle={{ color: "white", fontWeight: "bold" }}
       style={{ backgroundColor: "orange", padding: 5, marginTop: 5 }}
-      onPress={() => console.log(title)}
+      onPress={() => {
+        console.log(title);
+      }}
     ></CustomButton>
   </View>
 );

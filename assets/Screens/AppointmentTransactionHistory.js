@@ -11,10 +11,11 @@ import {
 } from "react-native";
 import { TabView, TabBar, SceneMap } from "react-native-tab-view";
 import FAIcon from "react-native-vector-icons/FontAwesome5";
+import Header from "../Components/Header";
 
 const FirstRoute = () => (
   <ScrollView showsVerticalScrollIndicator={false}>
-    <View style={[styles.card, { backgroundColor: "grey" }]}>
+    <View style={[styles.card, { backgroundColor: "white" }]}>
       <View style={styles.cardImage}>
         <Image
           source={require("../Resources/pfp1.jpg")}
@@ -32,23 +33,23 @@ const FirstRoute = () => (
 
       <View style={styles.cardDetails}>
         <View style={styles.cardRow}>
-          <FAIcon name="user" size={15} color="white" />
+          <FAIcon name="user" size={15} color="black" />
 
           <Text style={styles.cardDetailsText}>Name : Mr. Ankit Yadav</Text>
         </View>
 
         <View style={styles.cardRow}>
-          <FAIcon name="money-bill-wave-alt" size={15} color="white" />
+          <FAIcon name="money-bill-wave-alt" size={15} color="black" />
           <Text style={styles.cardDetailsText}>Received : $700</Text>
         </View>
         <View style={styles.cardRow}>
-          <FAIcon name="piggy-bank" size={15} color="white" />
+          <FAIcon name="piggy-bank" size={15} color="black" />
           <Text style={styles.cardDetailsText}>Credited To : Canara Bank</Text>
         </View>
       </View>
     </View>
 
-    <View style={[styles.card, { backgroundColor: "grey" }]}>
+    <View style={[styles.card, { backgroundColor: "white" }]}>
       <View style={styles.cardImage}>
         <Image
           source={require("../Resources/pfp2.jpg")}
@@ -67,24 +68,24 @@ const FirstRoute = () => (
 
       <View style={styles.cardDetails}>
         <View style={styles.cardRow}>
-          <FAIcon name="user" size={15} color="white" />
+          <FAIcon name="user" size={15} color="black" />
 
           <Text style={styles.cardDetailsText}>Name : Mr. Sumit Kumar</Text>
         </View>
 
         <View style={styles.cardRow}>
-          <FAIcon name="money-bill-wave-alt" size={15} color="white" />
+          <FAIcon name="money-bill-wave-alt" size={15} color="black" />
           <Text style={styles.cardDetailsText}>Received : $730</Text>
         </View>
 
         <View style={styles.cardRow}>
-          <FAIcon name="piggy-bank" size={15} color="white" />
+          <FAIcon name="piggy-bank" size={15} color="black" />
           <Text style={styles.cardDetailsText}>Credited To : SBI</Text>
         </View>
       </View>
     </View>
 
-    <View style={[styles.card, { backgroundColor: "grey" }]}>
+    <View style={[styles.card, { backgroundColor: "white" }]}>
       <View style={styles.cardImage}>
         <Image
           source={require("../Resources/pfp3.jpg")}
@@ -103,24 +104,24 @@ const FirstRoute = () => (
 
       <View style={styles.cardDetails}>
         <View style={styles.cardRow}>
-          <FAIcon name="user" size={15} color="white" />
+          <FAIcon name="user" size={15} color="black" />
 
           <Text style={styles.cardDetailsText}>Name : Mr. Pulkit Verma</Text>
         </View>
 
         <View style={styles.cardRow}>
-          <FAIcon name="money-bill-wave-alt" size={15} color="white" />
+          <FAIcon name="money-bill-wave-alt" size={15} color="black" />
           <Text style={styles.cardDetailsText}>Received : $400</Text>
         </View>
 
         <View style={styles.cardRow}>
-          <FAIcon name="piggy-bank" size={15} color="white" />
+          <FAIcon name="piggy-bank" size={15} color="black" />
           <Text style={styles.cardDetailsText}>Credited To : ICICI Bank</Text>
         </View>
       </View>
     </View>
 
-    <View style={[styles.card, { backgroundColor: "grey" }]}>
+    <View style={[styles.card, { backgroundColor: "white" }]}>
       <View style={styles.cardImage}>
         <Image
           source={require("../Resources/pfp4.jpg")}
@@ -139,17 +140,17 @@ const FirstRoute = () => (
 
       <View style={styles.cardDetails}>
         <View style={styles.cardRow}>
-          <FAIcon name="user" size={15} color="white" />
+          <FAIcon name="user" size={15} color="black" />
 
           <Text style={styles.cardDetailsText}>Name : Mr. Aman Singh</Text>
         </View>
         <View style={styles.cardRow}>
-          <FAIcon name="money-bill-wave-alt" size={15} color="white" />
+          <FAIcon name="money-bill-wave-alt" size={15} color="black" />
           <Text style={styles.cardDetailsText}>Received : $600</Text>
         </View>
 
         <View style={styles.cardRow}>
-          <FAIcon name="piggy-bank" size={15} color="white" />
+          <FAIcon name="piggy-bank" size={15} color="black" />
           <Text style={styles.cardDetailsText}>
             Credited To : Punjab National Bank
           </Text>
@@ -161,7 +162,7 @@ const FirstRoute = () => (
 
 const SecondRoute = () => (
   <ScrollView showsVerticalScrollIndicator={false}>
-    <View style={[styles.card, { backgroundColor: "grey" }]}>
+    <View style={[styles.card, { backgroundColor: "white" }]}>
       <View style={styles.cardImage}>
         <Image
           source={require("../Resources/pfp1.jpg")}
@@ -179,23 +180,23 @@ const SecondRoute = () => (
 
       <View style={styles.cardDetails}>
         <View style={styles.cardRow}>
-          <FAIcon name="user" size={15} color="white" />
+          <FAIcon name="user" size={15} color="black" />
 
           <Text style={styles.cardDetailsText}>Name : Mr. Ankit Yadav</Text>
         </View>
 
         <View style={styles.cardRow}>
-          <FAIcon name="money-bill-wave-alt" size={15} color="white" />
+          <FAIcon name="money-bill-wave-alt" size={15} color="black" />
           <Text style={styles.cardDetailsText}>Received : $700</Text>
         </View>
         <View style={styles.cardRow}>
-          <FAIcon name="piggy-bank" size={15} color="white" />
+          <FAIcon name="piggy-bank" size={15} color="black" />
           <Text style={styles.cardDetailsText}>Credited To : Canara Bank</Text>
         </View>
       </View>
     </View>
 
-    <View style={[styles.card, { backgroundColor: "grey" }]}>
+    <View style={[styles.card, { backgroundColor: "white" }]}>
       <View style={styles.cardImage}>
         <Image
           source={require("../Resources/mypfp.jpg")}
@@ -214,17 +215,17 @@ const SecondRoute = () => (
 
       <View style={styles.cardDetails}>
         <View style={styles.cardRow}>
-          <FAIcon name="user" size={15} color="white" />
+          <FAIcon name="user" size={15} color="black" />
 
           <Text style={styles.cardDetailsText}>Name : Mr. Aman Singh</Text>
         </View>
         <View style={styles.cardRow}>
-          <FAIcon name="money-bill-wave-alt" size={15} color="white" />
+          <FAIcon name="money-bill-wave-alt" size={15} color="black" />
           <Text style={styles.cardDetailsText}>Received : $600</Text>
         </View>
 
         <View style={styles.cardRow}>
-          <FAIcon name="piggy-bank" size={15} color="white" />
+          <FAIcon name="piggy-bank" size={15} color="black" />
           <Text style={styles.cardDetailsText}>
             Credited To : Punjab National Bank
           </Text>
@@ -250,7 +251,8 @@ const AppointmentTransactionHistory = () => {
     <TabBar
       {...props}
       indicatorStyle={{}}
-      style={{ backgroundColor: "limegreen" }}
+      style={{ backgroundColor: "#EE6A5B" }}
+      labelStyle={{ fontWeight: "bold" }}
     />
   );
 
@@ -292,8 +294,8 @@ const styles = StyleSheet.create({
     backgroundColor: "orange",
     width: "100%",
     alignSelf: "center",
-    borderBottomColor: "white",
-    borderBottomWidth: 10,
+    borderBottomColor: "#EE6A5B",
+    borderBottomWidth: 5,
   },
   cardImage: {
     flex: 0.3,
@@ -306,9 +308,8 @@ const styles = StyleSheet.create({
   },
   cardDetailsText: {
     marginLeft: 5,
-    color: "white",
+    color: "black",
     fontSize: 15,
-    fontWeight: "bold",
   },
   cardRow: {
     flexDirection: "row",

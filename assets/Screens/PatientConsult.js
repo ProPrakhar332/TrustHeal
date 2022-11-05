@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ScrollView } from "react-native";
 import {
   View,
@@ -6,6 +6,7 @@ import {
   Button,
   SafeAreaView,
   Image,
+  FlatList,
   TouchableOpacity,
   KeyboardAvoidingView,
 } from "react-native";
@@ -19,15 +20,16 @@ function PatientProfile({ navigation }) {
   const [det, setDet] = useState(false);
   const [fam, setFam] = useState(false);
   const [med, setMed] = useState(false);
+  const [data, setData] = useState([]);
+  const [isLoading, setLoading] = useState(true);
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
       <SafeAreaView style={{ flex: 1, backgroundColor: "#edece8" }}>
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <Text>Consult Screen</Text>
-        </ScrollView>
+        <ScrollView showsVerticalScrollIndicator={false}></ScrollView>
       </SafeAreaView>
     </KeyboardAvoidingView>
   );
