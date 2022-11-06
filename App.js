@@ -30,14 +30,13 @@ import PatientHome from "./assets/Screens/PatientHome";
 import PatientHealthRecords from "./assets/Screens/PatientHealthRecords";
 import PatientProfile from "./assets/Screens/PatientProfile";
 import DoctorHome from "./assets/Screens/DoctorHome";
-import DoctorPreviousPatient from "./assets/Screens/DoctorPreviousPatient";
+import Support from "./assets/Screens/Support";
 import DoctorRegistration2 from "./assets/Screens/DoctorRegistrationStep2";
 import AppointmentTransactionHistory from "./assets/Screens/AppointmentTransactionHistory";
 import ScheduleHospitalAvailability from "./assets/Screens/ScheduleHospitalAvailability";
 
 import Prescription from "./assets/Screens/Prescription";
 import About from "./assets/Screens/About";
-import CustomDrawer from "./assets/Components/CustomDrawer";
 
 import CheifComplaints from "./assets/Screens/CheifComplaints";
 import BodyScan from "./assets/Screens/BodyScan";
@@ -68,6 +67,7 @@ import consulting from "./assets/Resources/consulting.png";
 import salary from "./assets/Resources/salary.png";
 import user from "./assets/Resources/user.png";
 import support from "./assets/Resources/support.png";
+import back from "./assets/Resources/back3.png";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -178,7 +178,7 @@ function DoctorTabNavigator() {
       <Tab.Screen
         name="Manage Schedule"
         component={ScheduleHospitalAvailability}
-        options={{ headerShown: true }}
+        options={{ headerShown: false }}
       />
       <Tab.Screen
         name="Check Earning"
@@ -187,8 +187,8 @@ function DoctorTabNavigator() {
       />
       <Tab.Screen
         name="Support"
-        component={DoctorPreviousPatient}
-        options={{ headerShown: true }}
+        component={Support}
+        options={{ headerShown: false }}
       />
       <Tab.Screen
         name="Profile"
@@ -230,14 +230,7 @@ function App() {
               headerBackButtonMenuEnabled: false,
             }}
           />
-          <Stack.Screen
-            name="CustomDrawer"
-            component={CustomDrawer}
-            options={{
-              headerShown: true,
-              headerBackButtonMenuEnabled: false,
-            }}
-          />
+
           <Stack.Screen
             name="CheifComplaints"
             component={CheifComplaints}
@@ -303,12 +296,28 @@ function App() {
           <Stack.Screen
             name="P-Consultation"
             component={PConsultation}
-            options={{ headerBackButtonMenuEnabled: true, headerShown: true }}
+            options={{
+              headerShown: true,
+              headerStyle: {
+                backgroundColor: "black",
+              },
+              headerTitleStyle: {
+                color: "white",
+              },
+            }}
           />
           <Stack.Screen
             name="E-Consultation"
             component={EConsultation}
-            options={{ headerBackButtonMenuEnabled: true, headerShown: true }}
+            options={{
+              headerShown: true,
+              headerStyle: {
+                backgroundColor: "black",
+              },
+              headerTitleStyle: {
+                color: "white",
+              },
+            }}
           />
           <Stack.Screen
             name="RegisterPatient"
