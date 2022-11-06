@@ -46,6 +46,8 @@ const DoctorRegistration2 = ({ navigation }) => {
   const [ClinicName, setClinicName] = useState("");
   const [ClinicAddress, setClinicAddress] = useState("");
   const [consultView, setconsultView] = useState(false);
+  const [pmodal, setpmodal] = useState(false);
+  const [emodal, setemodal] = useState(false);
   //General Configuration
   const [showGenConfig, setShowGenConfig] = useState(false);
   const [showMobNo, setshowMobNo] = useState(false);
@@ -1058,7 +1060,9 @@ const DoctorRegistration2 = ({ navigation }) => {
                         color="black"
                         size={26}
                         style={{ position: "absolute", top: 0, right: 0 }}
-                        onPress={() => setconsultView(!consultView)}
+                        onPress={() => {
+                          setconsultView(false);
+                        }}
                       />
                     </View>
                     <CustomButton
@@ -1070,8 +1074,8 @@ const DoctorRegistration2 = ({ navigation }) => {
                         marginBottom: 10,
                       }}
                       onPress={() => {
-                        setconsultView(!consultView);
-                        navigation.navigate("P-Consultation");
+                        setconsultView(false);
+                        setpmodal(true);
                       }}
                     />
                     <Text>or</Text>
@@ -1084,10 +1088,546 @@ const DoctorRegistration2 = ({ navigation }) => {
                         marginTop: 10,
                       }}
                       onPress={() => {
-                        setconsultView(!consultView);
-                        navigation.navigate("E-Consultation");
+                        setconsultView(false);
+                        setemodal(true);
                       }}
                     />
+                  </View>
+                </View>
+              </Modal>
+            ) : null}
+            {pmodal ? (
+              <Modal
+                animationType="slide"
+                transparent={true}
+                visible={pmodal}
+                onRequestClose={() => {
+                  setpmodal(!pmodal);
+                }}
+              >
+                <View
+                  style={{
+                    height: "100%",
+                    backgroundColor: "rgba(0,0,0,0.8)",
+                    flexDirection: "row",
+                    justifyContent: "center",
+                  }}
+                >
+                  <View
+                    style={[
+                      styles.modalView,
+                      {
+                        height: 420,
+                        flexDirection: "column",
+                        borderTopRightRadius: 34,
+                        borderTopLeftRadius: 34,
+                        bottom: 0,
+                        width: "100%",
+                      },
+                    ]}
+                  >
+                    <View
+                      style={{
+                        width: "100%",
+                        alignSelf: "center",
+                        marginBottom: 20,
+                      }}
+                    >
+                      <Text style={{ fontWeight: "bold", fontSize: 16 }}>
+                        P-Consultation
+                      </Text>
+                      <FAIcon
+                        name="window-close"
+                        color="black"
+                        size={26}
+                        style={{ position: "absolute", top: 0, right: 0 }}
+                        onPress={() => {
+                          setpmodal(false);
+                        }}
+                      />
+                    </View>
+                    <ScrollView showsVerticalScrollIndicator={false}>
+                      <ScrollView horizontal={true}>
+                        <View
+                          style={{
+                            flex: 1,
+                            flexDirection: "row",
+                            marginVertical: 10,
+                          }}
+                        >
+                          <TouchableOpacity
+                            style={[
+                              styles.bubble,
+                              {
+                                width: 60,
+                                justifyContent: "center",
+                                marginRight: 5,
+                              },
+                            ]}
+                          >
+                            <Text style={styles.bubbleHeading}>Mon</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            style={[
+                              styles.bubble,
+                              {
+                                width: 60,
+                                justifyContent: "center",
+                                marginRight: 5,
+                              },
+                            ]}
+                          >
+                            <Text style={styles.bubbleHeading}>Tues</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            style={[
+                              styles.bubble,
+                              {
+                                width: 60,
+                                justifyContent: "center",
+                                marginRight: 5,
+                              },
+                            ]}
+                          >
+                            <Text style={styles.bubbleHeading}>Wed</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            style={[
+                              styles.bubble,
+                              {
+                                width: 60,
+                                justifyContent: "center",
+                                marginRight: 5,
+                              },
+                            ]}
+                          >
+                            <Text style={styles.bubbleHeading}>Thur</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            style={[
+                              styles.bubble,
+                              {
+                                width: 60,
+                                justifyContent: "center",
+                                marginRight: 5,
+                              },
+                            ]}
+                          >
+                            <Text style={styles.bubbleHeading}>Fri</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            style={[
+                              styles.bubble,
+                              {
+                                width: 60,
+                                justifyContent: "center",
+                                marginRight: 5,
+                              },
+                            ]}
+                          >
+                            <Text style={styles.bubbleHeading}>Sat</Text>
+                          </TouchableOpacity>
+                        </View>
+                      </ScrollView>
+
+                      <View style={{ flexDirection: "row", marginBottom: 10 }}>
+                        <View
+                          style={{
+                            flexDirection: "column",
+                            flex: 0.5,
+                            marginRight: "5%",
+                          }}
+                        >
+                          <Text
+                            style={[styles.label, { alignSelf: "flex-start" }]}
+                          >
+                            In Time
+                          </Text>
+                          <View style={{ flexDirection: "row" }}>
+                            <TextInput
+                              placeholder="HH"
+                              maxLength={2}
+                              keyboardType={"number-pad"}
+                              style={[
+                                styles.textInput,
+                                { marginRight: "5%", textAlign: "center" },
+                              ]}
+                            />
+                            <TextInput
+                              placeholder="MM"
+                              maxLength={2}
+                              keyboardType={"number-pad"}
+                              style={[
+                                styles.textInput,
+                                { textAlign: "center" },
+                              ]}
+                            />
+                          </View>
+                        </View>
+                        <View style={{ flexDirection: "column", flex: 0.5 }}>
+                          <Text
+                            style={[styles.label, { alignSelf: "flex-start" }]}
+                          >
+                            Out Time
+                          </Text>
+                          <View style={{ flexDirection: "row" }}>
+                            <TextInput
+                              placeholder="HH"
+                              maxLength={2}
+                              keyboardType={"number-pad"}
+                              style={[
+                                styles.textInput,
+                                { marginRight: "5%", textAlign: "center" },
+                              ]}
+                            />
+                            <TextInput
+                              placeholder="MM"
+                              maxLength={2}
+                              keyboardType={"number-pad"}
+                              style={[
+                                styles.textInput,
+                                { textAlign: "center" },
+                              ]}
+                            />
+                          </View>
+                        </View>
+                      </View>
+                      <View style={{ flexDirection: "column", width: "100%" }}>
+                        <Text
+                          style={[styles.label, { alignSelf: "flex-start" }]}
+                        >
+                          Duration
+                        </Text>
+                        <TextInput style={styles.textInput} />
+                      </View>
+                      <CustomButton
+                        text="Save"
+                        textstyle={{ color: "white", fontSize: 12 }}
+                        style={{
+                          width: "90%",
+                          alignSelf: "center",
+                          backgroundColor: "#2B8ADA",
+                          borderRadius: 10,
+                          marginVertical: 20,
+                        }}
+                        onPress={() => {
+                          setpmodal(false);
+                          navigation.navigate("P-Consultation");
+                        }}
+                      />
+                    </ScrollView>
+                  </View>
+                </View>
+              </Modal>
+            ) : null}
+            {emodal ? (
+              <Modal
+                animationType="slide"
+                transparent={true}
+                visible={emodal}
+                onRequestClose={() => {
+                  setemodal(!emodal);
+                }}
+              >
+                <View
+                  style={{
+                    height: "100%",
+                    backgroundColor: "rgba(0,0,0,0.8)",
+                    flexDirection: "row",
+                    justifyContent: "center",
+                  }}
+                >
+                  <View
+                    style={[
+                      styles.modalView,
+                      {
+                        height: 440,
+                        flexDirection: "column",
+                        borderTopRightRadius: 34,
+                        borderTopLeftRadius: 34,
+                        bottom: 0,
+                        width: "100%",
+                      },
+                    ]}
+                  >
+                    <View
+                      style={{
+                        width: "100%",
+                        alignSelf: "center",
+                        marginBottom: 20,
+                      }}
+                    >
+                      <Text style={{ fontWeight: "bold", fontSize: 16 }}>
+                        E-Consultation
+                      </Text>
+                      <FAIcon
+                        name="window-close"
+                        color="black"
+                        size={26}
+                        style={{ position: "absolute", top: 0, right: 0 }}
+                        onPress={() => {
+                          setemodal(false);
+                        }}
+                      />
+                    </View>
+                    <ScrollView showsVerticalScrollIndicator={false}>
+                      <ScrollView horizontal={true}>
+                        <View
+                          style={{
+                            flex: 1,
+                            flexDirection: "row",
+                          }}
+                        >
+                          <TouchableOpacity
+                            style={[
+                              styles.bubble,
+                              {
+                                width: 60,
+                                justifyContent: "center",
+                                marginRight: 5,
+                              },
+                            ]}
+                          >
+                            <Text style={styles.bubbleHeading}>Mon</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            style={[
+                              styles.bubble,
+                              {
+                                width: 60,
+                                justifyContent: "center",
+                                marginRight: 5,
+                              },
+                            ]}
+                          >
+                            <Text style={styles.bubbleHeading}>Tues</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            style={[
+                              styles.bubble,
+                              {
+                                width: 60,
+                                justifyContent: "center",
+                                marginRight: 5,
+                              },
+                            ]}
+                          >
+                            <Text style={styles.bubbleHeading}>Wed</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            style={[
+                              styles.bubble,
+                              {
+                                width: 60,
+                                justifyContent: "center",
+                                marginRight: 5,
+                              },
+                            ]}
+                          >
+                            <Text style={styles.bubbleHeading}>Thur</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            style={[
+                              styles.bubble,
+                              {
+                                width: 60,
+                                justifyContent: "center",
+                                marginRight: 5,
+                              },
+                            ]}
+                          >
+                            <Text style={styles.bubbleHeading}>Fri</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            style={[
+                              styles.bubble,
+                              {
+                                width: 60,
+                                justifyContent: "center",
+                                marginRight: 5,
+                              },
+                            ]}
+                          >
+                            <Text style={styles.bubbleHeading}>Sat</Text>
+                          </TouchableOpacity>
+                        </View>
+                      </ScrollView>
+                      <View style={{ flexDirection: "column", width: "100%" }}>
+                        <Text
+                          style={[
+                            styles.inputLabel,
+                            { alignSelf: "flex-start" },
+                          ]}
+                        >
+                          Date
+                        </Text>
+                        <View
+                          style={{
+                            flexDirection: "row",
+                            justifyContent: "space-between",
+                          }}
+                        >
+                          <TextInput
+                            style={[
+                              styles.textInput,
+                              { flex: 0.25, textAlign: "center" },
+                            ]}
+                            placeholder="DD"
+                            maxLength={2}
+                            keyboardType={"number-pad"}
+                          />
+                          <TextInput
+                            style={[
+                              styles.textInput,
+                              { flex: 0.25, textAlign: "center" },
+                            ]}
+                            placeholder="MM"
+                            maxLength={2}
+                            keyboardType={"number-pad"}
+                          />
+                          <TextInput
+                            style={[
+                              styles.textInput,
+                              { flex: 0.25, textAlign: "center" },
+                            ]}
+                            placeholder="YYYY"
+                            maxLength={4}
+                            keyboardType={"number-pad"}
+                          />
+                        </View>
+                      </View>
+                      <View style={{ flexDirection: "column" }}>
+                        <View style={{ flexDirection: "row" }}>
+                          <View
+                            style={{
+                              flexDirection: "column",
+                              flex: 0.5,
+                              marginRight: "5%",
+                            }}
+                          >
+                            <Text
+                              style={[
+                                styles.inputLabel,
+                                { alignSelf: "flex-start" },
+                              ]}
+                            >
+                              Start Time
+                            </Text>
+                            <View
+                              style={{
+                                flexDirection: "row",
+                                justifyContent: "space-between",
+                              }}
+                            >
+                              <TextInput
+                                placeholder="HH"
+                                maxLength={2}
+                                keyboardType={"number-pad"}
+                                style={[
+                                  styles.textInput,
+                                  { textAlign: "center" },
+                                ]}
+                              />
+                              <TextInput
+                                placeholder="MM"
+                                maxLength={2}
+                                keyboardType={"number-pad"}
+                                style={[
+                                  styles.textInput,
+                                  { textAlign: "center" },
+                                ]}
+                              />
+                            </View>
+                          </View>
+                          <View style={{ flexDirection: "column", flex: 0.5 }}>
+                            <Text
+                              style={[
+                                styles.inputLabel,
+                                { alignSelf: "flex-start" },
+                              ]}
+                            >
+                              End Time
+                            </Text>
+                            <View
+                              style={{
+                                flexDirection: "row",
+                                justifyContent: "space-between",
+                              }}
+                            >
+                              <TextInput
+                                placeholder="HH"
+                                maxLength={2}
+                                keyboardType={"number-pad"}
+                                style={[
+                                  styles.textInput,
+                                  { textAlign: "center" },
+                                ]}
+                              />
+                              <TextInput
+                                placeholder="MM"
+                                maxLength={2}
+                                keyboardType={"number-pad"}
+                                style={[
+                                  styles.textInput,
+                                  { textAlign: "center" },
+                                ]}
+                              />
+                            </View>
+                          </View>
+                        </View>
+                        <View
+                          style={{
+                            flexDirection: "row",
+                            justifyContent: "space-between",
+                          }}
+                        >
+                          <View
+                            style={{
+                              flexDirection: "row",
+                              flex: 0.45,
+                            }}
+                          >
+                            <View style={{ flexDirection: "column", flex: 1 }}>
+                              <Text style={[styles.inputLabel]}>Duration</Text>
+                              <TextInput
+                                placeholder="MM"
+                                style={styles.textInput}
+                              />
+                            </View>
+                          </View>
+                          <View
+                            style={{
+                              flexDirection: "row",
+                              flex: 0.45,
+                            }}
+                          >
+                            <View style={{ flexDirection: "column", flex: 1 }}>
+                              <Text style={[styles.inputLabel]}>Gap</Text>
+                              <TextInput
+                                placeholder="MM"
+                                style={styles.textInput}
+                              />
+                            </View>
+                          </View>
+                        </View>
+                      </View>
+
+                      <CustomButton
+                        text="Save"
+                        textstyle={{ color: "white", fontSize: 12 }}
+                        style={{
+                          width: "90%",
+                          alignSelf: "center",
+                          backgroundColor: "#2B8ADA",
+                          borderRadius: 10,
+                          marginVertical: 10,
+                        }}
+                        onPress={() => {
+                          setemodal(false);
+                          navigation.navigate("E-Consultation");
+                        }}
+                      />
+                    </ScrollView>
                   </View>
                 </View>
               </Modal>

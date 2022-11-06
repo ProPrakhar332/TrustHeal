@@ -33,10 +33,6 @@ const PatientRegistration = ({ navigation }) => {
   const [deg, setDeg] = useState("");
   const [degView, setDegView] = useState(false);
   const [spl, setSpl] = useState("");
-  const [degText, setdegText] = useState("⌄");
-  const [splText, setSplText] = useState("⌄");
-  const [showDeg, setShowDeg] = useState(false);
-  const [showSpl, setShowSpl] = useState(false);
   const [male, setMale] = useState(false);
   const [female, setFemale] = useState(false);
   const [other, setOther] = useState(false);
@@ -198,12 +194,7 @@ const PatientRegistration = ({ navigation }) => {
                 <TouchableOpacity
                   style={{ flexDirection: "row", width: "100%" }}
                   onPress={() => {
-                    if (!showDeg) {
-                      setShowDeg(!showDeg);
-                      setModalVisible(true);
-                    } else {
-                      setShowDeg(!showDeg);
-                    }
+                    setModalVisible(true);
                   }}
                 >
                   <View style={{ width: "100%", flexDirection: "row" }}>
@@ -345,12 +336,7 @@ const PatientRegistration = ({ navigation }) => {
                 <TouchableOpacity
                   style={{ flexDirection: "row", width: "100%" }}
                   onPress={() => {
-                    if (!showSpl) {
-                      setShowSpl(!showSpl);
-                      setSplModalVisible(true);
-                    } else {
-                      setShowSpl(!showSpl);
-                    }
+                    setSplModalVisible(true);
                   }}
                 >
                   <Text style={[styles.label, { width: "90%" }]}>{spl}</Text>
@@ -620,8 +606,9 @@ const PatientRegistration = ({ navigation }) => {
                         styles.modalView,
                         {
                           flexDirection: "column",
-                          borderRadius: 50,
-                          height: 350,
+                          borderRadius: 10,
+                          height: 400,
+                          width: "95%",
                         },
                       ]}
                     >
@@ -671,21 +658,25 @@ const PatientRegistration = ({ navigation }) => {
                       <View style={{ flexDirection: "row", marginTop: 20 }}>
                         <CustomButton
                           text="Decline"
-                          textstyle={{ color: "#2B8ADA" }}
+                          textstyle={{ color: "#2B8ADA", fontSize: 13 }}
                           style={{
                             borderWidth: 1,
                             borderColor: "#2B8ADA",
                             flex: 0.45,
                             marginRight: "5%",
+                            alignSelf: "center",
+                            padding: 5,
                           }}
                           onPress={() => setTermsView(false)}
                         />
                         <CustomButton
                           text="Accept"
-                          textstyle={{ color: "white" }}
+                          textstyle={{ color: "white", fontSize: 13 }}
                           style={{
                             backgroundColor: "#2B8ADA",
                             flex: 0.45,
+                            alignSelf: "center",
+                            padding: 5,
                           }}
                           onPress={() => {
                             navigation.push("DoctorRegistrationStep2");
@@ -755,7 +746,7 @@ const styles = StyleSheet.create({
   },
   modalView: {
     position: "absolute",
-    width: "90%",
+    width: "100%",
     alignSelf: "center",
     backgroundColor: "white",
     padding: 35,
@@ -785,8 +776,6 @@ const styles = StyleSheet.create({
   containerStyle: {
     backgroundColor: "white",
     borderWidth: 0,
-    borderBottomWidth: 2,
-    borderBottomColor: "#2b8ada",
     alignSelf: "flex-start",
   },
 });

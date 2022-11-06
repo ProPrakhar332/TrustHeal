@@ -251,7 +251,7 @@ const AppointmentTransactionHistory = () => {
     <TabBar
       {...props}
       indicatorStyle={{}}
-      style={{ backgroundColor: "#EE6A5B" }}
+      style={{ backgroundColor: "#2b8ada" }}
       labelStyle={{ fontWeight: "bold" }}
     />
   );
@@ -281,7 +281,9 @@ const AppointmentTransactionHistory = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {},
+  container: {
+    backgroundColor: "#e8f0fe",
+  },
   title: {
     fontSize: 30,
     fontWeight: "bold",
@@ -294,8 +296,8 @@ const styles = StyleSheet.create({
     backgroundColor: "orange",
     width: "100%",
     alignSelf: "center",
-    borderBottomColor: "#EE6A5B",
-    borderBottomWidth: 5,
+    borderBottomColor: "gray",
+    borderBottomWidth: 2,
   },
   cardImage: {
     flex: 0.3,

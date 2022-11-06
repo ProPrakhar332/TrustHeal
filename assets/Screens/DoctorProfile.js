@@ -118,13 +118,13 @@ function BasicDesign({ navigation }) {
               <View
                 style={[
                   styles.whiteOuterBox,
-                  { borderBottomWidth: 2, borderColor: "gray" },
+                  { borderBottomWidth: 1, borderColor: "gray" },
                 ]}
               >
                 <View
                   style={[
                     styles.whiteInnerBox,
-                    { borderRightWidth: 2, borderColor: "gray" },
+                    { borderRightWidth: 1, borderColor: "gray" },
                   ]}
                 >
                   <Text style={styles.grayHeading}>Age</Text>
@@ -143,7 +143,7 @@ function BasicDesign({ navigation }) {
                 <View
                   style={[
                     styles.whiteInnerBox,
-                    { borderLeftWidth: 2, borderColor: "gray" },
+                    { borderLeftWidth: 1, borderColor: "gray" },
                   ]}
                 >
                   <Text style={styles.grayHeading}>Gender</Text>
