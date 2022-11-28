@@ -228,7 +228,7 @@ const Header = ({ title, showMenu }) => {
             size={20}
             color="white"
             onPress={() => {
-              navigation.navigate("Profile");
+              navigation.navigate("PatientProfile");
             }}
           />
           <FAIcon
@@ -300,6 +300,7 @@ const Header = ({ title, showMenu }) => {
                   borderTopRightRadius: 34,
                   borderTopLeftRadius: 34,
                   bottom: 0,
+                  height: 300,
                 },
               ]}
             >
@@ -329,130 +330,85 @@ const Header = ({ title, showMenu }) => {
                   style={{ position: "absolute", right: 0 }}
                   onPress={() => {
                     setName("");
-                    setMob("");
-                    setMode("");
-                    setSlot("");
                     setMsg("");
-                    setdate("");
                     setShareModal(false);
                   }}
                 />
               </View>
-              <ScrollView>
-                <View style={{ marginVertical: 10 }}>
-                  <FlatList
-                    data={slots}
-                    renderItem={renderItem}
-                    keyExtractor={(item) => item.id}
-                    horizontal={true}
-                    showsHorizontalScrollIndicator={true}
-                  ></FlatList>
-                  {slot !== "" ? (
-                    <Text
+              <View
+                style={{
+                  marginTop: 30,
+                  flexDirection: "column",
+                  width: "100%",
+                }}
+              >
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    alignSelf: "center",
+                    width: "100%",
+                  }}
+                >
+                  <View style={{ flex: 0.45 }}>
+                    <Text style={{ fontSize: 12 }}>Patient Name</Text>
+                    <TextInput
                       style={{
-                        marginTop: 10,
-                        color: "#2B8ADA",
-                        fontWeight: "bold",
-                        fontSize: 16,
+                        backgroundColor: "#E8F0FE",
+                        padding: 5,
+                        borderRadius: 5,
+                        color: "black",
                       }}
-                    >
-                      You chose {slot}
-                    </Text>
-                  ) : null}
+                      onChangeText={(text) => setName(text)}
+                      value={name}
+                    />
+                  </View>
+                  <View style={{ flex: 0.45 }}>
+                    <Text style={{ fontSize: 12 }}>Patient Mobile No.</Text>
+                    <TextInput
+                      style={{
+                        backgroundColor: "#E8F0FE",
+                        padding: 5,
+                        borderRadius: 5,
+                        color: "black",
+                      }}
+                      onChangeText={(text) => setMob(text)}
+                      value={mob}
+                    />
+                  </View>
                 </View>
-                <View style={{ marginTop: 15, flexDirection: "column" }}>
+
+                <View>
                   <View
                     style={{
                       flexDirection: "row",
-                      justifyContent: "space-between",
+                      alignSelf: "center",
+                      marginTop: 20,
                     }}
                   >
-                    <View style={styles.inputField}>
-                      <TextInput
-                        onChangeText={(text) => setName(text)}
-                        value={name}
-                        style={{ fontSize: 12 }}
-                        placeholder="Patient Name"
-                      ></TextInput>
-                    </View>
-                    <View style={styles.inputField}>
-                      <TextInput
-                        onChangeText={(text) => setMob(text)}
-                        value={mob}
-                        style={{ fontSize: 12 }}
-                        placeholder="Mobile No."
-                        keyboardType={"number-pad"}
-                      ></TextInput>
-                    </View>
-                  </View>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      justifyContent: "space-between",
-                      marginVertical: 10,
-                    }}
-                  >
-                    <View style={styles.inputField}>
-                      <TextInput
-                        onChangeText={(text) => setMode(text)}
-                        value={mode}
-                        style={{ fontSize: 12 }}
-                        placeholder="Mode"
-                      ></TextInput>
-                      <FAIcon
-                        name="chevron-down"
-                        size={20}
-                        style={{
-                          position: "absolute",
-                          top: 8,
-                          right: 5,
-                          alignSelf: "center",
-                          color: "gray",
-                        }}
-                      />
-                    </View>
-                    <View style={styles.inputField}>
-                      <TextInput
-                        onChangeText={(text) => setdate(text)}
-                        value={date}
-                        style={{ fontSize: 12 }}
-                        placeholder="Date"
-                      ></TextInput>
-                      <FAIcon
-                        name="calendar-alt"
-                        size={20}
-                        style={{
-                          position: "absolute",
-                          top: 5,
-                          right: 3,
-                          alignSelf: "center",
-                          color: "gray",
-                        }}
-                      />
-                    </View>
-                  </View>
-                  <View>
-                    <View style={{ flexDirection: "row", alignSelf: "center" }}>
-                      <CustomButton
-                        text="Share"
-                        textstyle={{
-                          color: "white",
-                          fontSize: 16,
-                          fontWeight: "bold",
-                        }}
-                        style={{
-                          backgroundColor: "#2B8ADA",
-                          alignSelf: "center",
-                          flex: 0.65,
-                          borderRadius: 10,
-                          marginTop: 10,
-                        }}
-                        onPress={() => Message()}
-                      />
-                    </View>
+                    <CustomButton
+                      text="Share"
+                      textstyle={{
+                        color: "white",
+                        fontSize: 16,
+                        fontWeight: "bold",
+                      }}
+                      style={{
+                        backgroundColor: "#2B8ADA",
+                        alignSelf: "center",
+                        flex: 0.65,
+                        borderRadius: 10,
+                        marginTop: 10,
+                      }}
+                      onPress={() => {
+                        console.log(name);
+                        console.log(mob);
+                        setShareModal(false);
+                      }}
+                    />
                   </View>
                 </View>
-              </ScrollView>
+              </View>
             </View>
           </View>
         </Modal>
@@ -650,8 +606,7 @@ const styles = StyleSheet.create({
   inputField: {
     backgroundColor: "#E8F0FE",
     borderRadius: 10,
-    flex: 0.45,
-    padding: 5,
+    color: "black",
   },
   bubble: {
     flexDirection: "row",

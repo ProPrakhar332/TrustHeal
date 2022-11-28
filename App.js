@@ -373,7 +373,11 @@ function App() {
             component={RoleScreen}
             options={{ headerShown: false }}
           />
-          <Stack.Screen name="PatientProfile" component={PatientProfile} />
+          <Stack.Screen
+            name="PatientProfile"
+            component={PatientProfile}
+            options={{ headerShown: false }}
+          />
           <Stack.Screen
             name="PersonalDetailsPatient"
             component={PersonalDetailsPatient}

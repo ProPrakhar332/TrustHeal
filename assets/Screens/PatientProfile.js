@@ -18,7 +18,10 @@ import CustomButton from "../Components/CustomButton";
 import { StyleSheet } from "react-native";
 import HeaderPatient from "../Components/HeaderPatient";
 import FAIcon from "react-native-vector-icons/FontAwesome5";
-
+import {
+  SelectList,
+  MultipleSelectList,
+} from "react-native-dropdown-select-list";
 //icons
 import patient from "../Resources/patient.png";
 
@@ -28,13 +31,111 @@ import appointment from "../Icons/appointment.png";
 import help from "../Icons/help.png";
 import about from "../Icons/about.png";
 
+const dataBloodGroup = [
+  { key: "A+", value: "A+" },
+  { key: "A-", value: "A-" },
+  { key: "B+", value: "B+" },
+  { key: "B-", value: "B-" },
+  { key: "O+", value: "O+" },
+  { key: "O-", value: "O-" },
+  { key: "AB+", value: "AB+" },
+  { key: "AB-", value: "AB-" },
+];
+
+const dataInvoice = [
+  { no: "0123", date: "11-11-2022", doc: "" },
+  { no: "0124", date: "12-11-2022", doc: "" },
+  { no: "0125", date: "13-11-2022", doc: "" },
+  { no: "0126", date: "14-11-2022", doc: "" },
+  { no: "0127", date: "15-11-2022", doc: "" },
+];
+
+const ItemInvoice = ({ no, date, doc }) => (
+  <View
+    style={{ backgroundColor: "#F3F7FE", borderRadius: 5, marginBottom: 15 }}
+  >
+    <View
+      style={{
+        flexDirection: "row",
+        width: "100%",
+        paddingVertical: 10,
+        justifyContent: "space-evenly",
+        alignSelf: "center",
+      }}
+    >
+      <View
+        style={{
+          flexDirection: "column",
+          alignSelf: "center",
+        }}
+      >
+        <Text>Invoice No. : </Text>
+        <Text>Invoice Date :</Text>
+      </View>
+      <View
+        style={{
+          flexDirection: "column",
+          alignSelf: "center",
+        }}
+      >
+        <Text style={{ fontWeight: "bold" }}>{no}</Text>
+        <Text style={{ fontWeight: "bold" }}>{date}</Text>
+      </View>
+      <View
+        style={{
+          flexDirection: "column",
+          alignSelf: "center",
+        }}
+      >
+        <CustomButton
+          text="Download"
+          textstyle={{ fontSize: 12, color: "white" }}
+          style={{
+            backgroundColor: "#2B8ADA",
+            borderRadius: 5,
+            padding: 7,
+            paddingHorizontal: 20,
+            flex: 1,
+            marginVertical: 5,
+          }}
+        />
+        <CustomButton
+          text="View"
+          textstyle={{ fontSize: 12, color: "#2B8ADA" }}
+          style={{
+            borderColor: "#2B8ADA",
+            borderRadius: 5,
+            padding: 7,
+            paddingHorizontal: 20,
+            flex: 1,
+            borderWidth: 1,
+          }}
+        />
+      </View>
+    </View>
+  </View>
+);
+
 function PatientProfile({ navigation }) {
   const [HelpModal, setHelpModal] = useState(false);
-
+  //other details
+  const [OtherDetailsModal, setOtherDetailsModal] = useState(false);
+  const [editOtherDetails, seteditOtherDetails] = useState(false);
+  const [BloodGroup, setBloodGroup] = useState("");
+  const [Occupation, setOccupation] = useState("");
+  const [Weight, setWeight] = useState("");
+  const [Height, setHeight] = useState("");
+  //invoice modal
+  const [invoiceModal, setinvoiceModal] = useState(false);
   const logout = () => {
     console.log("Logging out");
     navigation.navigate("Login/SignUp");
   };
+
+  const renderInvoice = ({ item }) => (
+    <ItemInvoice no={item.no} date={item.date} doc={item.doc} />
+  );
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -171,7 +272,12 @@ function PatientProfile({ navigation }) {
                   <Text style={styles.whiteBoxRowText}>Family</Text>
                 </View>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.whiteBoxRow} onPress={() => {}}>
+              <TouchableOpacity
+                style={styles.whiteBoxRow}
+                onPress={() => {
+                  setOtherDetailsModal(true);
+                }}
+              >
                 <View style={{ flex: 0.3 }}>
                   <Image source={invoice} style={styles.whiteBoxRowIcon} />
                 </View>
@@ -179,7 +285,12 @@ function PatientProfile({ navigation }) {
                   <Text style={styles.whiteBoxRowText}>Other Details</Text>
                 </View>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.whiteBoxRow} onPress={() => {}}>
+              <TouchableOpacity
+                style={styles.whiteBoxRow}
+                onPress={() => {
+                  setinvoiceModal(true);
+                }}
+              >
                 <View style={{ flex: 0.3 }}>
                   <Image source={invoice} style={styles.whiteBoxRowIcon} />
                 </View>
@@ -233,7 +344,26 @@ function PatientProfile({ navigation }) {
                 </View>
               </TouchableOpacity>
             </View>
-            {/* Log Out Button */}
+            {/*  Buttons */}
+            <TouchableOpacity
+              style={{
+                borderColor: "#2B8ADA",
+                borderWidth: 1,
+                borderRadius: 10,
+                marginVertical: 5,
+                width: "90%",
+                alignSelf: "center",
+                flexDirection: "row",
+                padding: 10,
+                justifyContent: "center",
+              }}
+              onPress={() => {}}
+            >
+              <FAIcon name="user-edit" color={"#2B8ADA"} size={20} />
+              <Text style={{ color: "#2B8ADA", marginLeft: 10 }}>
+                Edit Profile
+              </Text>
+            </TouchableOpacity>
             <CustomButton
               text="Logout"
               textstyle={{ color: "white" }}
@@ -274,6 +404,7 @@ function PatientProfile({ navigation }) {
                         width: "95%",
                         justifyContent: "center",
                         alignSelf: "center",
+                        padding: 15,
                       },
                     ]}
                   >
@@ -333,7 +464,6 @@ function PatientProfile({ navigation }) {
                               flexDirection: "row",
                               justifyContent: "space-between",
                               marginBottom: 0,
-                              backgroundColor: "#2B8ADA",
                             },
                           ]}
                         >
@@ -342,7 +472,7 @@ function PatientProfile({ navigation }) {
                               {
                                 fontWeight: "bold",
                                 fontSize: 14,
-                                color: "white",
+                                color: "black",
                               },
                             ]}
                           >
@@ -386,7 +516,6 @@ function PatientProfile({ navigation }) {
                               flexDirection: "row",
                               justifyContent: "space-between",
                               marginBottom: 0,
-                              backgroundColor: "#2B8ADA",
                             },
                           ]}
                         >
@@ -395,7 +524,7 @@ function PatientProfile({ navigation }) {
                               {
                                 fontWeight: "bold",
                                 fontSize: 14,
-                                color: "white",
+                                color: "black",
                               },
                             ]}
                           >
@@ -439,7 +568,6 @@ function PatientProfile({ navigation }) {
                               flexDirection: "row",
                               justifyContent: "space-between",
                               marginBottom: 0,
-                              backgroundColor: "#2B8ADA",
                             },
                           ]}
                         >
@@ -448,7 +576,7 @@ function PatientProfile({ navigation }) {
                               {
                                 fontWeight: "bold",
                                 fontSize: 14,
-                                color: "white",
+                                color: "black",
                               },
                             ]}
                           >
@@ -492,7 +620,6 @@ function PatientProfile({ navigation }) {
                               flexDirection: "row",
                               justifyContent: "space-between",
                               marginBottom: 0,
-                              backgroundColor: "#2B8ADA",
                             },
                           ]}
                         >
@@ -501,7 +628,7 @@ function PatientProfile({ navigation }) {
                               {
                                 fontWeight: "bold",
                                 fontSize: 14,
-                                color: "white",
+                                color: "black",
                               },
                             ]}
                           >
@@ -537,6 +664,332 @@ function PatientProfile({ navigation }) {
                         </View>
                       </View>
                     </ScrollView>
+                  </View>
+                </View>
+              </Modal>
+            ) : null}
+            {/* Other Details Modal */}
+            {OtherDetailsModal ? (
+              <Modal
+                animationType="slide"
+                transparent={true}
+                visible={OtherDetailsModal}
+                onRequestClose={() => {
+                  setOtherDetailsModal(!OtherDetailsModal);
+                }}
+              >
+                <View
+                  style={{
+                    height: "100%",
+                    backgroundColor: "rgba(0,0,0,0.8)",
+                    flexDirection: "row",
+                    justifyContent: "center",
+                  }}
+                >
+                  <View
+                    style={[
+                      styles.modalView,
+                      {
+                        borderRadius: 10,
+                        width: "95%",
+                        justifyContent: "center",
+                        alignSelf: "center",
+                        height: 300,
+                        padding: 10,
+                      },
+                    ]}
+                  >
+                    <View
+                      style={{
+                        width: "100%",
+                        alignSelf: "center",
+                        marginBottom: 20,
+                        borderBottomWidth: 1,
+                        borderBottomColor: "gray",
+                        flexDirection: "row",
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontWeight: "bold",
+                          fontSize: 16,
+                          padding: 5,
+                          color: "#2B8ADA",
+                        }}
+                      >
+                        Other Details
+                      </Text>
+
+                      <View
+                        style={{
+                          flex: 1,
+                          flexDirection: "row",
+                          position: "absolute",
+                          right: 10,
+                        }}
+                      >
+                        <Text
+                          style={{
+                            color: "#2B8ADA",
+                            fontSize: 14,
+                            alignSelf: "center",
+                            marginRight: 5,
+                          }}
+                          onPress={() => seteditOtherDetails(!editOtherDetails)}
+                        >
+                          Edit
+                        </Text>
+                        <FAIcon
+                          name="window-close"
+                          color="black"
+                          size={26}
+                          style={{ marginHorizontal: 5, alignSelf: "center" }}
+                          onPress={() => setOtherDetailsModal(false)}
+                        />
+                      </View>
+                    </View>
+
+                    <View
+                      style={{
+                        flex: 1,
+                        width: "100%",
+                        alignSelf: "center",
+                        backgroundColor: "white",
+                        borderBottomRightRadius: 10,
+                        borderBottomLeftRadius: 10,
+                        marginBottom: 10,
+                      }}
+                    >
+                      <View
+                        style={{
+                          flex: 1,
+                          flexDirection: "column",
+                          alignSelf: "center",
+                        }}
+                      >
+                        <View
+                          style={{
+                            flex: 1,
+                            flexDirection: "row",
+                            alignSelf: "center",
+                          }}
+                        >
+                          <View style={{ flex: 0.45, marginRight: "5%" }}>
+                            <Text style={[styles.inputLabel, { marginTop: 0 }]}>
+                              Blood Group
+                            </Text>
+                            {editOtherDetails ? (
+                              <SelectList
+                                defaultOption={BloodGroup}
+                                placeholder={" "}
+                                setSelected={(val) => setBloodGroup(val)}
+                                data={dataBloodGroup}
+                                save="value"
+                                boxStyles={[
+                                  {
+                                    backgroundColor: "#E8F0FE",
+                                    borderWidth: 0,
+                                    borderRadius: 5,
+                                  },
+                                ]}
+                                dropdownStyles={{
+                                  backgroundColor: "white",
+                                  zIndex: 1,
+                                }}
+                                dropdownTextStyles={{
+                                  color: "#2b8ada",
+                                  fontWeight: "bold",
+                                }}
+                                badgeStyles={{ backgroundColor: "#2b8ada" }}
+                              />
+                            ) : (
+                              <TextInput
+                                style={[
+                                  styles.textInput,
+                                  { backgroundColor: "#d0e0fc" },
+                                  editOtherDetails
+                                    ? { backgroundColor: "#E8F0FE" }
+                                    : null,
+                                ]}
+                                value={BloodGroup}
+                                editable={editOtherDetails}
+                              ></TextInput>
+                            )}
+                          </View>
+                          <View style={{ flex: 0.45 }}>
+                            <Text style={[styles.inputLabel, { marginTop: 0 }]}>
+                              Occupation
+                            </Text>
+                            <TextInput
+                              style={[
+                                styles.textInput,
+                                editOtherDetails
+                                  ? { backgroundColor: "#E8F0FE" }
+                                  : { backgroundColor: "#d0e0fc" },
+                              ]}
+                              placeholderTextColor={"black"}
+                              value={Occupation}
+                              onChangeText={(text) => setOccupation(text)}
+                              editable={editOtherDetails}
+                            ></TextInput>
+                          </View>
+                        </View>
+                        <View
+                          style={{
+                            flex: 1,
+                            flexDirection: "row",
+                            alignSelf: "center",
+                          }}
+                        >
+                          <View style={{ flex: 0.45, marginRight: "5%" }}>
+                            <Text style={styles.inputLabel}>Height</Text>
+                            <TextInput
+                              editable={editOtherDetails}
+                              style={[
+                                styles.textInput,
+                                editOtherDetails
+                                  ? { backgroundColor: "#E8F0FE" }
+                                  : { backgroundColor: "#d0e0fc" },
+                              ]}
+                              placeholderTextColor={"black"}
+                              value={Height}
+                              keyboardType={"number-pad"}
+                              onChangeText={(text) => setHeight(text)}
+                            ></TextInput>
+                          </View>
+                          <View style={{ flex: 0.45 }}>
+                            <Text style={styles.inputLabel}>Weight</Text>
+                            <TextInput
+                              editable={editOtherDetails}
+                              style={[
+                                styles.textInput,
+                                editOtherDetails
+                                  ? { backgroundColor: "#E8F0FE" }
+                                  : { backgroundColor: "#d0e0fc" },
+                              ]}
+                              placeholderTextColor={"black"}
+                              value={Weight}
+                              keyboardType={"number-pad"}
+                              onChangeText={(text) => setWeight(text)}
+                            ></TextInput>
+                          </View>
+                        </View>
+                      </View>
+                    </View>
+                    {/* Buttons */}
+                    <View
+                      style={{
+                        width: "100%",
+                        alignSelf: "center",
+                        justifyContent: "space-evenly",
+                        flexDirection: "row",
+                      }}
+                    >
+                      <CustomButton
+                        text={editOtherDetails ? "Update" : "Add"}
+                        textstyle={{ color: "white", fontSize: 12 }}
+                        style={{
+                          flex: 0.45,
+                          backgroundColor: "#2B8ADA",
+                          borderRadius: 5,
+                        }}
+                        onPress={() => {
+                          if (editOtherDetails) seteditOtherDetails(false);
+                        }}
+                      />
+
+                      <CustomButton
+                        text="Skip"
+                        textstyle={{ color: "#2B8ADA", fontSize: 12 }}
+                        style={{
+                          flex: 0.45,
+                          backgroundColor: "white",
+                          borderRadius: 5,
+                          borderWidth: 1,
+                          borderColor: "#2B8ADA",
+                        }}
+                        onPress={() => setOtherDetailsModal(false)}
+                      />
+                    </View>
+                  </View>
+                </View>
+              </Modal>
+            ) : null}
+            {invoiceModal ? (
+              <Modal
+                animationType="slide"
+                transparent={true}
+                visible={invoiceModal}
+                onRequestClose={() => {
+                  setinvoiceModal(!invoiceModal);
+                }}
+              >
+                <View
+                  style={{
+                    height: "100%",
+                    backgroundColor: "rgba(0,0,0,0.8)",
+                    flexDirection: "row",
+                    justifyContent: "center",
+                  }}
+                >
+                  <View
+                    style={[
+                      styles.modalView,
+                      {
+                        borderRadius: 10,
+                        width: "95%",
+                        justifyContent: "center",
+                        alignSelf: "center",
+                        padding: 20,
+                      },
+                    ]}
+                  >
+                    <View
+                      style={{
+                        width: "100%",
+                        alignSelf: "center",
+                        marginBottom: 20,
+                        borderBottomWidth: 1,
+                        borderBottomColor: "gray",
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontWeight: "bold",
+                          fontSize: 16,
+                          padding: 5,
+                        }}
+                      >
+                        My Invoices
+                      </Text>
+                      <FAIcon
+                        name="window-close"
+                        color="black"
+                        size={26}
+                        style={{
+                          position: "absolute",
+                          top: 0,
+                          right: 0,
+                        }}
+                        onPress={() => setinvoiceModal(false)}
+                      />
+                    </View>
+                    <View
+                      style={{
+                        alignSelf: "center",
+                        width: "100%",
+                        flexDirection: "row",
+                      }}
+                    >
+                      <FlatList
+                        data={dataInvoice}
+                        keyExtractor={(item) => item.no}
+                        renderItem={renderInvoice}
+                        scrollEnabled={true}
+                        style={{ height: 300 }}
+                        bounces={false}
+                      />
+                    </View>
                   </View>
                 </View>
               </Modal>
@@ -649,6 +1102,21 @@ const styles = StyleSheet.create({
     right: 0,
     top: 0,
     margin: 10,
+  },
+
+  textInput: {
+    padding: 5,
+    backgroundColor: "#E8F0FE",
+    borderRadius: 5,
+    fontSize: 14,
+    marginVertical: 5,
+    color: "black",
+  },
+  inputLabel: {
+    fontSize: 12,
+    marginBottom: 2,
+    fontWeight: "bold",
+    marginTop: 10,
   },
 });
 
