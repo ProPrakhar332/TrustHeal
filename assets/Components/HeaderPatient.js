@@ -17,6 +17,14 @@ import { FlatList } from "react-native";
 import CustomButton from "./CustomButton";
 import { ScrollView } from "react-native";
 
+//icons
+
+import sharing from "../Icons/sharing.png";
+import bell from "../Icons/bell.png";
+import location from "../Icons/location.png";
+import heart from "../Icons/heart.png";
+import profileicon from "../Icons/profileicon.png";
+
 const slots = [
   { id: 1, time: "11:00 AM" },
   { id: 2, time: "11:15 AM" },
@@ -220,58 +228,47 @@ const Header = ({ title, showMenu }) => {
         )}
       </View>
 
-      <View style={[{ flexDirection: "column" }]}>
+      <View style={[{ flexDirection: "column", alignSelf: "center" }]}>
         <View style={{ flexDirection: "row" }}>
-          <FAIcon
-            style={styles.icon}
-            name="user-circle"
-            size={20}
-            color="white"
+          <TouchableOpacity
             onPress={() => {
               navigation.navigate("PatientProfile");
             }}
-          />
-          <FAIcon
+          >
+            <Image style={styles.icon} source={profileicon} color="white" />
+          </TouchableOpacity>
+          <Image
             style={styles.icon}
-            name="heart"
-            size={20}
+            source={heart}
             color="white"
             onPress={() => {
               console.log("Sign Out");
               // navigation.navigate("Login/SignUp");
             }}
           />
-          <IonIcons
-            style={styles.icon}
-            name="ios-location-outline"
-            size={20}
-            color="white"
+          <TouchableOpacity
             onPress={() => {
               setLocationModal(true);
             }}
-          />
-
-          <FAIcon
-            style={styles.icon}
-            name="share-alt"
-            size={20}
-            color="white"
+          >
+            <Image style={styles.icon} source={location} color="white" />
+          </TouchableOpacity>
+          <TouchableOpacity
             onPress={() => {
               console.log("Share");
               setShareModal(true);
             }}
-          />
-
-          <FAIcon
-            style={styles.icon}
-            name="bell"
-            size={20}
-            color="white"
+          >
+            <Image style={styles.icon} source={sharing} />
+          </TouchableOpacity>
+          <TouchableOpacity
             onPress={() => {
               console.log("Notifications");
               setNotificationModal(true);
             }}
-          />
+          >
+            <Image style={styles.icon} source={bell} color="white" />
+          </TouchableOpacity>
         </View>
       </View>
       {shareModal ? (
@@ -586,6 +583,8 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   icon: {
     padding: 5,
+    alignSelf: "center",
+    marginHorizontal: 4,
   },
   modalView: {
     borderRadius: 10,

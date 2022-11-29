@@ -30,6 +30,12 @@ import notification from "../Icons/notification.png";
 import appointment from "../Icons/appointment.png";
 import help from "../Icons/help.png";
 import about from "../Icons/about.png";
+import family from "../Icons/family.png";
+import history from "../Icons/history.png";
+import edit from "../Icons/edit.png";
+import trash from "../Icons/delete.png";
+import right from "../Icons/right.png";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const dataBloodGroup = [
   { key: "A+", value: "A+" },
@@ -49,6 +55,134 @@ const dataInvoice = [
   { no: "0126", date: "14-11-2022", doc: "" },
   { no: "0127", date: "15-11-2022", doc: "" },
 ];
+
+const datahelp = [
+  {
+    question: "1. I Am Infected With Viral Fever. What To Do?",
+    answer:
+      "Lorem Ipsum Is Simply Dummy Text Of The Printing And Typesetting Industry. Lorem Ipsum Has Been The Industry's Standard Dummy Text Ever Since The 1500S, When An Unknown Printer Took A Galley Of Type And Scrambled It To Make A Type Specimen Book. It Has Survived.",
+  },
+  {
+    question: "2. I Am Infected With Viral Fever. What To Do?",
+    answer:
+      "Lorem Ipsum Is Simply Dummy Text Of The Printing And Typesetting Industry. Lorem Ipsum Has Been The Industry's Standard Dummy Text Ever Since The 1500S, When An Unknown Printer Took A Galley Of Type And Scrambled It To Make A Type Specimen Book. It Has Survived.",
+  },
+  {
+    question: "3. I Am Infected With Viral Fever. What To Do?",
+    answer:
+      "Lorem Ipsum Is Simply Dummy Text Of The Printing And Typesetting Industry. Lorem Ipsum Has Been The Industry's Standard Dummy Text Ever Since The 1500S, When An Unknown Printer Took A Galley Of Type And Scrambled It To Make A Type Specimen Book. It Has Survived.",
+  },
+  {
+    question: "4. I Am Infected With Viral Fever. What To Do?",
+    answer:
+      "Lorem Ipsum Is Simply Dummy Text Of The Printing And Typesetting Industry. Lorem Ipsum Has Been The Industry's Standard Dummy Text Ever Since The 1500S, When An Unknown Printer Took A Galley Of Type And Scrambled It To Make A Type Specimen Book. It Has Survived.",
+  },
+];
+
+const dataFamily = [
+  {
+    name: "Ramesh",
+    relation: "Son",
+    dob: "12-09-2001",
+    gender: "Male",
+    mob: "+919456335783",
+    otherdet: {
+      BloodGroup: "AB+",
+      Occupation: "Student",
+      Height: "174",
+      Weight: "75",
+    },
+  },
+  {
+    name: "Rami",
+    relation: "Daughter",
+    dob: "23-02-2003",
+    gender: "Female",
+    mob: "+919456335783",
+    otherdet: {
+      BloodGroup: "AB+",
+      Occupation: "Student",
+      Height: "154",
+      Weight: "55",
+    },
+  },
+  {
+    name: "Suresh",
+    relation: "Father",
+    dob: "12-09-1942",
+    gender: "Male",
+    mob: "+919415024512",
+    otherdet: {
+      BloodGroup: "AB+",
+      Occupation: "Retired",
+      Height: "165",
+      Weight: "75",
+    },
+  },
+  {
+    name: "Kamla",
+    relation: "Mother",
+    dob: "02-09-1945",
+    gender: "Female",
+    mob: "+919745125875",
+    otherdet: {
+      BloodGroup: "O+",
+      Occupation: "Homemaker",
+      Height: "160",
+      Weight: "80",
+    },
+  },
+];
+
+const ItemHelp = ({ question, answer }) => (
+  <View>
+    <TouchableOpacity
+      style={[
+        styles.WhiteLabel,
+        {
+          borderWidth: 1,
+          flexDirection: "row",
+          justifyContent: "space-between",
+          marginBottom: 0,
+        },
+      ]}
+    >
+      <Text
+        style={[
+          {
+            fontWeight: "bold",
+            fontSize: 14,
+            color: "black",
+          },
+        ]}
+      >
+        {question}
+      </Text>
+    </TouchableOpacity>
+    <View
+      style={{
+        marginTop: -6,
+        padding: 5,
+        borderWidth: 1,
+        borderTopWidth: 0,
+        width: "95%",
+        alignSelf: "center",
+        borderBottomRightRadius: 5,
+        borderBottomLeftRadius: 5,
+      }}
+    >
+      <Text
+        style={{
+          fontSize: 12,
+          padding: 5,
+          textAlign: "justify",
+        }}
+      >
+        {answer}
+      </Text>
+    </View>
+  </View>
+);
 
 const ItemInvoice = ({ no, date, doc }) => (
   <View
@@ -127,6 +261,10 @@ function PatientProfile({ navigation }) {
   const [Height, setHeight] = useState("");
   //invoice modal
   const [invoiceModal, setinvoiceModal] = useState(false);
+  //family modal
+  const [familyModal, setfamilyModal] = useState(false);
+  const [familyMembers, setfamilyMembers] = useState([]);
+
   const logout = () => {
     console.log("Logging out");
     navigation.navigate("Login/SignUp");
@@ -134,6 +272,10 @@ function PatientProfile({ navigation }) {
 
   const renderInvoice = ({ item }) => (
     <ItemInvoice no={item.no} date={item.date} doc={item.doc} />
+  );
+
+  const renderHelp = ({ item }) => (
+    <ItemHelp question={item.question} answer={item.answer} />
   );
 
   return (
@@ -264,9 +406,14 @@ function PatientProfile({ navigation }) {
             </View>
             {/* Bottom White Box */}
             <View style={styles.whiteBox}>
-              <TouchableOpacity style={styles.whiteBoxRow} onPress={() => {}}>
+              <TouchableOpacity
+                style={styles.whiteBoxRow}
+                onPress={() => {
+                  setfamilyModal(true);
+                }}
+              >
                 <View style={{ flex: 0.3 }}>
-                  <Image source={invoice} style={styles.whiteBoxRowIcon} />
+                  <Image source={family} style={styles.whiteBoxRowIcon} />
                 </View>
                 <View style={{ flex: 0.6 }}>
                   <Text style={styles.whiteBoxRowText}>Family</Text>
@@ -279,7 +426,7 @@ function PatientProfile({ navigation }) {
                 }}
               >
                 <View style={{ flex: 0.3 }}>
-                  <Image source={invoice} style={styles.whiteBoxRowIcon} />
+                  <Image source={history} style={styles.whiteBoxRowIcon} />
                 </View>
                 <View style={{ flex: 0.6 }}>
                   <Text style={styles.whiteBoxRowText}>Other Details</Text>
@@ -448,222 +595,20 @@ function PatientProfile({ navigation }) {
                         style={styles.searchIcon}
                       />
                     </View>
-                    <ScrollView
+                    <View
                       style={{
                         height: 300,
                         width: "100%",
                         flexDirection: "column",
                       }}
                     >
-                      <View>
-                        <TouchableOpacity
-                          style={[
-                            styles.WhiteLabel,
-                            {
-                              borderWidth: 1,
-                              flexDirection: "row",
-                              justifyContent: "space-between",
-                              marginBottom: 0,
-                            },
-                          ]}
-                        >
-                          <Text
-                            style={[
-                              {
-                                fontWeight: "bold",
-                                fontSize: 14,
-                                color: "black",
-                              },
-                            ]}
-                          >
-                            1. I Am Infected With Viral Fever. What To Do?
-                          </Text>
-                        </TouchableOpacity>
-                        <View
-                          style={{
-                            marginTop: -6,
-                            padding: 5,
-                            borderWidth: 1,
-                            borderTopWidth: 0,
-                            width: "95%",
-                            alignSelf: "center",
-                            borderBottomRightRadius: 5,
-                            borderBottomLeftRadius: 5,
-                          }}
-                        >
-                          <Text
-                            style={{
-                              fontSize: 12,
-                              padding: 5,
-                              textAlign: "justify",
-                            }}
-                          >
-                            Lorem Ipsum Is Simply Dummy Text Of The Printing And
-                            Typesetting Industry. Lorem Ipsum Has Been The
-                            Industry's Standard Dummy Text Ever Since The 1500S,
-                            When An Unknown Printer Took A Galley Of Type And
-                            Scrambled It To Make A Type Specimen Book. It Has
-                            Survived.
-                          </Text>
-                        </View>
-                      </View>
-                      <View>
-                        <TouchableOpacity
-                          style={[
-                            styles.WhiteLabel,
-                            {
-                              borderWidth: 1,
-                              flexDirection: "row",
-                              justifyContent: "space-between",
-                              marginBottom: 0,
-                            },
-                          ]}
-                        >
-                          <Text
-                            style={[
-                              {
-                                fontWeight: "bold",
-                                fontSize: 14,
-                                color: "black",
-                              },
-                            ]}
-                          >
-                            1. I Am Infected With Viral Fever. What To Do?
-                          </Text>
-                        </TouchableOpacity>
-                        <View
-                          style={{
-                            marginTop: -6,
-                            padding: 5,
-                            borderWidth: 1,
-                            borderTopWidth: 0,
-                            width: "95%",
-                            alignSelf: "center",
-                            borderBottomRightRadius: 5,
-                            borderBottomLeftRadius: 5,
-                          }}
-                        >
-                          <Text
-                            style={{
-                              fontSize: 12,
-                              padding: 5,
-                              textAlign: "justify",
-                            }}
-                          >
-                            Lorem Ipsum Is Simply Dummy Text Of The Printing And
-                            Typesetting Industry. Lorem Ipsum Has Been The
-                            Industry's Standard Dummy Text Ever Since The 1500S,
-                            When An Unknown Printer Took A Galley Of Type And
-                            Scrambled It To Make A Type Specimen Book. It Has
-                            Survived.
-                          </Text>
-                        </View>
-                      </View>
-                      <View>
-                        <TouchableOpacity
-                          style={[
-                            styles.WhiteLabel,
-                            {
-                              borderWidth: 1,
-                              flexDirection: "row",
-                              justifyContent: "space-between",
-                              marginBottom: 0,
-                            },
-                          ]}
-                        >
-                          <Text
-                            style={[
-                              {
-                                fontWeight: "bold",
-                                fontSize: 14,
-                                color: "black",
-                              },
-                            ]}
-                          >
-                            1. I Am Infected With Viral Fever. What To Do?
-                          </Text>
-                        </TouchableOpacity>
-                        <View
-                          style={{
-                            marginTop: -6,
-                            padding: 5,
-                            borderWidth: 1,
-                            borderTopWidth: 0,
-                            width: "95%",
-                            alignSelf: "center",
-                            borderBottomRightRadius: 5,
-                            borderBottomLeftRadius: 5,
-                          }}
-                        >
-                          <Text
-                            style={{
-                              fontSize: 12,
-                              padding: 5,
-                              textAlign: "justify",
-                            }}
-                          >
-                            Lorem Ipsum Is Simply Dummy Text Of The Printing And
-                            Typesetting Industry. Lorem Ipsum Has Been The
-                            Industry's Standard Dummy Text Ever Since The 1500S,
-                            When An Unknown Printer Took A Galley Of Type And
-                            Scrambled It To Make A Type Specimen Book. It Has
-                            Survived.
-                          </Text>
-                        </View>
-                      </View>
-                      <View>
-                        <TouchableOpacity
-                          style={[
-                            styles.WhiteLabel,
-                            {
-                              borderWidth: 1,
-                              flexDirection: "row",
-                              justifyContent: "space-between",
-                              marginBottom: 0,
-                            },
-                          ]}
-                        >
-                          <Text
-                            style={[
-                              {
-                                fontWeight: "bold",
-                                fontSize: 14,
-                                color: "black",
-                              },
-                            ]}
-                          >
-                            1. I Am Infected With Viral Fever. What To Do?
-                          </Text>
-                        </TouchableOpacity>
-                        <View
-                          style={{
-                            marginTop: -6,
-                            padding: 5,
-                            borderWidth: 1,
-                            borderTopWidth: 0,
-                            width: "95%",
-                            alignSelf: "center",
-                            borderBottomRightRadius: 5,
-                            borderBottomLeftRadius: 5,
-                          }}
-                        >
-                          <Text
-                            style={{
-                              fontSize: 12,
-                              padding: 5,
-                              textAlign: "justify",
-                            }}
-                          >
-                            Lorem Ipsum Is Simply Dummy Text Of The Printing And
-                            Typesetting Industry. Lorem Ipsum Has Been The
-                            Industry's Standard Dummy Text Ever Since The 1500S,
-                            When An Unknown Printer Took A Galley Of Type And
-                            Scrambled It To Make A Type Specimen Book. It Has
-                            Survived.
-                          </Text>
-                        </View>
-                      </View>
-                    </ScrollView>
+                      <FlatList
+                        data={datahelp}
+                        renderItem={renderHelp}
+                        keyExtractor={(item) => item.question}
+                        scrollEnable={true}
+                      />
+                    </View>
                   </View>
                 </View>
               </Modal>
@@ -988,6 +933,274 @@ function PatientProfile({ navigation }) {
                         scrollEnabled={true}
                         style={{ height: 300 }}
                         bounces={false}
+                      />
+                    </View>
+                  </View>
+                </View>
+              </Modal>
+            ) : null}
+            {familyModal ? (
+              <Modal
+                animationType="slide"
+                transparent={true}
+                visible={familyModal}
+                onRequestClose={() => {
+                  setfamilyModal(!familyModal);
+                }}
+              >
+                <View
+                  style={{
+                    height: "100%",
+                    backgroundColor: "rgba(0,0,0,0.8)",
+                    flexDirection: "row",
+                    justifyContent: "center",
+                  }}
+                >
+                  <View
+                    style={[
+                      styles.modalView,
+                      {
+                        borderRadius: 10,
+                        width: "95%",
+                        justifyContent: "center",
+                        alignSelf: "center",
+                        padding: 15,
+                      },
+                    ]}
+                  >
+                    <View
+                      style={{
+                        width: "100%",
+                        alignSelf: "center",
+                        marginBottom: 20,
+                        borderBottomWidth: 1,
+                        borderBottomColor: "gray",
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontWeight: "bold",
+                          fontSize: 16,
+                          padding: 5,
+                        }}
+                      >
+                        Family Members
+                      </Text>
+                      <FAIcon
+                        name="window-close"
+                        color="black"
+                        size={26}
+                        style={{
+                          position: "absolute",
+                          top: 0,
+                          right: 0,
+                        }}
+                        onPress={() => setfamilyModal(false)}
+                      />
+                    </View>
+
+                    {/* Label */}
+                    <View
+                      style={{
+                        backgroundColor: "#F3F7FE",
+                        borderRadius: 5,
+                        width: "100%",
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                        padding: 15,
+                        marginBottom: 10,
+                      }}
+                    >
+                      <Text style={{ flex: 0.6 }}>Ramesh</Text>
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          justifyContent: "space-evenly",
+                          flex: 0.3,
+                          alignSelf: "center",
+                        }}
+                      >
+                        <TouchableOpacity style={{}} onPress={() => {}}>
+                          <Image
+                            style={{ height: 15, width: 15 }}
+                            source={edit}
+                          />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={{ marginHorizontal: 10 }}
+                          onPress={() => {}}
+                        >
+                          <Image
+                            style={{ height: 15, width: 15 }}
+                            source={trash}
+                          />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={{}} onPress={() => {}}>
+                          <Image
+                            style={{ height: 15, width: 15 }}
+                            source={right}
+                          />
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                    {/* Details */}
+                    <View
+                      style={{
+                        borderWidth: 1,
+                        borderTopWidth: 0,
+                        borderColor: "#2B8ADA",
+                        flexDirection: "column",
+                        width: "100%",
+                        marginBottom: 10,
+                        borderBottomRightRadius: 5,
+                        borderBottomLeftRadius: 5,
+                      }}
+                    >
+                      <View
+                        style={{
+                          backgroundColor: "#D0E0FC",
+                          width: "95%",
+                          alignSelf: "center",
+                          marginVertical: 10,
+                          padding: 5,
+                          borderRadius: 5,
+                        }}
+                      >
+                        <TextInput
+                          style={{
+                            backgroundColor: "#D0E0FC",
+                            borderRadius: 5,
+                            alignSelf: "center",
+                            width: "90%",
+                          }}
+                          placeholder="Relation"
+                        />
+                      </View>
+                      <View
+                        style={{
+                          backgroundColor: "#D0E0FC",
+                          width: "95%",
+                          alignSelf: "center",
+                          marginVertical: 10,
+                          padding: 5,
+                          borderRadius: 5,
+                          flexDirection: "row",
+                          justifyContent: "space-evenly",
+                        }}
+                      >
+                        <TextInput
+                          style={{
+                            backgroundColor: "#D0E0FC",
+                            borderRadius: 5,
+                            alignSelf: "center",
+                            width: "80%",
+                          }}
+                          placeholder="Date Of Birth"
+                        />
+                        <FAIcon
+                          name="calendar-alt"
+                          size={20}
+                          color={"gray"}
+                          style={{ alignSelf: "center" }}
+                        />
+                      </View>
+                      <View
+                        style={{
+                          backgroundColor: "#D0E0FC",
+                          width: "95%",
+                          alignSelf: "center",
+                          marginVertical: 10,
+                          padding: 5,
+                          borderRadius: 5,
+                        }}
+                      >
+                        <TextInput
+                          style={{
+                            backgroundColor: "#D0E0FC",
+                            borderRadius: 5,
+                            alignSelf: "center",
+                            width: "90%",
+                          }}
+                          placeholder="Gender"
+                        />
+                        {/* <SelectList
+                          defaultOption={title}
+                          placeholder={title}
+                          setSelected={(val) => setTitle(val)}
+                          data={dataTitle}
+                          save="value"
+                          boxStyles={[
+                            {
+                              backgroundColor: "white",
+                              borderWidth: 0,
+                              backgroundColor: "#d0e0fc",
+                            },
+                            GenInfoEdit ? { backgroundColor: "#E8F0FE" } : null,
+                          ]}
+                          dropdownStyles={{ backgroundColor: "white" }}
+                          dropdownTextStyles={{
+                            color: "#2b8ada",
+                            fontWeight: "bold",
+                          }}
+                          badgeStyles={{ backgroundColor: "#2b8ada" }}
+                        /> */}
+                      </View>
+                      <View
+                        style={{
+                          backgroundColor: "#D0E0FC",
+                          width: "95%",
+                          alignSelf: "center",
+                          marginVertical: 10,
+                          padding: 5,
+                          borderRadius: 5,
+                        }}
+                      >
+                        <TextInput
+                          style={{
+                            backgroundColor: "#D0E0FC",
+                            borderRadius: 5,
+                            alignSelf: "center",
+                            width: "90%",
+                          }}
+                          placeholder="Mobile No"
+                        />
+                      </View>
+                    </View>
+
+                    {/* Buttons */}
+                    <View
+                      style={{
+                        justifyContent: "space-between",
+                        flexDirection: "row",
+                        alignSelf: "center",
+                        width: "100%",
+                      }}
+                    >
+                      <CustomButton
+                        text={"+Add More"}
+                        textstyle={{ color: "white", fontSize: 12 }}
+                        style={{
+                          backgroundColor: "#2B8ADA",
+                          flex: 0.45,
+                          borderRadius: 5,
+                          padding: 10,
+                        }}
+                      />
+                      <CustomButton
+                        text={"Skip"}
+                        textstyle={{
+                          color: "#2B8ADA",
+                          fontSize: 12,
+                          fontWeight: "bold",
+                        }}
+                        style={{
+                          borderWidth: 2,
+                          borderColor: "#2B8ADA",
+                          flex: 0.45,
+                          borderRadius: 5,
+                          padding: 10,
+                        }}
+                        onPress={() => setfamilyModal(false)}
                       />
                     </View>
                   </View>
