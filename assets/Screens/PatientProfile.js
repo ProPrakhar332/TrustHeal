@@ -24,7 +24,6 @@ import {
 } from "react-native-dropdown-select-list";
 //icons
 import patient from "../Resources/patient.png";
-
 import invoice from "../Icons/invoice.png";
 import notification from "../Icons/notification.png";
 import appointment from "../Icons/appointment.png";
@@ -32,11 +31,11 @@ import help from "../Icons/help.png";
 import about from "../Icons/about.png";
 import family from "../Icons/family.png";
 import history from "../Icons/history.png";
-import edit from "../Icons/edit.png";
+import editicon from "../Icons/edit.png";
 import trash from "../Icons/delete.png";
 import right from "../Icons/right.png";
+import down from "../Icons/down.png";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
 const dataBloodGroup = [
   { key: "A+", value: "A+" },
   { key: "A-", value: "A-" },
@@ -47,7 +46,6 @@ const dataBloodGroup = [
   { key: "AB+", value: "AB+" },
   { key: "AB-", value: "AB-" },
 ];
-
 const dataInvoice = [
   { no: "0123", date: "11-11-2022", doc: "" },
   { no: "0124", date: "12-11-2022", doc: "" },
@@ -55,7 +53,6 @@ const dataInvoice = [
   { no: "0126", date: "14-11-2022", doc: "" },
   { no: "0127", date: "15-11-2022", doc: "" },
 ];
-
 const datahelp = [
   {
     question: "1. I Am Infected With Viral Fever. What To Do?",
@@ -78,13 +75,14 @@ const datahelp = [
       "Lorem Ipsum Is Simply Dummy Text Of The Printing And Typesetting Industry. Lorem Ipsum Has Been The Industry's Standard Dummy Text Ever Since The 1500S, When An Unknown Printer Took A Galley Of Type And Scrambled It To Make A Type Specimen Book. It Has Survived.",
   },
 ];
-
 const dataFamily = [
   {
     name: "Ramesh",
     relation: "Son",
     dob: "12-09-2001",
     gender: "Male",
+    edit: "false",
+    active: "false",
     mob: "+919456335783",
     otherdet: {
       BloodGroup: "AB+",
@@ -98,6 +96,8 @@ const dataFamily = [
     relation: "Daughter",
     dob: "23-02-2003",
     gender: "Female",
+    edit: "false",
+    active: "false",
     mob: "+919456335783",
     otherdet: {
       BloodGroup: "AB+",
@@ -111,6 +111,8 @@ const dataFamily = [
     relation: "Father",
     dob: "12-09-1942",
     gender: "Male",
+    edit: "false",
+    active: "false",
     mob: "+919415024512",
     otherdet: {
       BloodGroup: "AB+",
@@ -124,6 +126,8 @@ const dataFamily = [
     relation: "Mother",
     dob: "02-09-1945",
     gender: "Female",
+    edit: "false",
+    active: "false",
     mob: "+919745125875",
     otherdet: {
       BloodGroup: "O+",
@@ -133,7 +137,6 @@ const dataFamily = [
     },
   },
 ];
-
 const ItemHelp = ({ question, answer }) => (
   <View>
     <TouchableOpacity
@@ -183,7 +186,6 @@ const ItemHelp = ({ question, answer }) => (
     </View>
   </View>
 );
-
 const ItemInvoice = ({ no, date, doc }) => (
   <View
     style={{ backgroundColor: "#F3F7FE", borderRadius: 5, marginBottom: 15 }}
@@ -249,7 +251,271 @@ const ItemInvoice = ({ no, date, doc }) => (
     </View>
   </View>
 );
+const ItemFamily = ({
+  name,
+  relation,
+  dob,
+  gender,
+  edit,
+  active,
+  mob,
+  otherdet,
+}) => (
+  <View>
+    <View
+      style={[
+        {
+          backgroundColor: "#F3F7FE",
+          borderRadius: 5,
+          width: "100%",
+          flexDirection: "row",
+          justifyContent: "space-between",
+          padding: 15,
+          marginTop: 10,
+        },
+        { borderWidth: 1.5, borderColor: "#2B8ADA" },
+      ]}
+    >
+      <Text style={[{ flex: 0.6, fontWeight: "bold" }, { color: "#2B8ADA" }]}>
+        {name}
+      </Text>
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-evenly",
+          flex: 0.3,
+          alignSelf: "center",
+        }}
+      >
+        <TouchableOpacity style={{}} onPress={() => {}}>
+          <Image style={{ height: 15, width: 15 }} source={editicon} />
+        </TouchableOpacity>
+        <TouchableOpacity style={{ marginHorizontal: 10 }} onPress={() => {}}>
+          <Image style={{ height: 15, width: 15 }} source={trash} />
+        </TouchableOpacity>
+        <TouchableOpacity style={{}} onPress={() => {}}>
+          <Image
+            style={{ height: 15, width: 15 }}
+            source={active !== "true" ? right : down}
+          />
+        </TouchableOpacity>
+      </View>
+    </View>
+    {/* Details */}
+    {active === "true" ? (
+      <View
+        style={{
+          borderWidth: 1,
+          borderTopWidth: 0,
+          borderColor: "#2B8ADA",
+          flexDirection: "column",
+          width: "100%",
+          marginBottom: 10,
+          borderBottomRightRadius: 5,
+          borderBottomLeftRadius: 5,
+          top: -3,
+        }}
+      >
+        {/* Relation */}
+        <View
+          style={{
+            backgroundColor: "#D0E0FC",
+            width: "95%",
+            alignSelf: "center",
+            marginVertical: 10,
+            padding: 5,
+            borderRadius: 5,
+          }}
+        >
+          <TextInput
+            style={{
+              backgroundColor: "#D0E0FC",
+              borderRadius: 5,
+              alignSelf: "center",
+              width: "90%",
+            }}
+            placeholder="Relation"
+            value={relation}
+          />
+        </View>
+        {/* Date of Birth */}
+        <View
+          style={{
+            backgroundColor: "#D0E0FC",
+            width: "95%",
+            alignSelf: "center",
+            marginVertical: 10,
+            padding: 5,
+            borderRadius: 5,
+            flexDirection: "row",
+            justifyContent: "space-evenly",
+          }}
+        >
+          <TextInput
+            style={{
+              backgroundColor: "#D0E0FC",
+              borderRadius: 5,
+              alignSelf: "center",
+              width: "80%",
+            }}
+            placeholder="Date Of Birth"
+            value={dob}
+          />
+          <FAIcon
+            name="calendar-alt"
+            size={20}
+            color={"gray"}
+            style={{ alignSelf: "center" }}
+          />
+        </View>
+        {/* Gender */}
+        <View
+          style={{
+            backgroundColor: "#D0E0FC",
+            width: "95%",
+            alignSelf: "center",
+            marginVertical: 10,
+            padding: 5,
+            borderRadius: 5,
+          }}
+        >
+          <TextInput
+            style={{
+              backgroundColor: "#D0E0FC",
+              borderRadius: 5,
+              alignSelf: "center",
+              width: "90%",
+            }}
+            placeholder="Gender"
+            value={gender}
+          />
+          {/* <SelectList
+                          defaultOption={title}
+                          placeholder={title}
+                          setSelected={(val) => setTitle(val)}
+                          data={dataTitle}
+                          save="value"
+                          boxStyles={[
+                            {
+                              backgroundColor: "white",
+                              borderWidth: 0,
+                              backgroundColor: "#d0e0fc",
+                            },
+                            GenInfoEdit ? { backgroundColor: "#E8F0FE" } : null,
+                          ]}
+                          dropdownStyles={{ backgroundColor: "white" }}
+                          dropdownTextStyles={{
+                            color: "#2b8ada",
+                            fontWeight: "bold",
+                          }}
+                          badgeStyles={{ backgroundColor: "#2b8ada" }}
+                        /> */}
+        </View>
+        {/* Mobile Number */}
+        <View
+          style={{
+            backgroundColor: "#D0E0FC",
+            width: "95%",
+            alignSelf: "center",
+            marginVertical: 10,
+            padding: 5,
+            borderRadius: 5,
+          }}
+        >
+          <TextInput
+            style={{
+              backgroundColor: "#D0E0FC",
+              borderRadius: 5,
+              alignSelf: "center",
+              width: "90%",
+            }}
+            placeholder="Mobile No"
+            value={mob}
+          />
+        </View>
 
+        {/* Other Details */}
+        <View
+          style={{
+            width: "95%",
+            alignSelf: "center",
+            flexDirection: "column",
+          }}
+        >
+          <Text
+            style={{
+              fontWeight: "bold",
+              fontSize: 15,
+              paddingHorizontal: 10,
+            }}
+          >
+            Other Details:
+          </Text>
+          <View
+            style={{
+              flexDirection: "column",
+              marginVertical: 10,
+            }}
+          >
+            <View
+              style={{
+                flexDirection: "row",
+                alignSelf: "center",
+              }}
+            >
+              <View style={{ flex: 0.45, marginRight: "5%" }}>
+                <Text style={[styles.inputLabel, { marginTop: 0 }]}>
+                  Blood Group
+                </Text>
+                <TextInput
+                  style={[styles.textInput, { backgroundColor: "#E8F0FE" }]}
+                  placeholderTextColor={"black"}
+                  value={otherdet.Gender}
+                  keyboardType={"number-pad"}
+                ></TextInput>
+              </View>
+              <View style={{ flex: 0.45 }}>
+                <Text style={[styles.inputLabel, { marginTop: 0 }]}>
+                  Occupation
+                </Text>
+                <TextInput
+                  style={[styles.textInput, { backgroundColor: "#E8F0FE" }]}
+                  placeholderTextColor={"black"}
+                  value={otherdet.Occupation}
+                ></TextInput>
+              </View>
+            </View>
+            <View
+              style={{
+                flexDirection: "row",
+                alignSelf: "center",
+              }}
+            >
+              <View style={{ flex: 0.45, marginRight: "5%" }}>
+                <Text style={styles.inputLabel}>Height</Text>
+                <TextInput
+                  style={[styles.textInput, { backgroundColor: "#E8F0FE" }]}
+                  placeholderTextColor={"black"}
+                  value={otherdet.Height}
+                  keyboardType={"number-pad"}
+                ></TextInput>
+              </View>
+              <View style={{ flex: 0.45 }}>
+                <Text style={styles.inputLabel}>Weight</Text>
+                <TextInput
+                  style={[styles.textInput, { backgroundColor: "#E8F0FE" }]}
+                  placeholderTextColor={"black"}
+                  value={otherdet.Weight}
+                  keyboardType={"number-pad"}
+                ></TextInput>
+              </View>
+            </View>
+          </View>
+        </View>
+      </View>
+    ) : null}
+  </View>
+);
 function PatientProfile({ navigation }) {
   const [HelpModal, setHelpModal] = useState(false);
   //other details
@@ -263,21 +529,29 @@ function PatientProfile({ navigation }) {
   const [invoiceModal, setinvoiceModal] = useState(false);
   //family modal
   const [familyModal, setfamilyModal] = useState(false);
-  const [familyMembers, setfamilyMembers] = useState([]);
-
+  const [familyMembers, setfamilyMembers] = useState(dataFamily);
   const logout = () => {
     console.log("Logging out");
     navigation.navigate("Login/SignUp");
   };
-
   const renderInvoice = ({ item }) => (
     <ItemInvoice no={item.no} date={item.date} doc={item.doc} />
   );
-
   const renderHelp = ({ item }) => (
     <ItemHelp question={item.question} answer={item.answer} />
   );
-
+  const renderFamily = ({ item }) => (
+    <ItemFamily
+      name={item.name}
+      relation={item.relation}
+      dob={item.dob}
+      gender={item.gender}
+      mob={item.mob}
+      otherdet={item.otherdet}
+      edit={item.edit}
+      active={item.active}
+    />
+  );
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -365,7 +639,6 @@ function PatientProfile({ navigation }) {
                 </Text>
               </View>
             </View>
-
             {/* Middle White Box */}
             <View style={styles.whiteBox}>
               <View
@@ -523,7 +796,6 @@ function PatientProfile({ navigation }) {
               }}
               onPress={logout}
             />
-
             {/* Notification Modal */}
             {/* Help & Support */}
             {HelpModal ? (
@@ -965,6 +1237,7 @@ function PatientProfile({ navigation }) {
                         justifyContent: "center",
                         alignSelf: "center",
                         padding: 15,
+                        height: 400,
                       },
                     ]}
                   >
@@ -998,173 +1271,13 @@ function PatientProfile({ navigation }) {
                         onPress={() => setfamilyModal(false)}
                       />
                     </View>
-
-                    {/* Label */}
-                    <View
-                      style={{
-                        backgroundColor: "#F3F7FE",
-                        borderRadius: 5,
-                        width: "100%",
-                        flexDirection: "row",
-                        justifyContent: "space-between",
-                        padding: 15,
-                        marginBottom: 10,
-                      }}
-                    >
-                      <Text style={{ flex: 0.6 }}>Ramesh</Text>
-                      <View
-                        style={{
-                          flexDirection: "row",
-                          justifyContent: "space-evenly",
-                          flex: 0.3,
-                          alignSelf: "center",
-                        }}
-                      >
-                        <TouchableOpacity style={{}} onPress={() => {}}>
-                          <Image
-                            style={{ height: 15, width: 15 }}
-                            source={edit}
-                          />
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                          style={{ marginHorizontal: 10 }}
-                          onPress={() => {}}
-                        >
-                          <Image
-                            style={{ height: 15, width: 15 }}
-                            source={trash}
-                          />
-                        </TouchableOpacity>
-                        <TouchableOpacity style={{}} onPress={() => {}}>
-                          <Image
-                            style={{ height: 15, width: 15 }}
-                            source={right}
-                          />
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-                    {/* Details */}
-                    <View
-                      style={{
-                        borderWidth: 1,
-                        borderTopWidth: 0,
-                        borderColor: "#2B8ADA",
-                        flexDirection: "column",
-                        width: "100%",
-                        marginBottom: 10,
-                        borderBottomRightRadius: 5,
-                        borderBottomLeftRadius: 5,
-                      }}
-                    >
-                      <View
-                        style={{
-                          backgroundColor: "#D0E0FC",
-                          width: "95%",
-                          alignSelf: "center",
-                          marginVertical: 10,
-                          padding: 5,
-                          borderRadius: 5,
-                        }}
-                      >
-                        <TextInput
-                          style={{
-                            backgroundColor: "#D0E0FC",
-                            borderRadius: 5,
-                            alignSelf: "center",
-                            width: "90%",
-                          }}
-                          placeholder="Relation"
-                        />
-                      </View>
-                      <View
-                        style={{
-                          backgroundColor: "#D0E0FC",
-                          width: "95%",
-                          alignSelf: "center",
-                          marginVertical: 10,
-                          padding: 5,
-                          borderRadius: 5,
-                          flexDirection: "row",
-                          justifyContent: "space-evenly",
-                        }}
-                      >
-                        <TextInput
-                          style={{
-                            backgroundColor: "#D0E0FC",
-                            borderRadius: 5,
-                            alignSelf: "center",
-                            width: "80%",
-                          }}
-                          placeholder="Date Of Birth"
-                        />
-                        <FAIcon
-                          name="calendar-alt"
-                          size={20}
-                          color={"gray"}
-                          style={{ alignSelf: "center" }}
-                        />
-                      </View>
-                      <View
-                        style={{
-                          backgroundColor: "#D0E0FC",
-                          width: "95%",
-                          alignSelf: "center",
-                          marginVertical: 10,
-                          padding: 5,
-                          borderRadius: 5,
-                        }}
-                      >
-                        <TextInput
-                          style={{
-                            backgroundColor: "#D0E0FC",
-                            borderRadius: 5,
-                            alignSelf: "center",
-                            width: "90%",
-                          }}
-                          placeholder="Gender"
-                        />
-                        {/* <SelectList
-                          defaultOption={title}
-                          placeholder={title}
-                          setSelected={(val) => setTitle(val)}
-                          data={dataTitle}
-                          save="value"
-                          boxStyles={[
-                            {
-                              backgroundColor: "white",
-                              borderWidth: 0,
-                              backgroundColor: "#d0e0fc",
-                            },
-                            GenInfoEdit ? { backgroundColor: "#E8F0FE" } : null,
-                          ]}
-                          dropdownStyles={{ backgroundColor: "white" }}
-                          dropdownTextStyles={{
-                            color: "#2b8ada",
-                            fontWeight: "bold",
-                          }}
-                          badgeStyles={{ backgroundColor: "#2b8ada" }}
-                        /> */}
-                      </View>
-                      <View
-                        style={{
-                          backgroundColor: "#D0E0FC",
-                          width: "95%",
-                          alignSelf: "center",
-                          marginVertical: 10,
-                          padding: 5,
-                          borderRadius: 5,
-                        }}
-                      >
-                        <TextInput
-                          style={{
-                            backgroundColor: "#D0E0FC",
-                            borderRadius: 5,
-                            alignSelf: "center",
-                            width: "90%",
-                          }}
-                          placeholder="Mobile No"
-                        />
-                      </View>
+                    <View style={{ height: 270 }}>
+                      <FlatList
+                        data={familyMembers}
+                        keyExtractor={(item) => item.relation}
+                        renderItem={renderFamily}
+                        scrollEnabled={true}
+                      />
                     </View>
 
                     {/* Buttons */}
@@ -1174,6 +1287,7 @@ function PatientProfile({ navigation }) {
                         flexDirection: "row",
                         alignSelf: "center",
                         width: "100%",
+                        marginVertical: 10,
                       }}
                     >
                       <CustomButton
@@ -1213,7 +1327,6 @@ function PatientProfile({ navigation }) {
     </KeyboardAvoidingView>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -1332,5 +1445,4 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
 });
-
 export default PatientProfile;

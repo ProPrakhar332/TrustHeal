@@ -20,7 +20,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import Header from "../Components/Header";
 import HeaderPatient from "../Components/HeaderPatient";
 import FAIcons from "react-native-vector-icons/FontAwesome5";
-function BasicDesign({ navigation }) {
+function SelectSlotsE({ navigation }) {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -41,7 +41,9 @@ function BasicDesign({ navigation }) {
             backgroundColor: "#e8f0fe",
           }}
           showsVerticalScrollIndicator={false}
-        ></ScrollView>
+        >
+          <HeaderPatient showMenu={false} title="Select Slots" />
+        </ScrollView>
       </SafeAreaView>
     </KeyboardAvoidingView>
   );
@@ -57,4 +59,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default BasicDesign;
+export default SelectSlotsE;

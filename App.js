@@ -32,7 +32,12 @@ import MyAppointment from "./assets/Screens/MyAppointments";
 import PatientHealthRecords from "./assets/Screens/PatientHealthRecords";
 import PatientProfile from "./assets/Screens/PatientProfile";
 import DoctorHome from "./assets/Screens/DoctorHome";
+import DoctorDetails from "./assets/Screens/DoctorDetails";
+import PatientPayment from "./assets/Screens/PatientPayment";
 import Support from "./assets/Screens/Support";
+import SelectSlotsP from "./assets/Screens/SelectSlotsP";
+import SelectSlotsE from "./assets/Screens/SelectSlotsE";
+import ConfirmBooking from "./assets/Screens/ConfirmBooking";
 
 import SupportPatient from "./assets/Screens/SupportPatient";
 import DoctorRegistration2 from "./assets/Screens/DoctorRegistrationStep2";
@@ -402,6 +407,32 @@ function App() {
           <Stack.Screen
             name="DoctorHome"
             component={DoctorTabNavigator}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="DoctorDetails"
+            component={DoctorDetails}
+            options={{ headerShown: false }}
+          />
+
+          <Stack.Screen
+            name="PatientPayment"
+            component={PatientPayment}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="ConfirmBooking"
+            component={ConfirmBooking}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="SelectSlotsE"
+            component={SelectSlotsE}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="SelectSlotsP"
+            component={SelectSlotsP}
             options={{ headerShown: false }}
           />
           <Stack.Screen

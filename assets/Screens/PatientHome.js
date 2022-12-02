@@ -303,173 +303,174 @@ const ItemDoctors = ({ name, img, spl, exp, deg }) => (
     />
   </View>
 );
-const ItemRecent = ({
-  name,
-  img,
-  spl,
-  exp,
-  deg,
-  date,
-  mode,
-  time,
-  loc,
-  pres,
-}) => (
-  <View
-    style={{
-      backgroundColor: "#E8F0FE",
-      borderRadius: 10,
-      padding: 5,
-      margin: 5,
-      flexDirection: "column",
-      width: 350,
-      height: 210,
-    }}
-  >
-    {/* UpperHalf */}
-    <View
-      style={{
-        flexDirection: "row",
-        borderBottomColor: "gray",
-        borderBottomWidth: 1,
-      }}
-    >
-      {/* Image */}
-      <View
-        style={{
-          width: 80,
-          flexDirection: "column",
-          alignSelf: "center",
-          margin: 5,
-        }}
-      >
-        <Image
-          source={img}
-          style={{
-            width: 80,
-            height: 150,
-            borderRadius: 10,
-            alignSelf: "center",
-          }}
-        />
-      </View>
-      {/* Details */}
-      <View style={{ width: 250, justifyContent: "space-evenly" }}>
-        <Text style={{ fontSize: 18, fontWeight: "bold" }}>{name}</Text>
-        <Text style={{ fontSize: 12, color: "gray" }}>{spl}</Text>
+// const ItemRecent = ({
+//   name,
+//   img,
+//   spl,
+//   exp,
+//   deg,
+//   date,
+//   mode,
+//   time,
+//   loc,
+//   pres,
+// }) => (
+//   <View
+//     style={{
+//       backgroundColor: "#E8F0FE",
+//       borderRadius: 10,
+//       padding: 5,
+//       margin: 5,
+//       flexDirection: "column",
+//       width: 350,
+//       height: 210,
+//     }}
+//   >
+//     {/* UpperHalf */}
+//     <View
+//       style={{
+//         flexDirection: "row",
+//         borderBottomColor: "gray",
+//         borderBottomWidth: 1,
+//       }}
+//     >
+//       {/* Image */}
+//       <View
+//         style={{
+//           width: 80,
+//           flexDirection: "column",
+//           alignSelf: "center",
+//           margin: 5,
+//         }}
+//         onPress={() => navigation.navigate("DoctorDetails")}
+//       >
+//         <Image
+//           source={img}
+//           style={{
+//             width: 80,
+//             height: 150,
+//             borderRadius: 10,
+//             alignSelf: "center",
+//           }}
+//         />
+//       </View>
+//       {/* Details */}
+//       <View style={{ width: 250, justifyContent: "space-evenly" }}>
+//         <Text style={{ fontSize: 18, fontWeight: "bold" }}>{name}</Text>
+//         <Text style={{ fontSize: 12, color: "gray" }}>{spl}</Text>
 
-        <Text style={{ fontSize: 12, fontWeight: "bold" }}>{exp}</Text>
-        <Text style={{ fontSize: 12, fontWeight: "bold" }}>{deg}</Text>
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-evenly",
-          }}
-        >
-          <View
-            style={{
-              flex: 1,
-              flexDirection: "column",
-              justifyContent: "space-between",
-            }}
-          >
-            <Text style={{ fontSize: 10, fontWeight: "bold" }}>Date</Text>
-            <View
-              style={{
-                flexDirection: "row",
-              }}
-            >
-              <FAIcons name="calendar-alt" style={{ marginRight: 5 }} />
-              <Text style={{ fontSize: 10 }}> {date}</Text>
-            </View>
-          </View>
+//         <Text style={{ fontSize: 12, fontWeight: "bold" }}>{exp}</Text>
+//         <Text style={{ fontSize: 12, fontWeight: "bold" }}>{deg}</Text>
+//         <View
+//           style={{
+//             flexDirection: "row",
+//             justifyContent: "space-evenly",
+//           }}
+//         >
+//           <View
+//             style={{
+//               flex: 1,
+//               flexDirection: "column",
+//               justifyContent: "space-between",
+//             }}
+//           >
+//             <Text style={{ fontSize: 10, fontWeight: "bold" }}>Date</Text>
+//             <View
+//               style={{
+//                 flexDirection: "row",
+//               }}
+//             >
+//               <FAIcons name="calendar-alt" style={{ marginRight: 5 }} />
+//               <Text style={{ fontSize: 10 }}> {date}</Text>
+//             </View>
+//           </View>
 
-          <View
-            style={{
-              flex: 1,
-              flexDirection: "column",
-              justifyContent: "space-between",
-              marginRight: 5,
-            }}
-          >
-            <Text style={{ fontSize: 10, fontWeight: "bold" }}>Mode</Text>
-            <View
-              style={{
-                flexDirection: "row",
-              }}
-            >
-              <FAIcons
-                name={mode === "P-Consultation" ? "user-alt" : "video"}
-                style={{ marginRight: 5 }}
-              />
-              <Text style={{ fontSize: 10 }}> {mode}</Text>
-            </View>
-          </View>
+//           <View
+//             style={{
+//               flex: 1,
+//               flexDirection: "column",
+//               justifyContent: "space-between",
+//               marginRight: 5,
+//             }}
+//           >
+//             <Text style={{ fontSize: 10, fontWeight: "bold" }}>Mode</Text>
+//             <View
+//               style={{
+//                 flexDirection: "row",
+//               }}
+//             >
+//               <FAIcons
+//                 name={mode === "P-Consultation" ? "user-alt" : "video"}
+//                 style={{ marginRight: 5 }}
+//               />
+//               <Text style={{ fontSize: 10 }}> {mode}</Text>
+//             </View>
+//           </View>
 
-          <View
-            style={{
-              flex: 1,
-              flexDirection: "column",
-              justifyContent: "space-between",
-              marginLeft: 5,
-            }}
-          >
-            <Text style={{ fontSize: 10, fontWeight: "bold" }}>Time</Text>
-            <View
-              style={{
-                flexDirection: "row",
-              }}
-            >
-              <FAIcons name="clock" style={{ marginRight: 5 }} />
-              <Text style={{ fontSize: 10 }}> {time}</Text>
-            </View>
-          </View>
-        </View>
-      </View>
-    </View>
-    {/* LowerHalf */}
-    <View style={{ flexDirection: "row", alignSelf: "center" }}>
-      {/* Location */}
-      <View style={{ flexDirection: "row", padding: 10 }}>
-        <IonIcons name="location" style={{ alignSelf: "center" }} />
-        <Text style={{ alignSelf: "center", fontSize: 12 }}>{loc}</Text>
-      </View>
-      {/* Button Re-consultation */}
-      <View style={{ flexDirection: "row" }}>
-        <CustomButton
-          text="Re-Consult"
-          textstyle={{
-            color: "white",
-            fontSize: 12,
-            fontWeight: "bold",
-          }}
-          style={{
-            backgroundColor: "#2B8ADA",
-            borderRadius: 5,
-            padding: 20,
-            paddingVertical: 5,
-            alignSelf: "center",
-          }}
-        />
-      </View>
-      {/* Button Prescription */}
-      <TouchableOpacity style={{ flexDirection: "row", padding: 10 }}>
-        <FAIcons
-          name="prescription"
-          size={12}
-          style={{
-            alignSelf: "center",
-            color: "#2B8ADA",
-            borderColor: "#2B8ADA",
-            borderWidth: 1,
-            padding: 5,
-            borderRadius: 5,
-          }}
-        />
-      </TouchableOpacity>
-    </View>
-  </View>
-);
+//           <View
+//             style={{
+//               flex: 1,
+//               flexDirection: "column",
+//               justifyContent: "space-between",
+//               marginLeft: 5,
+//             }}
+//           >
+//             <Text style={{ fontSize: 10, fontWeight: "bold" }}>Time</Text>
+//             <View
+//               style={{
+//                 flexDirection: "row",
+//               }}
+//             >
+//               <FAIcons name="clock" style={{ marginRight: 5 }} />
+//               <Text style={{ fontSize: 10 }}> {time}</Text>
+//             </View>
+//           </View>
+//         </View>
+//       </View>
+//     </View>
+//     {/* LowerHalf */}
+//     <View style={{ flexDirection: "row", alignSelf: "center" }}>
+//       {/* Location */}
+//       <View style={{ flexDirection: "row", padding: 10 }}>
+//         <IonIcons name="location" style={{ alignSelf: "center" }} />
+//         <Text style={{ alignSelf: "center", fontSize: 12 }}>{loc}</Text>
+//       </View>
+//       {/* Button Re-consultation */}
+//       <View style={{ flexDirection: "row" }}>
+//         <CustomButton
+//           text="Re-Consult"
+//           textstyle={{
+//             color: "white",
+//             fontSize: 12,
+//             fontWeight: "bold",
+//           }}
+//           style={{
+//             backgroundColor: "#2B8ADA",
+//             borderRadius: 5,
+//             padding: 20,
+//             paddingVertical: 5,
+//             alignSelf: "center",
+//           }}
+//         />
+//       </View>
+//       {/* Button Prescription */}
+//       <TouchableOpacity style={{ flexDirection: "row", padding: 10 }}>
+//         <FAIcons
+//           name="prescription"
+//           size={12}
+//           style={{
+//             alignSelf: "center",
+//             color: "#2B8ADA",
+//             borderColor: "#2B8ADA",
+//             borderWidth: 1,
+//             padding: 5,
+//             borderRadius: 5,
+//           }}
+//         />
+//       </TouchableOpacity>
+//     </View>
+//   </View>
+// );
 
 const ItemUpcoming = ({ name, img, spl, date, mode, time }) => (
   <TouchableOpacity
@@ -537,18 +538,163 @@ const ItemUpcoming = ({ name, img, spl, date, mode, time }) => (
 
 function PatientHome({ navigation }) {
   const renderRecentConsultations = ({ item }) => (
-    <ItemRecent
-      name={item.name}
-      img={item.img}
-      spl={item.spl}
-      exp={item.exp}
-      deg={item.deg}
-      date={item.date}
-      mode={item.mode}
-      time={item.time}
-      loc={item.loc}
-      pres={item.pres}
-    />
+    <View
+      style={{
+        backgroundColor: "#E8F0FE",
+        borderRadius: 10,
+        padding: 5,
+        margin: 5,
+        flexDirection: "column",
+        width: 350,
+        height: 210,
+      }}
+    >
+      {/* UpperHalf */}
+      <View
+        style={{
+          flexDirection: "row",
+          borderBottomColor: "gray",
+          borderBottomWidth: 1,
+        }}
+      >
+        {/* Image */}
+        <TouchableOpacity
+          style={{
+            width: 80,
+            flexDirection: "column",
+            alignSelf: "center",
+            margin: 5,
+          }}
+          onPress={() => {
+            navigation.navigate("DoctorDetails");
+          }}
+        >
+          <Image
+            source={item.img}
+            style={{
+              width: 80,
+              height: 150,
+              borderRadius: 10,
+              alignSelf: "center",
+            }}
+          />
+        </TouchableOpacity>
+        {/* Details */}
+        <View style={{ width: 250, justifyContent: "space-evenly" }}>
+          <Text style={{ fontSize: 18, fontWeight: "bold" }}>{item.name}</Text>
+          <Text style={{ fontSize: 12, color: "gray" }}>{item.spl}</Text>
+
+          <Text style={{ fontSize: 12, fontWeight: "bold" }}>{item.exp}</Text>
+          <Text style={{ fontSize: 12, fontWeight: "bold" }}>{item.deg}</Text>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-evenly",
+            }}
+          >
+            <View
+              style={{
+                flex: 1,
+                flexDirection: "column",
+                justifyContent: "space-between",
+              }}
+            >
+              <Text style={{ fontSize: 10, fontWeight: "bold" }}>Date</Text>
+              <View
+                style={{
+                  flexDirection: "row",
+                }}
+              >
+                <FAIcons name="calendar-alt" style={{ marginRight: 5 }} />
+                <Text style={{ fontSize: 10 }}> {item.date}</Text>
+              </View>
+            </View>
+
+            <View
+              style={{
+                flex: 1,
+                flexDirection: "column",
+                justifyContent: "space-between",
+                marginRight: 5,
+              }}
+            >
+              <Text style={{ fontSize: 10, fontWeight: "bold" }}>Mode</Text>
+              <View
+                style={{
+                  flexDirection: "row",
+                }}
+              >
+                <FAIcons
+                  name={item.mode === "P-Consultation" ? "user-alt" : "video"}
+                  style={{ marginRight: 5 }}
+                />
+                <Text style={{ fontSize: 10 }}> {item.mode}</Text>
+              </View>
+            </View>
+
+            <View
+              style={{
+                flex: 1,
+                flexDirection: "column",
+                justifyContent: "space-between",
+                marginLeft: 5,
+              }}
+            >
+              <Text style={{ fontSize: 10, fontWeight: "bold" }}>Time</Text>
+              <View
+                style={{
+                  flexDirection: "row",
+                }}
+              >
+                <FAIcons name="clock" style={{ marginRight: 5 }} />
+                <Text style={{ fontSize: 10 }}> {item.time}</Text>
+              </View>
+            </View>
+          </View>
+        </View>
+      </View>
+      {/* LowerHalf */}
+      <View style={{ flexDirection: "row", alignSelf: "center" }}>
+        {/* Location */}
+        <View style={{ flexDirection: "row", padding: 10 }}>
+          <IonIcons name="location" style={{ alignSelf: "center" }} />
+          <Text style={{ alignSelf: "center", fontSize: 12 }}>{item.loc}</Text>
+        </View>
+        {/* Button Re-consultation */}
+        <View style={{ flexDirection: "row" }}>
+          <CustomButton
+            text="Re-Consult"
+            textstyle={{
+              color: "white",
+              fontSize: 12,
+              fontWeight: "bold",
+            }}
+            style={{
+              backgroundColor: "#2B8ADA",
+              borderRadius: 5,
+              padding: 20,
+              paddingVertical: 5,
+              alignSelf: "center",
+            }}
+          />
+        </View>
+        {/* Button Prescription */}
+        <TouchableOpacity style={{ flexDirection: "row", padding: 10 }}>
+          <FAIcons
+            name="prescription"
+            size={12}
+            style={{
+              alignSelf: "center",
+              color: "#2B8ADA",
+              borderColor: "#2B8ADA",
+              borderWidth: 1,
+              padding: 5,
+              borderRadius: 5,
+            }}
+          />
+        </TouchableOpacity>
+      </View>
+    </View>
   );
   const renderUpcomingConsultations = ({ item }) => (
     <ItemUpcoming
