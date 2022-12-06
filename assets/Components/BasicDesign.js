@@ -15,6 +15,8 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
 } from "react-native";
+import { LogBox } from "react-native";
+LogBox.ignoreLogs(["VirtualizedLists should never be nested"]);
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Header from "../Components/Header";
@@ -41,6 +43,7 @@ function BasicDesign({ navigation }) {
             backgroundColor: "#e8f0fe",
           }}
           showsVerticalScrollIndicator={false}
+          nestedScrollEnabled={true}
         ></ScrollView>
       </SafeAreaView>
     </KeyboardAvoidingView>

@@ -13,6 +13,8 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
 } from "react-native";
+import { LogBox } from "react-native";
+LogBox.ignoreLogs(["VirtualizedLists should never be nested"]);
 import { StyleSheet } from "react-native";
 import HeaderPatient from "../Components/HeaderPatient";
 import FAIcons from "react-native-vector-icons/FontAwesome5";
@@ -754,6 +756,7 @@ function PatientHome({ navigation }) {
             backgroundColor: "#e8f0fe",
           }}
           showsVerticalScrollIndicator={false}
+          nestedScrollEnabled={true}
         >
           <HeaderPatient showMenu={true} />
           {/* slideshow */}

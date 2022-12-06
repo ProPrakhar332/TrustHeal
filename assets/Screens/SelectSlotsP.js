@@ -23,6 +23,7 @@ import FAIcons from "react-native-vector-icons/FontAwesome5";
 
 import doctor_m from "../Resources/doctor_m.png";
 import { SelectList } from "react-native-dropdown-select-list";
+import CustomButton from "../Components/CustomButton";
 
 const data = {
   name: "Dr. Imran Singh",
@@ -83,59 +84,96 @@ const DATA = [
   {
     date: "19/09/2022",
     day: "Monday",
+    slots: [
+      "06:45 AM",
+      "07:15 AM",
+      "08:45 AM",
+      "09:30 AM",
+      "09:50 AM",
+      "10:30 AM",
+      "11:00 AM",
+      "11:45 AM",
+      "12:45 AM",
+    ],
   },
   {
     date: "20/09/2022",
     day: "Tuesday",
+    slots: [
+      "10:00 AM",
+      "11:00 AM",
+      "12:00 PM",
+      "01:00 PM",
+      "02:00 PM",
+      "03:00 PM",
+    ],
   },
   {
     date: "21/09/2022",
     day: "Wednesday",
+    slots: [
+      "06:45 PM",
+      "07:15 PM",
+      "08:45 PM",
+      "09:30 PM",
+      "09:50 PM",
+      "10:30 PM",
+      "11:00 PM",
+      "11:45 PM",
+    ],
   },
   {
     date: "22/09/2022",
     day: "Thursday",
+    slots: ["08:00 AM", "08:30 AM"],
   },
   {
     date: "23/09/2022",
     day: "Friday",
+    slots: [
+      "12:00 PM",
+      "12:30 PM",
+      "01:00 PM",
+      "01:30 PM",
+      "02:00 PM",
+      "02:30 PM",
+    ],
   },
 ];
-const Item = ({ item, onPress, backgroundColor, textColor }) => (
-  <TouchableOpacity
-    style={{
-      backgroundColor: backgroundColor,
-      padding: 10,
-      margin: 3,
-      borderRadius: 5,
-      flexDirection: "column",
-      alignItems: "center",
-    }}
-    onPress={onPress}
-  >
-    <Text style={{ fontSize: 9, color: textColor }}>{item.date}</Text>
-    <Text style={{ fontSize: 9, color: textColor }}>{item.day}</Text>
-  </TouchableOpacity>
-);
+
 function SelectSlotsP({ navigation }) {
   const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedSlotTime, setSelectedSlotTime] = useState(null);
 
   const renderItem = ({ item }) => {
     const backgroundColor = item.date === selectedDate ? "#2B8ADA" : "white";
     const color = item.date === selectedDate ? "white" : "black";
 
     return (
-      <Item
-        item={item}
-        onPress={() => setSelectedDate(item.date)}
-        backgroundColor={{ backgroundColor }}
-        textColor={{ color }}
-      />
+      <TouchableOpacity
+        style={{
+          backgroundColor: backgroundColor,
+          padding: 10,
+          margin: 3,
+          borderRadius: 5,
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+        onPress={() => {
+          setSelectedDate(item.date);
+          setslots(item.slots);
+          setSelectedSlotTime("");
+        }}
+      >
+        <Text style={{ fontSize: 9, color: color }}>{item.date}</Text>
+        <Text style={{ fontSize: 9, color: color }}>{item.day}</Text>
+      </TouchableOpacity>
     );
   };
 
   const [clinicName, setclinicName] = useState("");
   const [clinicAddress, setclinicAddress] = useState("");
+  const [slots, setslots] = useState([]);
 
   const setAddress = () => {
     data.doctorClinicDetailsDTOs.forEach((item) => {
@@ -144,6 +182,8 @@ function SelectSlotsP({ navigation }) {
       }
     });
   };
+
+  const layout = useWindowDimensions();
 
   return (
     <KeyboardAvoidingView
@@ -264,7 +304,28 @@ function SelectSlotsP({ navigation }) {
           </View>
 
           {/* Date and Slots */}
-          <View style={{ flex: 1, alignSelf: "center" }}>
+
+          <Text
+            style={{
+              marginTop: 10,
+              width: "90%",
+              alignSelf: "center",
+              textAlign: "left",
+              fontSize: 15,
+            }}
+          >
+            Select Date :-
+          </Text>
+
+          <View
+            style={{
+              flex: 1,
+              alignSelf: "center",
+              width: "90%",
+              flexDirection: "column",
+              marginTop: 10,
+            }}
+          >
             <FlatList
               data={DATA}
               renderItem={renderItem}
@@ -273,7 +334,96 @@ function SelectSlotsP({ navigation }) {
               horizontal={true}
             />
           </View>
+          {slots ? (
+            <Text
+              style={{
+                marginTop: 10,
+                width: "90%",
+                alignSelf: "center",
+                textAlign: "left",
+                fontSize: 15,
+              }}
+            >
+              Select Time :-
+            </Text>
+          ) : null}
+          <View
+            style={{
+              flexWrap: "wrap",
+              height: Math.ceil(slots.length / 4) * 50,
+              flexDirection: "row",
+              width: "90%",
+              alignSelf: "center",
+            }}
+          >
+            {slots
+              ? slots.map((index) => {
+                  return (
+                    <TouchableOpacity
+                      key={index}
+                      style={[
+                        {
+                          margin: 6,
+                          borderRadius: 5,
+                          padding: 10,
+                          alignSelf: "center",
+                        },
+                        index === selectedDate
+                          ? { backgroundColor: "#2B8ADA" }
+                          : { backgroundColor: "white" },
+                      ]}
+                      onPress={() => setSelectedSlotTime(index)}
+                    >
+                      <Text
+                        style={[
+                          {
+                            fontSize: 12,
+                          },
+                          index === selectedDate
+                            ? { color: "white" }
+                            : { color: "black" },
+                        ]}
+                      >
+                        {index}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })
+              : null}
+          </View>
         </ScrollView>
+        <View
+          style={{
+            backgroundColor: "#2B8ADA",
+            height: 45,
+            flexDirection: "row",
+          }}
+        >
+          <CustomButton
+            text={"PROCEED"}
+            textstyle={{ color: "#2B8ADA", fontSize: 12, fontWeight: "bold" }}
+            style={{
+              position: "absolute",
+              right: 20,
+              alignSelf: "center",
+              backgroundColor: "white",
+              width: 100,
+              padding: 3,
+            }}
+            onPress={() => {
+              console.log(clinicName);
+              console.log(clinicAddress);
+              console.log(selectedSlotTime);
+              if (
+                clinicName !== "" &&
+                clinicAddress !== "" &&
+                selectedSlotTime !== ""
+              )
+                navigation.navigate("ConfirmBooking");
+              else Alert.alert("Pls select slots");
+            }}
+          />
+        </View>
       </SafeAreaView>
     </KeyboardAvoidingView>
   );

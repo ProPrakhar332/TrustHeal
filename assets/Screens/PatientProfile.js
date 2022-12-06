@@ -389,27 +389,6 @@ const ItemFamily = ({
             placeholder="Gender"
             value={gender}
           />
-          {/* <SelectList
-                          defaultOption={title}
-                          placeholder={title}
-                          setSelected={(val) => setTitle(val)}
-                          data={dataTitle}
-                          save="value"
-                          boxStyles={[
-                            {
-                              backgroundColor: "white",
-                              borderWidth: 0,
-                              backgroundColor: "#d0e0fc",
-                            },
-                            GenInfoEdit ? { backgroundColor: "#E8F0FE" } : null,
-                          ]}
-                          dropdownStyles={{ backgroundColor: "white" }}
-                          dropdownTextStyles={{
-                            color: "#2b8ada",
-                            fontWeight: "bold",
-                          }}
-                          badgeStyles={{ backgroundColor: "#2b8ada" }}
-                        /> */}
         </View>
         {/* Mobile Number */}
         <View
