@@ -212,7 +212,7 @@ function DoctorTabNavigator() {
       <Tab.Screen
         name="Check Earning"
         component={AppointmentTransactionHistory}
-        options={{ headerShown: true }}
+        options={{ headerShown: false }}
       />
       <Tab.Screen
         name="Support"

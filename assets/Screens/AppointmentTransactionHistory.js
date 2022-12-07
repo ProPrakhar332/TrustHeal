@@ -1,322 +1,284 @@
-import React from "react";
-
+import React, { useState, useEffect } from "react";
 import {
+  Alert,
+  useWindowDimensions,
   View,
+  Modal,
   Text,
-  Image,
+  TextInput,
+  Button,
   SafeAreaView,
+  Image,
+  FlatList,
+  TouchableOpacity,
   ScrollView,
   StyleSheet,
-  useWindowDimensions,
+  KeyboardAvoidingView,
 } from "react-native";
-import { TabView, TabBar, SceneMap } from "react-native-tab-view";
-import FAIcon from "react-native-vector-icons/FontAwesome5";
+import { LogBox } from "react-native";
+LogBox.ignoreLogs(["VirtualizedLists should never be nested"]);
+import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import Header from "../Components/Header";
+import FAIcons from "react-native-vector-icons/FontAwesome5";
 
-const FirstRoute = () => (
-  <ScrollView showsVerticalScrollIndicator={false}>
-    <View style={[styles.card, { backgroundColor: "white" }]}>
-      <View style={styles.cardImage}>
-        <Image
-          source={require("../Resources/pfp1.jpg")}
-          style={{
-            marginTop: 5,
-            width: 80,
-            height: 80,
-            borderRadius: 80,
-          }}
-        ></Image>
-        <Text style={[styles.cardDetailsText, { marginBottom: 5 }]}>
-          7 days ago
-        </Text>
-      </View>
+const datapayment = [
+  {
+    date: "12-09-2022",
+    patientname: "Rohan Kumar",
+    patientUHID: "P-23434",
+    paymenttime: "12:00 PM",
+    type: "E-Consultation",
+    paymentmode: "Online",
+    amount: "500",
+  },
+  {
+    date: "12-09-2022",
+    patientname: "Sohan Kumar",
+    patientUHID: "P-23435",
+    paymenttime: "12:00 PM",
+    type: "E-Consultation",
+    paymentmode: "Online",
+    amount: "500",
+  },
+  {
+    date: "12-09-2022",
+    patientname: "Mohan Kumar",
+    patientUHID: "P-23436",
+    paymenttime: "12:00 PM",
+    type: "E-Consultation",
+    paymentmode: "Online",
+    amount: "500",
+  },
+  {
+    date: "12-09-2022",
+    patientname: "Raunak Kumar",
+    patientUHID: "P-23437",
+    paymenttime: "12:00 PM",
+    type: "E-Consultation",
+    paymentmode: "Online",
+    amount: "500",
+  },
+  {
+    date: "12-09-2022",
+    patientname: "Raj Kumar",
+    patientUHID: "P-23438",
+    paymenttime: "12:00 PM",
+    type: "E-Consultation",
+    paymentmode: "Online",
+    amount: "500",
+  },
+];
 
-      <View style={styles.cardDetails}>
-        <View style={styles.cardRow}>
-          <FAIcon name="user" size={15} color="black" />
+function CheckEarnings({ navigation }) {
+  const [search, setsearch] = useState("");
+  const [searchData, setsearchData] = useState([]);
 
-          <Text style={styles.cardDetailsText}>Name : Mr. Ankit Yadav</Text>
+  const renderPayments = ({ item }) => {
+    return (
+      <View
+        style={{
+          width: "95%",
+          alignSelf: "center",
+          marginVertical: 10,
+        }}
+      >
+        {/* Date */}
+        <View
+          style={[
+            styles.detailsRow,
+            {
+              backgroundColor: "#2B8ADA",
+              borderTopStartRadius: 15,
+              borderTopEndRadius: 15,
+              paddingVertical: 10,
+            },
+          ]}
+        >
+          <View style={styles.detailsCol}>
+            <Text
+              style={{
+                color: "white",
+                fontSize: 14,
+                paddingHorizontal: 10,
+              }}
+            >
+              Consultation Date
+            </Text>
+          </View>
+          <View style={{ flexDirection: "column" }}>
+            <Text
+              style={{
+                color: "white",
+                fontSize: 14,
+                paddingHorizontal: 10,
+              }}
+            >
+              {item.date}
+            </Text>
+          </View>
         </View>
-
-        <View style={styles.cardRow}>
-          <FAIcon name="money-bill-wave-alt" size={15} color="black" />
-          <Text style={styles.cardDetailsText}>Received : $700</Text>
-        </View>
-        <View style={styles.cardRow}>
-          <FAIcon name="piggy-bank" size={15} color="black" />
-          <Text style={styles.cardDetailsText}>Credited To : Canara Bank</Text>
-        </View>
-      </View>
-    </View>
-
-    <View style={[styles.card, { backgroundColor: "white" }]}>
-      <View style={styles.cardImage}>
-        <Image
-          source={require("../Resources/pfp2.jpg")}
-          style={{
-            marginTop: 5,
-
-            width: 80,
-            height: 80,
-            borderRadius: 80,
-          }}
-        ></Image>
-        <Text style={[styles.cardDetailsText, { marginBottom: 5 }]}>
-          10 days ago
-        </Text>
-      </View>
-
-      <View style={styles.cardDetails}>
-        <View style={styles.cardRow}>
-          <FAIcon name="user" size={15} color="black" />
-
-          <Text style={styles.cardDetailsText}>Name : Mr. Sumit Kumar</Text>
-        </View>
-
-        <View style={styles.cardRow}>
-          <FAIcon name="money-bill-wave-alt" size={15} color="black" />
-          <Text style={styles.cardDetailsText}>Received : $730</Text>
-        </View>
-
-        <View style={styles.cardRow}>
-          <FAIcon name="piggy-bank" size={15} color="black" />
-          <Text style={styles.cardDetailsText}>Credited To : SBI</Text>
-        </View>
-      </View>
-    </View>
-
-    <View style={[styles.card, { backgroundColor: "white" }]}>
-      <View style={styles.cardImage}>
-        <Image
-          source={require("../Resources/pfp3.jpg")}
-          style={{
-            marginTop: 5,
-
-            width: 80,
-            height: 80,
-            borderRadius: 80,
-          }}
-        ></Image>
-        <Text style={[styles.cardDetailsText, { marginBottom: 5 }]}>
-          17 days ago
-        </Text>
-      </View>
-
-      <View style={styles.cardDetails}>
-        <View style={styles.cardRow}>
-          <FAIcon name="user" size={15} color="black" />
-
-          <Text style={styles.cardDetailsText}>Name : Mr. Pulkit Verma</Text>
-        </View>
-
-        <View style={styles.cardRow}>
-          <FAIcon name="money-bill-wave-alt" size={15} color="black" />
-          <Text style={styles.cardDetailsText}>Received : $400</Text>
-        </View>
-
-        <View style={styles.cardRow}>
-          <FAIcon name="piggy-bank" size={15} color="black" />
-          <Text style={styles.cardDetailsText}>Credited To : ICICI Bank</Text>
-        </View>
-      </View>
-    </View>
-
-    <View style={[styles.card, { backgroundColor: "white" }]}>
-      <View style={styles.cardImage}>
-        <Image
-          source={require("../Resources/pfp4.jpg")}
-          style={{
-            marginTop: 5,
-
-            width: 80,
-            height: 80,
-            borderRadius: 80,
-          }}
-        ></Image>
-        <Text style={[styles.cardDetailsText, { marginBottom: 5 }]}>
-          27 days ago
-        </Text>
-      </View>
-
-      <View style={styles.cardDetails}>
-        <View style={styles.cardRow}>
-          <FAIcon name="user" size={15} color="black" />
-
-          <Text style={styles.cardDetailsText}>Name : Mr. Aman Singh</Text>
-        </View>
-        <View style={styles.cardRow}>
-          <FAIcon name="money-bill-wave-alt" size={15} color="black" />
-          <Text style={styles.cardDetailsText}>Received : $600</Text>
-        </View>
-
-        <View style={styles.cardRow}>
-          <FAIcon name="piggy-bank" size={15} color="black" />
-          <Text style={styles.cardDetailsText}>
-            Credited To : Punjab National Bank
-          </Text>
-        </View>
-      </View>
-    </View>
-  </ScrollView>
-);
-
-const SecondRoute = () => (
-  <ScrollView showsVerticalScrollIndicator={false}>
-    <View style={[styles.card, { backgroundColor: "white" }]}>
-      <View style={styles.cardImage}>
-        <Image
-          source={require("../Resources/pfp1.jpg")}
-          style={{
-            marginTop: 5,
-            width: 80,
-            height: 80,
-            borderRadius: 80,
-          }}
-        ></Image>
-        <Text style={[styles.cardDetailsText, { marginBottom: 5 }]}>
-          7 days ago
-        </Text>
-      </View>
-
-      <View style={styles.cardDetails}>
-        <View style={styles.cardRow}>
-          <FAIcon name="user" size={15} color="black" />
-
-          <Text style={styles.cardDetailsText}>Name : Mr. Ankit Yadav</Text>
-        </View>
-
-        <View style={styles.cardRow}>
-          <FAIcon name="money-bill-wave-alt" size={15} color="black" />
-          <Text style={styles.cardDetailsText}>Received : $700</Text>
-        </View>
-        <View style={styles.cardRow}>
-          <FAIcon name="piggy-bank" size={15} color="black" />
-          <Text style={styles.cardDetailsText}>Credited To : Canara Bank</Text>
-        </View>
-      </View>
-    </View>
-
-    <View style={[styles.card, { backgroundColor: "white" }]}>
-      <View style={styles.cardImage}>
-        <Image
-          source={require("../Resources/mypfp.jpg")}
-          style={{
-            marginTop: 5,
-
-            width: 80,
-            height: 80,
-            borderRadius: 80,
-          }}
-        ></Image>
-        <Text style={[styles.cardDetailsText, { marginBottom: 5 }]}>
-          27 days ago
-        </Text>
-      </View>
-
-      <View style={styles.cardDetails}>
-        <View style={styles.cardRow}>
-          <FAIcon name="user" size={15} color="black" />
-
-          <Text style={styles.cardDetailsText}>Name : Mr. Aman Singh</Text>
-        </View>
-        <View style={styles.cardRow}>
-          <FAIcon name="money-bill-wave-alt" size={15} color="black" />
-          <Text style={styles.cardDetailsText}>Received : $600</Text>
-        </View>
-
-        <View style={styles.cardRow}>
-          <FAIcon name="piggy-bank" size={15} color="black" />
-          <Text style={styles.cardDetailsText}>
-            Credited To : Punjab National Bank
-          </Text>
-        </View>
-      </View>
-    </View>
-  </ScrollView>
-);
-
-const renderScene = SceneMap({
-  first: FirstRoute,
-  second: SecondRoute,
-});
-
-const AppointmentTransactionHistory = () => {
-  const [index, setIndex] = React.useState(0);
-  const [routes] = React.useState([
-    { key: "first", title: "E-Consultation" },
-    { key: "second", title: "Physical" },
-  ]);
-  const layout = useWindowDimensions();
-  const renderTabBar = (props) => (
-    <TabBar
-      {...props}
-      indicatorStyle={{}}
-      style={{ backgroundColor: "#2b8ada" }}
-      labelStyle={{ fontWeight: "bold" }}
-    />
-  );
-
-  return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Details */}
         <View
           style={{
-            flex: 1,
-            width: "100%",
-            alignSelf: "center",
-            height: layout.height - 120,
+            paddingVertical: 10,
+            backgroundColor: "white",
+            borderBottomLeftRadius: 15,
+            borderBottomRightRadius: 15,
           }}
         >
-          <TabView
-            navigationState={{ index, routes }}
-            renderScene={renderScene}
-            onIndexChange={setIndex}
-            initialLayout={{ width: layout.width }}
-            renderTabBar={renderTabBar}
-          />
+          <View style={[styles.detailsRow]}>
+            <View style={styles.detailsCol}>
+              <Text style={styles.detailsText}>Patient UHID</Text>
+            </View>
+            <View style={{ flexDirection: "column" }}>
+              <Text style={styles.detailsText}>{item.patientUHID}</Text>
+            </View>
+          </View>
+          <View style={[styles.detailsRow]}>
+            <View style={styles.detailsCol}>
+              <Text style={styles.detailsText}>Patient Name</Text>
+            </View>
+            <View style={{ flexDirection: "column" }}>
+              <Text style={styles.detailsText}>{item.patientname}</Text>
+            </View>
+          </View>
+          <View style={[styles.detailsRow]}>
+            <View style={styles.detailsCol}>
+              <Text style={styles.detailsText}>Consultation Type</Text>
+            </View>
+            <View style={{ flexDirection: "column" }}>
+              <Text style={styles.detailsText}>{item.type}</Text>
+            </View>
+          </View>
+          <View style={[styles.detailsRow]}>
+            <View style={styles.detailsCol}>
+              <Text style={styles.detailsText}>Payment Mode</Text>
+            </View>
+            <View style={{ flexDirection: "column" }}>
+              <Text style={styles.detailsText}>{item.paymentmode}</Text>
+            </View>
+          </View>
+
+          <View style={[styles.detailsRow]}>
+            <View style={styles.detailsCol}>
+              <Text style={styles.detailsText}>Pay Amount</Text>
+            </View>
+            <View style={{ flexDirection: "column" }}>
+              <Text style={styles.detailsText}>{item.amount}</Text>
+            </View>
+          </View>
         </View>
-      </ScrollView>
-    </SafeAreaView>
+      </View>
+    );
+  };
+
+  const display = () => {
+    setsearchData([]);
+    datapayment.forEach((item) => {
+      item.patientname.indexOf(search) > 0 ? searchData.push(item) : null;
+    });
+    console.log(searchData);
+  };
+
+  return (
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={styles.container}
+      enabled={true}
+    >
+      <SafeAreaView
+        style={{
+          backgroundColor: "#2B8ADA",
+          width: "100%",
+        }}
+      >
+        <ScrollView
+          style={{
+            width: "100%",
+            alignSelf: "center",
+            marginTop: 30,
+            backgroundColor: "#e8f0fe",
+          }}
+          showsVerticalScrollIndicator={false}
+          nestedScrollEnabled={true}
+        >
+          <Header showMenu={false} title="Payment Details" />
+          <View style={{ width: "95%", alignSelf: "center", marginTop: 10 }}>
+            {/* Search Bar */}
+            <View style={styles.searchBar}>
+              <TextInput
+                placeholder="Search"
+                style={styles.searchBarText}
+                onChangeText={(text) => setsearch(text)}
+                value={search}
+              />
+              <TouchableOpacity style={styles.searchIcon} onPress={display}>
+                <FAIcons name="search" size={15} color="gray" />
+              </TouchableOpacity>
+            </View>
+
+            {/* List of Payments */}
+
+            {search === "" ? (
+              <FlatList
+                data={datapayment}
+                keyExtractor={(item) => item.patientUHID}
+                renderItem={renderPayments}
+              />
+            ) : null}
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </KeyboardAvoidingView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     backgroundColor: "#e8f0fe",
   },
-  title: {
-    fontSize: 30,
-    fontWeight: "bold",
-    color: "orange",
-    margin: 10,
-    alignSelf: "center",
-  },
-  card: {
+  searchBar: {
+    flex: 1,
+    width: "95%",
     flexDirection: "row",
-    backgroundColor: "orange",
+    padding: 5,
+    paddingHorizontal: 15,
+    borderWidth: 1,
+    borderColor: "#2B8ADA",
+    backgroundColor: "white",
+    borderRadius: 25,
+    alignSelf: "center",
+    marginVertical: 10,
+  },
+  searchBarText: {
     width: "100%",
-    alignSelf: "center",
-    borderBottomColor: "gray",
-    borderBottomWidth: 2,
   },
-  cardImage: {
-    flex: 0.3,
-    alignItems: "center",
-  },
-  cardDetails: {
-    flex: 0.7,
+  searchIcon: {
+    position: "absolute",
+    right: 0,
     padding: 10,
-    alignContent: "flex-start",
   },
-  cardDetailsText: {
-    marginLeft: 5,
-    color: "black",
-    fontSize: 15,
+  detailsCol: {
+    flexDirection: "column",
+    alignSelf: "center",
   },
-  cardRow: {
+  detailsRow: {
     flexDirection: "row",
-    margin: 3,
+    justifyContent: "space-between",
+    backgroundColor: "white",
+    padding: 10,
+    paddingVertical: 5,
+  },
+  detailsText: {
+    fontSize: 12,
+    alignSelf: "center",
+    paddingHorizontal: 10,
   },
 });
 
-export default AppointmentTransactionHistory;
+export default CheckEarnings;

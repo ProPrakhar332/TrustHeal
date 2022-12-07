@@ -26,6 +26,15 @@ import pfp3 from "../Resources/pfp3.jpg";
 import pfp4 from "../Resources/pfp4.jpg";
 import chatting from "../Resources/chattingMedium.png";
 import Header from "../Components/Header";
+import {
+  SelectList,
+  MultipleSelectList,
+} from "react-native-dropdown-select-list";
+
+const dataStatus = [
+  { key: "Yes", value: "Yes" },
+  { key: "No", value: "No" },
+];
 
 const DoctorHome = ({ navigation }) => {
   //upcoming tab
@@ -43,8 +52,7 @@ const DoctorHome = ({ navigation }) => {
   //status tab
   const [Status, setStatus] = useState(false);
   const [ManageStatusModal, setManageStatusModal] = useState(false);
-  const [ManageStatusCancelled, setManageStatusCancelled] = useState(true);
-  const [ManageStatusReschedule, setManageStatusReschedule] = useState(false);
+  const [ManageStatus, setManageStatus] = useState("");
 
   const layout = useWindowDimensions();
 
@@ -955,7 +963,6 @@ const DoctorHome = ({ navigation }) => {
                       style={{
                         width: "100%",
                         alignSelf: "center",
-                        marginBottom: 20,
                         borderBottomWidth: 1,
                         borderBottomColor: "gray",
                       }}
@@ -983,168 +990,33 @@ const DoctorHome = ({ navigation }) => {
                     </View>
                     <View
                       style={{
-                        backgroundColor: "white",
                         width: "100%",
                         alignSelf: "center",
                         borderRadius: 7,
-                        marginVertical: 5,
+                        marginVertical: 10,
                       }}
                     >
-                      <TouchableOpacity
-                        style={{
-                          flexDirection: "row",
-                          justifyContent: "space-between",
+                      <Text style={{ fontWeight: "bold" }}>
+                        Consultation Completed?
+                      </Text>
+                      <SelectList
+                        defaultOption={"Yes"}
+                        placeholder={" "}
+                        setSelected={(val) => setManageStatus(val)}
+                        data={dataStatus}
+                        save="value"
+                        boxStyles={{
                           backgroundColor: "#F3F7FE",
-                          borderRadius: 7,
-                          padding: 10,
+                          borderWidth: 0,
+                          marginVertical: 5,
                         }}
-                        onPress={() => {
-                          setManageStatusCancelled(!ManageStatusCancelled);
-                          setManageStatusReschedule(!ManageStatusReschedule);
+                        dropdownStyles={{ backgroundColor: "white" }}
+                        dropdownTextStyles={{
+                          color: "#2b8ada",
+                          fontWeight: "bold",
                         }}
-                      >
-                        <Text>
-                          {ManageStatusCancelled ? "Cancelled" : "Reschedule"}
-                        </Text>
-                        <FAIcon name="chevron-down" size={20} color={"black"} />
-                      </TouchableOpacity>
-                      {ManageStatusCancelled ? (
-                        <View>
-                          <View
-                            style={{
-                              flexDirection: "row",
-                              backgroundColor: "#F3F7FE",
-                              height: 100,
-                              marginVertical: 10,
-                              borderRadius: 7,
-                            }}
-                          >
-                            <TextInput
-                              placeholder="Reason of Cancellation"
-                              placeholderTextColor={"gray"}
-                              style={{
-                                backgroundColor: "#F3F7FE",
-                                alignSelf: "flex-start",
-                              }}
-                            />
-                          </View>
-                          <TouchableOpacity
-                            style={{
-                              flexDirection: "row",
-                              justifyContent: "space-between",
-                              backgroundColor: "#F3F7FE",
-                              borderRadius: 7,
-                              padding: 10,
-                              marginBottom: 10,
-                            }}
-                          >
-                            <Text style={{ color: "gray" }}>Cancelled By</Text>
-                            <FAIcon
-                              name="chevron-down"
-                              size={20}
-                              color={"black"}
-                            />
-                          </TouchableOpacity>
-                        </View>
-                      ) : null}
-                      {ManageStatusReschedule ? (
-                        <View>
-                          <ScrollView
-                            style={{ flexDirection: "row", height: 50 }}
-                            horizontal={true}
-                          >
-                            <TouchableOpacity style={styles.bubble}>
-                              <Text>Monday</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.bubble}>
-                              <Text>Tuesday</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.bubble}>
-                              <Text>Wednesday</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.bubble}>
-                              <Text>Thursday</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.bubble}>
-                              <Text>Friday</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.bubble}>
-                              <Text>Saturday</Text>
-                            </TouchableOpacity>
-                          </ScrollView>
-                          <View
-                            style={{
-                              flexDirection: "column",
-                              marginVertical: 10,
-                            }}
-                          >
-                            <View
-                              style={{
-                                flexDirection: "row",
-                                justifyContent: "space-evenly",
-                              }}
-                            >
-                              <TouchableOpacity style={styles.bubble}>
-                                <Text>08:00 AM</Text>
-                              </TouchableOpacity>
-                              <TouchableOpacity style={styles.bubble}>
-                                <Text>08:30 AM</Text>
-                              </TouchableOpacity>
-                              <TouchableOpacity style={styles.bubble}>
-                                <Text>09:00 AM</Text>
-                              </TouchableOpacity>
-                            </View>
-                            <View
-                              style={{
-                                flexDirection: "row",
-                                justifyContent: "space-evenly",
-                              }}
-                            >
-                              <TouchableOpacity style={styles.bubble}>
-                                <Text>09:30 AM</Text>
-                              </TouchableOpacity>
-                              <TouchableOpacity style={styles.bubble}>
-                                <Text>10:00 AM</Text>
-                              </TouchableOpacity>
-                              <TouchableOpacity style={styles.bubble}>
-                                <Text>10:30 AM</Text>
-                              </TouchableOpacity>
-                            </View>
-                            <View
-                              style={{
-                                flexDirection: "row",
-                                justifyContent: "space-evenly",
-                              }}
-                            >
-                              <TouchableOpacity style={styles.bubble}>
-                                <Text>11:00 AM</Text>
-                              </TouchableOpacity>
-                              <TouchableOpacity style={styles.bubble}>
-                                <Text>11:30 AM</Text>
-                              </TouchableOpacity>
-                              <TouchableOpacity style={styles.bubble}>
-                                <Text>12:00 PM</Text>
-                              </TouchableOpacity>
-                            </View>
-                            <View
-                              style={{
-                                flexDirection: "row",
-                                justifyContent: "space-evenly",
-                              }}
-                            >
-                              <TouchableOpacity style={styles.bubble}>
-                                <Text>12:30 PM</Text>
-                              </TouchableOpacity>
-                              <TouchableOpacity style={styles.bubble}>
-                                <Text>01:00 PM</Text>
-                              </TouchableOpacity>
-                              <TouchableOpacity style={styles.bubble}>
-                                <Text>01:30 PM</Text>
-                              </TouchableOpacity>
-                            </View>
-                          </View>
-                        </View>
-                      ) : null}
+                        badgeStyles={{ backgroundColor: "#2b8ada" }}
+                      />
                     </View>
                     <CustomButton
                       text="Save"

@@ -227,25 +227,6 @@ const DoctorRegistrationStep1 = ({ navigation }) => {
                 badgeStyles={{ backgroundColor: "#2b8ada" }}
               />
             </View>
-            <CustomButton
-              text="Check Speciality"
-              onPress={() => {
-                var temp = [];
-                speciality.forEach(function (item) {
-                  temp.push({
-                    key: item,
-                    value: item,
-                  });
-                });
-                console.log("Before splJson");
-                console.log(splJson);
-                console.log("temp");
-                console.log(temp);
-                console.log("After splJson");
-                setsplJson(temp);
-                console.log(splJson);
-              }}
-            />
 
             <View
               style={{

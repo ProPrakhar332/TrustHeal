@@ -26,11 +26,13 @@ import notification from "../Icons/notification.png";
 import appointment from "../Icons/appointment.png";
 import help from "../Icons/help.png";
 import about from "../Icons/about.png";
+import splIcon from "../Icons/lifestyle-disease.png";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 function BasicDesign({ navigation }) {
   const [EarningModal, setEarningModal] = useState(false);
   const [HelpModal, setHelpModal] = useState(false);
+  const [SpecialityModal, setSpecialityModal] = useState(false);
 
   const logout = async () => {
     console.log("Logging out");
@@ -135,8 +137,8 @@ function BasicDesign({ navigation }) {
                   <Text style={styles.blueUnderText}>35 Years</Text>
                 </View>
                 <View style={[styles.whiteInnerBox]}>
-                  <Text style={styles.grayHeading}>Speciality</Text>
-                  <Text style={styles.blueUnderText}>Heart</Text>
+                  <Text style={styles.grayHeading}>Mobile Number</Text>
+                  <Text style={styles.blueUnderText}>+91 9456335783</Text>
                 </View>
               </View>
               <View style={styles.whiteOuterBox}>
@@ -157,6 +159,22 @@ function BasicDesign({ navigation }) {
             </View>
             {/* Bottom White Box */}
             <View style={styles.whiteBox}>
+              <TouchableOpacity
+                style={styles.whiteBoxRow}
+                onPress={() => {
+                  setSpecialityModal(true);
+                }}
+              >
+                <View style={{ flex: 0.3 }}>
+                  <Image
+                    source={splIcon}
+                    style={[styles.whiteBoxRowIcon, { tintColor: "black" }]}
+                  />
+                </View>
+                <View style={{ flex: 0.6 }}>
+                  <Text style={styles.whiteBoxRowText}>My Speciality</Text>
+                </View>
+              </TouchableOpacity>
               <TouchableOpacity
                 style={styles.whiteBoxRow}
                 onPress={() => setEarningModal(true)}
@@ -215,6 +233,27 @@ function BasicDesign({ navigation }) {
               </TouchableOpacity>
             </View>
             {/* Log Out Button */}
+            <TouchableOpacity
+              style={{
+                borderColor: "#2B8ADA",
+                borderWidth: 1,
+                borderRadius: 10,
+                marginVertical: 5,
+                width: "90%",
+                alignSelf: "center",
+                flexDirection: "row",
+                padding: 10,
+                justifyContent: "center",
+              }}
+              onPress={() => {
+                navigation.navigate("DoctorRegistrationStep2");
+              }}
+            >
+              <FAIcon name="user-edit" color={"#2B8ADA"} size={20} />
+              <Text style={{ color: "#2B8ADA", marginLeft: 10 }}>
+                Edit Profile
+              </Text>
+            </TouchableOpacity>
             <CustomButton
               text="Logout"
               textstyle={{ color: "white" }}
@@ -237,14 +276,7 @@ function BasicDesign({ navigation }) {
                   setEarningModal(!EarningModal);
                 }}
               >
-                <View
-                  style={{
-                    height: "100%",
-                    backgroundColor: "rgba(0,0,0,0.8)",
-                    flexDirection: "row",
-                    justifyContent: "center",
-                  }}
-                >
+                <View style={styles.ModalBackground}>
                   <View
                     style={[
                       styles.modalView,
@@ -524,50 +556,6 @@ function BasicDesign({ navigation }) {
                           </View>
                         </View>
                       </View>
-                      {/* Buttons */}
-                      <View
-                        style={{
-                          flexDirection: "row",
-                          justifyContent: "space-evenly",
-                          marginTop: 15,
-                        }}
-                      >
-                        <CustomButton
-                          text="Download"
-                          textstyle={{ fontSize: 10, color: "white" }}
-                          style={{
-                            flex: 0.3,
-                            paddingVertical: 5,
-                            backgroundColor: "#2B8ADA",
-                            borderRadius: 5,
-                          }}
-                        />
-                        <CustomButton
-                          text="Close"
-                          textstyle={{ fontSize: 10, color: "#2B8ADA" }}
-                          style={{
-                            flex: 0.3,
-                            paddingVertical: 5,
-                            borderColor: "#2B8ADA",
-                            borderWidth: 1,
-                            borderRadius: 5,
-                          }}
-                          onPress={() => {
-                            setEarningModal(false);
-                          }}
-                        />
-                        <CustomButton
-                          text="Share"
-                          textstyle={{ fontSize: 10, color: "#2B8ADA" }}
-                          style={{
-                            flex: 0.3,
-                            paddingVertical: 5,
-                            borderColor: "#2B8ADA",
-                            borderWidth: 1,
-                            borderRadius: 5,
-                          }}
-                        />
-                      </View>
                     </View>
                   </View>
                 </View>
@@ -584,14 +572,7 @@ function BasicDesign({ navigation }) {
                   setHelpModal(!HelpModal);
                 }}
               >
-                <View
-                  style={{
-                    height: "100%",
-                    backgroundColor: "rgba(0,0,0,0.8)",
-                    flexDirection: "row",
-                    justifyContent: "center",
-                  }}
-                >
+                <View style={styles.ModalBackground}>
                   <View
                     style={[
                       styles.modalView,
@@ -652,16 +633,7 @@ function BasicDesign({ navigation }) {
                     >
                       <View>
                         <TouchableOpacity
-                          style={[
-                            styles.WhiteLabel,
-                            {
-                              borderWidth: 1,
-                              flexDirection: "row",
-                              justifyContent: "space-between",
-                              marginBottom: 0,
-                              backgroundColor: "#2B8ADA",
-                            },
-                          ]}
+                          style={[styles.WhiteLabel, styles.BlueLabel]}
                         >
                           <Text
                             style={[
@@ -675,18 +647,7 @@ function BasicDesign({ navigation }) {
                             1. I Am Infected With Viral Fever. What To Do?
                           </Text>
                         </TouchableOpacity>
-                        <View
-                          style={{
-                            marginTop: -6,
-                            padding: 5,
-                            borderWidth: 1,
-                            borderTopWidth: 0,
-                            width: "95%",
-                            alignSelf: "center",
-                            borderBottomRightRadius: 5,
-                            borderBottomLeftRadius: 5,
-                          }}
-                        >
+                        <View style={styles.BlueLabelUnderText}>
                           <Text
                             style={{
                               fontSize: 12,
@@ -705,16 +666,7 @@ function BasicDesign({ navigation }) {
                       </View>
                       <View>
                         <TouchableOpacity
-                          style={[
-                            styles.WhiteLabel,
-                            {
-                              borderWidth: 1,
-                              flexDirection: "row",
-                              justifyContent: "space-between",
-                              marginBottom: 0,
-                              backgroundColor: "#2B8ADA",
-                            },
-                          ]}
+                          style={[styles.WhiteLabel, styles.BlueLabel]}
                         >
                           <Text
                             style={[
@@ -728,18 +680,7 @@ function BasicDesign({ navigation }) {
                             1. I Am Infected With Viral Fever. What To Do?
                           </Text>
                         </TouchableOpacity>
-                        <View
-                          style={{
-                            marginTop: -6,
-                            padding: 5,
-                            borderWidth: 1,
-                            borderTopWidth: 0,
-                            width: "95%",
-                            alignSelf: "center",
-                            borderBottomRightRadius: 5,
-                            borderBottomLeftRadius: 5,
-                          }}
-                        >
+                        <View style={styles.BlueLabelUnderText}>
                           <Text
                             style={{
                               fontSize: 12,
@@ -758,16 +699,7 @@ function BasicDesign({ navigation }) {
                       </View>
                       <View>
                         <TouchableOpacity
-                          style={[
-                            styles.WhiteLabel,
-                            {
-                              borderWidth: 1,
-                              flexDirection: "row",
-                              justifyContent: "space-between",
-                              marginBottom: 0,
-                              backgroundColor: "#2B8ADA",
-                            },
-                          ]}
+                          style={[styles.WhiteLabel, styles.BlueLabel]}
                         >
                           <Text
                             style={[
@@ -781,18 +713,7 @@ function BasicDesign({ navigation }) {
                             1. I Am Infected With Viral Fever. What To Do?
                           </Text>
                         </TouchableOpacity>
-                        <View
-                          style={{
-                            marginTop: -6,
-                            padding: 5,
-                            borderWidth: 1,
-                            borderTopWidth: 0,
-                            width: "95%",
-                            alignSelf: "center",
-                            borderBottomRightRadius: 5,
-                            borderBottomLeftRadius: 5,
-                          }}
-                        >
+                        <View style={styles.BlueLabelUnderText}>
                           <Text
                             style={{
                               fontSize: 12,
@@ -811,16 +732,7 @@ function BasicDesign({ navigation }) {
                       </View>
                       <View>
                         <TouchableOpacity
-                          style={[
-                            styles.WhiteLabel,
-                            {
-                              borderWidth: 1,
-                              flexDirection: "row",
-                              justifyContent: "space-between",
-                              marginBottom: 0,
-                              backgroundColor: "#2B8ADA",
-                            },
-                          ]}
+                          style={[styles.WhiteLabel, styles.BlueLabel]}
                         >
                           <Text
                             style={[
@@ -834,18 +746,7 @@ function BasicDesign({ navigation }) {
                             1. I Am Infected With Viral Fever. What To Do?
                           </Text>
                         </TouchableOpacity>
-                        <View
-                          style={{
-                            marginTop: -6,
-                            padding: 5,
-                            borderWidth: 1,
-                            borderTopWidth: 0,
-                            width: "95%",
-                            alignSelf: "center",
-                            borderBottomRightRadius: 5,
-                            borderBottomLeftRadius: 5,
-                          }}
-                        >
+                        <View style={styles.BlueLabelUnderText}>
                           <Text
                             style={{
                               fontSize: 12,
@@ -862,6 +763,93 @@ function BasicDesign({ navigation }) {
                           </Text>
                         </View>
                       </View>
+                    </ScrollView>
+                  </View>
+                </View>
+              </Modal>
+            ) : null}
+            {/* Speciality Modal */}
+            {SpecialityModal ? (
+              <Modal
+                animationType="slide"
+                transparent={true}
+                visible={SpecialityModal}
+                onRequestClose={() => {
+                  setSpecialityModal(!SpecialityModal);
+                }}
+              >
+                <View style={styles.ModalBackground}>
+                  <View
+                    style={[
+                      styles.modalView,
+                      {
+                        borderRadius: 10,
+                        width: "95%",
+                        justifyContent: "center",
+                        alignSelf: "center",
+                      },
+                    ]}
+                  >
+                    <View
+                      style={{
+                        width: "100%",
+                        alignSelf: "center",
+                        marginBottom: 20,
+                        borderBottomWidth: 1,
+                        borderBottomColor: "gray",
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontWeight: "bold",
+                          fontSize: 16,
+                          padding: 5,
+                        }}
+                      >
+                        My Speciality
+                      </Text>
+                      <FAIcon
+                        name="window-close"
+                        color="black"
+                        size={26}
+                        style={{
+                          position: "absolute",
+                          top: 0,
+                          right: 0,
+                        }}
+                        onPress={() => setSpecialityModal(false)}
+                      />
+                    </View>
+
+                    <ScrollView
+                      style={{
+                        height: 100,
+                        width: "100%",
+                        flexDirection: "column",
+                      }}
+                    >
+                      <Text
+                        style={{
+                          backgroundColor: "#E8F0FE",
+                          padding: 5,
+                          borderRadius: 10,
+                          textAlign: "center",
+                          marginVertical: 5,
+                        }}
+                      >
+                        Heart
+                      </Text>
+                      <Text
+                        style={{
+                          backgroundColor: "#E8F0FE",
+                          padding: 5,
+                          borderRadius: 10,
+                          textAlign: "center",
+                          marginVertical: 5,
+                        }}
+                      >
+                        Dermatology
+                      </Text>
                     </ScrollView>
                   </View>
                 </View>
@@ -885,7 +873,7 @@ const styles = StyleSheet.create({
   grayHeading: { color: "gray", fontSize: 15 },
   blueUnderText: {
     color: "#2B8ADA",
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "bold",
   },
   whiteInnerBox: {
@@ -932,6 +920,12 @@ const styles = StyleSheet.create({
       height: 2,
     },
   },
+  ModalBackground: {
+    height: "100%",
+    backgroundColor: "rgba(0,0,0,0.8)",
+    flexDirection: "row",
+    justifyContent: "center",
+  },
   bubble: {
     flexDirection: "row",
     alignSelf: "center",
@@ -951,6 +945,23 @@ const styles = StyleSheet.create({
     padding: 10,
     justifyContent: "space-between",
     borderRadius: 10,
+  },
+  BlueLabel: {
+    borderWidth: 1,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 0,
+    backgroundColor: "#2B8ADA",
+  },
+  BlueLabelUnderText: {
+    marginTop: -6,
+    padding: 5,
+    borderWidth: 1,
+    borderTopWidth: 0,
+    width: "95%",
+    alignSelf: "center",
+    borderBottomRightRadius: 5,
+    borderBottomLeftRadius: 5,
   },
   searchBar: {
     flex: 1,

@@ -67,6 +67,7 @@ const Header = ({ title, showMenu }) => {
   const [mob, setMob] = useState("");
   const [mode, setMode] = useState("");
   const [date, setdate] = useState("");
+  const [PaymentStatus, setPaymentStatus] = useState("");
   const [slot, setSlot] = useState("");
   const [msg, setMsg] = useState("");
   const [shareModal, setShareModal] = useState(false);
@@ -330,7 +331,54 @@ const Header = ({ title, showMenu }) => {
                 />
               </View>
               <ScrollView>
-                <View style={{ marginVertical: 10 }}>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    marginTop: 10,
+                  }}
+                >
+                  <View style={styles.inputField}>
+                    <TextInput
+                      onChangeText={(text) => setdate(text)}
+                      value={date}
+                      style={{ fontSize: 12 }}
+                      placeholder="Date"
+                    ></TextInput>
+                    <FAIcon
+                      name="calendar-alt"
+                      size={20}
+                      style={{
+                        position: "absolute",
+                        padding: 7,
+                        right: 0,
+                        alignSelf: "center",
+                        color: "gray",
+                      }}
+                    />
+                  </View>
+                  <View style={styles.inputField}>
+                    <TextInput
+                      onChangeText={(text) => setMode(text)}
+                      value={mode}
+                      style={{ fontSize: 12 }}
+                      placeholder="Mode"
+                    ></TextInput>
+                    <FAIcon
+                      name="chevron-down"
+                      size={20}
+                      style={{
+                        position: "absolute",
+                        top: 8,
+                        right: 5,
+                        alignSelf: "center",
+                        color: "gray",
+                      }}
+                    />
+                  </View>
+                </View>
+                {/* Slots */}
+                <View style={{ marginTop: 5 }}>
                   <FlatList
                     data={slots}
                     renderItem={renderItem}
@@ -351,7 +399,7 @@ const Header = ({ title, showMenu }) => {
                     </Text>
                   ) : null}
                 </View>
-                <View style={{ marginTop: 15, flexDirection: "column" }}>
+                <View style={{ marginTop: 5, flexDirection: "column" }}>
                   <View
                     style={{
                       flexDirection: "row",
@@ -380,48 +428,24 @@ const Header = ({ title, showMenu }) => {
                     style={{
                       flexDirection: "row",
                       justifyContent: "space-between",
-                      marginVertical: 10,
+                      marginTop: 10,
                     }}
                   >
-                    <View style={styles.inputField}>
+                    <View
+                      style={[
+                        styles.inputField,
+                        { flex: 1, alignSelf: "center" },
+                      ]}
+                    >
                       <TextInput
-                        onChangeText={(text) => setMode(text)}
-                        value={mode}
+                        onChangeText={(text) => setPaymentStatus(text)}
+                        value={PaymentStatus}
+                        placeholder="Payment Status"
                         style={{ fontSize: 12 }}
-                        placeholder="Mode"
                       ></TextInput>
-                      <FAIcon
-                        name="chevron-down"
-                        size={20}
-                        style={{
-                          position: "absolute",
-                          top: 8,
-                          right: 5,
-                          alignSelf: "center",
-                          color: "gray",
-                        }}
-                      />
-                    </View>
-                    <View style={styles.inputField}>
-                      <TextInput
-                        onChangeText={(text) => setdate(text)}
-                        value={date}
-                        style={{ fontSize: 12 }}
-                        placeholder="Date"
-                      ></TextInput>
-                      <FAIcon
-                        name="calendar-alt"
-                        size={20}
-                        style={{
-                          position: "absolute",
-                          top: 5,
-                          right: 3,
-                          alignSelf: "center",
-                          color: "gray",
-                        }}
-                      />
                     </View>
                   </View>
+
                   <View>
                     <View style={{ flexDirection: "row", alignSelf: "center" }}>
                       <CustomButton

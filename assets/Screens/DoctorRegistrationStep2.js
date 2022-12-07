@@ -654,7 +654,7 @@ const DoctorRegistration2 = ({ navigation }) => {
                         ></TextInput>
                       </View>
                     </View>
-                    <CustomButton
+                    {/* <CustomButton
                       text="+Add More"
                       textstyle={{ color: "white", fontSize: 12 }}
                       style={{
@@ -665,7 +665,7 @@ const DoctorRegistration2 = ({ navigation }) => {
                         padding: 6,
                         paddingHorizontal: 10,
                       }}
-                    />
+                    /> */}
                   </View>
                 </View>
               </View>
