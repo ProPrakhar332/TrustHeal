@@ -36,14 +36,14 @@ import urology from "../SpecialityIcons/urology.jpg";
 import orthopedics from "../SpecialityIcons/orthopedics.jpg";
 import gastroentology from "../SpecialityIcons/gastroentology.jpg";
 
-import anxiety from "../SymptomIcons/anxiety.jpg";
-import cough from "../SymptomIcons/cough.jpg";
-import covid from "../SymptomIcons/covid.jpg";
-import fever from "../SymptomIcons/fever.jpg";
-import hairfall from "../SymptomIcons/hairfall.jpg";
-import headache from "../SymptomIcons/headache.jpg";
-import loosemotion from "../SymptomIcons/loosemotion.jpg";
-import stomachpain from "../SymptomIcons/stomachpain.jpg";
+import anxiety from "../SymptomIcons/anxiety.png";
+import cough from "../SymptomIcons/cough.png";
+import covid from "../SymptomIcons/covid.png";
+import fever from "../SymptomIcons/fever.png";
+import hairfall from "../SymptomIcons/hairfall.png";
+import headache from "../SymptomIcons/headache.png";
+import loosemotion from "../SymptomIcons/loosemotion.png";
+import stomachpain from "../SymptomIcons/stomachpain.png";
 
 const slideshow = [
   "https://wallpaperaccess.com/full/3988527.jpg",

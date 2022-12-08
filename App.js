@@ -6,7 +6,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { LogBox } from "react-native";
 LogBox.ignoreLogs(["Warning: ..."]);
 //Screens
-import FirstScreen from "./assets/Screens/FirstScreen";
+import OTPScreen from "./assets/Screens/OTPScreen";
 import Location from "./assets/Screens/Location";
 import RegisterScreen from "./assets/Screens/DoctorRegistration1";
 import ProfileScreen from "./assets/Screens/DoctorProfile";
@@ -235,7 +235,7 @@ function App() {
         <Stack.Navigator>
           <Stack.Screen
             name="Login/SignUp"
-            component={FirstScreen}
+            component={OTPScreen}
             options={{ headerBackButtonMenuEnabled: false, headerShown: false }}
           />
           <Stack.Screen
