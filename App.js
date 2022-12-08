@@ -234,7 +234,12 @@ function App() {
       <NavigationContainer>
         <Stack.Navigator>
           <Stack.Screen
-            name="Login/SignUp"
+            name="Role"
+            component={RoleScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="OTPScreen"
             component={OTPScreen}
             options={{ headerBackButtonMenuEnabled: false, headerShown: false }}
           />
@@ -373,11 +378,7 @@ function App() {
           <Stack.Screen name="Interests" component={Interests} />
           <Stack.Screen name="Registration" component={Registration} />
           <Stack.Screen name="AddDocument" component={AddDocument} />
-          <Stack.Screen
-            name="Role"
-            component={RoleScreen}
-            options={{ headerShown: false }}
-          />
+
           <Stack.Screen
             name="PatientProfile"
             component={PatientProfile}

@@ -39,7 +39,7 @@ function BasicDesign({ navigation }) {
     console.log(await AsyncStorage.getAllKeys());
     await AsyncStorage.clear();
     console.log(await AsyncStorage.getAllKeys());
-    navigation.navigate("Login/SignUp");
+    navigation.navigate("Role");
   };
   return (
     <KeyboardAvoidingView

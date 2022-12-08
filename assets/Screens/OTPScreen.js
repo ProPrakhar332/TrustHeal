@@ -13,6 +13,11 @@ import {
   useWindowDimensions,
   TouchableOpacity,
 } from "react-native";
+import { LogBox } from "react-native";
+LogBox.ignoreLogs(["Warning: ..."]);
+LogBox.ignoreLogs([
+  "EventEmitter.removeListener('appStateDidChange', ...) ...",
+]);
 import CountryPicker from "rn-country-picker";
 import CustomButton from "../Components/CustomButton";
 import { CheckBox } from "react-native-elements";
@@ -22,7 +27,9 @@ import CountDown from "react-native-countdown-component";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
-const FirstScreen = ({ navigation }) => {
+const FirstScreen = ({ navigation, route }) => {
+  const { nextScreen } = route.params;
+
   const pin1Ref = useRef(null);
   const pin2Ref = useRef(null);
   const pin3Ref = useRef(null);
@@ -40,6 +47,7 @@ const FirstScreen = ({ navigation }) => {
   const [mob, setMob] = useState("");
   const [countryCode, setCountryCode] = useState("+91");
   const [modalVisible, setModalVisible] = useState(false);
+  const [wrongOTPMessage, setwrongOTPMessage] = useState(false);
 
   const selectedValue = (value) => {
     setCountryCode("+" + value);
@@ -58,34 +66,27 @@ const FirstScreen = ({ navigation }) => {
     setShow(true);
     setResend(true);
     setVal(30);
+    sendOTP();
   };
 
   const reset = () => {
-    setModalVisible(false);
     setPin1("");
     setPin2("");
     setPin3("");
     setPin4("");
-    setMob("");
-    setnotification(false);
-    setprivatePolicy(false);
   };
 
   const onContinuePressed = async () => {
     if (mob.length < 10) Alert.alert("Enter Valid Mobile Number!");
     else {
       let no = countryCode + "" + mob;
-      console.log("Mob is " + no);
-      setModalVisible(true);
       try {
-        await AsyncStorage.setItem("mobileNumber", no);
-        const value = await AsyncStorage.getItem("mobileNumber");
+        await AsyncStorage.setItem("mobilenumber", no);
+        const value = await AsyncStorage.getItem("mobilenumber");
         await AsyncStorage.setItem(
           "allowWhatsAppNotification",
           notification + ""
         );
-        console.log(value);
-        console.log(await AsyncStorage.getAllKeys());
         sendOTP();
       } catch (e) {
         console.log(e);
@@ -94,11 +95,10 @@ const FirstScreen = ({ navigation }) => {
     }
   };
   const sendOTP = () => {
-    console.log(mob);
     axios
-      .get("http://10.0.2.2:8080/login/otprequest/?mobilenumber=" + mob)
+      .post("http://10.0.2.2:8080/login/otp/gernate?mobilenumber=" + mob)
       .then(function (response) {
-        console.log(response.status);
+        if (response.status == 200) setModalVisible(true);
       })
       .catch(function (error) {
         console.log(error);
@@ -117,25 +117,31 @@ const FirstScreen = ({ navigation }) => {
 
   const onSubmitPressed = () => {
     if (pin1 == "" || pin2 == "" || pin3 == "" || pin4 == "")
-      Alert.alert("Please feed in Correct OTP!");
+      Alert.alert("Please feed in 4 digit OTP!");
     else {
-      reset();
-      let otp = parseInt(pin1 + pin2 + pin3 + pin4);
+      let x = parseInt(pin1 + pin2 + pin3 + pin4);
+
+      //let otp = parseInt(x);
 
       axios
-        .post("http://10.0.2.2:8080/login/verifyotp", {
+        .post("http://10.0.2.2:8080/login/doctor/otp/verify", {
           mobileNumber: mob,
-          otp: otp,
-          roles: "ROLE_PATIENT",
+          otp: x,
         })
         .then(function (response) {
-          if (response.status == 401) Alert.alert("Wrong OTP");
-          else navigation.push("Location");
+          console.log(response.status);
+          if (response.status == 204) {
+            if (response.data === "") navigation.navigate(nextScreen);
+            else navigation.navigate("DoctorHome");
+          }
         })
         .catch(function (error) {
-          console.log(error);
+          if (error == "AxiosError: Request failed with status code 400") {
+            setwrongOTPMessage(true);
+            reset();
+          }
         });
-      navigation.push("Location");
+      //navigation.navigate(nextScreen);
     }
   };
   return (
@@ -158,186 +164,197 @@ const FirstScreen = ({ navigation }) => {
           }}
           showsVerticalScrollIndicator={false}
         >
-          <Image
-            source={require("../Resources/Logo.jpg")}
-            style={{
-              width: 200,
-              height: 200,
-              alignSelf: "center",
-              borderRadius: 50,
-              margin: 20,
-            }}
-          ></Image>
-
-          <View style={{ flex: 1, flexDirection: "row", alignSelf: "center" }}>
-            <CountryPicker
-              disable={false}
-              animationType={"slide"}
-              language="en"
-              containerStyle={styles.pickerStyle}
-              pickerTitleStyle={styles.pickerTitleStyle}
-              selectedCountryTextStyle={styles.selectedCountryTextStyle}
-              countryNameTextStyle={styles.countryNameTextStyle}
-              pickerTitle={"Country Picker"}
-              searchBarPlaceHolder={"Search......"}
-              hideCountryFlag={false}
-              hideCountryCode={false}
-              searchBarStyle={styles.searchBarStyle}
-              countryCode={"91"}
-              selectedValue={selectedValue}
-            />
-            <TextInput
-              placeholder="Enter Mobile Number"
-              style={{
-                borderRadius: 10,
-                borderBottomLeftRadius: 0,
-                borderTopLeftRadius: 0,
-                padding: 10,
-                marginVertical: 10,
-                backgroundColor: "white",
-                width: "60%",
-                fontSize: 15,
-              }}
-              onChangeText={(text) => setMob(text)}
-              value={mob}
-              keyboardType={"number-pad"}
-              maxLength={10}
-              contextMenuHidden={true}
-            ></TextInput>
-          </View>
-          <View style={{ width: "80%", alignSelf: "center" }}>
-            <CheckBox
-              title="By signing in, you agree to Aarogya Terms and Conditions and Private Policy"
-              containerStyle={styles.containerStyle}
-              textStyle={{ width: "80%", fontSize: 11 }}
-              checkedColor={"#2b8ada"}
-              checked={privatePolicy}
-              iconType={""}
-              onPress={() => setprivatePolicy(!privatePolicy)}
-            />
-            <CheckBox
-              title={"Allow us to send WhatsApp for notification"}
-              containerStyle={styles.containerStyle}
-              textStyle={{ width: "80%", fontSize: 11 }}
-              checkedColor={"#2b8ada"}
-              checked={notification}
-              onPress={() => setnotification(!notification)}
-            />
-          </View>
-          <CustomButton
-            text="Continue"
-            textstyle={{
-              color: "white",
-              fontSize: 15,
-              fontFamily: "sans-serif-medium",
-            }}
-            style={{
-              backgroundColor: "#2b8ada",
-              width: "90%",
-              alignSelf: "center",
-              marginVertical: 10,
-              borderRadius: 5,
-            }}
-            onPress={onContinuePressed}
-          ></CustomButton>
-          {/* Login with LinkedIn, Google, Facebook */}
-          {/* <View style={{ flexDirection: "column" }}>
-            <TouchableOpacity
-              style={{
-                width: "90%",
-                alignSelf: "center",
-                backgroundColor: "white",
-                marginTop: 10,
-              }}
-              onPress={loginWithLinkedIn}
-            >
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignSelf: "center",
-                  backgroundColor: "white",
-                  padding: 10,
-                  borderRadius: 6,
-                }}
-              >
-                <Image
-                  source={require("../Resources/linkedIn.png")}
-                  style={{ marginRight: "5%" }}
-                />
-                <Text style={{ fontSize: 12 }}>Login with LinkedIn</Text>
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={{
-                width: "90%",
-                alignSelf: "center",
-                backgroundColor: "white",
-                marginTop: 10,
-              }}
-              onPress={loginWithGoogle}
-            >
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignSelf: "center",
-                  backgroundColor: "white",
-                  padding: 10,
-                  borderRadius: 6,
-                }}
-              >
-                <Image
-                  source={require("../Resources/google.png")}
-                  style={{ marginRight: "5%" }}
-                />
-                <Text style={{ fontSize: 12 }}>Login with Google</Text>
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={{
-                width: "90%",
-                alignSelf: "center",
-                backgroundColor: "white",
-                marginTop: 10,
-              }}
-              onPress={loginWithFacebook}
-            >
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignSelf: "center",
-                  backgroundColor: "white",
-                  padding: 10,
-                  borderRadius: 6,
-                }}
-              >
-                <Image
-                  source={require("../Resources/facebook.png")}
-                  style={{ marginRight: "5%" }}
-                />
-                <Text style={{ fontSize: 12 }}>Login with Facebook</Text>
-              </View>
-            </TouchableOpacity>
-          </View> */}
-
           <View
-            style={{ flexDirection: "row", alignSelf: "center", marginTop: 40 }}
+            style={{ flex: 1, flexDirection: "column", alignItems: "center" }}
           >
-            <Text
+            <Image
+              source={require("../Resources/TH_trans.png")}
               style={{
-                fontSize: 13,
-                color: "black",
-                fontWeight: "bold",
+                width: 200,
+                height: 200,
+                alignSelf: "center",
+                borderRadius: 50,
+                margin: 20,
+              }}
+            ></Image>
+
+            <View
+              style={{ flex: 1, flexDirection: "row", alignSelf: "center" }}
+            >
+              <CountryPicker
+                disable={false}
+                animationType={"slide"}
+                language="en"
+                containerStyle={styles.pickerStyle}
+                pickerTitleStyle={styles.pickerTitleStyle}
+                selectedCountryTextStyle={styles.selectedCountryTextStyle}
+                countryNameTextStyle={styles.countryNameTextStyle}
+                pickerTitle={"Country Picker"}
+                searchBarPlaceHolder={"Search......"}
+                hideCountryFlag={false}
+                hideCountryCode={false}
+                searchBarStyle={styles.searchBarStyle}
+                countryCode={"91"}
+                selectedValue={selectedValue}
+              />
+              <TextInput
+                placeholder="Enter Mobile Number"
+                style={{
+                  borderRadius: 10,
+                  borderBottomLeftRadius: 0,
+                  borderTopLeftRadius: 0,
+                  padding: 10,
+                  marginVertical: 10,
+                  backgroundColor: "white",
+                  width: "60%",
+                  fontSize: 15,
+                }}
+                onChangeText={(text) => setMob(text)}
+                value={mob}
+                keyboardType={"number-pad"}
+                maxLength={10}
+                contextMenuHidden={true}
+              ></TextInput>
+            </View>
+            <View style={{ width: "80%", alignSelf: "center" }}>
+              <CheckBox
+                title="By signing in, you agree to Aarogya Terms and Conditions and Private Policy"
+                containerStyle={styles.containerStyle}
+                textStyle={{ width: "80%", fontSize: 11 }}
+                checkedColor={"#2b8ada"}
+                checked={privatePolicy}
+                iconType={""}
+                onPress={() => setprivatePolicy(!privatePolicy)}
+              />
+              <CheckBox
+                title={"Allow us to send WhatsApp for notification"}
+                containerStyle={styles.containerStyle}
+                textStyle={{ width: "80%", fontSize: 11 }}
+                checkedColor={"#2b8ada"}
+                checked={notification}
+                onPress={() => setnotification(!notification)}
+              />
+            </View>
+            <CustomButton
+              text="Continue"
+              textstyle={{
+                color: "white",
+                fontSize: 15,
                 fontFamily: "sans-serif-medium",
               }}
+              style={{
+                backgroundColor: "#2b8ada",
+                width: "90%",
+                alignSelf: "center",
+                marginVertical: 10,
+                borderRadius: 5,
+              }}
+              onPress={onContinuePressed}
+            ></CustomButton>
+
+            {/* Login with LinkedIn, Google, Facebook */}
+            {/* <View style={{ flexDirection: "column" }}>
+              <TouchableOpacity
+                style={{
+                  width: "90%",
+                  alignSelf: "center",
+                  backgroundColor: "white",
+                  marginTop: 10,
+                }}
+                onPress={loginWithLinkedIn}
+              >
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignSelf: "center",
+                    backgroundColor: "white",
+                    padding: 10,
+                    borderRadius: 6,
+                  }}
+                >
+                  <Image
+                    source={require("../Resources/linkedIn.png")}
+                    style={{ marginRight: "5%" }}
+                  />
+                  <Text style={{ fontSize: 12 }}>Login with LinkedIn</Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  width: "90%",
+                  alignSelf: "center",
+                  backgroundColor: "white",
+                  marginTop: 10,
+                }}
+                onPress={loginWithGoogle}
+              >
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignSelf: "center",
+                    backgroundColor: "white",
+                    padding: 10,
+                    borderRadius: 6,
+                  }}
+                >
+                  <Image
+                    source={require("../Resources/google.png")}
+                    style={{ marginRight: "5%" }}
+                  />
+                  <Text style={{ fontSize: 12 }}>Login with Google</Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  width: "90%",
+                  alignSelf: "center",
+                  backgroundColor: "white",
+                  marginTop: 10,
+                }}
+                onPress={loginWithFacebook}
+              >
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignSelf: "center",
+                    backgroundColor: "white",
+                    padding: 10,
+                    borderRadius: 6,
+                  }}
+                >
+                  <Image
+                    source={require("../Resources/facebook.png")}
+                    style={{ marginRight: "5%" }}
+                  />
+                  <Text style={{ fontSize: 12 }}>Login with Facebook</Text>
+                </View>
+              </TouchableOpacity>
+            </View> */}
+
+            {/* <View
+              style={{
+                flexDirection: "row",
+                alignSelf: "center",
+                marginTop: 40,
+              }}
             >
-              Don't have an account?{" "}
-            </Text>
-            <Text
-              onPress={() => navigation.push("Location")}
-              style={{ color: "#2b8ada", fontWeight: "bold", fontSize: 13 }}
-            >
-              Register Now
-            </Text>
+              <Text
+                style={{
+                  fontSize: 13,
+                  color: "black",
+                  fontWeight: "bold",
+                  fontFamily: "sans-serif-medium",
+                }}
+              >
+                Don't have an account?{" "}
+              </Text>
+              <Text
+                onPress={() => navigation.push(nextScreen)}
+                style={{ color: "#2b8ada", fontWeight: "bold", fontSize: 13 }}
+              >
+                Register Now
+              </Text>
+            </View> */}
           </View>
           {modalVisible ? (
             <Modal
@@ -373,7 +390,10 @@ const FirstScreen = ({ navigation }) => {
                       color="black"
                       size={26}
                       style={{ position: "absolute", top: 10, right: 10 }}
-                      onPress={() => setModalVisible(false)}
+                      onPress={() => {
+                        setModalVisible(false);
+                        reset();
+                      }}
                     />
                   </View>
                   <View
@@ -411,57 +431,57 @@ const FirstScreen = ({ navigation }) => {
                     <View style={styles.TextInputView}>
                       <TextInput
                         ref={pin1Ref}
-                        value={pin1}
                         keyboardType={"number-pad"}
                         maxLength={1}
-                        onChange={(pin1) => {
+                        onChangeText={(pin1) => {
                           setPin1(pin1);
                           if (pin1 != "") {
                             pin2Ref.current.focus();
                           }
                         }}
+                        value={pin1}
                         style={styles.TextInputText}
                       />
                     </View>
                     <View style={styles.TextInputView}>
                       <TextInput
                         ref={pin2Ref}
-                        value={pin2}
                         keyboardType={"number-pad"}
                         maxLength={1}
-                        onChange={(pin2) => {
+                        onChangeText={(pin2) => {
                           setPin2(pin2);
                           if (pin2 != "") {
                             pin3Ref.current.focus();
                           }
                         }}
+                        value={pin2}
                         style={styles.TextInputText}
                       />
                     </View>
                     <View style={styles.TextInputView}>
                       <TextInput
                         ref={pin3Ref}
-                        value={pin3}
                         keyboardType={"number-pad"}
                         maxLength={1}
-                        onChange={(pin3) => {
+                        onChangeText={(pin3) => {
                           setPin3(pin3);
                           if (pin3 != "") {
                             pin4Ref.current.focus();
                           }
                         }}
+                        value={pin3}
                         style={styles.TextInputText}
                       />
                     </View>
                     <View style={styles.TextInputView}>
                       <TextInput
                         ref={pin4Ref}
-                        value={pin4}
                         keyboardType={"number-pad"}
                         maxLength={1}
-                        onChange={(pin4) => {
+                        onChangeText={(pin4) => {
                           setPin4(pin4);
                         }}
+                        value={pin4}
                         style={styles.TextInputText}
                       />
                     </View>
@@ -478,59 +498,85 @@ const FirstScreen = ({ navigation }) => {
                   ></CustomButton>
                   <View
                     style={{
-                      flexDirection: "row",
+                      flexDirection: "column",
                       alignSelf: "center",
                       marginVertical: 10,
+                      width: "95%",
                     }}
                   >
-                    <Text
+                    {wrongOTPMessage ? (
+                      <Text
+                        style={{
+                          fontSize: 15,
+                          color: "red",
+                          alignSelf: "center",
+                          fontWeight: "bold",
+                          marginVertical: 3,
+                        }}
+                      >
+                        This otp is incorrect. Please recheck.
+                      </Text>
+                    ) : null}
+                    <View
                       style={{
-                        fontSize: 15,
-                        color: "black",
+                        flexDirection: "row",
                         alignSelf: "center",
-                        fontWeight: "bold",
                       }}
                     >
-                      Didn't recieve the OTP.{" "}
-                    </Text>
-                    {resend === false ? (
                       <Text
                         style={{
                           fontSize: 15,
                           color: "black",
-                          width: "30%",
+                          alignSelf: "center",
                           fontWeight: "bold",
-                          color: "#2b8ada",
                         }}
-                        onPress={onResend}
                       >
-                        Resend OTP
+                        Didn't recieve the OTP.{" "}
                       </Text>
+                      {resend === false ? (
+                        <Text
+                          style={{
+                            fontSize: 15,
+                            color: "black",
+                            alignSelf: "center",
+                            fontWeight: "bold",
+                            color: "#2b8ada",
+                          }}
+                          onPress={onResend}
+                        >
+                          Resend OTP
+                        </Text>
+                      ) : null}
+                    </View>
+
+                    {show ? (
+                      <View
+                        style={{ flexDirection: "row", alignSelf: "center" }}
+                      >
+                        <Text style={{ color: "black" }}>
+                          Resend OTP after
+                          {
+                            <CountDown
+                              size={16}
+                              until={val}
+                              digitStyle={{
+                                marginHorizontal: 2,
+                              }}
+                              digitTxtStyle={{
+                                color: "#2b8ada",
+                                marginTop: 25,
+                              }}
+                              timeToShow={["S"]}
+                              timeLabels={{ s: null }}
+                              showSeparator={true}
+                              onFinish={onFinishCount}
+                            />
+                          }
+                          sec
+                        </Text>
+                      </View>
                     ) : null}
                   </View>
-
-                  {show ? (
-                    <View style={{ flexDirection: "row", alignSelf: "center" }}>
-                      <Text style={{ color: "black" }}>
-                        Resend OTP after
-                        {
-                          <CountDown
-                            size={16}
-                            until={val}
-                            digitStyle={{
-                              marginHorizontal: 2,
-                            }}
-                            digitTxtStyle={{ color: "#2b8ada", marginTop: 25 }}
-                            timeToShow={["S"]}
-                            timeLabels={{ s: null }}
-                            showSeparator={true}
-                            onFinish={onFinishCount}
-                          />
-                        }
-                        sec
-                      </Text>
-                    </View>
-                  ) : null}
                 </View>
               </View>
             </Modal>
@@ -544,10 +590,10 @@ const FirstScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: "row",
+    flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#2B8ADA",
+    backgroundColor: "#e8f0fe",
   },
   title: {
     fontSize: 34,
@@ -625,7 +671,7 @@ const styles = StyleSheet.create({
   modalView: {
     position: "absolute",
     width: "100%",
-    height: 400,
+    height: 440,
     bottom: 0,
     backgroundColor: "white",
     borderTopRightRadius: 34,

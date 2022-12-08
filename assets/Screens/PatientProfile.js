@@ -511,7 +511,7 @@ function PatientProfile({ navigation }) {
   const [familyMembers, setfamilyMembers] = useState(dataFamily);
   const logout = () => {
     console.log("Logging out");
-    navigation.navigate("Login/SignUp");
+    navigation.navigate("Role");
   };
   const renderInvoice = ({ item }) => (
     <ItemInvoice no={item.no} date={item.date} doc={item.doc} />

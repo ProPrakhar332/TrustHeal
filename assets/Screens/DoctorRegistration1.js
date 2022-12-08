@@ -25,6 +25,7 @@ import doctor from "../Resources/doctor.png";
 import { CheckBox } from "react-native-elements";
 import FAIcon from "react-native-vector-icons/FontAwesome5";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useEffect } from "react";
 
 const DoctorRegistrationStep1 = ({ navigation }) => {
   const [name, setName] = useState("");
@@ -93,6 +94,13 @@ const DoctorRegistrationStep1 = ({ navigation }) => {
     console.log("From Cache");
     console.log(await AsyncStorage.getItem("speciality"));
   };
+
+  useEffect(() => {
+    const onLoadSetData = async () => {
+      setmobile(await AsyncStorage.getItem("mobilenumber"));
+    };
+    onLoadSetData();
+  }, []);
 
   return (
     <KeyboardAvoidingView
@@ -263,11 +271,7 @@ const DoctorRegistrationStep1 = ({ navigation }) => {
             </View>
             <View style={{ marginVertical: 10 }}>
               <Text style={styles.inputLabel}>City</Text>
-              <TextInput
-                style={[styles.textInput, { backgroundColor: "#D0E0FC" }]}
-                editable={false}
-                value={city}
-              ></TextInput>
+              <TextInput style={[styles.textInput]} value={city}></TextInput>
             </View>
             <View style={{ marginVertical: 10 }}>
               <Text style={styles.inputLabel}>Mobile Number</Text>
@@ -339,6 +343,27 @@ const DoctorRegistrationStep1 = ({ navigation }) => {
                 onPress={() => {
                   sp();
                   setTermsView(true);
+                }}
+              ></CustomButton>
+              <CustomButton
+                text="Save"
+                textstyle={{
+                  color: "#2b8ada",
+                  fontSize: 15,
+                  fontWeight: "bold",
+                }}
+                style={{
+                  flex: 0.45,
+                  marginBottom: 50,
+                  marginVertical: 10,
+                  padding: 10,
+                  borderRadius: 10,
+                  borderWidth: 2,
+                  borderColor: "#2b8ada",
+                }}
+                onPress={() => {
+                  Alert.alert("All details have been saved successfully!");
+                  sp();
                 }}
               ></CustomButton>
               {termsView ? (
@@ -445,24 +470,6 @@ const DoctorRegistrationStep1 = ({ navigation }) => {
                   </View>
                 </Modal>
               ) : null}
-              <CustomButton
-                text="Do it Later"
-                textstyle={{
-                  color: "#2b8ada",
-                  fontSize: 15,
-                  fontWeight: "bold",
-                }}
-                style={{
-                  flex: 0.45,
-                  marginBottom: 50,
-                  marginVertical: 10,
-                  padding: 10,
-                  borderRadius: 10,
-                  borderWidth: 2,
-                  borderColor: "#2b8ada",
-                }}
-                onPress={() => navigation.push("DoctorHome")}
-              ></CustomButton>
             </View>
           </View>
         </ScrollView>

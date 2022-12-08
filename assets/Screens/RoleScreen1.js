@@ -42,7 +42,7 @@ const RoleScreen = ({ navigation }) => {
           }}
         >
           <Image source={require("../Resources/Logo.jpg")} />
-          <Text
+          {/* <Text
             style={{
               fontWeight: "bold",
               fontSize: 26,
@@ -53,7 +53,7 @@ const RoleScreen = ({ navigation }) => {
             }}
           >
             Type of User
-          </Text>
+          </Text> */}
 
           <View
             style={{
@@ -89,7 +89,11 @@ const RoleScreen = ({ navigation }) => {
                       ? { backgroundColor: "white", padding: 3 }
                       : { backgroundColor: "#2b8ada", padding: 3 }
                   }
-                  onPress={() => navigation.push("RegisterDoctor")}
+                  onPress={() =>
+                    navigation.push("OTPScreen", {
+                      nextScreen: "RegisterDoctor",
+                    })
+                  }
                 />
               </TouchableOpacity>
             </View>
@@ -120,7 +124,11 @@ const RoleScreen = ({ navigation }) => {
                       ? { backgroundColor: "white", padding: 3 }
                       : { backgroundColor: "#2b8ada", padding: 3 }
                   }
-                  onPress={() => navigation.push("PatientRegistration")}
+                  onPress={() => {
+                    navigation.push("OTPScreen", {
+                      nextScreen: "PatientRegistration",
+                    });
+                  }}
                 />
               </TouchableOpacity>
             </View>
