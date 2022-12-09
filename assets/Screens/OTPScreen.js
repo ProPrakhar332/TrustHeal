@@ -993,13 +993,13 @@ const FirstScreen = ({ navigation, route }) => {
   const [notification, setnotification] = useState(false);
   const [mob, setMob] = useState("");
   const [countryCode, setCountryCode] = useState("+91");
-  const [country, setcountry] = useState("India");
   const [modalVisible, setModalVisible] = useState(false);
   const [wrongOTPMessage, setwrongOTPMessage] = useState(false);
 
-  const selectedValue = (value) => {
+  const selectedValue = async (value) => {
+    await AsyncStorage.setItem("countryCode", "+" + value);
+    console.log(await AsyncStorage.getItem("countryCode"));
     setCountryCode("+" + value);
-    console.log(countryCode);
   };
   const onFinishCount = () => {
     setShow(false);
@@ -1025,24 +1025,24 @@ const FirstScreen = ({ navigation, route }) => {
     setPin4("");
   };
 
-  const getCountryCode = async () => {
-    countries.forEach((item) => {
+  useEffect(() => {
+    countries.forEach(async (item) => {
       if (item.code == countryCode) {
-        setcountry(item.name);
-        console.log(country);
+        await AsyncStorage.setItem("countryName", item.name);
+        console.log(await AsyncStorage.getItem("countryName"));
       }
     });
-  };
+  }, [countryCode]);
 
   const onContinuePressed = async () => {
     if (mob.length < 10) Alert.alert("Enter Valid Mobile Number!");
     else {
-      getCountryCode();
-
-      let no = countryCode + "" + mob;
+      // getCountryCode();
+      let countryCodeCache = await AsyncStorage.getItem("countryCode");
+      let no = countryCodeCache + "" + mob;
+      console.log(no);
       try {
         await AsyncStorage.setItem("mobileNumber", no);
-        await AsyncStorage.setItem("countryName", country);
 
         sendOTP();
       } catch (e) {

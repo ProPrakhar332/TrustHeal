@@ -98,22 +98,18 @@ const DoctorRegistrationStep1 = ({ navigation }) => {
     var month = Number(Month) - 1;
     var day = Number(Day);
     var today = new Date();
-
-    setage(today.getFullYear() - year);
+    let x = today.getFullYear() - year;
     if (
       today.getMonth() < month ||
       (today.getMonth() == month && today.getDate() < day)
     ) {
-      setage(age - 1);
+      await AsyncStorage.setItem("age", x - 1 + "");
     }
-
-    console.log(age);
-    await AsyncStorage.setItem("age", age + "");
+    await AsyncStorage.setItem("age", x + "");
+    console.log(await AsyncStorage.getItem("age"));
   };
 
   const SaveData = async () => {
-    calculateAge();
-
     //console.log(JSON.stringify(splJson));
 
     await AsyncStorage.setItem("city", city);
@@ -167,6 +163,10 @@ const DoctorRegistrationStep1 = ({ navigation }) => {
     };
     onLoadSetData();
   }, []);
+
+  useEffect(() => {
+    if (Year.length == 4) calculateAge();
+  }, [Year]);
 
   return (
     <KeyboardAvoidingView
@@ -330,7 +330,9 @@ const DoctorRegistrationStep1 = ({ navigation }) => {
                     Year
                   </Text>
                   <TextInput
-                    onChangeText={(text) => setYear(text)}
+                    onChangeText={(text) => {
+                      setYear(text);
+                    }}
                     value={Year}
                     style={[styles.textInput, { textAlign: "center" }]}
                     keyboardType={"number-pad"}
@@ -530,7 +532,7 @@ const DoctorRegistrationStep1 = ({ navigation }) => {
                   borderColor: "#2b8ada",
                 }}
                 onPress={() => {
-                  SaveData();
+                  calculateAge();
                 }}
               ></CustomButton>
               {termsView ? (
