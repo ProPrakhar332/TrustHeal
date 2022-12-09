@@ -1073,10 +1073,11 @@ const FirstScreen = ({ navigation, route }) => {
           otp: x,
         })
         .then(async function (response) {
+          setModalVisible(false);
           if (response.status == 204) {
-            setModalVisible(false);
             navigation.navigate(nextScreen);
           } else if (response.status == 200) {
+            console.log(response.data);
             await AsyncStorage.setItem("doctorId", response.data.doctorId + "");
             navigation.navigate("DoctorHome");
           }

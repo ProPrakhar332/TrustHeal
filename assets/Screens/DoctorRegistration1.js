@@ -132,7 +132,7 @@ const DoctorRegistrationStep1 = ({ navigation }) => {
 
     axios
       .post("http://10.0.2.2:8080/doctor/gernalinfo/save", {
-        age: age,
+        age: await AsyncStorage.getItem("age"),
         city: city,
         countryName: await AsyncStorage.getItem("countryName"),
         dob: await AsyncStorage.getItem("dob"),
