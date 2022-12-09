@@ -26,19 +26,32 @@ import { CheckBox } from "react-native-elements";
 import FAIcon from "react-native-vector-icons/FontAwesome5";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect } from "react";
+import axios from "axios";
 
 const DoctorRegistrationStep1 = ({ navigation }) => {
+  const [title, setTitle] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [title, setTitle] = useState("");
+  const [dob, setdob] = useState("");
+  const [Day, setDay] = useState("");
+  const [Month, setMonth] = useState("");
+  const [Year, setYear] = useState("");
+  const [age, setage] = useState(0);
   const [gender, setGender] = useState("");
-  const [city, setCity] = useState("");
-  const [mobile, setmobile] = useState("");
-  const [PIN, setPIN] = useState("");
   const [speciality, setspeciality] = useState([]);
   const [Language, setLanguage] = useState([]);
+  const [PIN, setPIN] = useState("");
+  const [city, setCity] = useState("");
+  const [mobile, setmobile] = useState("");
+  const [checkTerms, setCheckTerms] = useState(false);
+  const [doctorId, setDoctorId] = useState(0);
 
-  const [splJson, setsplJson] = useState([]);
+  const dataTitle = [
+    { key: "Dr.", value: "Dr." },
+    { key: "Mr.", value: "Mr." },
+    { key: "Mrs.", value: "Mrs." },
+    { key: "Ms.", value: "Ms." },
+  ];
 
   const data = [
     { key: "Dermatologist", value: "Dermatologist" },
@@ -46,7 +59,7 @@ const DoctorRegistrationStep1 = ({ navigation }) => {
     { key: "ENT", value: "ENT" },
     { key: "Endocrinologist", value: "Endocrinologist" },
     { key: "Gastoentrologist", value: "Gastoentrologist" },
-    { key: "Gynecologist", value: "Dermatologist" },
+    { key: "Gynecologist", value: "Gynecologist" },
     { key: "Lifestyle Diseases", value: "Lifestyle Diseases" },
     { key: "Ophthalmologist", value: "Ophthalmologist" },
     { key: "Pediatrician", value: "Pediatrician" },
@@ -77,27 +90,80 @@ const DoctorRegistrationStep1 = ({ navigation }) => {
     { key: "Other", value: "Other" },
   ];
 
-  const [checkTerms, setCheckTerms] = useState(false);
-
   const window = useWindowDimensions();
-  const [modalVisible, setModalVisible] = useState(false);
-  const [splModalVisible, setSplModalVisible] = useState(false);
   const [termsView, setTermsView] = useState(false);
 
-  const genderSubmit = () => {
-    console.log(gender);
+  const calculateAge = async () => {
+    var year = Number(Year);
+    var month = Number(Month) - 1;
+    var day = Number(Day);
+    var today = new Date();
+
+    setage(today.getFullYear() - year);
+    if (
+      today.getMonth() < month ||
+      (today.getMonth() == month && today.getDate() < day)
+    ) {
+      setage(age - 1);
+    }
+
+    console.log(age);
+    await AsyncStorage.setItem("age", age + "");
   };
 
-  const sp = async () => {
+  const SaveData = async () => {
+    calculateAge();
+
     //console.log(JSON.stringify(splJson));
-    await AsyncStorage.setItem("speciality", JSON.stringify(splJson));
-    console.log("From Cache");
-    console.log(await AsyncStorage.getItem("speciality"));
+
+    await AsyncStorage.setItem("city", city);
+    await AsyncStorage.setItem("dob", Year + "-" + Month + "-" + Day);
+    await AsyncStorage.setItem("email", email);
+    await AsyncStorage.setItem("fullName", name);
+    await AsyncStorage.setItem("gender", gender);
+    await AsyncStorage.setItem("mobileNumber", mobile);
+    await AsyncStorage.setItem("PIN", PIN);
+    await AsyncStorage.setItem("checkTerms", checkTerms + "");
+    await AsyncStorage.setItem("title", title);
+
+    await AsyncStorage.setItem("speciality", JSON.stringify(speciality));
+    await AsyncStorage.setItem("language", JSON.stringify(Language));
+
+    const pp = await AsyncStorage.getAllKeys();
+
+    for (var i = 0; i < pp.length; ++i)
+      console.log(pp[i] + "\t" + (await AsyncStorage.getItem(pp[i])));
+
+    axios
+      .post("http://10.0.2.2:8080/doctor/gernalinfo/save", {
+        age: age,
+        city: city,
+        countryName: await AsyncStorage.getItem("countryName"),
+        dob: await AsyncStorage.getItem("dob"),
+        email: email,
+        fullName: name,
+        gender: gender,
+        mobileNumber: mobile,
+        pincode: PIN,
+        profilephoto: "/aws/s3/pfp",
+        termsAndCondition: checkTerms,
+        title: title,
+      })
+      .then(async function (response) {
+        if (response.status == 201) {
+          await AsyncStorage.setItem("doctorId", response.data.doctorId + "");
+          console.log(await AsyncStorage.getItem("doctorId"));
+          Alert.alert("All details have been saved successfully!");
+        }
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
   };
 
   useEffect(() => {
     const onLoadSetData = async () => {
-      setmobile(await AsyncStorage.getItem("mobilenumber"));
+      setmobile(await AsyncStorage.getItem("mobileNumber"));
     };
     onLoadSetData();
   }, []);
@@ -172,12 +238,17 @@ const DoctorRegistrationStep1 = ({ navigation }) => {
           <View>
             <View style={{ marginVertical: 10 }}>
               <Text style={styles.inputLabel}>Title*</Text>
-              <TextInput
-                style={styles.textInput}
-                placeholderTextColor={"gray"}
-                onChangeText={(text) => setTitle(text)}
-                value={title}
-              ></TextInput>
+              <SelectList
+                defaultOption={"Mr."}
+                placeholder={" "}
+                setSelected={(val) => setTitle(val)}
+                data={dataTitle}
+                save="value"
+                boxStyles={{ backgroundColor: "white", borderWidth: 0 }}
+                dropdownStyles={{ backgroundColor: "white" }}
+                dropdownTextStyles={{ color: "#2b8ada", fontWeight: "bold" }}
+                badgeStyles={{ backgroundColor: "#2b8ada" }}
+              />
             </View>
             <View style={{ marginVertical: 10 }}>
               <Text style={styles.inputLabel}>Full Name*</Text>
@@ -194,8 +265,80 @@ const DoctorRegistrationStep1 = ({ navigation }) => {
                 style={styles.textInput}
                 placeholderTextColor={"gray"}
                 onChangeText={(text) => setEmail(text)}
+                keyboardType={"email-address"}
                 value={email}
               ></TextInput>
+            </View>
+
+            <View style={{ marginVertical: 10 }}>
+              <Text style={styles.inputLabel}>Date of Bith*</Text>
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                }}
+              >
+                <View style={{ flex: 0.3 }}>
+                  <Text
+                    style={{
+                      color: "gray",
+                      fontSize: 12,
+                      marginBottom: 3,
+                      textAlign: "center",
+                    }}
+                  >
+                    Day
+                  </Text>
+                  <TextInput
+                    onChangeText={(text) => setDay(text)}
+                    value={Day}
+                    style={[styles.textInput, { textAlign: "center" }]}
+                    keyboardType={"number-pad"}
+                    placeholder={"DD"}
+                    maxLength={2}
+                  />
+                </View>
+                <View style={{ flex: 0.3 }}>
+                  <Text
+                    style={{
+                      color: "gray",
+                      fontSize: 12,
+                      marginBottom: 3,
+                      textAlign: "center",
+                    }}
+                  >
+                    Month
+                  </Text>
+                  <TextInput
+                    onChangeText={(text) => setMonth(text)}
+                    value={Month}
+                    style={[styles.textInput, { textAlign: "center" }]}
+                    keyboardType={"number-pad"}
+                    placeholder={"MM"}
+                    maxLength={2}
+                  />
+                </View>
+                <View style={{ flex: 0.3 }}>
+                  <Text
+                    style={{
+                      color: "gray",
+                      fontSize: 12,
+                      marginBottom: 3,
+                      textAlign: "center",
+                    }}
+                  >
+                    Year
+                  </Text>
+                  <TextInput
+                    onChangeText={(text) => setYear(text)}
+                    value={Year}
+                    style={[styles.textInput, { textAlign: "center" }]}
+                    keyboardType={"number-pad"}
+                    placeholder={"YYYY"}
+                    maxLength={4}
+                  />
+                </View>
+              </View>
             </View>
 
             <View
@@ -207,6 +350,7 @@ const DoctorRegistrationStep1 = ({ navigation }) => {
               <Text style={[styles.inputLabel]}>Gender*</Text>
               <SelectList
                 labelStyles={{ height: 0 }}
+                placeholder={" "}
                 setSelected={(val) => setGender(val)}
                 data={dataGender}
                 save="value"
@@ -226,6 +370,7 @@ const DoctorRegistrationStep1 = ({ navigation }) => {
               <Text style={[styles.inputLabel]}>Speciality*</Text>
               <MultipleSelectList
                 labelStyles={{ height: 0 }}
+                placeholder={" "}
                 setSelected={(val) => setspeciality(val)}
                 data={data}
                 save="value"
@@ -245,6 +390,7 @@ const DoctorRegistrationStep1 = ({ navigation }) => {
               <Text style={[styles.inputLabel]}>Language*</Text>
               <MultipleSelectList
                 labelStyles={{ height: 0 }}
+                placeholder={" "}
                 setSelected={(val) => setLanguage(val)}
                 data={dataLang}
                 save="value"
@@ -264,19 +410,27 @@ const DoctorRegistrationStep1 = ({ navigation }) => {
                 keyboardType={"number-pad"}
                 onChangeText={(text) => {
                   setPIN(text);
-                  setCity("Dehradun");
                 }}
                 value={PIN}
               ></TextInput>
             </View>
             <View style={{ marginVertical: 10 }}>
               <Text style={styles.inputLabel}>City</Text>
-              <TextInput style={[styles.textInput]} value={city}></TextInput>
+              <TextInput
+                style={[styles.textInput]}
+                onChangeText={(text) => {
+                  setCity(text);
+                }}
+                value={city}
+              ></TextInput>
             </View>
             <View style={{ marginVertical: 10 }}>
               <Text style={styles.inputLabel}>Mobile Number</Text>
               <TextInput
-                style={[styles.textInput, { backgroundColor: "#D0E0FC" }]}
+                style={[
+                  styles.textInput,
+                  { backgroundColor: "#D0E0FC", color: "black" },
+                ]}
                 editable={false}
                 value={mobile}
               ></TextInput>
@@ -340,9 +494,23 @@ const DoctorRegistrationStep1 = ({ navigation }) => {
                   padding: 10,
                   borderRadius: 10,
                 }}
-                onPress={() => {
-                  sp();
-                  setTermsView(true);
+                onPress={async () => {
+                  // if (
+                  //   name === "" ||
+                  //   email === "" ||
+                  //   gender === "" ||
+                  //   speciality === "" ||
+                  //   Language === "" ||
+                  //   PIN === ""
+                  // )
+                  //   Alert.alert(
+                  //     "Pls fill in all the details before continuing!"
+                  //   );
+                  // else {
+                  //   SaveData();
+                  //   setTermsView(true);
+                  // }
+                  console.log(await AsyncStorage.getItem("doctorId"));
                 }}
               ></CustomButton>
               <CustomButton
@@ -362,8 +530,7 @@ const DoctorRegistrationStep1 = ({ navigation }) => {
                   borderColor: "#2b8ada",
                 }}
                 onPress={() => {
-                  Alert.alert("All details have been saved successfully!");
-                  sp();
+                  SaveData();
                 }}
               ></CustomButton>
               {termsView ? (
