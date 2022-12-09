@@ -30,6 +30,17 @@ import splIcon from "../Icons/lifestyle-disease.png";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 function BasicDesign({ navigation }) {
+  //details
+
+  const [title, setTitle] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [dob, setdob] = useState("");
+  const [age, setAge] = useState("");
+  const [gender, setGender] = useState("");
+  const [city, setCity] = useState("");
+  const [mob, setMob] = useState("");
+
   const [EarningModal, setEarningModal] = useState(false);
   const [HelpModal, setHelpModal] = useState(false);
   const [SpecialityModal, setSpecialityModal] = useState(false);
@@ -41,6 +52,23 @@ function BasicDesign({ navigation }) {
     console.log(await AsyncStorage.getAllKeys());
     navigation.navigate("Role");
   };
+
+  useEffect(() => {
+    const onLoadSetData = async () => {
+      let x = JSON.parse(await AsyncStorage.getItem("UserDoctorProfile"));
+
+      setTitle(x.title);
+      setName(x.doctorName);
+      setCity(x.city);
+      setEmail(x.email);
+      setAge(x.age + "");
+      setMob(x.mobileNumber);
+      setdob(x.dob);
+      setGender(x.gender);
+    };
+    onLoadSetData();
+  }, []);
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -103,7 +131,7 @@ function BasicDesign({ navigation }) {
               </View>
               <View style={{ alignSelf: "center" }}>
                 <Text style={[styles.blueUnderText, { textAlign: "center" }]}>
-                  Dr. Rohan Kumar
+                  {title} {name}
                 </Text>
                 <Text
                   style={[
@@ -111,10 +139,10 @@ function BasicDesign({ navigation }) {
                     { color: "black", fontSize: 17, textAlign: "center" },
                   ]}
                 >
-                  Delhi
+                  {city}
                 </Text>
                 <Text style={[styles.grayHeading, { textAlign: "center" }]}>
-                  rohan@gmail.com
+                  {email}
                 </Text>
               </View>
             </View>
@@ -134,17 +162,17 @@ function BasicDesign({ navigation }) {
                   ]}
                 >
                   <Text style={styles.grayHeading}>Age</Text>
-                  <Text style={styles.blueUnderText}>35 Years</Text>
+                  <Text style={styles.blueUnderText}>{age} Years</Text>
                 </View>
                 <View style={[styles.whiteInnerBox]}>
                   <Text style={styles.grayHeading}>Mobile Number</Text>
-                  <Text style={styles.blueUnderText}>+91 9456335783</Text>
+                  <Text style={styles.blueUnderText}>{mob}</Text>
                 </View>
               </View>
               <View style={styles.whiteOuterBox}>
                 <View style={[styles.whiteInnerBox]}>
                   <Text style={styles.grayHeading}>Date of Birth</Text>
-                  <Text style={styles.blueUnderText}>01-01-1997</Text>
+                  <Text style={styles.blueUnderText}>{dob}</Text>
                 </View>
                 <View
                   style={[
@@ -153,7 +181,7 @@ function BasicDesign({ navigation }) {
                   ]}
                 >
                   <Text style={styles.grayHeading}>Gender</Text>
-                  <Text style={styles.blueUnderText}>Male</Text>
+                  <Text style={styles.blueUnderText}>{gender}</Text>
                 </View>
               </View>
             </View>

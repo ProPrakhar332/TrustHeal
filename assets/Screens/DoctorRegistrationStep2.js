@@ -23,13 +23,32 @@ import {
 //icons
 import doctor from "../Resources/doctor.png";
 import upload from "../Resources/upload.png";
+import { useEffect } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+const dataTitle = [
+  { key: "Dr.", value: "Dr." },
+  { key: "Mr.", value: "Mr." },
+  { key: "Mrs.", value: "Mrs." },
+  { key: "Ms.", value: "Ms." },
+];
+const dataGender = [
+  { key: "Male", value: "Male" },
+  { key: "Female", value: "Female" },
+  { key: "Other", value: "Other" },
+];
 
 const DoctorRegistration2 = ({ navigation }) => {
   //General Information Field
   const [showGenInfo, setShowGenInfo] = useState(false);
   const [GenInfoEdit, setGenInfoEdit] = useState(false);
+  const [title, setTitle] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [dob, setdob] = useState("");
   const [age, setAge] = useState("");
-  const [date, setDate] = useState("");
+  const [gender, setGender] = useState("");
+  const [city, setCity] = useState("");
   //Medical Registration Feild
   const [showMedReg, setShowMedReg] = useState(false);
   const [RegNo, setRegNo] = useState("");
@@ -115,6 +134,21 @@ const DoctorRegistration2 = ({ navigation }) => {
     { key: "11", value: "11" },
   ];
 
+  useEffect(() => {
+    const onLoadSetData = async () => {
+      let x = JSON.parse(await AsyncStorage.getItem("UserDoctorProfile"));
+
+      setTitle(x.title);
+      setName(x.doctorName);
+      setEmail(x.email);
+      setGender(x.gender);
+      setCity(x.city);
+      setdob(x.dob);
+      setAge(x.age + "");
+    };
+    onLoadSetData();
+  }, []);
+
   const RenderQuestion = () => {
     return questionareList.map((questionareList, index) => {
       return (
@@ -159,6 +193,7 @@ const DoctorRegistration2 = ({ navigation }) => {
           showsVerticalScrollIndicator={false}
         >
           <View>
+            {/* Completion Bar */}
             <View
               style={{
                 backgroundColor: "white",
@@ -179,6 +214,7 @@ const DoctorRegistration2 = ({ navigation }) => {
                 }}
               ></View>
             </View>
+            {/* Doctor Image */}
             <View
               style={{
                 backgroundColor: "white",
@@ -202,6 +238,7 @@ const DoctorRegistration2 = ({ navigation }) => {
           </View>
 
           <View style={{}}>
+            {/* General Info Label*/}
             <View
               style={{
                 width: "100%",
@@ -210,15 +247,7 @@ const DoctorRegistration2 = ({ navigation }) => {
             >
               <View
                 style={[
-                  {
-                    flexDirection: "row",
-                    backgroundColor: "white",
-                    borderTopRightRadius: 10,
-                    borderTopLeftRadius: 10,
-                    borderRadius: 10,
-                    padding: 5,
-                    marginVertical: 10,
-                  },
+                  styles.whiteLabelView,
                   showGenInfo ? { borderRadius: 0, marginBottom: 0 } : null,
                 ]}
               >
@@ -272,17 +301,10 @@ const DoctorRegistration2 = ({ navigation }) => {
                 </TouchableOpacity>
               </View>
             </View>
+            {/* General Info Body*/}
             {showGenInfo ? (
               <View>
-                <View
-                  style={{
-                    backgroundColor: "white",
-                    padding: 10,
-                    borderBottomRightRadius: 10,
-                    borderBottomLeftRadius: 10,
-                    marginBottom: 10,
-                  }}
-                >
+                <View style={styles.whiteBodyView}>
                   <View style={{ flexDirection: "column", marginVertical: 10 }}>
                     <View
                       style={{
@@ -319,16 +341,35 @@ const DoctorRegistration2 = ({ navigation }) => {
                     <View style={{ flexDirection: "row", alignSelf: "center" }}>
                       <View style={{ flex: 0.45, marginRight: "5%" }}>
                         <Text style={styles.inputLabel}>Title</Text>
-                        <TextInput
-                          style={[
-                            styles.textInput,
-                            { backgroundColor: "#d0e0fc" },
-                            GenInfoEdit ? { backgroundColor: "#E8F0FE" } : null,
-                          ]}
-                          placeholderTextColor={"black"}
-                          placeholder={"Dr."}
-                          editable={GenInfoEdit}
-                        ></TextInput>
+                        {GenInfoEdit ? (
+                          <SelectList
+                            defaultOption={"Mr."}
+                            placeholder={title}
+                            setSelected={(val) => setTitle(val)}
+                            data={dataTitle}
+                            save="value"
+                            boxStyles={{
+                              backgroundColor: "#E8F0FE",
+                              borderWidth: 0,
+                            }}
+                            dropdownStyles={{ backgroundColor: "white" }}
+                            dropdownTextStyles={{
+                              color: "#2b8ada",
+                              fontWeight: "bold",
+                            }}
+                            badgeStyles={{ backgroundColor: "#2b8ada" }}
+                          />
+                        ) : (
+                          <TextInput
+                            style={[
+                              styles.textInput,
+                              { backgroundColor: "#d0e0fc" },
+                            ]}
+                            placeholderTextColor={"black"}
+                            value={title}
+                            editable={GenInfoEdit}
+                          ></TextInput>
+                        )}
                       </View>
                       <View style={{ flex: 0.45 }}>
                         <Text style={styles.inputLabel}>Full Name</Text>
@@ -339,7 +380,8 @@ const DoctorRegistration2 = ({ navigation }) => {
                             GenInfoEdit ? { backgroundColor: "#E8F0FE" } : null,
                           ]}
                           placeholderTextColor={"black"}
-                          placeholder={"Rohan Kumar"}
+                          onChangeText={(text) => setName(text)}
+                          value={name}
                           editable={GenInfoEdit}
                         ></TextInput>
                       </View>
@@ -354,22 +396,46 @@ const DoctorRegistration2 = ({ navigation }) => {
                             GenInfoEdit ? { backgroundColor: "#E8F0FE" } : null,
                           ]}
                           placeholderTextColor={"black"}
-                          placeholder={"rohan@gmail.com"}
+                          keyboardType={"email-address"}
+                          onChangeText={(text) => setEmail(text)}
+                          value={email}
                           editable={GenInfoEdit}
                         ></TextInput>
                       </View>
                       <View style={{ flex: 0.45 }}>
                         <Text style={styles.inputLabel}>Gender</Text>
-                        <TextInput
-                          style={[
-                            styles.textInput,
-                            { backgroundColor: "#d0e0fc" },
-                            GenInfoEdit ? { backgroundColor: "#E8F0FE" } : null,
-                          ]}
-                          placeholderTextColor={"black"}
-                          placeholder={"Male"}
-                          editable={GenInfoEdit}
-                        ></TextInput>
+                        {GenInfoEdit ? (
+                          <SelectList
+                            labelStyles={{ height: 0 }}
+                            placeholder={gender}
+                            setSelected={(val) => setGender(val)}
+                            data={dataGender}
+                            save="value"
+                            boxStyles={{
+                              backgroundColor: "#E8F0FE",
+                              borderWidth: 0,
+                            }}
+                            dropdownStyles={{ backgroundColor: "white" }}
+                            dropdownTextStyles={{
+                              color: "#2b8ada",
+                              fontWeight: "bold",
+                            }}
+                            badgeStyles={{ backgroundColor: "#2b8ada" }}
+                          />
+                        ) : (
+                          <TextInput
+                            style={[
+                              styles.textInput,
+                              { backgroundColor: "#d0e0fc" },
+                              GenInfoEdit
+                                ? { backgroundColor: "#E8F0FE" }
+                                : null,
+                            ]}
+                            placeholderTextColor={"black"}
+                            value={gender}
+                            editable={false}
+                          />
+                        )}
                       </View>
                     </View>
                     <View style={{ flexDirection: "row", alignSelf: "center" }}>
@@ -395,7 +461,8 @@ const DoctorRegistration2 = ({ navigation }) => {
                             GenInfoEdit ? { backgroundColor: "#E8F0FE" } : null,
                           ]}
                           placeholderTextColor={"black"}
-                          placeholder={"Delhi"}
+                          onChangeText={(text) => setCity(text)}
+                          value={city}
                           editable={GenInfoEdit}
                         ></TextInput>
                       </View>
@@ -410,8 +477,11 @@ const DoctorRegistration2 = ({ navigation }) => {
                               { backgroundColor: "#E8F0FE" },
                             ]}
                             placeholderTextColor={"black"}
-                            editable={false}
-                            placeholder={date}
+                            editable={GenInfoEdit}
+                            keyboardType={"numeric"}
+                            placeholder={"YYYY-MM-DD"}
+                            onChangeText={(text) => setdob(text)}
+                            value={dob}
                           ></TextInput>
                           <FAIcon
                             name="calendar-alt"
@@ -424,10 +494,7 @@ const DoctorRegistration2 = ({ navigation }) => {
                               marginRight: "5%",
                               marginBottom: "5%",
                             }}
-                            onPress={() => {
-                              setDate("12 / 09 / 1990");
-                              setAge("32");
-                            }}
+                            onPress={() => {}}
                           />
                         </View>
                       </View>
@@ -511,6 +578,7 @@ const DoctorRegistration2 = ({ navigation }) => {
                 </View>
               </View>
             ) : null}
+            {/* Medical Registration Label*/}
             <View
               style={{
                 width: "100%",
@@ -519,13 +587,7 @@ const DoctorRegistration2 = ({ navigation }) => {
             >
               <View
                 style={[
-                  {
-                    flexDirection: "row",
-                    backgroundColor: "white",
-                    borderRadius: 10,
-                    marginVertical: 10,
-                    padding: 5,
-                  },
+                  styles.whiteLabelView,
                   showMedReg
                     ? {
                         borderBottomLeftRadius: 0,
@@ -567,17 +629,10 @@ const DoctorRegistration2 = ({ navigation }) => {
                 </TouchableOpacity>
               </View>
             </View>
+            {/* Medical Registration Body*/}
             {showMedReg ? (
               <View>
-                <View
-                  style={{
-                    backgroundColor: "white",
-                    padding: 10,
-                    borderBottomRightRadius: 10,
-                    borderBottomLeftRadius: 10,
-                    marginBottom: 10,
-                  }}
-                >
+                <View style={styles.whiteBodyView}>
                   <View style={{ flexDirection: "column", marginBottom: 10 }}>
                     <View style={{ flexDirection: "row", alignSelf: "center" }}>
                       <View style={{ flex: 0.45, marginRight: "5%" }}>
@@ -670,6 +725,7 @@ const DoctorRegistration2 = ({ navigation }) => {
                 </View>
               </View>
             ) : null}
+            {/* Education Qualifications & Certificates Label*/}
             <View
               style={{
                 width: "100%",
@@ -678,14 +734,7 @@ const DoctorRegistration2 = ({ navigation }) => {
             >
               <View
                 style={[
-                  {
-                    marginTop: 10,
-                    flexDirection: "row",
-                    backgroundColor: "white",
-                    borderRadius: 10,
-                    padding: 5,
-                    marginVertical: 10,
-                  },
+                  styles.whiteLabelView,
 
                   showEduDet
                     ? {
@@ -728,17 +777,10 @@ const DoctorRegistration2 = ({ navigation }) => {
                 </TouchableOpacity>
               </View>
             </View>
+            {/* Education Qualifications & Certificates Body*/}
             {showEduDet ? (
               <View>
-                <View
-                  style={{
-                    padding: 10,
-                    backgroundColor: "white",
-                    borderBottomRightRadius: 10,
-                    borderBottomLeftRadius: 10,
-                    marginBottom: 10,
-                  }}
-                >
+                <View style={styles.whiteBodyView}>
                   <View style={{ width: "95%", alignSelf: "center" }}>
                     <View
                       style={{
@@ -851,6 +893,7 @@ const DoctorRegistration2 = ({ navigation }) => {
                 </View>
               </View>
             ) : null}
+            {/* Identification Label*/}
             <View
               style={{
                 width: "100%",
@@ -859,13 +902,7 @@ const DoctorRegistration2 = ({ navigation }) => {
             >
               <View
                 style={[
-                  {
-                    flexDirection: "row",
-                    backgroundColor: "white",
-                    borderRadius: 10,
-                    marginVertical: 10,
-                    padding: 5,
-                  },
+                  styles.whiteLabelView,
                   showIdenDet
                     ? {
                         borderBottomLeftRadius: 0,
@@ -907,17 +944,10 @@ const DoctorRegistration2 = ({ navigation }) => {
                 </TouchableOpacity>
               </View>
             </View>
+            {/* Identification Body*/}
             {showIdenDet ? (
               <View>
-                <View
-                  style={{
-                    backgroundColor: "white",
-                    padding: 10,
-                    borderBottomRightRadius: 10,
-                    borderBottomLeftRadius: 10,
-                    marginBottom: 10,
-                  }}
-                >
+                <View style={styles.whiteBodyView}>
                   <View
                     style={{
                       flexDirection: "column",
@@ -1021,6 +1051,7 @@ const DoctorRegistration2 = ({ navigation }) => {
                 </View>
               </View>
             ) : null}
+            {/* Additional Information Label*/}
             <View
               style={{
                 width: "100%",
@@ -1029,13 +1060,7 @@ const DoctorRegistration2 = ({ navigation }) => {
             >
               <View
                 style={[
-                  {
-                    flexDirection: "row",
-                    backgroundColor: "white",
-                    borderRadius: 10,
-                    padding: 5,
-                    marginVertical: 10,
-                  },
+                  styles.whiteLabelView,
                   showAddInfo
                     ? {
                         borderBottomLeftRadius: 0,
@@ -1077,17 +1102,10 @@ const DoctorRegistration2 = ({ navigation }) => {
                 </TouchableOpacity>
               </View>
             </View>
+            {/* Additional Information Body*/}
             {showAddInfo ? (
               <View>
-                <View
-                  style={{
-                    backgroundColor: "white",
-                    padding: 10,
-                    borderBottomRightRadius: 10,
-                    borderBottomLeftRadius: 10,
-                    marginBottom: 10,
-                  }}
-                >
+                <View style={styles.whiteBodyView}>
                   <View style={{ flexDirection: "column", marginBottom: 10 }}>
                     <View
                       style={{
@@ -1808,6 +1826,7 @@ const DoctorRegistration2 = ({ navigation }) => {
                 </View>
               </Modal>
             ) : null}
+            {/* General Configuration Label*/}
             <View
               style={{
                 width: "100%",
@@ -1816,13 +1835,7 @@ const DoctorRegistration2 = ({ navigation }) => {
             >
               <View
                 style={[
-                  {
-                    flexDirection: "row",
-                    backgroundColor: "white",
-                    borderRadius: 10,
-                    marginVertical: 10,
-                    padding: 5,
-                  },
+                  styles.whiteLabelView,
                   showGenConfig
                     ? {
                         borderBottomLeftRadius: 0,
@@ -1867,17 +1880,10 @@ const DoctorRegistration2 = ({ navigation }) => {
                 </TouchableOpacity>
               </View>
             </View>
+            {/* General Configuration Body*/}
             {showGenConfig ? (
               <View>
-                <View
-                  style={{
-                    backgroundColor: "white",
-                    padding: 10,
-                    borderBottomRightRadius: 10,
-                    borderBottomLeftRadius: 10,
-                    marginBottom: 10,
-                  }}
-                >
+                <View style={styles.whiteBodyView}>
                   <View
                     style={{
                       flexDirection: "column",
@@ -1933,6 +1939,7 @@ const DoctorRegistration2 = ({ navigation }) => {
                 </View>
               </View>
             ) : null}
+            {/* Preconsultation Questionnaire Label*/}
             <View
               style={{
                 width: "100%",
@@ -1941,13 +1948,7 @@ const DoctorRegistration2 = ({ navigation }) => {
             >
               <View
                 style={[
-                  {
-                    flexDirection: "row",
-                    backgroundColor: "white",
-                    borderRadius: 10,
-                    marginVertical: 10,
-                    padding: 5,
-                  },
+                  styles.whiteLabelView,
                   showPreConsultationQuestionaire
                     ? {
                         borderBottomLeftRadius: 0,
@@ -2002,17 +2003,10 @@ const DoctorRegistration2 = ({ navigation }) => {
                 </TouchableOpacity>
               </View>
             </View>
+            {/* Preconsultation Questionnaire Body*/}
             {showPreConsultationQuestionaire ? (
               <View>
-                <View
-                  style={{
-                    backgroundColor: "white",
-                    padding: 10,
-                    borderBottomRightRadius: 10,
-                    borderBottomLeftRadius: 10,
-                    marginBottom: 10,
-                  }}
-                >
+                <View style={styles.whiteBodyView}>
                   <View
                     style={{
                       flexDirection: "column",
@@ -2209,6 +2203,7 @@ const DoctorRegistration2 = ({ navigation }) => {
                 </View>
               </Modal>
             ) : null}
+            {/* Consultation Fees Label*/}
             <View
               style={{
                 width: "100%",
@@ -2217,13 +2212,7 @@ const DoctorRegistration2 = ({ navigation }) => {
             >
               <View
                 style={[
-                  {
-                    flexDirection: "row",
-                    backgroundColor: "white",
-                    borderRadius: 10,
-                    marginTop: 10,
-                    padding: 5,
-                  },
+                  styles.whiteLabelView,
                   showConsultFees
                     ? { borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }
                     : null,
@@ -2264,17 +2253,10 @@ const DoctorRegistration2 = ({ navigation }) => {
                 </TouchableOpacity>
               </View>
             </View>
+            {/* Consultation Fees Body*/}
             {showConsultFees ? (
               <View>
-                <View
-                  style={{
-                    backgroundColor: "white",
-                    padding: 10,
-                    borderBottomRightRadius: 10,
-                    borderBottomLeftRadius: 10,
-                    marginBottom: 10,
-                  }}
-                >
+                <View style={styles.whiteBodyView}>
                   <View
                     style={{
                       flexDirection: "column",
@@ -2360,6 +2342,7 @@ const DoctorRegistration2 = ({ navigation }) => {
                 </View>
               </View>
             ) : null}
+            {/* Buttons */}
             <View
               style={{
                 alignSelf: "center",
@@ -2424,6 +2407,7 @@ const styles = StyleSheet.create({
   textInput: {
     flex: 0.45,
     padding: 5,
+    color: "black",
     backgroundColor: "#E8F0FE",
     borderRadius: 10,
     fontSize: 14,
@@ -2477,6 +2461,20 @@ const styles = StyleSheet.create({
     color: "black",
     padding: 5,
     width: "90%",
+  },
+  whiteLabelView: {
+    flexDirection: "row",
+    backgroundColor: "white",
+    borderRadius: 10,
+    marginVertical: 10,
+    padding: 5,
+  },
+  whiteBodyView: {
+    backgroundColor: "white",
+    padding: 10,
+    borderBottomRightRadius: 10,
+    borderBottomLeftRadius: 10,
+    marginBottom: 10,
   },
 });
 

@@ -1075,9 +1075,14 @@ const FirstScreen = ({ navigation, route }) => {
         .then(async function (response) {
           setModalVisible(false);
           if (response.status == 204) {
+            reset();
             navigation.navigate(nextScreen);
           } else if (response.status == 200) {
-            console.log(response.data);
+            reset();
+            await AsyncStorage.setItem(
+              "UserDoctorProfile",
+              JSON.stringify(response.data)
+            );
             await AsyncStorage.setItem("doctorId", response.data.doctorId + "");
             navigation.navigate("DoctorHome");
           }

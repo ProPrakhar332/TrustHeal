@@ -129,7 +129,9 @@ const DoctorRegistrationStep1 = ({ navigation }) => {
 
     for (var i = 0; i < pp.length; ++i)
       console.log(pp[i] + "\t" + (await AsyncStorage.getItem(pp[i])));
+  };
 
+  const PostData = async () => {
     axios
       .post("http://10.0.2.2:8080/doctor/gernalinfo/save", {
         age: await AsyncStorage.getItem("age"),
@@ -148,8 +150,12 @@ const DoctorRegistrationStep1 = ({ navigation }) => {
       .then(async function (response) {
         if (response.status == 201) {
           await AsyncStorage.setItem("doctorId", response.data.doctorId + "");
+          console.log(response.data);
+          await AsyncStorage.setItem(
+            "UserDoctorProfile",
+            JSON.stringify(response.data)
+          );
           console.log("doctorID" + (await AsyncStorage.getItem("doctorId")));
-          Alert.alert("All details have been saved successfully!");
         }
       })
       .catch(function (error) {
@@ -497,21 +503,26 @@ const DoctorRegistrationStep1 = ({ navigation }) => {
                   borderRadius: 10,
                 }}
                 onPress={async () => {
-                  // if (
-                  //   name === "" ||
-                  //   email === "" ||
-                  //   gender === "" ||
-                  //   speciality === "" ||
-                  //   Language === "" ||
-                  //   PIN === ""
-                  // )
-                  //   Alert.alert(
-                  //     "Pls fill in all the details before continuing!"
-                  //   );
-                  // else {
-                  //   SaveData();
-                  //   setTermsView(true);
-                  // }
+                  if (
+                    name === "" ||
+                    email === "" ||
+                    gender === "" ||
+                    speciality === "" ||
+                    Language === "" ||
+                    PIN === "" ||
+                    title === "" ||
+                    Day === "" ||
+                    Month === "" ||
+                    Year === ""
+                  )
+                    Alert.alert(
+                      "Pls fill in all the details before continuing!"
+                    );
+                  else {
+                    SaveData();
+
+                    setTermsView(true);
+                  }
                   console.log(await AsyncStorage.getItem("doctorId"));
                 }}
               ></CustomButton>
@@ -533,6 +544,7 @@ const DoctorRegistrationStep1 = ({ navigation }) => {
                 }}
                 onPress={() => {
                   SaveData();
+                  Alert.alert("All details have been saved successfully!");
                 }}
               ></CustomButton>
               {termsView ? (
@@ -630,6 +642,7 @@ const DoctorRegistrationStep1 = ({ navigation }) => {
                             padding: 5,
                           }}
                           onPress={() => {
+                            PostData();
                             navigation.push("DoctorRegistrationStep2");
                             setTermsView(false);
                           }}
