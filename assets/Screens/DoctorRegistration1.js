@@ -148,7 +148,7 @@ const DoctorRegistrationStep1 = ({ navigation }) => {
       .then(async function (response) {
         if (response.status == 201) {
           await AsyncStorage.setItem("doctorId", response.data.doctorId + "");
-          console.log(await AsyncStorage.getItem("doctorId"));
+          console.log("doctorID" + (await AsyncStorage.getItem("doctorId")));
           Alert.alert("All details have been saved successfully!");
         }
       })
@@ -532,7 +532,7 @@ const DoctorRegistrationStep1 = ({ navigation }) => {
                   borderColor: "#2b8ada",
                 }}
                 onPress={() => {
-                  calculateAge();
+                  SaveData();
                 }}
               ></CustomButton>
               {termsView ? (

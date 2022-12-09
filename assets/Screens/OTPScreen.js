@@ -998,7 +998,6 @@ const FirstScreen = ({ navigation, route }) => {
 
   const selectedValue = async (value) => {
     await AsyncStorage.setItem("countryCode", "+" + value);
-    console.log(await AsyncStorage.getItem("countryCode"));
     setCountryCode("+" + value);
   };
   const onFinishCount = () => {
@@ -1023,13 +1022,13 @@ const FirstScreen = ({ navigation, route }) => {
     setPin2("");
     setPin3("");
     setPin4("");
+    setwrongOTPMessage(false);
   };
 
   useEffect(() => {
     countries.forEach(async (item) => {
       if (item.code == countryCode) {
         await AsyncStorage.setItem("countryName", item.name);
-        console.log(await AsyncStorage.getItem("countryName"));
       }
     });
   }, [countryCode]);
@@ -1037,20 +1036,20 @@ const FirstScreen = ({ navigation, route }) => {
   const onContinuePressed = async () => {
     if (mob.length < 10) Alert.alert("Enter Valid Mobile Number!");
     else {
-      // getCountryCode();
-      let countryCodeCache = await AsyncStorage.getItem("countryCode");
-      let no = countryCodeCache + "" + mob;
-      console.log(no);
+      //let countryCodeCache = await AsyncStorage.getItem("countryCode");
+      //let no = countryCodeCache + "" + mob;
+      //console.log(no);
       try {
-        await AsyncStorage.setItem("mobileNumber", no);
-
+        await AsyncStorage.setItem("mobileNumber", mob);
         sendOTP();
       } catch (e) {
         console.log(e);
       }
     }
   };
-  const sendOTP = () => {
+  const sendOTP = async () => {
+    // let no = await AsyncStorage.getItem("mobileNumber");
+    // console.log(no);
     axios
       .post("http://10.0.2.2:8080/login/otp/gernate?mobilenumber=" + mob)
       .then(function (response) {
@@ -1061,22 +1060,25 @@ const FirstScreen = ({ navigation, route }) => {
       });
   };
 
-  const onSubmitPressed = () => {
+  const onSubmitPressed = async () => {
     if (pin1 == "" || pin2 == "" || pin3 == "" || pin4 == "")
       Alert.alert("Please feed in 4 digit OTP!");
     else {
       let x = parseInt(pin1 + pin2 + pin3 + pin4);
+      // let no = await AsyncStorage.getItem("mobileNumber");
+      // console.log(no);
       axios
         .post("http://10.0.2.2:8080/login/doctor/otp/verify", {
           mobileNumber: mob,
           otp: x,
         })
-        .then(function (response) {
+        .then(async function (response) {
           if (response.status == 204) {
             setModalVisible(false);
-            console.log(response.data);
-            if (response.data === "") navigation.navigate(nextScreen);
-            else navigation.navigate("DoctorHome");
+            navigation.navigate(nextScreen);
+          } else if (response.status == 200) {
+            await AsyncStorage.setItem("doctorId", response.data.doctorId + "");
+            navigation.navigate("DoctorHome");
           }
         })
         .catch(function (error) {
