@@ -135,7 +135,13 @@ const DoctorRegistration2 = ({ navigation }) => {
   const ViewMedReg = () => {
     return medReg.map((medReg, index) => {
       return (
-        <View style={{ flexDirection: "column", marginBottom: 10 }} key={index}>
+        <View
+          style={{
+            flexDirection: "column",
+            marginBottom: 10,
+          }}
+          key={index}
+        >
           <View
             style={{
               flexDirection: "row",
@@ -146,25 +152,25 @@ const DoctorRegistration2 = ({ navigation }) => {
               <Text style={[styles.inputLabel, { marginTop: 0 }]}>
                 Registration Number
               </Text>
-              <TextInput
+              <Text
                 style={[styles.textInput, { backgroundColor: "#d0e0fc" }]}
-                placeholderTextColor={"black"}
-                value={medReg.registrationNo}
-                editable={false}
+
                 //onChangeText={(text) => setRegNo(text)}
-              ></TextInput>
+              >
+                {medReg.registrationNo}
+              </Text>
             </View>
             <View style={{ flex: 0.45 }}>
               <Text style={[styles.inputLabel, { marginTop: 0 }]}>
                 Registration Council
               </Text>
-              <TextInput
+              <Text
                 style={[styles.textInput, { backgroundColor: "#d0e0fc" }]}
-                placeholderTextColor={"black"}
-                value={medReg.registrationCouncil}
-                editable={false}
+
                 //onChangeText={(text) => setRegCouncil(text)}
-              ></TextInput>
+              >
+                {medReg.registrationCouncil}
+              </Text>
             </View>
           </View>
           <View
@@ -176,40 +182,18 @@ const DoctorRegistration2 = ({ navigation }) => {
             <View style={{ flex: 0.45, marginRight: "5%" }}>
               <Text style={styles.inputLabel}>Reg. Certificate</Text>
               <View>
-                <TextInput
+                <Text
                   style={[styles.textInput, { backgroundColor: "#d0e0fc" }]}
-                  placeholderTextColor={"black"}
-                  value={medReg.certificatePath}
-                  editable={false}
-                ></TextInput>
-                {/* <FAIcon
-                                  name="upload"
-                                  color={"gray"}
-                                  size={16}
-                                  style={{
-                                    position: "absolute",
-                                    right: 0,
-                                    bottom: 0,
-                                    marginRight: "5%",
-                                    marginBottom: "5%",
-                                  }}
-                                  onPress={() => {
-                                    setRegCert("Rohan_cert.pdf");
-                                  }}
-                                /> */}
+                >
+                  {medReg.certificatePath}
+                </Text>
               </View>
             </View>
             <View style={{ flex: 0.45 }}>
               <Text style={styles.inputLabel}>Reg. Year</Text>
-              <TextInput
-                style={[styles.textInput, { backgroundColor: "#d0e0fc" }]}
-                placeholderTextColor={"black"}
-                value={medReg.registrationYear}
-                editable={false}
-                //keyboardType={"number-pad"}
-                // maxLength={4}
-                // onChangeText={(text) => setRegYear(text)}
-              ></TextInput>
+              <Text style={[styles.textInput, { backgroundColor: "#d0e0fc" }]}>
+                {medReg.registrationYear}
+              </Text>
             </View>
           </View>
           <View
@@ -237,353 +221,113 @@ const DoctorRegistration2 = ({ navigation }) => {
       );
     });
   };
-  const AddMedReg = () => {
-    return (
-      <View style={{ flexDirection: "column", marginBottom: 10 }}>
-        <View style={{ flexDirection: "row", alignSelf: "center" }}>
-          <View style={{ flex: 0.45, marginRight: "5%" }}>
-            <Text style={[styles.inputLabel, { marginTop: 0 }]}>
-              Registration Number
-            </Text>
-            <TextInput
-              style={[styles.textInput, { backgroundColor: "#E8F0FE" }]}
-              placeholderTextColor={"black"}
-              onChangeText={(text) => setRegNo(text)}
-              value={RegNo}
-            ></TextInput>
-          </View>
-          <View style={{ flex: 0.45 }}>
-            <Text style={[styles.inputLabel, { marginTop: 0 }]}>
-              Registration Council
-            </Text>
-            <TextInput
-              style={[styles.textInput, { backgroundColor: "#E8F0FE" }]}
-              placeholderTextColor={"black"}
-              onChangeText={(text) => setRegCouncil(text)}
-              value={RegCouncil}
-            ></TextInput>
-          </View>
-        </View>
-        <View style={{ flexDirection: "row", alignSelf: "center" }}>
-          <View style={{ flex: 0.45, marginRight: "5%" }}>
-            <Text style={styles.inputLabel}>Reg. Certificate</Text>
-            <View>
-              <TextInput
-                style={[styles.textInput, { backgroundColor: "#E8F0FE" }]}
-                placeholderTextColor={"black"}
-                value={RegCert}
-                editable={false}
-              ></TextInput>
-              <FAIcon
-                name="upload"
-                color={"gray"}
-                size={16}
-                style={{
-                  position: "absolute",
-                  right: 0,
-                  bottom: 0,
-                  marginRight: "5%",
-                  marginBottom: "5%",
-                }}
-                onPress={() => {
-                  setRegCert("Rohan_cert.pdf");
-                }}
-              />
-            </View>
-          </View>
-          <View style={{ flex: 0.45 }}>
-            <Text style={styles.inputLabel}>Reg. Year</Text>
-            <TextInput
-              style={[styles.textInput, { backgroundColor: "#E8F0FE" }]}
-              placeholderTextColor={"black"}
-              keyboardType={"number-pad"}
-              maxLength={4}
-              onChangeText={(text) => setRegYear(text)}
-              value={RegYear}
-            ></TextInput>
-          </View>
-        </View>
-        <CustomButton
-          text="Save"
-          textstyle={{ color: "white", fontSize: 12 }}
-          style={{
-            marginTop: 10,
-            backgroundColor: "#2b8ada",
-            alignSelf: "flex-end",
-            borderRadius: 5,
-            padding: 6,
-            paddingHorizontal: 10,
-          }}
-          onPress={() => {
-            let p = {
-              certificatePath: "aws/s3/certificate",
-              registrationCouncil: RegCouncil,
-              registrationNo: RegNo,
-              registrationYear: RegYear,
-            };
-            medReg.push(p);
-            console.log(medReg);
-            setRegCouncil("");
-            setRegNo("");
-            setRegYear("");
-          }}
-        />
-      </View>
-    );
-  };
+
   const removeMedHandler = (e) => {
     setmedReg(medReg.filter((obj) => obj.registrationNo !== e));
   };
 
-  // const ViewEducation = () => {
-  //   return Education.map((Education, index) => {
-  //     return (
-  //       <View style={{ width: "95%", alignSelf: "center" }} key={index}>
-  //         <View
-  //           style={{
-  //             flexDirection: "column",
-  //             marginBottom: 10,
-  //           }}
-  //         >
-  //           <View
-  //             style={{
-  //               flexDirection: "row",
-  //               justifyContent: "space-between",
-  //             }}
-  //           >
-  //             <View style={{ flex: 0.45, marginRight: "5%" }}>
-  //               <Text style={styles.inputLabel}>Degree</Text>
-  //               <TextInput
-  //                 style={[styles.textInput, { backgroundColor: "#E8F0FE" }]}
-  //                 value={Education.degree}
-  //                 editable={false}
-  //                 //onChangeText={(text) => setDegree(text)}
-  //               ></TextInput>
-  //             </View>
-  //             <View style={{ flex: 0.45 }}>
-  //               <Text style={styles.inputLabel}>Degree Passing Year</Text>
-  //               <TextInput
-  //                 style={[styles.textInput, { backgroundColor: "#E8F0FE" }]}
-  //                 value={Education.passingYear}
-  //                 editable={false}
-  //                 //onChangeText={(text) => setDegreePassingYear(text)}
-  //                 //keyboardType={"numeric"}
-  //               ></TextInput>
-  //             </View>
-  //           </View>
-  //           <View
-  //             style={{
-  //               flexDirection: "row",
-  //               justifyContent: "space-between",
-  //             }}
-  //           >
-  //             <View style={{ flex: 0.45, marginRight: "5%" }}>
-  //               <Text style={styles.inputLabel}>Specialization</Text>
-  //               <TextInput
-  //                 style={[styles.textInput, { backgroundColor: "#E8F0FE" }]}
-  //                 value={Education.specialization}
-  //                 editable={false}
-  //                 // onChangeText={(text) => setSpecialization(text)}
-  //               ></TextInput>
-  //             </View>
-  //             <View style={{ flex: 0.45 }}>
-  //               <Text style={styles.inputLabel}>University</Text>
-  //               <TextInput
-  //                 style={[styles.textInput, { backgroundColor: "#E8F0FE" }]}
-  //                 value={Education.university}
-  //                 editable={false}
-  //                 //  onChangeText={(text) => setUniversity(text)}
-  //               ></TextInput>
-  //             </View>
-  //           </View>
-  //         </View>
+  const ViewEducation = () => {
+    return Education.map((Education, index) => {
+      return (
+        <View style={{ width: "95%", alignSelf: "center" }} key={index}>
+          <View
+            style={{
+              flexDirection: "column",
+              marginBottom: 10,
+            }}
+          >
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+              }}
+            >
+              <View style={{ flex: 0.45, marginRight: "5%" }}>
+                <Text style={styles.inputLabel}>Degree</Text>
+                <Text
+                  style={[styles.textInput, { backgroundColor: "#E8F0FE" }]}
+                >
+                  {Education.degree}
+                </Text>
+              </View>
+              <View style={{ flex: 0.45 }}>
+                <Text style={styles.inputLabel}>Degree Passing Year</Text>
+                <Text
+                  style={[styles.textInput, { backgroundColor: "#E8F0FE" }]}
+                >
+                  {Education.passingYear}
+                </Text>
+              </View>
+            </View>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+              }}
+            >
+              <View style={{ flex: 0.45, marginRight: "5%" }}>
+                <Text style={styles.inputLabel}>Specialization</Text>
+                <Text
+                  style={[styles.textInput, { backgroundColor: "#E8F0FE" }]}
+                >
+                  {Education.specialization}
+                </Text>
+              </View>
+              <View style={{ flex: 0.45 }}>
+                <Text style={styles.inputLabel}>University</Text>
+                <Text
+                  style={[styles.textInput, { backgroundColor: "#E8F0FE" }]}
+                >
+                  {Education.university}
+                </Text>
+              </View>
+            </View>
+          </View>
 
-  //         <View
-  //           style={{
-  //             flexDirection: "row",
-  //             justifyContent: "space-between",
-  //           }}
-  //         >
-  //           <View style={{ flex: 1, flexDirection: "column" }}>
-  //             <Text style={styles.inputLabel}>Total Experience(Year)</Text>
-  //             <TextInput
-  //               keyboardType={"number-pad"}
-  //               maxLength={2}
-  //               style={styles.textInput}
-  //               value={parseInt(Education.totalExperiencedInMonths) / 12}
-  //               editable={false}
-  //               // onChangeText={(text) => setTotalYear(text)}
-  //             />
-  //           </View>
-  //           <View style={{ flex: 0.45, flexDirection: "column" }}>
-  //             <Text style={styles.inputLabel}>Total Experience(Month)</Text>
-  //             <TextInput
-  //               keyboardType={"number-pad"}
-  //               maxLength={2}
-  //               style={styles.textInput}
-  //               value={parseInt(Education.totalExperiencedInMonths) % 12}
-  //               editable={false}
-  //               // onChangeText={(text) => setTotalMonths(text)}
-  //             />
-  //           </View>
-  //         </View>
-  //         <View style={{ flexDirection: "row", marginVertical: 5 }}>
-  //           <CustomButton
-  //             text="Delete"
-  //             textstyle={{ color: "white", fontSize: 12 }}
-  //             style={{
-  //               backgroundColor: "#2b8ada",
-  //               borderRadius: 5,
-  //               padding: 6,
-  //               paddingHorizontal: 10,
-  //               position: "absolute",
-  //               right: 0,
-  //             }}
-  //             onPress={() => {
-  //               removeEduHandler(Education.degree);
-  //             }}
-  //           />
-  //         </View>
-  //       </View>
-  //     );
-  //   });
-  // };
-  // const AddEducation = () => {
-  //   return (
-  //     <View style={{ width: "95%", alignSelf: "center" }}>
-  //       <View
-  //         style={{
-  //           flexDirection: "column",
-  //           marginBottom: 10,
-  //         }}
-  //       >
-  //         <View
-  //           style={{
-  //             flexDirection: "row",
-  //             justifyContent: "space-between",
-  //           }}
-  //         >
-  //           <View style={{ flex: 0.45, marginRight: "5%" }}>
-  //             <Text style={styles.inputLabel}>Degree</Text>
-  //             <TextInput
-  //               style={[styles.textInput, { backgroundColor: "#E8F0FE" }]}
-  //               onChangeText={(text) => setDegree(text)}
-  //               value={Degree}
-  //             ></TextInput>
-  //           </View>
-  //           <View style={{ flex: 0.45 }}>
-  //             <Text style={styles.inputLabel}>Degree Passing Year</Text>
-  //             <TextInput
-  //               style={[styles.textInput, { backgroundColor: "#E8F0FE" }]}
-  //               onChangeText={(text) => setDegreePassingYear(text)}
-  //               value={DegreePassingYear}
-  //               keyboardType={"numeric"}
-  //             ></TextInput>
-  //           </View>
-  //         </View>
-  //         <View
-  //           style={{
-  //             flexDirection: "row",
-  //             justifyContent: "space-between",
-  //           }}
-  //         >
-  //           <View style={{ flex: 0.45, marginRight: "5%" }}>
-  //             <Text style={styles.inputLabel}>Specialization</Text>
-  //             <TextInput
-  //               style={[styles.textInput, { backgroundColor: "#E8F0FE" }]}
-  //               onChangeText={(text) => setSpecialization(text)}
-  //               value={Specialization}
-  //             ></TextInput>
-  //           </View>
-  //           <View style={{ flex: 0.45 }}>
-  //             <Text style={styles.inputLabel}>University</Text>
-  //             <TextInput
-  //               style={[styles.textInput, { backgroundColor: "#E8F0FE" }]}
-  //               onChangeText={(text) => setUniversity(text)}
-  //               value={University}
-  //             ></TextInput>
-  //           </View>
-  //         </View>
-  //       </View>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+            }}
+          >
+            <View style={{ flex: 0.45, flexDirection: "column" }}>
+              <Text style={styles.inputLabel}>Total Experience(Year)</Text>
+              <Text style={styles.textInput}>
+                {Math.floor(parseInt(Education.totalExperiencedInMonths) / 12)}
+              </Text>
+            </View>
+            <View style={{ flex: 0.45, flexDirection: "column" }}>
+              <Text style={styles.inputLabel}>Total Experience(Month)</Text>
+              <Text style={styles.textInput}>
+                {parseInt(Education.totalExperiencedInMonths) % 12}
+              </Text>
+            </View>
+          </View>
+          <View style={{ flexDirection: "row", marginVertical: 5 }}>
+            <CustomButton
+              text="Delete"
+              textstyle={{ color: "white", fontSize: 12 }}
+              style={{
+                backgroundColor: "red",
+                borderRadius: 5,
+                padding: 6,
+                paddingHorizontal: 10,
+                position: "absolute",
+                right: 0,
+              }}
+              onPress={() => {
+                removeEduHandler(Education.degree);
+              }}
+            />
+          </View>
+        </View>
+      );
+    });
+  };
 
-  //       <View
-  //         style={{
-  //           flexDirection: "row",
-  //           justifyContent: "space-between",
-  //         }}
-  //       >
-  //         <View style={{ flex: 0.45, flexDirection: "column" }}>
-  //           <Text style={styles.inputLabel}>Total Experience(Year)</Text>
-  //           <TextInput
-  //             keyboardType={"number-pad"}
-  //             maxLength={2}
-  //             style={styles.textInput}
-  //             onChangeText={(text) => setTotalYear(text)}
-  //             value={TotalYear}
-  //           />
-  //         </View>
-  //         <View style={{ flex: 0.45, flexDirection: "column" }}>
-  //           <Text style={styles.inputLabel}>Total Experience(Month)</Text>
-  //           <TextInput
-  //             keyboardType={"number-pad"}
-  //             maxLength={2}
-  //             style={styles.textInput}
-  //             onChangeText={(text) => setTotalMonths(text)}
-  //             value={TotalMonths}
-  //           />
-  //         </View>
-  //       </View>
-  //       <View style={{ flexDirection: "row", marginVertical: 5 }}>
-  //         <CustomButton
-  //           text="Upload Document"
-  //           textstyle={{ color: "#2b8ada", fontSize: 12 }}
-  //           style={{
-  //             backgroundColor: "white",
-  //             borderRadius: 12,
-  //             padding: 6,
-  //             paddingHorizontal: 10,
-  //             borderWidth: 2,
-  //             borderColor: "#2b8ada",
-  //           }}
-  //         />
-  //         <CustomButton
-  //           text="Delete"
-  //           textstyle={{ color: "white", fontSize: 12 }}
-  //           style={{
-  //             backgroundColor: "#2b8ada",
-  //             borderRadius: 5,
-  //             padding: 6,
-  //             paddingHorizontal: 10,
-  //             position: "absolute",
-  //             right: 0,
-  //           }}
-  //           onPress={() => {
-  //             let totalexp = parseInt(TotalYear) * 12 + parseInt(TotalMonths);
-  //             let p = {
-  //               degree: Degree,
-  //               degreePath: Degree + ".pdf",
-  //               passingYear: DegreePassingYear,
-  //               specialization: "string",
-  //               totalExperiencedInMonths: totalexp,
-  //               university: University,
-  //             };
-  //             Education.push(p);
-  //             console.log(Education);
-  //             setDegree("");
-  //             setDegreePassingYear("");
-  //             setTotalMonths("");
-  //             setTotalYear("");
-  //             setUniversity("");
-  //           }}
-  //         />
-  //       </View>
-  //     </View>
-  //   );
-  // };
-
-  // const removeEduHandler = (e) => {
-  //   setEducation(Education.filter((obj) => obj.degree !== e));
-  // };
+  const removeEduHandler = (e) => {
+    setEducation(Education.filter((obj) => obj.degree !== e));
+  };
 
   useEffect(() => {
     const onLoadSetData = async () => {
@@ -1087,8 +831,83 @@ const DoctorRegistration2 = ({ navigation }) => {
             {showMedReg ? (
               <View>
                 <View style={styles.whiteBodyView}>
-                  {medReg !== "" ? <ViewMedReg /> : null}
-                  <AddMedReg />
+                  <View style={{ flexDirection: "column", marginBottom: 10 }}>
+                    <View style={{ flexDirection: "row", alignSelf: "center" }}>
+                      <View style={{ flex: 0.45, marginRight: "5%" }}>
+                        <Text style={[styles.inputLabel, { marginTop: 0 }]}>
+                          Registration Number
+                        </Text>
+                        <TextInput
+                          style={[
+                            styles.textInput,
+                            { backgroundColor: "#E8F0FE" },
+                          ]}
+                          placeholderTextColor={"black"}
+                          onChangeText={(text) => setRegNo(text)}
+                          value={RegNo}
+                        ></TextInput>
+                      </View>
+                      <View style={{ flex: 0.45 }}>
+                        <Text style={[styles.inputLabel, { marginTop: 0 }]}>
+                          Registration Council
+                        </Text>
+                        <TextInput
+                          style={[
+                            styles.textInput,
+                            { backgroundColor: "#E8F0FE" },
+                          ]}
+                          placeholderTextColor={"black"}
+                          onChangeText={(text) => setRegCouncil(text)}
+                          value={RegCouncil}
+                        ></TextInput>
+                      </View>
+                    </View>
+                    <View style={{ flexDirection: "row", alignSelf: "center" }}>
+                      <View style={{ flex: 0.45, marginRight: "5%" }}>
+                        <Text style={styles.inputLabel}>Reg. Certificate</Text>
+                        <View>
+                          <TextInput
+                            style={[
+                              styles.textInput,
+                              { backgroundColor: "#E8F0FE" },
+                            ]}
+                            placeholderTextColor={"black"}
+                            value={RegCert}
+                            editable={false}
+                          ></TextInput>
+                          <FAIcon
+                            name="upload"
+                            color={"gray"}
+                            size={16}
+                            style={{
+                              position: "absolute",
+                              right: 0,
+                              bottom: 0,
+                              marginRight: "5%",
+                              marginBottom: "5%",
+                            }}
+                            onPress={() => {
+                              setRegCert("Rohan_cert.pdf");
+                            }}
+                          />
+                        </View>
+                      </View>
+                      <View style={{ flex: 0.45 }}>
+                        <Text style={styles.inputLabel}>Reg. Year</Text>
+                        <TextInput
+                          style={[
+                            styles.textInput,
+                            { backgroundColor: "#E8F0FE" },
+                          ]}
+                          placeholderTextColor={"black"}
+                          keyboardType={"number-pad"}
+                          maxLength={4}
+                          onChangeText={(text) => setRegYear(text)}
+                          value={RegYear}
+                        ></TextInput>
+                      </View>
+                    </View>
+                  </View>
                 </View>
               </View>
             ) : null}
@@ -1145,14 +964,169 @@ const DoctorRegistration2 = ({ navigation }) => {
               </View>
             </View>
             {/* Education Qualifications & Certificates Body*/}
-            {/* {showEduDet ? (
+            {showEduDet ? (
               <View>
                 <View style={styles.whiteBodyView}>
                   {Education !== "" ? <ViewEducation /> : null}
-                  <AddEducation />
+                  <View
+                    style={{
+                      width: "95%",
+                      alignSelf: "center",
+                      marginVertical: 10,
+                    }}
+                  >
+                    <View
+                      style={{
+                        flexDirection: "column",
+                        marginVertical: 10,
+                      }}
+                    >
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        <View style={{ flex: 0.45, marginRight: "5%" }}>
+                          <Text style={styles.inputLabel}>Degree</Text>
+                          <TextInput
+                            style={[
+                              styles.textInput,
+                              { backgroundColor: "#E8F0FE" },
+                            ]}
+                            onChangeText={(text) => setDegree(text)}
+                            value={Degree}
+                          ></TextInput>
+                        </View>
+                        <View style={{ flex: 0.45 }}>
+                          <Text style={styles.inputLabel}>
+                            Degree Passing Year
+                          </Text>
+                          <TextInput
+                            style={[
+                              styles.textInput,
+                              { backgroundColor: "#E8F0FE" },
+                            ]}
+                            onChangeText={(text) => setDegreePassingYear(text)}
+                            value={DegreePassingYear}
+                            keyboardType={"numeric"}
+                          ></TextInput>
+                        </View>
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        <View style={{ flex: 0.45, marginRight: "5%" }}>
+                          <Text style={styles.inputLabel}>Specialization</Text>
+                          <TextInput
+                            style={[
+                              styles.textInput,
+                              { backgroundColor: "#E8F0FE" },
+                            ]}
+                            onChangeText={(text) => setSpecialization(text)}
+                            value={Specialization}
+                          ></TextInput>
+                        </View>
+                        <View style={{ flex: 0.45 }}>
+                          <Text style={styles.inputLabel}>University</Text>
+                          <TextInput
+                            style={[
+                              styles.textInput,
+                              { backgroundColor: "#E8F0FE" },
+                            ]}
+                            onChangeText={(text) => setUniversity(text)}
+                            value={University}
+                          ></TextInput>
+                        </View>
+                      </View>
+                    </View>
+
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <View style={{ flex: 0.45, flexDirection: "column" }}>
+                        <Text style={styles.inputLabel}>
+                          Total Experience(Year)
+                        </Text>
+                        <TextInput
+                          keyboardType={"number-pad"}
+                          maxLength={2}
+                          placeholder={"00"}
+                          style={styles.textInput}
+                          onChangeText={(text) => setTotalYear(text)}
+                          value={TotalYear}
+                        />
+                      </View>
+                      <View style={{ flex: 0.45, flexDirection: "column" }}>
+                        <Text style={styles.inputLabel}>
+                          Total Experience(Month)
+                        </Text>
+                        <TextInput
+                          keyboardType={"number-pad"}
+                          maxLength={2}
+                          placeholder={"00"}
+                          style={styles.textInput}
+                          onChangeText={(text) => setTotalMonths(text)}
+                          value={TotalMonths}
+                        />
+                      </View>
+                    </View>
+                    <View style={{ flexDirection: "row", marginVertical: 5 }}>
+                      <CustomButton
+                        text="Upload Document"
+                        textstyle={{ color: "#2b8ada", fontSize: 12 }}
+                        style={{
+                          backgroundColor: "white",
+                          borderRadius: 12,
+                          padding: 6,
+                          paddingHorizontal: 10,
+                          borderWidth: 2,
+                          borderColor: "#2b8ada",
+                        }}
+                      />
+                      <CustomButton
+                        text="+ Add More"
+                        textstyle={{ color: "white", fontSize: 12 }}
+                        style={{
+                          backgroundColor: "#2b8ada",
+                          borderRadius: 5,
+                          padding: 6,
+                          paddingHorizontal: 10,
+                          position: "absolute",
+                          right: 0,
+                        }}
+                        onPress={() => {
+                          let totalexp =
+                            parseInt(TotalYear) * 12 + parseInt(TotalMonths);
+                          let p = {
+                            degree: Degree,
+                            degreePath: Degree + ".pdf",
+                            passingYear: DegreePassingYear,
+                            specialization: "string",
+                            totalExperiencedInMonths: totalexp,
+                            university: University,
+                          };
+                          Education.push(p);
+                          console.log(Education);
+                          setDegree("");
+                          setDegreePassingYear("");
+                          setSpecialization("");
+                          setTotalMonths("");
+                          setTotalYear("");
+                          setUniversity("");
+                        }}
+                      />
+                    </View>
+                  </View>
                 </View>
               </View>
-            ) : null} */}
+            ) : null}
             {/* Identification Label*/}
             <View
               style={{
@@ -2629,7 +2603,7 @@ const DoctorRegistration2 = ({ navigation }) => {
                 onPress={() => navigation.push("DoctorHome")}
               ></CustomButton>
               <CustomButton
-                text="Save"
+                text="Do it Later"
                 textstyle={{
                   color: "#2b8ada",
                   fontSize: 16,
