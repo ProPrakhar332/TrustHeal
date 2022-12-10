@@ -67,8 +67,13 @@ const DoctorRegistration2 = ({ navigation }) => {
   const [TotalMonths, setTotalMonths] = useState("");
   //Identification
   const [showIdenDet, setShowIdenDet] = useState(false);
+  const [Aadhar, setAadhar] = useState("");
+  const [IdentificationDocs, setIdentificationDocs] = useState([]);
+  const [identificationNumber, setidentificationNumber] = useState("");
+  const [identificationType, setidentificationType] = useState("");
   //Additional Information
   const [showAddInfo, setShowAddInfo] = useState(false);
+  const [ClinicDet, setClinicDet] = useState([]);
   const [ClinicName, setClinicName] = useState("");
   const [ClinicAddress, setClinicAddress] = useState("");
   const [consultView, setconsultView] = useState(false);
@@ -92,9 +97,9 @@ const DoctorRegistration2 = ({ navigation }) => {
   const [showPreConsulQues, setShowPreConsulQues] = useState(false);
   //consultation fees
   const [showConsultFees, setShowConsultFees] = useState(false);
-  const [PhysicalFees, setPhysicalFees] = useState("");
-  const [EConsultationFees, setEConsultationFees] = useState("");
-  const [FollowUpFees, setFollowUpFees] = useState("");
+  const [physicalConsulationFees, setphysicalConsulationFees] = useState("");
+  const [eConsulationFees, seteConsulationFees] = useState("");
+  const [followUpFees, setfollowUpFees] = useState("");
   const [DigitalSign, setDigitalSign] = useState("");
 
   const dataFollowUp = [
@@ -132,73 +137,37 @@ const DoctorRegistration2 = ({ navigation }) => {
     { key: "11", value: "11" },
   ];
 
-  const ViewMedReg = () => {
-    return medReg.map((medReg, index) => {
+  const ViewIdentifications = () => {
+    return IdentificationDocs.map((IdentificationDocs, index) => {
       return (
         <View
           style={{
             flexDirection: "column",
-            marginBottom: 10,
+            width: "95%",
+            alignSelf: "center",
           }}
           key={index}
         >
           <View
             style={{
+              alignSelf: "center",
               flexDirection: "row",
               alignSelf: "center",
             }}
           >
-            <View style={{ flex: 0.45, marginRight: "5%" }}>
+            <View style={{ flex: 1 }}>
               <Text style={[styles.inputLabel, { marginTop: 0 }]}>
-                Registration Number
+                {IdentificationDocs.identificationType}
               </Text>
-              <Text
-                style={[styles.textInput, { backgroundColor: "#d0e0fc" }]}
-
-                //onChangeText={(text) => setRegNo(text)}
-              >
-                {medReg.registrationNo}
-              </Text>
-            </View>
-            <View style={{ flex: 0.45 }}>
-              <Text style={[styles.inputLabel, { marginTop: 0 }]}>
-                Registration Council
-              </Text>
-              <Text
-                style={[styles.textInput, { backgroundColor: "#d0e0fc" }]}
-
-                //onChangeText={(text) => setRegCouncil(text)}
-              >
-                {medReg.registrationCouncil}
-              </Text>
-            </View>
-          </View>
-          <View
-            style={{
-              flexDirection: "row",
-              alignSelf: "center",
-            }}
-          >
-            <View style={{ flex: 0.45, marginRight: "5%" }}>
-              <Text style={styles.inputLabel}>Reg. Certificate</Text>
-              <View>
-                <Text
-                  style={[styles.textInput, { backgroundColor: "#d0e0fc" }]}
-                >
-                  {medReg.certificatePath}
-                </Text>
-              </View>
-            </View>
-            <View style={{ flex: 0.45 }}>
-              <Text style={styles.inputLabel}>Reg. Year</Text>
               <Text style={[styles.textInput, { backgroundColor: "#d0e0fc" }]}>
-                {medReg.registrationYear}
+                {IdentificationDocs.identificationNumber}
+                {".pdf"}
               </Text>
             </View>
           </View>
           <View
             style={{
-              marginTop: 10,
+              marginTop: 5,
               flexDirection: "row",
               alignSelf: "flex-end",
             }}
@@ -213,7 +182,7 @@ const DoctorRegistration2 = ({ navigation }) => {
                 paddingHorizontal: 10,
               }}
               onPress={() => {
-                removeMedHandler(medReg.registrationNo);
+                removeIdenHandler(IdentificationDocs.name);
               }}
             />
           </View>
@@ -222,8 +191,8 @@ const DoctorRegistration2 = ({ navigation }) => {
     });
   };
 
-  const removeMedHandler = (e) => {
-    setmedReg(medReg.filter((obj) => obj.registrationNo !== e));
+  const removeIdenHandler = (e) => {
+    setIdentificationDocs(IdentificationDocs.filter((obj) => obj.name !== e));
   };
 
   const ViewEducation = () => {
@@ -1102,24 +1071,37 @@ const DoctorRegistration2 = ({ navigation }) => {
                           right: 0,
                         }}
                         onPress={() => {
-                          let totalexp =
-                            parseInt(TotalYear) * 12 + parseInt(TotalMonths);
-                          let p = {
-                            degree: Degree,
-                            degreePath: Degree + ".pdf",
-                            passingYear: DegreePassingYear,
-                            specialization: "string",
-                            totalExperiencedInMonths: totalexp,
-                            university: University,
-                          };
-                          Education.push(p);
-                          console.log(Education);
-                          setDegree("");
-                          setDegreePassingYear("");
-                          setSpecialization("");
-                          setTotalMonths("");
-                          setTotalYear("");
-                          setUniversity("");
+                          if (
+                            Degree == "" ||
+                            DegreePassingYear == "" ||
+                            University == "" ||
+                            TotalYear == "" ||
+                            TotalMonths == "" ||
+                            Specialization == ""
+                          )
+                            Alert.alert(
+                              "Please fill all details before adding more in Educational Qualification"
+                            );
+                          else {
+                            let totalexp =
+                              parseInt(TotalYear) * 12 + parseInt(TotalMonths);
+                            let p = {
+                              degree: Degree,
+                              degreePath: Degree + ".pdf",
+                              passingYear: DegreePassingYear,
+                              specialization: "string",
+                              totalExperiencedInMonths: totalexp,
+                              university: University,
+                            };
+                            Education.push(p);
+                            console.log(Education);
+                            setDegree("");
+                            setDegreePassingYear("");
+                            setSpecialization("");
+                            setTotalMonths("");
+                            setTotalYear("");
+                            setUniversity("");
+                          }
                         }}
                       />
                     </View>
@@ -1197,7 +1179,8 @@ const DoctorRegistration2 = ({ navigation }) => {
                         <View>
                           <TextInput
                             style={[styles.textInput]}
-                            editable={false}
+                            onChangeText={(text) => setAadhar(text)}
+                            value={Aadhar}
                           />
                           <FAIcon
                             name="file-pdf"
@@ -1215,6 +1198,9 @@ const DoctorRegistration2 = ({ navigation }) => {
                       </View>
                     </View>
                   </View>
+
+                  {IdentificationDocs != "" ? <ViewIdentifications /> : null}
+
                   <View
                     style={{
                       flexDirection: "column",
@@ -1222,33 +1208,38 @@ const DoctorRegistration2 = ({ navigation }) => {
                       alignSelf: "center",
                     }}
                   >
-                    <View style={{ flexDirection: "row", alignSelf: "center" }}>
-                      <View style={{ flexDirection: "column", flex: 1 }}>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <View style={{ flexDirection: "column", flex: 0.45 }}>
                         <Text style={styles.inputLabel}>
-                          Any Other Documnet
+                          Any Other Document
                         </Text>
                         <View>
                           <TextInput
                             style={[styles.textInput]}
-                            editable={false}
+                            onChangeText={(text) => setidentificationType(text)}
+                            value={identificationType}
                           />
-                          <FAIcon
-                            name="chevron-down"
-                            color={"black"}
-                            size={20}
-                            style={{
-                              position: "absolute",
-                              right: 0,
-                              bottom: 0,
-                              marginRight: "3%",
-                              marginBottom: "2%",
-                            }}
+                        </View>
+                      </View>
+                      <View style={{ flexDirection: "column", flex: 0.45 }}>
+                        <Text style={styles.inputLabel}>Identification No</Text>
+                        <View>
+                          <TextInput
+                            style={[styles.textInput]}
+                            onChangeText={(text) =>
+                              setidentificationNumber(text)
+                            }
+                            value={identificationNumber}
                           />
                         </View>
                       </View>
                     </View>
                   </View>
-
                   <View
                     style={{
                       flexDirection: "row",
@@ -1279,6 +1270,21 @@ const DoctorRegistration2 = ({ navigation }) => {
                         paddingHorizontal: 10,
                         position: "absolute",
                         right: 0,
+                      }}
+                      onPress={() => {
+                        if (identificationNumber != "") {
+                          let p = {
+                            identificationNumber: identificationNumber,
+
+                            identificationType: identificationType,
+                            identificationPath:
+                              "aws/s3/Docs/" + identificationNumber + ".pdf",
+                          };
+                          IdentificationDocs.push(p);
+                          setidentificationNumber("");
+                          setidentificationType("");
+                          console.log(IdentificationDocs);
+                        }
                       }}
                     />
                   </View>
@@ -1400,6 +1406,20 @@ const DoctorRegistration2 = ({ navigation }) => {
                         padding: 6,
                         paddingHorizontal: 10,
                         margin: 5,
+                      }}
+                      onPress={() => {
+                        if (ClinicAddress == "" || ClinicName == "")
+                          Alert.alert(
+                            "Please fill Clinic Name and Address before adding other."
+                          );
+                        else {
+                          let p = {
+                            clinicName: ClinicName,
+                            clinicAddress: ClinicAddress,
+                          };
+                          ClinicDet.push(p);
+                          console.log(ClinicDet);
+                        }
                       }}
                     />
                   </View>
@@ -2448,7 +2468,11 @@ const DoctorRegistration2 = ({ navigation }) => {
                 style={[
                   styles.whiteLabelView,
                   showConsultFees
-                    ? { borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }
+                    ? {
+                        borderBottomLeftRadius: 0,
+                        borderBottomRightRadius: 0,
+                        marginBottom: 0,
+                      }
                     : null,
                 ]}
               >
@@ -2489,88 +2513,86 @@ const DoctorRegistration2 = ({ navigation }) => {
             </View>
             {/* Consultation Fees Body*/}
             {showConsultFees ? (
-              <View>
-                <View style={styles.whiteBodyView}>
-                  <View
-                    style={{
-                      flexDirection: "column",
-                      marginBottom: 10,
-                    }}
-                  >
-                    <View style={{ flexDirection: "row", alignSelf: "center" }}>
-                      <View
-                        style={{
-                          flexDirection: "column",
-                          flex: 0.65,
-                          marginRight: "5%",
-                        }}
-                      >
-                        <TextInput
-                          style={[styles.textInput, { fontWeight: "bold" }]}
-                          editable={false}
-                          placeholder={"Physical Consultation Fees"}
-                          placeholderTextColor={"black"}
-                        />
-                      </View>
-                      <View style={{ flexDirection: "column", flex: 0.25 }}>
-                        <TextInput
-                          style={[styles.textInput]}
-                          maxLength={5}
-                          value={PhysicalFees}
-                          keyboardType={"number-pad"}
-                          onChange={(text) => setPhysicalFees(text)}
-                        />
-                      </View>
+              <View style={styles.whiteBodyView}>
+                <View
+                  style={{
+                    flexDirection: "column",
+                    marginBottom: 10,
+                  }}
+                >
+                  <View style={{ flexDirection: "row", alignSelf: "center" }}>
+                    <View
+                      style={{
+                        flexDirection: "column",
+                        flex: 0.65,
+                        marginRight: "5%",
+                      }}
+                    >
+                      <TextInput
+                        style={[styles.textInput, { fontWeight: "bold" }]}
+                        editable={false}
+                        placeholder={"Physical Consultation Fees"}
+                        placeholderTextColor={"black"}
+                      />
                     </View>
-                    <View style={{ flexDirection: "row", alignSelf: "center" }}>
-                      <View
-                        style={{
-                          flexDirection: "column",
-                          flex: 0.65,
-                          marginRight: "5%",
-                        }}
-                      >
-                        <TextInput
-                          style={[styles.textInput, { fontWeight: "bold" }]}
-                          editable={false}
-                          placeholder={"E-Consultation Fees"}
-                          placeholderTextColor={"black"}
-                        />
-                      </View>
-                      <View style={{ flexDirection: "column", flex: 0.25 }}>
-                        <TextInput
-                          style={[styles.textInput]}
-                          value={EConsultationFees}
-                          maxLength={5}
-                          keyboardType={"number-pad"}
-                          onChange={(text) => setEConsultationFees(text)}
-                        />
-                      </View>
+                    <View style={{ flexDirection: "column", flex: 0.25 }}>
+                      <TextInput
+                        style={[styles.textInput]}
+                        maxLength={5}
+                        value={physicalConsulationFees}
+                        keyboardType={"number-pad"}
+                        onChange={(text) => setphysicalConsulationFees(text)}
+                      />
                     </View>
-                    <View style={{ flexDirection: "row", alignSelf: "center" }}>
-                      <View
-                        style={{
-                          flexDirection: "column",
-                          flex: 0.65,
-                          marginRight: "5%",
-                        }}
-                      >
-                        <TextInput
-                          style={[styles.textInput, { fontWeight: "bold" }]}
-                          editable={false}
-                          placeholder={"Follow-Up Fees"}
-                          placeholderTextColor={"black"}
-                        />
-                      </View>
-                      <View style={{ flexDirection: "column", flex: 0.25 }}>
-                        <TextInput
-                          style={[styles.textInput]}
-                          value={FollowUpFees}
-                          keyboardType={"number-pad"}
-                          maxLength={5}
-                          onChange={(text) => setFollowUpFees(text)}
-                        />
-                      </View>
+                  </View>
+                  <View style={{ flexDirection: "row", alignSelf: "center" }}>
+                    <View
+                      style={{
+                        flexDirection: "column",
+                        flex: 0.65,
+                        marginRight: "5%",
+                      }}
+                    >
+                      <TextInput
+                        style={[styles.textInput, { fontWeight: "bold" }]}
+                        editable={false}
+                        placeholder={"E-Consultation Fees"}
+                        placeholderTextColor={"black"}
+                      />
+                    </View>
+                    <View style={{ flexDirection: "column", flex: 0.25 }}>
+                      <TextInput
+                        style={[styles.textInput]}
+                        value={eConsulationFees}
+                        maxLength={5}
+                        keyboardType={"number-pad"}
+                        onChange={(text) => seteConsulationFees(text)}
+                      />
+                    </View>
+                  </View>
+                  <View style={{ flexDirection: "row", alignSelf: "center" }}>
+                    <View
+                      style={{
+                        flexDirection: "column",
+                        flex: 0.65,
+                        marginRight: "5%",
+                      }}
+                    >
+                      <TextInput
+                        style={[styles.textInput, { fontWeight: "bold" }]}
+                        editable={false}
+                        placeholder={"Follow-Up Fees"}
+                        placeholderTextColor={"black"}
+                      />
+                    </View>
+                    <View style={{ flexDirection: "column", flex: 0.25 }}>
+                      <TextInput
+                        style={[styles.textInput]}
+                        value={followUpFees}
+                        keyboardType={"number-pad"}
+                        maxLength={5}
+                        onChange={(text) => setfollowUpFees(text)}
+                      />
                     </View>
                   </View>
                 </View>

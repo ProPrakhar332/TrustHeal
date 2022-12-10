@@ -495,10 +495,9 @@ const DoctorRegistrationStep1 = ({ navigation }) => {
                 }}
                 style={{
                   backgroundColor: "#2b8ada",
-                  flex: 0.45,
+                  flex: 1,
                   marginBottom: 50,
                   marginVertical: 10,
-                  marginRight: "5%",
                   padding: 10,
                   borderRadius: 10,
                 }}
@@ -526,7 +525,7 @@ const DoctorRegistrationStep1 = ({ navigation }) => {
                   console.log(await AsyncStorage.getItem("doctorId"));
                 }}
               ></CustomButton>
-              <CustomButton
+              {/* <CustomButton
                 text="Save"
                 textstyle={{
                   color: "#2b8ada",
@@ -546,7 +545,7 @@ const DoctorRegistrationStep1 = ({ navigation }) => {
                   SaveData();
                   Alert.alert("All details have been saved successfully!");
                 }}
-              ></CustomButton>
+              ></CustomButton> */}
               {termsView ? (
                 <Modal
                   animationType="slide"
