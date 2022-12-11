@@ -25,6 +25,7 @@ import doctor from "../Resources/doctor.png";
 import upload from "../Resources/upload.png";
 import { useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
 
 const dataTitle = [
   { key: "Dr.", value: "Dr." },
@@ -86,7 +87,7 @@ const DoctorRegistration2 = ({ navigation }) => {
   const [showEconsultMode, setshowEconsultMode] = useState(false);
   const [buttonActivePhone, setbuttonActivePhone] = useState(true);
   const [buttonActiveVideo, setbuttonActiveVideo] = useState(true);
-  const [showFollowUp, setshowFollowUp] = useState();
+  const [showFollowUp, setshowFollowUp] = useState("");
   const [questionare, setQuestionare] = useState(false);
   const [showQuestions, setShowQuestions] = useState(false);
   const [consultationQuestion, setConsultationQuestion] = useState("");
@@ -97,9 +98,9 @@ const DoctorRegistration2 = ({ navigation }) => {
   const [showPreConsulQues, setShowPreConsulQues] = useState(false);
   //consultation fees
   const [showConsultFees, setShowConsultFees] = useState(false);
-  const [physicalConsulationFees, setphysicalConsulationFees] = useState("");
-  const [eConsulationFees, seteConsulationFees] = useState("");
-  const [followUpFees, setfollowUpFees] = useState("");
+  const [physicalConsulationFees, setphysicalConsulationFees] = useState(0);
+  const [eConsulationFees, seteConsulationFees] = useState(0);
+  const [followUpFees, setfollowUpFees] = useState(0);
   const [DigitalSign, setDigitalSign] = useState("");
 
   const dataFollowUp = [
@@ -120,22 +121,24 @@ const DoctorRegistration2 = ({ navigation }) => {
     { key: "No", value: "No" },
   ];
   const dataMode = [
-    { key: "Video", value: "videocall" },
-    { key: "Phone", value: "phonecall" },
+    { key: "videocall", value: "Video" },
+    { key: "phonecall", value: "Phone" },
   ];
-  const dataMonths = [
-    { key: "1", value: "1" },
-    { key: "2", value: "2" },
-    { key: "3", value: "3" },
-    { key: "4", value: "4" },
-    { key: "5", value: "5" },
-    { key: "6", value: "6" },
-    { key: "7", value: "7" },
-    { key: "8", value: "8" },
-    { key: "9", value: "9" },
-    { key: "10", value: "10" },
-    { key: "11", value: "11" },
-  ];
+
+  useEffect(() => {
+    const onLoadSetData = async () => {
+      let x = JSON.parse(await AsyncStorage.getItem("UserDoctorProfile"));
+
+      setTitle(x.title);
+      setName(x.fullName);
+      setEmail(x.email);
+      setGender(x.gender);
+      setCity(x.city);
+      setdob(x.dob);
+      setAge(x.age + "");
+    };
+    onLoadSetData();
+  }, []);
 
   const ViewIdentifications = () => {
     return IdentificationDocs.map((IdentificationDocs, index) => {
@@ -182,7 +185,7 @@ const DoctorRegistration2 = ({ navigation }) => {
                 paddingHorizontal: 10,
               }}
               onPress={() => {
-                removeIdenHandler(IdentificationDocs.name);
+                removeIdenHandler(IdentificationDocs.identificationType);
               }}
             />
           </View>
@@ -192,13 +195,18 @@ const DoctorRegistration2 = ({ navigation }) => {
   };
 
   const removeIdenHandler = (e) => {
-    setIdentificationDocs(IdentificationDocs.filter((obj) => obj.name !== e));
+    setIdentificationDocs(
+      IdentificationDocs.filter((obj) => obj.identificationType !== e)
+    );
   };
 
   const ViewEducation = () => {
     return Education.map((Education, index) => {
       return (
-        <View style={{ width: "95%", alignSelf: "center" }} key={index}>
+        <View
+          style={{ width: "95%", alignSelf: "center", marginVertical: 10 }}
+          key={index}
+        >
           <View
             style={{
               flexDirection: "column",
@@ -298,21 +306,6 @@ const DoctorRegistration2 = ({ navigation }) => {
     setEducation(Education.filter((obj) => obj.degree !== e));
   };
 
-  useEffect(() => {
-    const onLoadSetData = async () => {
-      let x = JSON.parse(await AsyncStorage.getItem("UserDoctorProfile"));
-
-      setTitle(x.title);
-      setName(x.doctorName);
-      setEmail(x.email);
-      setGender(x.gender);
-      setCity(x.city);
-      setdob(x.dob);
-      setAge(x.age + "");
-    };
-    onLoadSetData();
-  }, []);
-
   const RenderQuestion = () => {
     return questionareList.map((questionareList, index) => {
       return (
@@ -336,6 +329,111 @@ const DoctorRegistration2 = ({ navigation }) => {
   };
   const removeHandler = (e) => {
     updateQuestionareList(questionareList.filter((obj) => obj.questions !== e));
+  };
+
+  const PostData = async () => {
+    let p = JSON.parse(await AsyncStorage.getItem("UserDoctorProfile"));
+    // console.log("From Cache");
+    // console.log(p);
+    let pt = {
+      identificationNumber: Aadhar,
+      identificationType: "Aadhar",
+      identificationPath: "aws/s3/Docs/" + Aadhar + ".pdf",
+    };
+
+    IdentificationDocs.push(pt);
+    let lang = [];
+    let cacheLang = JSON.parse(
+      await AsyncStorage.getItem(p.doctorId + "language")
+    );
+    cacheLang.forEach((index) => {
+      let t = {
+        language: index,
+      };
+      lang.push(t);
+    });
+    //console.log(lang);
+
+    let medtemp = {
+      certificatePath: RegCert,
+      registrationCouncil: RegCouncil,
+      registrationNo: RegNo,
+      registrationYear: Number(RegYear),
+    };
+
+    medReg.push(medtemp);
+    //console.log(medReg);
+
+    let x = {
+      age: Number(age),
+      city: city,
+      countryCode: await AsyncStorage.getItem("countryCode"),
+      countryName: p.countryName,
+      createdOn:
+        new Date().getFullYear() +
+        "-" +
+        new Date().getMonth() +
+        "-" +
+        new Date().getDate(),
+      digialSignature: "aws/s3/digitalSign" + name,
+      dob: dob,
+      // doctorClinicDetailsDTOs: [
+      //   {
+      //     clinicAddress: "string",
+      //     clinicId: 0,
+      //     clinicName: "string",
+      //     consultationDate: "2022-11-13",
+      //     consultationEndTime: "10:00",
+      //     consultationStartTime: "10:00",
+      //     slotDuration: 0,
+      //     specialInstruction: "string",
+      //   },
+      // ],
+      doctorConfigurationDTO: {
+        contactVisibility: showMobNo,
+        // doctorConfigurationPkId: 0,
+        followUpDuration: showFollowUp,
+      },
+      // doctorEConsultationDTOs: [
+      //   {
+      //     consultationDate: "2022-11-13",
+      //     consultationEndTime: "23:00",
+      //     consultationStartTime: "24:00",
+      //     gap: 0,
+      //     slotDuration: 0,
+      //     typeOfEConsultation: "phonecall",
+      //   },
+      // ],
+      doctorEducationsDTOs: Education,
+      doctorFeesDTO: {
+        // doctorConsulationFeesPkId: 0,
+        eConsulationFees: Number(eConsulationFees),
+        followUpFees: Number(followUpFees),
+        physicalConsulationFees: Number(physicalConsulationFees),
+      },
+      doctorId: p.doctorId,
+      doctorIdentificationDTOs: IdentificationDocs,
+      doctorLanguageDTOs: lang,
+      doctorMedicalRegistrationDTOs: medReg,
+      doctorName: name,
+      email: email,
+      gender: gender,
+      locationPermissions: "whileusing",
+      mobileNumber: p.mobileNumber,
+      phoneIp: "string",
+      pinCode: p.pincode,
+      preConsultationQuestionDTOs: [
+        {
+          questions: "string",
+          speciality: "string",
+        },
+      ],
+      profilePhotoPath: "aws/s3/profilepic",
+      termsAndConditions: Boolean(p.termsAndCondition),
+      title: title,
+      whatsAppNumber: p.mobileNumber,
+    };
+    console.log(x);
   };
 
   return (
@@ -1088,9 +1186,9 @@ const DoctorRegistration2 = ({ navigation }) => {
                             let p = {
                               degree: Degree,
                               degreePath: Degree + ".pdf",
-                              passingYear: DegreePassingYear,
-                              specialization: "string",
-                              totalExperiencedInMonths: totalexp,
+                              passingYear: Number(DegreePassingYear),
+                              specialization: Specialization,
+                              totalExperiencedInMonths: Number(totalexp),
                               university: University,
                             };
                             Education.push(p);
@@ -1179,6 +1277,8 @@ const DoctorRegistration2 = ({ navigation }) => {
                         <View>
                           <TextInput
                             style={[styles.textInput]}
+                            keyboardType={"number-pad"}
+                            maxLength={12}
                             onChangeText={(text) => setAadhar(text)}
                             value={Aadhar}
                           />
@@ -1725,10 +1825,10 @@ const DoctorRegistration2 = ({ navigation }) => {
                         }}
                         onPress={() => {
                           setpmodal(false);
-                          navigation.navigate("P-Consultation", {
-                            ClinicName: ClinicName,
-                            ClinicAddress: ClinicAddress,
-                          });
+                          // navigation.navigate("P-Consultation", {
+                          //   ClinicName: ClinicName,
+                          //   ClinicAddress: ClinicAddress,
+                          // });
                         }}
                       />
                     </ScrollView>
@@ -2069,10 +2169,10 @@ const DoctorRegistration2 = ({ navigation }) => {
                         }}
                         onPress={() => {
                           setemodal(false);
-                          navigation.navigate("E-Consultation", {
-                            ClinicName: ClinicName,
-                            ClinicAddress: ClinicAddress,
-                          });
+                          // navigation.navigate("E-Consultation", {
+                          //   ClinicName: ClinicName,
+                          //   ClinicAddress: ClinicAddress,
+                          // });
                         }}
                       />
                     </ScrollView>
@@ -2528,20 +2628,19 @@ const DoctorRegistration2 = ({ navigation }) => {
                         marginRight: "5%",
                       }}
                     >
-                      <TextInput
-                        style={[styles.textInput, { fontWeight: "bold" }]}
-                        editable={false}
-                        placeholder={"Physical Consultation Fees"}
-                        placeholderTextColor={"black"}
-                      />
+                      <Text style={[styles.textInput, { fontWeight: "bold" }]}>
+                        Physical Consultation Fees
+                      </Text>
                     </View>
                     <View style={{ flexDirection: "column", flex: 0.25 }}>
                       <TextInput
                         style={[styles.textInput]}
                         maxLength={5}
+                        keyboardType={"number-pad"}
+                        onChangeText={(text) =>
+                          setphysicalConsulationFees(text)
+                        }
                         value={physicalConsulationFees}
-                        keyboardType={"number-pad"}
-                        onChange={(text) => setphysicalConsulationFees(text)}
                       />
                     </View>
                   </View>
@@ -2553,20 +2652,17 @@ const DoctorRegistration2 = ({ navigation }) => {
                         marginRight: "5%",
                       }}
                     >
-                      <TextInput
-                        style={[styles.textInput, { fontWeight: "bold" }]}
-                        editable={false}
-                        placeholder={"E-Consultation Fees"}
-                        placeholderTextColor={"black"}
-                      />
+                      <Text style={[styles.textInput, { fontWeight: "bold" }]}>
+                        E-Consultation Fees
+                      </Text>
                     </View>
                     <View style={{ flexDirection: "column", flex: 0.25 }}>
                       <TextInput
                         style={[styles.textInput]}
+                        maxLength={5}
+                        keyboardType={"number-pad"}
+                        onChangeText={(text) => seteConsulationFees(text)}
                         value={eConsulationFees}
-                        maxLength={5}
-                        keyboardType={"number-pad"}
-                        onChange={(text) => seteConsulationFees(text)}
                       />
                     </View>
                   </View>
@@ -2578,20 +2674,17 @@ const DoctorRegistration2 = ({ navigation }) => {
                         marginRight: "5%",
                       }}
                     >
-                      <TextInput
-                        style={[styles.textInput, { fontWeight: "bold" }]}
-                        editable={false}
-                        placeholder={"Follow-Up Fees"}
-                        placeholderTextColor={"black"}
-                      />
+                      <Text style={[styles.textInput, { fontWeight: "bold" }]}>
+                        Follow-Up Fees
+                      </Text>
                     </View>
                     <View style={{ flexDirection: "column", flex: 0.25 }}>
                       <TextInput
                         style={[styles.textInput]}
-                        value={followUpFees}
                         keyboardType={"number-pad"}
                         maxLength={5}
-                        onChange={(text) => setfollowUpFees(text)}
+                        onChangeText={(text) => setfollowUpFees(text)}
+                        value={followUpFees}
                       />
                     </View>
                   </View>
@@ -2622,7 +2715,9 @@ const DoctorRegistration2 = ({ navigation }) => {
                   borderRadius: 10,
                   backgroundColor: "#2b8ada",
                 }}
-                onPress={() => navigation.push("DoctorHome")}
+                onPress={() => {
+                  PostData();
+                }}
               ></CustomButton>
               <CustomButton
                 text="Do it Later"
@@ -2641,7 +2736,7 @@ const DoctorRegistration2 = ({ navigation }) => {
                   borderRadius: 10,
                 }}
                 onPress={() => {
-                  Alert.alert("All details have been saved!");
+                  navigation.navigate("DoctorHome");
                 }}
               ></CustomButton>
             </View>

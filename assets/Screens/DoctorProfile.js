@@ -58,7 +58,7 @@ function BasicDesign({ navigation }) {
       let x = JSON.parse(await AsyncStorage.getItem("UserDoctorProfile"));
 
       setTitle(x.title);
-      setName(x.doctorName);
+      setName(x.fullName);
       setCity(x.city);
       setEmail(x.email);
       setAge(x.age + "");

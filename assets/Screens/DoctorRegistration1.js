@@ -111,24 +111,18 @@ const DoctorRegistrationStep1 = ({ navigation }) => {
 
   const SaveData = async () => {
     //console.log(JSON.stringify(splJson));
-
-    await AsyncStorage.setItem("city", city);
-    await AsyncStorage.setItem("dob", Year + "-" + Month + "-" + Day);
-    await AsyncStorage.setItem("email", email);
-    await AsyncStorage.setItem("fullName", name);
-    await AsyncStorage.setItem("gender", gender);
-    await AsyncStorage.setItem("mobileNumber", mobile);
-    await AsyncStorage.setItem("PIN", PIN);
-    await AsyncStorage.setItem("checkTerms", checkTerms + "");
-    await AsyncStorage.setItem("title", title);
-
-    await AsyncStorage.setItem("speciality", JSON.stringify(speciality));
-    await AsyncStorage.setItem("language", JSON.stringify(Language));
-
-    const pp = await AsyncStorage.getAllKeys();
-
-    for (var i = 0; i < pp.length; ++i)
-      console.log(pp[i] + "\t" + (await AsyncStorage.getItem(pp[i])));
+    //await AsyncStorage.setItem("dob", Year + "-" + Month + "-" + Day);
+    // await AsyncStorage.setItem("city", city);
+    // await AsyncStorage.setItem("email", email);
+    // await AsyncStorage.setItem("fullName", name);
+    // await AsyncStorage.setItem("gender", gender);
+    // await AsyncStorage.setItem("mobileNumber", mobile);
+    // await AsyncStorage.setItem("PIN", PIN);
+    // await AsyncStorage.setItem("checkTerms", checkTerms + "");
+    // await AsyncStorage.setItem("title", title);
+    // const pp = await AsyncStorage.getAllKeys();
+    // for (var i = 0; i < pp.length; ++i)
+    //   console.log(pp[i] + "\t" + (await AsyncStorage.getItem(pp[i])));
   };
 
   const PostData = async () => {
@@ -137,7 +131,7 @@ const DoctorRegistrationStep1 = ({ navigation }) => {
         age: await AsyncStorage.getItem("age"),
         city: city,
         countryName: await AsyncStorage.getItem("countryName"),
-        dob: await AsyncStorage.getItem("dob"),
+        dob: Year + "-" + Month + "-" + Day,
         email: email,
         fullName: name,
         gender: gender,
@@ -149,13 +143,19 @@ const DoctorRegistrationStep1 = ({ navigation }) => {
       })
       .then(async function (response) {
         if (response.status == 201) {
-          await AsyncStorage.setItem("doctorId", response.data.doctorId + "");
-          console.log(response.data);
           await AsyncStorage.setItem(
             "UserDoctorProfile",
             JSON.stringify(response.data)
           );
-          console.log("doctorID" + (await AsyncStorage.getItem("doctorId")));
+
+          let d = JSON.parse(
+            await AsyncStorage.getItem("UserDoctorProfile")
+          ).doctorId;
+          await AsyncStorage.setItem(
+            d + "speciality",
+            JSON.stringify(speciality)
+          );
+          await AsyncStorage.setItem(d + "language", JSON.stringify(Language));
         }
       })
       .catch(function (error) {
@@ -518,11 +518,10 @@ const DoctorRegistrationStep1 = ({ navigation }) => {
                       "Pls fill in all the details before continuing!"
                     );
                   else {
-                    SaveData();
+                    //SaveData();
 
                     setTermsView(true);
                   }
-                  console.log(await AsyncStorage.getItem("doctorId"));
                 }}
               ></CustomButton>
               {/* <CustomButton

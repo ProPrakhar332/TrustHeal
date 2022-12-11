@@ -1039,11 +1039,15 @@ const FirstScreen = ({ navigation, route }) => {
       //let countryCodeCache = await AsyncStorage.getItem("countryCode");
       //let no = countryCodeCache + "" + mob;
       //console.log(no);
-      try {
-        await AsyncStorage.setItem("mobileNumber", mob);
-        sendOTP();
-      } catch (e) {
-        console.log(e);
+      if (privatePolicy == false)
+        Alert.alert("Please Accept Terms & Condition before continuing");
+      else {
+        try {
+          await AsyncStorage.setItem("mobileNumber", mob);
+          sendOTP();
+        } catch (e) {
+          console.log(e);
+        }
       }
     }
   };
@@ -1083,7 +1087,6 @@ const FirstScreen = ({ navigation, route }) => {
               "UserDoctorProfile",
               JSON.stringify(response.data)
             );
-            await AsyncStorage.setItem("doctorId", response.data.doctorId + "");
             navigation.navigate("DoctorHome");
           }
         })
