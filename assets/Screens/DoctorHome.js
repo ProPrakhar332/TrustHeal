@@ -36,6 +36,32 @@ const dataStatus = [
   { key: "No", value: "No" },
 ];
 
+const upcomingData = [
+  {
+    bookingHistoryId: 0,
+    consultationId: 0,
+    consultationType: "phonecall",
+    familyDetails: {
+      age: 0,
+      city: "string",
+      patiendId: 0,
+      patientName: "string",
+      profilePhoto: "string",
+    },
+    fees: 0,
+    patientsDetails: {
+      age: 0,
+      city: "string",
+      patiendId: 0,
+      patientName: "string",
+      profilePhoto: "string",
+    },
+    slotDate: "2022-11-13",
+    slotTime: "10:00",
+    symptoms: "string",
+  },
+];
+
 const DoctorHome = ({ navigation }) => {
   //upcoming tab
   const [Upcoming, setUpcoming] = useState(false);
@@ -55,6 +81,207 @@ const DoctorHome = ({ navigation }) => {
   const [ManageStatus, setManageStatus] = useState("");
 
   const layout = useWindowDimensions();
+
+  const renderCard = ({ item }) => {
+    return (
+      <View
+        style={{
+          backgroundColor: "white",
+          width: "95%",
+          alignSelf: "center",
+          borderRadius: 10,
+          marginVertical: 5,
+        }}
+      >
+        <View
+          style={{
+            flexDirection: "row",
+            alignSelf: "flex-end",
+            marginTop: 10,
+          }}
+        >
+          <FAIcon
+            name="prescription"
+            size={20}
+            style={{ marginHorizontal: 5 }}
+            onPress={() => navigation.push("CheifComplaints")}
+          />
+          <CustomButton
+            text="Pre Consultation"
+            textstyle={{ color: "white", fontSize: 10 }}
+            style={{
+              backgroundColor: "#2B8ADA",
+              padding: 3,
+              marginHorizontal: 5,
+              paddingHorizontal: 7,
+              padding: 4,
+            }}
+            onPress={() => setConsultationQuestionnaire(true)}
+          />
+        </View>
+        <View
+          style={{
+            flexDirection: "row",
+            borderBottomColor: "gray",
+            borderBottomWidth: 1,
+          }}
+        >
+          <Image
+            source={pfp1}
+            style={{
+              width: 90,
+              height: 90,
+              alignSelf: "center",
+              borderRadius: 5,
+              margin: 5,
+              marginHorizontal: 10,
+            }}
+          />
+          <View style={{ flexDirection: "column" }}>
+            <Text
+              style={{
+                flexDirection: "row",
+                fontSize: 20,
+                fontWeight: "bold",
+              }}
+            >
+              {item.patientsDetails.patientName}
+            </Text>
+
+            <View style={{ flexDirection: "row" }}>
+              <View
+                style={{
+                  flexDirection: "column",
+                  width: "20%",
+                  marginRight: "5%",
+                }}
+              >
+                <Text style={styles.cardText}>Age</Text>
+              </View>
+              <View style={{ flexDirection: "column", width: "60%" }}>
+                <Text style={styles.cardText}>{item.patientsDetails.age}</Text>
+              </View>
+            </View>
+            <View style={{ flexDirection: "row" }}>
+              <View
+                style={{
+                  flexDirection: "column",
+                  width: "20%",
+                  marginRight: "5%",
+                }}
+              >
+                <Text style={styles.cardText}>Location</Text>
+              </View>
+              <View style={{ flexDirection: "column", width: "60%" }}>
+                <Text style={styles.cardText}>{item.patientsDetails.city}</Text>
+              </View>
+            </View>
+            <View style={{ flexDirection: "row" }}>
+              <View
+                style={{
+                  flexDirection: "column",
+                  width: "20%",
+                  marginRight: "5%",
+                }}
+              >
+                <Text style={styles.cardText}>Symtoms</Text>
+              </View>
+              <View style={{ flexDirection: "column", width: "60%" }}>
+                <Text style={styles.cardText}>{item.symptoms}</Text>
+              </View>
+            </View>
+            <View style={{ flexDirection: "row" }}>
+              <View
+                style={{
+                  flexDirection: "column",
+                  width: "20%",
+                  marginRight: "5%",
+                }}
+              >
+                <Text style={styles.cardText}>Slot</Text>
+              </View>
+              <View style={{ flexDirection: "column", width: "60%" }}>
+                <Text style={styles.cardText}>
+                  {item.slotTime} {item.slotDate}
+                </Text>
+              </View>
+            </View>
+          </View>
+        </View>
+        <View
+          style={{
+            marginVertical: 10,
+            flexDirection: "row",
+            justifyContent: "space-evenly",
+          }}
+        >
+          <CustomButton
+            text="E-Consultation"
+            textstyle={{ fontSize: 10, color: "#2B8ADA" }}
+            style={{
+              borderWidth: 1,
+              borderColor: "#2B8ADA",
+              padding: 3,
+              alignSelf: "center",
+              borderRadius: 5,
+              paddingHorizontal: 5,
+            }}
+          />
+          <CustomButton
+            text="P-Consultation"
+            textstyle={{ fontSize: 10, color: "white" }}
+            style={{
+              backgroundColor: "#2B8ADA",
+              padding: 3,
+              alignSelf: "center",
+              borderRadius: 5,
+              paddingHorizontal: 5,
+            }}
+          />
+          <TouchableOpacity
+            style={{
+              flexDirection: "row",
+              padding: 3,
+              paddingHorizontal: 5,
+              alignSelf: "center",
+              borderWidth: 1,
+              borderColor: "gray",
+              borderRadius: 5,
+            }}
+            onPress={() => setHistoryModal(true)}
+          >
+            <FAIcon
+              name="file-pdf"
+              color={"black"}
+              size={12}
+              style={{ marginRight: 5 }}
+            />
+            <Text style={{ fontSize: 10 }}>History</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{
+              flexDirection: "row",
+              padding: 3,
+              paddingHorizontal: 5,
+              alignSelf: "center",
+              borderWidth: 1,
+              borderColor: "gray",
+              borderRadius: 5,
+            }}
+            onPress={() => setTodaysModal(true)}
+          >
+            <FAIcon
+              name="file-pdf"
+              color={"black"}
+              size={12}
+              style={{ marginRight: 5 }}
+            />
+            <Text style={{ fontSize: 10 }}>Today's Doc</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
 
   return (
     <KeyboardAvoidingView
@@ -171,229 +398,11 @@ const DoctorHome = ({ navigation }) => {
                   </View>
                   <View>
                     {/*Card Design */}
-                    <View
-                      style={{
-                        backgroundColor: "white",
-                        width: "95%",
-                        alignSelf: "center",
-                        borderRadius: 10,
-                        marginVertical: 5,
-                      }}
-                    >
-                      <View
-                        style={{
-                          flexDirection: "row",
-                          alignSelf: "flex-end",
-                          marginTop: 10,
-                        }}
-                      >
-                        <FAIcon
-                          name="prescription"
-                          size={20}
-                          style={{ marginHorizontal: 5 }}
-                          onPress={() => navigation.push("CheifComplaints")}
-                        />
-                        <CustomButton
-                          text="Pre Consultation"
-                          textstyle={{ color: "white", fontSize: 10 }}
-                          style={{
-                            backgroundColor: "#2B8ADA",
-                            padding: 3,
-                            marginHorizontal: 5,
-                            paddingHorizontal: 7,
-                            padding: 4,
-                          }}
-                          onPress={() => setConsultationQuestionnaire(true)}
-                        />
-                      </View>
-                      <View
-                        style={{
-                          flexDirection: "row",
-                          borderBottomColor: "gray",
-                          borderBottomWidth: 1,
-                        }}
-                      >
-                        <Image
-                          source={pfp1}
-                          style={{
-                            width: 90,
-                            height: 90,
-                            alignSelf: "center",
-                            borderRadius: 5,
-                            margin: 5,
-                            marginHorizontal: 10,
-                          }}
-                        />
-                        <View style={{ flexDirection: "column" }}>
-                          <Text
-                            style={{
-                              flexDirection: "row",
-                              fontSize: 20,
-                              fontWeight: "bold",
-                            }}
-                          >
-                            Mr Rohan Kumar
-                          </Text>
-
-                          <View style={{ flexDirection: "row" }}>
-                            <View
-                              style={{
-                                flexDirection: "column",
-                                width: "20%",
-                                marginRight: "5%",
-                              }}
-                            >
-                              <Text style={styles.cardText}>Age</Text>
-                            </View>
-                            <View
-                              style={{ flexDirection: "column", width: "60%" }}
-                            >
-                              <Text style={styles.cardText}>40</Text>
-                            </View>
-                          </View>
-                          <View style={{ flexDirection: "row" }}>
-                            <View
-                              style={{
-                                flexDirection: "column",
-                                width: "20%",
-                                marginRight: "5%",
-                              }}
-                            >
-                              <Text style={styles.cardText}>Location</Text>
-                            </View>
-                            <View
-                              style={{ flexDirection: "column", width: "60%" }}
-                            >
-                              <Text style={styles.cardText}>Agra</Text>
-                            </View>
-                          </View>
-                          <View style={{ flexDirection: "row" }}>
-                            <View
-                              style={{
-                                flexDirection: "column",
-                                width: "20%",
-                                marginRight: "5%",
-                              }}
-                            >
-                              <Text style={styles.cardText}>Symtoms</Text>
-                            </View>
-                            <View
-                              style={{ flexDirection: "column", width: "60%" }}
-                            >
-                              <Text style={styles.cardText}>
-                                Fever, Cough, Headache
-                              </Text>
-                            </View>
-                          </View>
-                          <View style={{ flexDirection: "row" }}>
-                            <View
-                              style={{
-                                flexDirection: "column",
-                                width: "20%",
-                                marginRight: "5%",
-                              }}
-                            >
-                              <Text style={styles.cardText}>Slot</Text>
-                            </View>
-                            <View
-                              style={{ flexDirection: "column", width: "60%" }}
-                            >
-                              <Text style={styles.cardText}>
-                                9:00 AM | Monday
-                              </Text>
-                            </View>
-                          </View>
-                        </View>
-                      </View>
-                      <View
-                        style={{
-                          marginVertical: 10,
-                          flexDirection: "row",
-                          justifyContent: "space-evenly",
-                        }}
-                      >
-                        <CustomButton
-                          text="E-Consultation"
-                          textstyle={{ fontSize: 10, color: "#2B8ADA" }}
-                          style={{
-                            borderWidth: 1,
-                            borderColor: "#2B8ADA",
-                            padding: 3,
-                            alignSelf: "center",
-                            borderRadius: 5,
-                            paddingHorizontal: 5,
-                          }}
-                        />
-                        <CustomButton
-                          text="P-Consultation"
-                          textstyle={{ fontSize: 10, color: "white" }}
-                          style={{
-                            backgroundColor: "#2B8ADA",
-                            padding: 3,
-                            alignSelf: "center",
-                            borderRadius: 5,
-                            paddingHorizontal: 5,
-                          }}
-                        />
-                        <TouchableOpacity
-                          style={{
-                            flexDirection: "row",
-                            padding: 3,
-                            paddingHorizontal: 5,
-                            alignSelf: "center",
-                            borderWidth: 1,
-                            borderColor: "gray",
-                            borderRadius: 5,
-                          }}
-                          onPress={() => setHistoryModal(true)}
-                        >
-                          <FAIcon
-                            name="file-pdf"
-                            color={"black"}
-                            size={12}
-                            style={{ marginRight: 5 }}
-                          />
-                          <Text style={{ fontSize: 10 }}>History</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                          style={{
-                            flexDirection: "row",
-                            padding: 3,
-                            paddingHorizontal: 5,
-                            alignSelf: "center",
-                            borderWidth: 1,
-                            borderColor: "gray",
-                            borderRadius: 5,
-                          }}
-                          onPress={() => setTodaysModal(true)}
-                        >
-                          <FAIcon
-                            name="file-pdf"
-                            color={"black"}
-                            size={12}
-                            style={{ marginRight: 5 }}
-                          />
-                          <Text style={{ fontSize: 10 }}>Today's Doc</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                          style={{
-                            backgroundColor: "#2B8ADA",
-                            padding: 5,
-                            borderRadius: 10,
-                            alignSelf: "center",
-                          }}
-                          onPress={() => setChattingModal(true)}
-                        >
-                          <Image
-                            source={chatting}
-                            style={{
-                              width: 15,
-                              height: 15,
-                            }}
-                          />
-                        </TouchableOpacity>
-                      </View>
-                    </View>
+                    <FlatList
+                      data={upcomingData}
+                      keyExtractor={(item) => item.bookingHistoryId}
+                      renderItem={renderCard}
+                    />
                   </View>
                 </View>
               </View>

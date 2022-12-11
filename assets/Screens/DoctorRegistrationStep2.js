@@ -25,6 +25,8 @@ import doctor from "../Resources/doctor.png";
 import upload from "../Resources/upload.png";
 import { useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
+//import dayjs from "dayjs";
 import axios from "axios";
 
 const dataTitle = [
@@ -40,6 +42,27 @@ const dataGender = [
 ];
 
 const DoctorRegistration2 = ({ navigation }) => {
+  //Calendar View
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const [selectedDateFromModal, setselectedDateFromModal] =
+    useState("YYYY-MM-DD");
+
+  const showDatePicker = () => {
+    console.log("Pressed button");
+    setDatePickerVisibility(true);
+  };
+
+  const hideDatePicker = () => {
+    setDatePickerVisibility(false);
+  };
+
+  const handleConfirm = (date) => {
+    // console.log("A date has been picked: ", dayjs(date).format("YYYY-MM-DD"));
+
+    //setselectedDateFromModal(dayjs(date).format("YYYY-MM-DD"));
+    hideDatePicker();
+  };
+
   //General Information Field
   const [showGenInfo, setShowGenInfo] = useState(false);
   const [GenInfoEdit, setGenInfoEdit] = useState(false);
@@ -329,6 +352,47 @@ const DoctorRegistration2 = ({ navigation }) => {
   };
   const removeHandler = (e) => {
     updateQuestionareList(questionareList.filter((obj) => obj.questions !== e));
+  };
+
+  const ViewClinics = () => {
+    return ClinicDet.map((ClinicDet, index) => {
+      return (
+        <View style={{ width: "95%", alignSelf: "center" }} key={index}>
+          <View style={{ flexDirection: "column" }}>
+            <Text style={styles.inputLabel}>Clinic Name</Text>
+            <Text style={styles.textInput}>{ClinicDet.clinicName}</Text>
+          </View>
+          <View style={{ flexDirection: "column" }}>
+            <Text style={styles.inputLabel}>Clinic Address</Text>
+            <Text
+              style={styles.textInput}
+              onChangeText={(text) => setClinicAddress(text)}
+            >
+              {ClinicDet.clinicAddress}
+            </Text>
+          </View>
+          <CustomButton
+            text="Delete"
+            textstyle={{ color: "white", fontSize: 12 }}
+            style={{
+              backgroundColor: "red",
+              alignSelf: "flex-end",
+              borderRadius: 5,
+              padding: 6,
+              paddingHorizontal: 10,
+              margin: 5,
+            }}
+            onPress={() => {
+              removeClinicHandler(ClinicDet.clinicName);
+            }}
+          />
+        </View>
+      );
+    });
+  };
+
+  const removeClinicHandler = (e) => {
+    setClinicDet(ClinicDet.filter((obj) => obj.clinicName !== e));
   };
 
   const PostData = async () => {
@@ -735,7 +799,7 @@ const DoctorRegistration2 = ({ navigation }) => {
                     <View style={{ flexDirection: "row", alignSelf: "center" }}>
                       <View style={{ flex: 0.45, marginRight: "5%" }}>
                         <Text style={styles.inputLabel}>Date Of Birth</Text>
-                        <View>
+                        <View onPress={() => {}}>
                           <TextInput
                             style={[
                               styles.textInput,
@@ -763,6 +827,7 @@ const DoctorRegistration2 = ({ navigation }) => {
                           />
                         </View>
                       </View>
+
                       <View style={{ flex: 0.45 }}>
                         <Text style={styles.inputLabel}>Age</Text>
                         <TextInput
@@ -794,7 +859,7 @@ const DoctorRegistration2 = ({ navigation }) => {
                       >
                         <View style={[styles.textInput, { flex: 0.95 }]}>
                           <Text style={[styles.label]}>
-                            Upload Digital Signature
+                            {selectedDateFromModal}
                           </Text>
                         </View>
                         <CustomButton
@@ -806,8 +871,15 @@ const DoctorRegistration2 = ({ navigation }) => {
                             borderRadius: 5,
                             padding: 10,
                           }}
+                          onPress={showDatePicker}
                         />
                       </View>
+                      <DateTimePickerModal
+                        isVisible={isDatePickerVisible}
+                        mode="date"
+                        onConfirm={handleConfirm}
+                        onCancel={hideDatePicker}
+                      />
                       <View
                         style={{
                           flexDirection: "row",
@@ -1480,6 +1552,8 @@ const DoctorRegistration2 = ({ navigation }) => {
                         onPress={() => setconsultView(true)}
                       />
                     </View>
+                    {ClinicDet != "" ? <ViewClinics /> : null}
+                    {/* Add Clinic */}
                     <View style={{ width: "95%", alignSelf: "center" }}>
                       <View style={{ flexDirection: "column" }}>
                         <Text style={styles.inputLabel}>Clinic Name</Text>

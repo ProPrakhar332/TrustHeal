@@ -27,6 +27,7 @@ import FAIcon from "react-native-vector-icons/FontAwesome5";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect } from "react";
 import axios from "axios";
+import apiConfig from "../API/apiConfig";
 
 const DoctorRegistrationStep1 = ({ navigation }) => {
   const [title, setTitle] = useState("");
@@ -127,7 +128,7 @@ const DoctorRegistrationStep1 = ({ navigation }) => {
 
   const PostData = async () => {
     axios
-      .post("http://10.0.2.2:8080/doctor/gernalinfo/save", {
+      .post(apiConfig.baseUrl + "/doctor/gernalinfo/save", {
         age: await AsyncStorage.getItem("age"),
         city: city,
         countryName: await AsyncStorage.getItem("countryName"),
