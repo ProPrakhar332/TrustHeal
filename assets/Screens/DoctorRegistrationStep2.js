@@ -40,6 +40,10 @@ const dataGender = [
   { key: "Female", value: "Female" },
   { key: "Other", value: "Other" },
 ];
+const clearKeys = async () => {
+  await AsyncStorage.removeItem("dob");
+  await AsyncStorage.removeItem("age");
+};
 
 const DoctorRegistration2 = ({ navigation }) => {
   //Calendar View
@@ -48,7 +52,8 @@ const DoctorRegistration2 = ({ navigation }) => {
     useState("YYYY-MM-DD");
 
   const showDatePicker = () => {
-    console.log("Pressed button");
+    //console.log("Pressed button");
+
     setDatePickerVisibility(true);
   };
 
@@ -56,12 +61,42 @@ const DoctorRegistration2 = ({ navigation }) => {
     setDatePickerVisibility(false);
   };
 
-  const handleConfirm = (date) => {
-    // console.log("A date has been picked: ", dayjs(date).format("YYYY-MM-DD"));
-
-    //setselectedDateFromModal(dayjs(date).format("YYYY-MM-DD"));
+  const handleConfirm = async (date) => {
+    await AsyncStorage.setItem("dob", JSON.stringify(date).substring(1, 11));
+    setdob(JSON.stringify(date).substring(1, 11));
+    calculateAge();
     hideDatePicker();
   };
+  const calculateAge = async () => {
+    let tmep = await AsyncStorage.getItem("dob");
+    var year = Number(tmep.substring(0, 4));
+    var month = Number(tmep.substring(5, 7)) - 1;
+    var day = Number(tmep.substring(8));
+    var today = new Date();
+    let x = today.getFullYear() - year;
+    if (
+      today.getMonth() < month ||
+      (today.getMonth() == month && today.getDate() < day)
+    ) {
+      x = x - 1;
+    }
+    await AsyncStorage.setItem("age", x + "");
+    setAge(x);
+  };
+
+  useEffect(() => {
+    const setDate = async () => {
+      setdob(await AsyncStorage.getItem("dob"));
+    };
+
+    setDate();
+  }, [dob]);
+  useEffect(() => {
+    const settingAge = async () => {
+      setAge(await AsyncStorage.getItem("age"));
+    };
+    settingAge();
+  }, [age]);
 
   //General Information Field
   const [showGenInfo, setShowGenInfo] = useState(false);
@@ -107,9 +142,6 @@ const DoctorRegistration2 = ({ navigation }) => {
   const [showGenConfig, setShowGenConfig] = useState(false);
   const [showMobNo, setshowMobNo] = useState("");
   const [EconsultMode, setEconsultMode] = useState([]);
-  const [showEconsultMode, setshowEconsultMode] = useState(false);
-  const [buttonActivePhone, setbuttonActivePhone] = useState(true);
-  const [buttonActiveVideo, setbuttonActiveVideo] = useState(true);
   const [showFollowUp, setshowFollowUp] = useState("");
   const [questionare, setQuestionare] = useState(false);
   const [showQuestions, setShowQuestions] = useState(false);
@@ -153,7 +185,7 @@ const DoctorRegistration2 = ({ navigation }) => {
       let x = JSON.parse(await AsyncStorage.getItem("UserDoctorProfile"));
 
       setTitle(x.title);
-      setName(x.fullName);
+      setName(x.doctorName);
       setEmail(x.email);
       setGender(x.gender);
       setCity(x.city);
@@ -799,19 +831,15 @@ const DoctorRegistration2 = ({ navigation }) => {
                     <View style={{ flexDirection: "row", alignSelf: "center" }}>
                       <View style={{ flex: 0.45, marginRight: "5%" }}>
                         <Text style={styles.inputLabel}>Date Of Birth</Text>
-                        <View onPress={() => {}}>
-                          <TextInput
+                        <View>
+                          <Text
                             style={[
                               styles.textInput,
-                              { backgroundColor: "#E8F0FE" },
+                              { backgroundColor: "#E8F0FE", padding: 10 },
                             ]}
-                            placeholderTextColor={"black"}
-                            editable={GenInfoEdit}
-                            keyboardType={"numeric"}
-                            placeholder={"YYYY-MM-DD"}
-                            onChangeText={(text) => setdob(text)}
-                            value={dob}
-                          ></TextInput>
+                          >
+                            {dob}
+                          </Text>
                           <FAIcon
                             name="calendar-alt"
                             color={"gray"}
@@ -820,25 +848,24 @@ const DoctorRegistration2 = ({ navigation }) => {
                               position: "absolute",
                               right: 0,
                               bottom: 0,
-                              marginRight: "5%",
-                              marginBottom: "5%",
+                              margin: "5%",
+                              alignSelf: "center",
                             }}
-                            onPress={() => {}}
+                            onPress={GenInfoEdit ? showDatePicker : null}
                           />
                         </View>
                       </View>
 
                       <View style={{ flex: 0.45 }}>
                         <Text style={styles.inputLabel}>Age</Text>
-                        <TextInput
+                        <Text
                           style={[
                             styles.textInput,
-                            { backgroundColor: "#E8F0FE" },
+                            { backgroundColor: "#E8F0FE", padding: 10 },
                           ]}
-                          placeholderTextColor={"black"}
-                          editable={false}
-                          placeholder={age}
-                        ></TextInput>
+                        >
+                          {age}
+                        </Text>
                       </View>
                     </View>
                     <View
@@ -859,7 +886,7 @@ const DoctorRegistration2 = ({ navigation }) => {
                       >
                         <View style={[styles.textInput, { flex: 0.95 }]}>
                           <Text style={[styles.label]}>
-                            {selectedDateFromModal}
+                            Upload Digital Signature
                           </Text>
                         </View>
                         <CustomButton
@@ -871,7 +898,7 @@ const DoctorRegistration2 = ({ navigation }) => {
                             borderRadius: 5,
                             padding: 10,
                           }}
-                          onPress={showDatePicker}
+                          onPress={() => {}}
                         />
                       </View>
                       <DateTimePickerModal
@@ -900,6 +927,7 @@ const DoctorRegistration2 = ({ navigation }) => {
                           Alert.alert(
                             "All changes made in Genreal Information have been updated"
                           );
+                          clearKeys();
                           setGenInfoEdit(false);
                         }}
                         style={{
