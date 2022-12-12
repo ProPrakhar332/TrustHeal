@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import { TextInput } from "react-native";
 import { FlatList } from "react-native";
@@ -30,47 +30,34 @@ import {
   SelectList,
   MultipleSelectList,
 } from "react-native-dropdown-select-list";
+import axios from "axios";
+import apiConfig from "../API/apiConfig";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const dataStatus = [
   { key: "Yes", value: "Yes" },
   { key: "No", value: "No" },
 ];
 
-const upcomingData = [
-  {
-    bookingHistoryId: 0,
-    consultationId: 0,
-    consultationType: "phonecall",
-    familyDetails: {
-      age: 0,
-      city: "string",
-      patiendId: 0,
-      patientName: "string",
-      profilePhoto: "string",
-    },
-    fees: 0,
-    patientsDetails: {
-      age: 0,
-      city: "string",
-      patiendId: 0,
-      patientName: "string",
-      profilePhoto: "string",
-    },
-    slotDate: "2022-11-13",
-    slotTime: "10:00",
-    symptoms: "string",
-  },
-];
-
 const DoctorHome = ({ navigation }) => {
   //upcoming tab
   const [Upcoming, setUpcoming] = useState(false);
+  const [UpcomingData, setUpcomingData] = useState([]);
+  const [UpcomingId, setUpcomingId] = useState(0);
+  const [PreconsultaionQuestionData, setPreconsultaionQuestionData] = useState(
+    []
+  );
+  const [PreConsultaion, setPreConsultaion] = useState([]);
   const [upcomingEConsultations, setupcomingEConsultations] = useState(false);
   const [upcomingPConsultations, setupcomingPConsultations] = useState(false);
   const [PrescriptionModal, setPrescriptionModal] = useState(false);
   const [ChattingModal, setChattingModal] = useState(false);
   const [HistoryModal, setHistoryModal] = useState(false);
+  const [historyData, sethistoryData] = useState([]);
+  const [patientId, setpatientId] = useState(0);
+  const [upcomingConsultationId, setupcomingConsultationId] = useState(0);
   const [TodaysModal, setTodaysModal] = useState(false);
+  const [TodaysDocs, setTodaysDocs] = useState([]);
   const [ConsultationQuestionnaire, setConsultationQuestionnaire] =
     useState(false);
   //complete tab
@@ -81,6 +68,28 @@ const DoctorHome = ({ navigation }) => {
   const [ManageStatus, setManageStatus] = useState("");
 
   const layout = useWindowDimensions();
+
+  const dayextractor = (date) => {
+    var ch = new Date(date);
+    var days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    //console.log(days[ch.getDay()]);
+    return days[ch.getDay()];
+  };
+
+  const timeformatter = (time) => {
+    let text = time;
+    const myArray = text.split(":");
+    var HH = Number(myArray[0]);
+    var m = Number(myArray[1]);
+    var MM = m;
+    if (m < 9) MM = "0" + m;
+    var PM = "AM";
+    if (HH > 12) {
+      HH -= 12;
+      PM = "PM";
+    }
+    return HH + ":" + MM + PM;
+  };
 
   const renderCard = ({ item }) => {
     return (
@@ -116,7 +125,10 @@ const DoctorHome = ({ navigation }) => {
               paddingHorizontal: 7,
               padding: 4,
             }}
-            onPress={() => setConsultationQuestionnaire(true)}
+            onPress={() => {
+              setUpcomingId(item.consultationId);
+              setConsultationQuestionnaire(true);
+            }}
           />
         </View>
         <View
@@ -145,7 +157,9 @@ const DoctorHome = ({ navigation }) => {
                 fontWeight: "bold",
               }}
             >
-              {item.patientsDetails.patientName}
+              {item.familyDetails == null
+                ? item.patientsDetails.patientName
+                : item.familyDetails.patientName}
             </Text>
 
             <View style={{ flexDirection: "row" }}>
@@ -159,7 +173,11 @@ const DoctorHome = ({ navigation }) => {
                 <Text style={styles.cardText}>Age</Text>
               </View>
               <View style={{ flexDirection: "column", width: "60%" }}>
-                <Text style={styles.cardText}>{item.patientsDetails.age}</Text>
+                <Text style={styles.cardText}>
+                  {item.familyDetails == null
+                    ? item.patientsDetails.age
+                    : item.familyDetails.age}
+                </Text>
               </View>
             </View>
             <View style={{ flexDirection: "row" }}>
@@ -173,7 +191,11 @@ const DoctorHome = ({ navigation }) => {
                 <Text style={styles.cardText}>Location</Text>
               </View>
               <View style={{ flexDirection: "column", width: "60%" }}>
-                <Text style={styles.cardText}>{item.patientsDetails.city}</Text>
+                <Text style={styles.cardText}>
+                  {item.familyDetails == null
+                    ? item.patientsDetails.city
+                    : item.familyDetails.city}
+                </Text>
               </View>
             </View>
             <View style={{ flexDirection: "row" }}>
@@ -202,12 +224,13 @@ const DoctorHome = ({ navigation }) => {
               </View>
               <View style={{ flexDirection: "column", width: "60%" }}>
                 <Text style={styles.cardText}>
-                  {item.slotTime} {item.slotDate}
+                  {timeformatter(item.slotTime)} {dayextractor(item.slotDate)}
                 </Text>
               </View>
             </View>
           </View>
         </View>
+        {/* Buttons */}
         <View
           style={{
             marginVertical: 10,
@@ -215,29 +238,45 @@ const DoctorHome = ({ navigation }) => {
             justifyContent: "space-evenly",
           }}
         >
-          <CustomButton
-            text="E-Consultation"
-            textstyle={{ fontSize: 10, color: "#2B8ADA" }}
-            style={{
-              borderWidth: 1,
-              borderColor: "#2B8ADA",
-              padding: 3,
-              alignSelf: "center",
-              borderRadius: 5,
-              paddingHorizontal: 5,
-            }}
-          />
-          <CustomButton
-            text="P-Consultation"
-            textstyle={{ fontSize: 10, color: "white" }}
-            style={{
-              backgroundColor: "#2B8ADA",
-              padding: 3,
-              alignSelf: "center",
-              borderRadius: 5,
-              paddingHorizontal: 5,
-            }}
-          />
+          {item.consultationType !== "phyiscal" ? (
+            <TouchableOpacity
+              style={{
+                flexDirection: "row",
+                padding: 3,
+                paddingHorizontal: 5,
+                alignSelf: "center",
+                borderWidth: 1,
+                borderColor: "#2B8ADA",
+                borderRadius: 5,
+              }}
+            >
+              <FAIcon
+                name={
+                  item.consultationType == "videocall" ? "video" : "phone-alt"
+                }
+                color={"#2B8ADA"}
+                size={15}
+                style={{ marginRight: 5 }}
+              />
+              <Text style={{ fontSize: 13, color: "#2B8ADA" }}>
+                {item.consultationType == "videocall"
+                  ? "Video Call"
+                  : "Phone Call"}
+              </Text>
+            </TouchableOpacity>
+          ) : (
+            <CustomButton
+              text="P-Consultation"
+              textstyle={{ fontSize: 13, color: "white" }}
+              style={{
+                backgroundColor: "#2B8ADA",
+                padding: 3,
+                alignSelf: "center",
+                borderRadius: 5,
+                paddingHorizontal: 5,
+              }}
+            />
+          )}
           <TouchableOpacity
             style={{
               flexDirection: "row",
@@ -248,15 +287,18 @@ const DoctorHome = ({ navigation }) => {
               borderColor: "gray",
               borderRadius: 5,
             }}
-            onPress={() => setHistoryModal(true)}
+            onPress={() => {
+              setupcomingConsultationId(item.consultationId);
+              setHistoryModal(true);
+            }}
           >
             <FAIcon
               name="file-pdf"
               color={"black"}
-              size={12}
+              size={15}
               style={{ marginRight: 5 }}
             />
-            <Text style={{ fontSize: 10 }}>History</Text>
+            <Text style={{ fontSize: 13 }}>History</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={{
@@ -268,20 +310,223 @@ const DoctorHome = ({ navigation }) => {
               borderColor: "gray",
               borderRadius: 5,
             }}
-            onPress={() => setTodaysModal(true)}
+            onPress={() => {
+              setpatientId(item.consultationId);
+              setTodaysModal(true);
+            }}
           >
             <FAIcon
               name="file-pdf"
               color={"black"}
-              size={12}
+              size={15}
               style={{ marginRight: 5 }}
             />
-            <Text style={{ fontSize: 10 }}>Today's Doc</Text>
+            <Text style={{ fontSize: 13 }}>Today's Doc</Text>
           </TouchableOpacity>
         </View>
       </View>
     );
   };
+  const renderQuestionAnswers = ({ item }) => {
+    return (
+      <View style={{ width: "95%", alignSelf: "center", marginBottom: 10 }}>
+        <TouchableOpacity
+          style={[
+            styles.WhiteLabel,
+            {
+              borderWidth: 1,
+              flexDirection: "row",
+              justifyContent: "space-between",
+              marginBottom: 0,
+              backgroundColor: "#2B8ADA",
+            },
+          ]}
+        >
+          <Text
+            style={[
+              {
+                fontWeight: "bold",
+                fontSize: 14,
+                color: "white",
+              },
+            ]}
+          >
+            {item.question}
+          </Text>
+        </TouchableOpacity>
+        <View
+          style={{
+            marginTop: -6,
+            padding: 5,
+            borderWidth: 1,
+            borderTopWidth: 0,
+            width: "95%",
+            alignSelf: "center",
+            borderBottomRightRadius: 5,
+            borderBottomLeftRadius: 5,
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 12,
+              padding: 5,
+              textAlign: "justify",
+            }}
+          >
+            {item.answers}
+          </Text>
+        </View>
+      </View>
+    );
+  };
+  const renderHistory = ({ item }) => {
+    return (
+      <View
+        style={{
+          backgroundColor: "#E8F0FE",
+          padding: 10,
+          width: "100%",
+          alignSelf: "center",
+          borderRadius: 7,
+          marginVertical: 10,
+        }}
+      >
+        <View style={{ width: "80%", alignSelf: "center" }}>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              marginVertical: 5,
+            }}
+          >
+            <View style={{ flexDirection: "column" }}>
+              <Text style={styles.HistoryModalText}>Last Visited</Text>
+            </View>
+            <View style={{ flexDirection: "column" }}>
+              <Text style={styles.HistoryModalText}>{item.uploadedDate}</Text>
+            </View>
+          </View>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              marginVertical: 5,
+            }}
+          >
+            <View style={{ flexDirection: "column" }}>
+              <Text style={styles.HistoryModalText}>Document</Text>
+            </View>
+            <Text style={styles.HistoryModalText}>{item.documentName}</Text>
+          </View>
+        </View>
+      </View>
+    );
+  };
+  const renderToday = ({ item }) => {
+    return (
+      <TouchableOpacity
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          marginBottom: 10,
+          borderRadius: 15,
+          padding: 10,
+          backgroundColor: "#E8F0FE",
+        }}
+      >
+        <View style={{ flexDirection: "column" }}>
+          <Text style={styles.HistoryModalText}>{item.documentName}</Text>
+        </View>
+        <View
+          style={{
+            flexDirection: "row",
+          }}
+        >
+          <FAIcon
+            name="file-pdf"
+            size={20}
+            color={"black"}
+            style={{
+              marginHorizontal: 5,
+            }}
+          />
+        </View>
+      </TouchableOpacity>
+    );
+  };
+
+  useEffect(() => {
+    const getData = async () => {
+      let x = JSON.parse(await AsyncStorage.getItem("UserDoctorProfile"));
+      let doctorId = x.doctorId;
+      //console.log(doctorId);
+
+      axios
+        .get(
+          apiConfig.baseUrl +
+            "/doctor/upcoming/consultation?doctorId=" +
+            doctorId
+        )
+        .then(function (response) {
+          setUpcomingData(response.data);
+          //console.log(UpcomingData);
+        });
+    };
+    if (Upcoming == true) getData();
+  }, [Upcoming]);
+
+  useEffect(() => {
+    const getPreconsultationQuestions = async () => {
+      console.log(UpcomingId);
+      axios
+        .get(
+          apiConfig.baseUrl +
+            "/docs/questionanswer?upcomingConsultationId=" +
+            UpcomingId
+        )
+        .then(function (response) {
+          setPreconsultaionQuestionData(response.data);
+          // console.log(PreconsultaionQuestionData);
+        });
+    };
+    if (ConsultationQuestionnaire == true) getPreconsultationQuestions();
+  }, [ConsultationQuestionnaire]);
+
+  useEffect(() => {
+    const getHistoryDocs = async () => {
+      console.log(patientId);
+      axios
+        .get(apiConfig.baseUrl + "/docs/previous?patientId=" + patientId)
+        .then(function (response) {
+          sethistoryData(response.data);
+          //console.log(historyData);
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+    };
+    if (HistoryModal == true) getHistoryDocs();
+  }, [HistoryModal]);
+
+  useEffect(() => {
+    const getTodaysDocs = async () => {
+      console.log(patientId);
+      axios
+        .get(
+          apiConfig.baseUrl +
+            "/docs/current?upcomingConsultationId=" +
+            upcomingConsultationId
+        )
+        .then(function (response) {
+          setTodaysDocs(response.data);
+          //console.log(TodaysDocs);
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+    };
+    if (TodaysModal == true) getTodaysDocs();
+  }, [TodaysModal]);
 
   return (
     <KeyboardAvoidingView
@@ -367,7 +612,7 @@ const DoctorHome = ({ navigation }) => {
                       View More
                     </Text>
                   </View>
-                  <View
+                  {/* <View
                     style={{
                       flexDirection: "row",
                       justifyContent: "space-evenly",
@@ -395,12 +640,12 @@ const DoctorHome = ({ navigation }) => {
                         setupcomingPConsultations(!upcomingPConsultations);
                       }}
                     />
-                  </View>
+                  </View> */}
                   <View>
                     {/*Card Design */}
                     <FlatList
-                      data={upcomingData}
-                      keyExtractor={(item) => item.bookingHistoryId}
+                      data={UpcomingData}
+                      keyExtractor={(item) => item.consultationId}
                       renderItem={renderCard}
                     />
                   </View>
@@ -462,293 +707,13 @@ const DoctorHome = ({ navigation }) => {
                         onPress={() => setHistoryModal(false)}
                       />
                     </View>
-                    <ScrollView style={{ height: 270, width: "100%" }}>
-                      <View
-                        style={{
-                          backgroundColor: "#E8F0FE",
-                          padding: 10,
-                          width: "100%",
-                          alignSelf: "center",
-                          borderRadius: 7,
-                          marginVertical: 10,
-                        }}
-                      >
-                        <View style={{ width: "80%", alignSelf: "center" }}>
-                          <View
-                            style={{
-                              flexDirection: "row",
-                              justifyContent: "space-between",
-                              marginVertical: 5,
-                            }}
-                          >
-                            <View style={{ flexDirection: "column" }}>
-                              <Text style={styles.HistoryModalText}>
-                                Last Visited
-                              </Text>
-                            </View>
-                            <View style={{ flexDirection: "column" }}>
-                              <Text style={styles.HistoryModalText}>
-                                10 Sept 2022
-                              </Text>
-                            </View>
-                          </View>
-                          <View
-                            style={{
-                              flexDirection: "row",
-                              justifyContent: "space-between",
-                              marginVertical: 5,
-                            }}
-                          >
-                            <View style={{ flexDirection: "column" }}>
-                              <Text style={styles.HistoryModalText}>
-                                Document
-                              </Text>
-                            </View>
-                            <View
-                              style={{
-                                flexDirection: "row",
-                              }}
-                            >
-                              <FAIcon
-                                name="file-pdf"
-                                size={20}
-                                color={"black"}
-                                style={{ marginHorizontal: 5 }}
-                              />
-                              <FAIcon
-                                name="file-pdf"
-                                size={20}
-                                color={"black"}
-                                style={{ marginHorizontal: 5 }}
-                              />
-                              <FAIcon
-                                name="file-pdf"
-                                size={20}
-                                color={"black"}
-                                style={{ marginHorizontal: 5 }}
-                              />
-                            </View>
-                          </View>
-                          <View
-                            style={{
-                              flexDirection: "row",
-                              justifyContent: "space-between",
-                              marginVertical: 5,
-                            }}
-                          >
-                            <View style={{ flexDirection: "column" }}>
-                              <Text style={styles.HistoryModalText}>
-                                Prescription
-                              </Text>
-                            </View>
-                            <View
-                              style={{
-                                flexDirection: "row",
-                              }}
-                            >
-                              <FAIcon
-                                name="prescription"
-                                size={20}
-                                color={"black"}
-                                style={{
-                                  marginHorizontal: 5,
-                                }}
-                              />
-                            </View>
-                          </View>
-                        </View>
-                      </View>
-                      <View
-                        style={{
-                          backgroundColor: "#E8F0FE",
-                          padding: 10,
-                          width: "100%",
-                          alignSelf: "center",
-                          borderRadius: 7,
-                          marginVertical: 10,
-                        }}
-                      >
-                        <View style={{ width: "80%", alignSelf: "center" }}>
-                          <View
-                            style={{
-                              flexDirection: "row",
-                              justifyContent: "space-between",
-                              marginVertical: 5,
-                            }}
-                          >
-                            <View style={{ flexDirection: "column" }}>
-                              <Text style={styles.HistoryModalText}>
-                                Last Visited
-                              </Text>
-                            </View>
-                            <View style={{ flexDirection: "column" }}>
-                              <Text style={styles.HistoryModalText}>
-                                10 Sept 2022
-                              </Text>
-                            </View>
-                          </View>
-                          <View
-                            style={{
-                              flexDirection: "row",
-                              justifyContent: "space-between",
-                              marginVertical: 5,
-                            }}
-                          >
-                            <View style={{ flexDirection: "column" }}>
-                              <Text style={styles.HistoryModalText}>
-                                Document
-                              </Text>
-                            </View>
-                            <View
-                              style={{
-                                flexDirection: "row",
-                              }}
-                            >
-                              <FAIcon
-                                name="file-pdf"
-                                size={20}
-                                color={"black"}
-                                style={{ marginHorizontal: 5 }}
-                              />
-                              <FAIcon
-                                name="file-pdf"
-                                size={20}
-                                color={"black"}
-                                style={{ marginHorizontal: 5 }}
-                              />
-                              <FAIcon
-                                name="file-pdf"
-                                size={20}
-                                color={"black"}
-                                style={{ marginHorizontal: 5 }}
-                              />
-                            </View>
-                          </View>
-                          <View
-                            style={{
-                              flexDirection: "row",
-                              justifyContent: "space-between",
-                              marginVertical: 5,
-                            }}
-                          >
-                            <View style={{ flexDirection: "column" }}>
-                              <Text style={styles.HistoryModalText}>
-                                Prescription
-                              </Text>
-                            </View>
-                            <View
-                              style={{
-                                flexDirection: "row",
-                              }}
-                            >
-                              <FAIcon
-                                name="prescription"
-                                size={20}
-                                color={"black"}
-                                style={{
-                                  marginHorizontal: 5,
-                                }}
-                              />
-                            </View>
-                          </View>
-                        </View>
-                      </View>
-                      <View
-                        style={{
-                          backgroundColor: "#E8F0FE",
-                          padding: 10,
-                          width: "100%",
-                          alignSelf: "center",
-                          borderRadius: 7,
-                          marginVertical: 10,
-                        }}
-                      >
-                        <View style={{ width: "80%", alignSelf: "center" }}>
-                          <View
-                            style={{
-                              flexDirection: "row",
-                              justifyContent: "space-between",
-                              marginVertical: 5,
-                            }}
-                          >
-                            <View style={{ flexDirection: "column" }}>
-                              <Text style={styles.HistoryModalText}>
-                                Last Visited
-                              </Text>
-                            </View>
-                            <View style={{ flexDirection: "column" }}>
-                              <Text style={styles.HistoryModalText}>
-                                10 Sept 2022
-                              </Text>
-                            </View>
-                          </View>
-                          <View
-                            style={{
-                              flexDirection: "row",
-                              justifyContent: "space-between",
-                              marginVertical: 5,
-                            }}
-                          >
-                            <View style={{ flexDirection: "column" }}>
-                              <Text style={styles.HistoryModalText}>
-                                Document
-                              </Text>
-                            </View>
-                            <View
-                              style={{
-                                flexDirection: "row",
-                              }}
-                            >
-                              <FAIcon
-                                name="file-pdf"
-                                size={20}
-                                color={"black"}
-                                style={{ marginHorizontal: 5 }}
-                              />
-                              <FAIcon
-                                name="file-pdf"
-                                size={20}
-                                color={"black"}
-                                style={{ marginHorizontal: 5 }}
-                              />
-                              <FAIcon
-                                name="file-pdf"
-                                size={20}
-                                color={"black"}
-                                style={{ marginHorizontal: 5 }}
-                              />
-                            </View>
-                          </View>
-                          <View
-                            style={{
-                              flexDirection: "row",
-                              justifyContent: "space-between",
-                              marginVertical: 5,
-                            }}
-                          >
-                            <View style={{ flexDirection: "column" }}>
-                              <Text style={styles.HistoryModalText}>
-                                Prescription
-                              </Text>
-                            </View>
-                            <View
-                              style={{
-                                flexDirection: "row",
-                              }}
-                            >
-                              <FAIcon
-                                name="prescription"
-                                size={20}
-                                color={"black"}
-                                style={{
-                                  marginHorizontal: 5,
-                                }}
-                              />
-                            </View>
-                          </View>
-                        </View>
-                      </View>
-                    </ScrollView>
+                    <View style={{ height: 270, width: "100%" }}>
+                      <FlatList
+                        data={historyData}
+                        keyExtractor={(item) => item.uploadedDate}
+                        renderItem={renderHistory}
+                      />
+                    </View>
                   </View>
                 </View>
               </Modal>
@@ -782,7 +747,7 @@ const DoctorHome = ({ navigation }) => {
                       style={{
                         width: "100%",
                         alignSelf: "center",
-                        marginBottom: 20,
+                        marginBottom: 5,
                         borderBottomWidth: 1,
                         borderBottomColor: "gray",
                       }}
@@ -808,7 +773,7 @@ const DoctorHome = ({ navigation }) => {
                         onPress={() => setTodaysModal(false)}
                       />
                     </View>
-                    <ScrollView style={{ height: 150, width: "100%" }}>
+                    <View style={{ height: 150, width: "100%" }}>
                       <View
                         style={{
                           padding: 10,
@@ -818,118 +783,16 @@ const DoctorHome = ({ navigation }) => {
                           marginVertical: 10,
                         }}
                       >
-                        <View style={{ width: "80%", alignSelf: "center" }}>
-                          <TouchableOpacity
-                            style={{
-                              flexDirection: "row",
-                              justifyContent: "space-between",
-                              marginBottom: 5,
-                            }}
-                          >
-                            <View style={{ flexDirection: "column" }}>
-                              <Text style={styles.HistoryModalText}>
-                                Document 11 October 2022
-                              </Text>
-                            </View>
-                            <View
-                              style={{
-                                flexDirection: "row",
-                              }}
-                            >
-                              <FAIcon
-                                name="file-pdf"
-                                size={20}
-                                color={"black"}
-                                style={{
-                                  marginHorizontal: 5,
-                                }}
-                              />
-                            </View>
-                          </TouchableOpacity>
-                          <TouchableOpacity
-                            style={{
-                              flexDirection: "row",
-                              justifyContent: "space-between",
-                              marginVertical: 5,
-                            }}
-                          >
-                            <View style={{ flexDirection: "column" }}>
-                              <Text style={styles.HistoryModalText}>
-                                Document 11 October 2022
-                              </Text>
-                            </View>
-                            <View
-                              style={{
-                                flexDirection: "row",
-                              }}
-                            >
-                              <FAIcon
-                                name="file-pdf"
-                                size={20}
-                                color={"black"}
-                                style={{
-                                  marginHorizontal: 5,
-                                }}
-                              />
-                            </View>
-                          </TouchableOpacity>
-                          <TouchableOpacity
-                            style={{
-                              flexDirection: "row",
-                              justifyContent: "space-between",
-                              marginVertical: 5,
-                            }}
-                          >
-                            <View style={{ flexDirection: "column" }}>
-                              <Text style={styles.HistoryModalText}>
-                                Document 11 October 2022
-                              </Text>
-                            </View>
-                            <View
-                              style={{
-                                flexDirection: "row",
-                              }}
-                            >
-                              <FAIcon
-                                name="file-pdf"
-                                size={20}
-                                color={"black"}
-                                style={{
-                                  marginHorizontal: 5,
-                                }}
-                              />
-                            </View>
-                          </TouchableOpacity>
-                          <TouchableOpacity
-                            style={{
-                              flexDirection: "row",
-                              justifyContent: "space-between",
-                              marginVertical: 5,
-                            }}
-                          >
-                            <View style={{ flexDirection: "column" }}>
-                              <Text style={styles.HistoryModalText}>
-                                Document 11 October 2022
-                              </Text>
-                            </View>
-                            <View
-                              style={{
-                                flexDirection: "row",
-                              }}
-                            >
-                              <FAIcon
-                                name="file-pdf"
-                                size={20}
-                                color={"black"}
-                                style={{
-                                  marginHorizontal: 5,
-                                }}
-                              />
-                            </View>
-                          </TouchableOpacity>
+                        <View style={{ width: "95%", alignSelf: "center" }}>
+                          <FlatList
+                            data={TodaysDocs}
+                            keyExtractor={(item) => item.documentName}
+                            renderItem={renderToday}
+                            scrollEnabled={true}
+                          />
                         </View>
                       </View>
-                    </ScrollView>
+                    </View>
                     <CustomButton
                       text="Download All"
                       textstyle={{ color: "white" }}
@@ -937,6 +800,7 @@ const DoctorHome = ({ navigation }) => {
                         backgroundColor: "#2B8ADA",
                         width: "95%",
                         alignSelf: "center",
+                        paddingVertical: 5,
                       }}
                     />
                   </View>
@@ -1070,9 +934,9 @@ const DoctorHome = ({ navigation }) => {
                       style={{
                         width: "100%",
                         alignSelf: "center",
-                        marginBottom: 20,
                         borderBottomWidth: 1,
                         borderBottomColor: "gray",
+                        marginBottom: 5,
                       }}
                     >
                       <Text
@@ -1096,226 +960,14 @@ const DoctorHome = ({ navigation }) => {
                         onPress={() => setConsultationQuestionnaire(false)}
                       />
                     </View>
-                    <ScrollView
-                      style={{
-                        height: 300,
-                        width: "100%",
-                        flexDirection: "column",
-                      }}
-                    >
-                      <View>
-                        <TouchableOpacity
-                          style={[
-                            styles.WhiteLabel,
-                            {
-                              borderWidth: 1,
-                              flexDirection: "row",
-                              justifyContent: "space-between",
-                              marginBottom: 0,
-                              backgroundColor: "#2B8ADA",
-                            },
-                          ]}
-                        >
-                          <Text
-                            style={[
-                              {
-                                fontWeight: "bold",
-                                fontSize: 14,
-                                color: "white",
-                              },
-                            ]}
-                          >
-                            1. I Am Infected With Viral Fever. What To Do?
-                          </Text>
-                        </TouchableOpacity>
-                        <View
-                          style={{
-                            marginTop: -6,
-                            padding: 5,
-                            borderWidth: 1,
-                            borderTopWidth: 0,
-                            width: "95%",
-                            alignSelf: "center",
-                            borderBottomRightRadius: 5,
-                            borderBottomLeftRadius: 5,
-                          }}
-                        >
-                          <Text
-                            style={{
-                              fontSize: 12,
-                              padding: 5,
-                              textAlign: "justify",
-                            }}
-                          >
-                            Lorem Ipsum Is Simply Dummy Text Of The Printing And
-                            Typesetting Industry. Lorem Ipsum Has Been The
-                            Industry's Standard Dummy Text Ever Since The 1500S,
-                            When An Unknown Printer Took A Galley Of Type And
-                            Scrambled It To Make A Type Specimen Book. It Has
-                            Survived.
-                          </Text>
-                        </View>
-                      </View>
-                      <View>
-                        <TouchableOpacity
-                          style={[
-                            styles.WhiteLabel,
-                            {
-                              borderWidth: 1,
-                              flexDirection: "row",
-                              justifyContent: "space-between",
-                              marginBottom: 0,
-                              backgroundColor: "#2B8ADA",
-                            },
-                          ]}
-                        >
-                          <Text
-                            style={[
-                              {
-                                fontWeight: "bold",
-                                fontSize: 14,
-                                color: "white",
-                              },
-                            ]}
-                          >
-                            1. I Am Infected With Viral Fever. What To Do?
-                          </Text>
-                        </TouchableOpacity>
-                        <View
-                          style={{
-                            marginTop: -6,
-                            padding: 5,
-                            borderWidth: 1,
-                            borderTopWidth: 0,
-                            width: "95%",
-                            alignSelf: "center",
-                            borderBottomRightRadius: 5,
-                            borderBottomLeftRadius: 5,
-                          }}
-                        >
-                          <Text
-                            style={{
-                              fontSize: 12,
-                              padding: 5,
-                              textAlign: "justify",
-                            }}
-                          >
-                            Lorem Ipsum Is Simply Dummy Text Of The Printing And
-                            Typesetting Industry. Lorem Ipsum Has Been The
-                            Industry's Standard Dummy Text Ever Since The 1500S,
-                            When An Unknown Printer Took A Galley Of Type And
-                            Scrambled It To Make A Type Specimen Book. It Has
-                            Survived.
-                          </Text>
-                        </View>
-                      </View>
-                      <View>
-                        <TouchableOpacity
-                          style={[
-                            styles.WhiteLabel,
-                            {
-                              borderWidth: 1,
-                              flexDirection: "row",
-                              justifyContent: "space-between",
-                              marginBottom: 0,
-                              backgroundColor: "#2B8ADA",
-                            },
-                          ]}
-                        >
-                          <Text
-                            style={[
-                              {
-                                fontWeight: "bold",
-                                fontSize: 14,
-                                color: "white",
-                              },
-                            ]}
-                          >
-                            1. I Am Infected With Viral Fever. What To Do?
-                          </Text>
-                        </TouchableOpacity>
-                        <View
-                          style={{
-                            marginTop: -6,
-                            padding: 5,
-                            borderWidth: 1,
-                            borderTopWidth: 0,
-                            width: "95%",
-                            alignSelf: "center",
-                            borderBottomRightRadius: 5,
-                            borderBottomLeftRadius: 5,
-                          }}
-                        >
-                          <Text
-                            style={{
-                              fontSize: 12,
-                              padding: 5,
-                              textAlign: "justify",
-                            }}
-                          >
-                            Lorem Ipsum Is Simply Dummy Text Of The Printing And
-                            Typesetting Industry. Lorem Ipsum Has Been The
-                            Industry's Standard Dummy Text Ever Since The 1500S,
-                            When An Unknown Printer Took A Galley Of Type And
-                            Scrambled It To Make A Type Specimen Book. It Has
-                            Survived.
-                          </Text>
-                        </View>
-                      </View>
-                      <View>
-                        <TouchableOpacity
-                          style={[
-                            styles.WhiteLabel,
-                            {
-                              borderWidth: 1,
-                              flexDirection: "row",
-                              justifyContent: "space-between",
-                              marginBottom: 0,
-                              backgroundColor: "#2B8ADA",
-                            },
-                          ]}
-                        >
-                          <Text
-                            style={[
-                              {
-                                fontWeight: "bold",
-                                fontSize: 14,
-                                color: "white",
-                              },
-                            ]}
-                          >
-                            1. I Am Infected With Viral Fever. What To Do?
-                          </Text>
-                        </TouchableOpacity>
-                        <View
-                          style={{
-                            marginTop: -6,
-                            padding: 5,
-                            borderWidth: 1,
-                            borderTopWidth: 0,
-                            width: "95%",
-                            alignSelf: "center",
-                            borderBottomRightRadius: 5,
-                            borderBottomLeftRadius: 5,
-                          }}
-                        >
-                          <Text
-                            style={{
-                              fontSize: 12,
-                              padding: 5,
-                              textAlign: "justify",
-                            }}
-                          >
-                            Lorem Ipsum Is Simply Dummy Text Of The Printing And
-                            Typesetting Industry. Lorem Ipsum Has Been The
-                            Industry's Standard Dummy Text Ever Since The 1500S,
-                            When An Unknown Printer Took A Galley Of Type And
-                            Scrambled It To Make A Type Specimen Book. It Has
-                            Survived.
-                          </Text>
-                        </View>
-                      </View>
-                    </ScrollView>
+                    <View style={{ width: "100%", height: 200 }}>
+                      <FlatList
+                        data={PreconsultaionQuestionData}
+                        keyExtractor={(item) => item.ques}
+                        renderItem={renderQuestionAnswers}
+                        scrollEnabled={true}
+                      />
+                    </View>
                   </View>
                 </View>
               </Modal>
@@ -1981,7 +1633,7 @@ const styles = StyleSheet.create({
     width: "90%",
     alignSelf: "center",
     backgroundColor: "white",
-    padding: 35,
+    padding: 15,
     alignItems: "center",
     shadowColor: "#000",
     shadowOffset: {
