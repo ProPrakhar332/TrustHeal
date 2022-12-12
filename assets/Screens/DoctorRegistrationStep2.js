@@ -28,6 +28,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 //import dayjs from "dayjs";
 import axios from "axios";
+import DaysCreator from "../API/slotscreate";
 
 const dataTitle = [
   { key: "Dr.", value: "Dr." },
@@ -135,8 +136,20 @@ const DoctorRegistration2 = ({ navigation }) => {
   const [ClinicDet, setClinicDet] = useState([]);
   const [ClinicName, setClinicName] = useState("");
   const [ClinicAddress, setClinicAddress] = useState("");
+
   const [consultView, setconsultView] = useState(false);
   const [pmodal, setpmodal] = useState(false);
+  const [DaysSlot, setDaysSlot] = useState([]);
+  const [PCoutDate, setPCoutDate] = useState("");
+  const [PCinTimeHH, setPCinTimeHH] = useState("");
+  const [PCinTimeMM, setPCinTimeMM] = useState("");
+  const [PCoutTimeHH, setPCoutTimeHH] = useState("");
+  const [PCoutTimeMM, setPCoutTimeMM] = useState("");
+  const [PCduration, setPCduration] = useState(0);
+  const [PCclinicName, setPCclinicName] = useState("");
+  const [PCclinicAddress, setPCclinicAddress] = useState("");
+  const [PCspecialInstruction, setPCspecialInstruction] = useState("");
+
   const [emodal, setemodal] = useState(false);
   //General Configuration
   const [showGenConfig, setShowGenConfig] = useState(false);
@@ -183,7 +196,7 @@ const DoctorRegistration2 = ({ navigation }) => {
   useEffect(() => {
     const onLoadSetData = async () => {
       let x = JSON.parse(await AsyncStorage.getItem("UserDoctorProfile"));
-
+      setDaysSlot(DaysCreator);
       setTitle(x.title);
       setName(x.doctorName);
       setEmail(x.email);
@@ -392,16 +405,11 @@ const DoctorRegistration2 = ({ navigation }) => {
         <View style={{ width: "95%", alignSelf: "center" }} key={index}>
           <View style={{ flexDirection: "column" }}>
             <Text style={styles.inputLabel}>Clinic Name</Text>
-            <Text style={styles.textInput}>{ClinicDet.clinicName}</Text>
+            <Text style={styles.textInput}>{ClinicDet.value}</Text>
           </View>
           <View style={{ flexDirection: "column" }}>
             <Text style={styles.inputLabel}>Clinic Address</Text>
-            <Text
-              style={styles.textInput}
-              onChangeText={(text) => setClinicAddress(text)}
-            >
-              {ClinicDet.clinicAddress}
-            </Text>
+            <Text style={styles.textInput}>{ClinicDet.key}</Text>
           </View>
           <CustomButton
             text="Delete"
@@ -530,6 +538,24 @@ const DoctorRegistration2 = ({ navigation }) => {
       whatsAppNumber: p.mobileNumber,
     };
     console.log(x);
+  };
+
+  const renderDaysSlot = ({ item }) => {
+    return (
+      <TouchableOpacity
+        style={[
+          styles.bubble,
+          {
+            width: 60,
+            justifyContent: "center",
+            marginRight: 5,
+          },
+        ]}
+        onPress={() => console.log(item.date)}
+      >
+        <Text style={styles.bubbleHeading}>{item.day}</Text>
+      </TouchableOpacity>
+    );
   };
 
   return (
@@ -1577,10 +1603,12 @@ const DoctorRegistration2 = ({ navigation }) => {
                           borderWidth: 2,
                           borderColor: "#2b8ada",
                         }}
-                        onPress={() => setconsultView(true)}
+                        onPress={() => {
+                          setconsultView(true);
+                        }}
                       />
                     </View>
-                    {ClinicDet != "" ? <ViewClinics /> : null}
+                    {ClinicDet !== "" ? <ViewClinics /> : null}
                     {/* Add Clinic */}
                     <View style={{ width: "95%", alignSelf: "center" }}>
                       <View style={{ flexDirection: "column" }}>
@@ -1616,8 +1644,8 @@ const DoctorRegistration2 = ({ navigation }) => {
                           );
                         else {
                           let p = {
-                            clinicName: ClinicName,
-                            clinicAddress: ClinicAddress,
+                            value: ClinicName,
+                            key: ClinicAddress,
                           };
                           ClinicDet.push(p);
                           console.log(ClinicDet);
@@ -1683,8 +1711,12 @@ const DoctorRegistration2 = ({ navigation }) => {
                         marginBottom: 10,
                       }}
                       onPress={() => {
-                        setconsultView(false);
-                        setpmodal(true);
+                        if (ClinicDet == "")
+                          Alert.alert("Pls Add Clinic before continuing");
+                        else {
+                          setconsultView(false);
+                          setpmodal(true);
+                        }
                       }}
                     />
                     <Text>or</Text>
@@ -1705,7 +1737,7 @@ const DoctorRegistration2 = ({ navigation }) => {
                 </View>
               </Modal>
             ) : null}
-            {pmodal ? (
+            {pmodal && ClinicDet != "" ? (
               <Modal
                 animationType="slide"
                 transparent={true}
@@ -1739,10 +1771,12 @@ const DoctorRegistration2 = ({ navigation }) => {
                       style={{
                         width: "100%",
                         alignSelf: "center",
-                        marginBottom: 20,
+                        marginBottom: 10,
+                        paddingBottom: 10,
+                        borderBottomWidth: 1,
                       }}
                     >
-                      <Text style={{ fontWeight: "bold", fontSize: 16 }}>
+                      <Text style={{ fontWeight: "bold", fontSize: 20 }}>
                         P-Consultation
                       </Text>
                       <FAIcon
@@ -1755,97 +1789,74 @@ const DoctorRegistration2 = ({ navigation }) => {
                         }}
                       />
                     </View>
-                    <Text
-                      style={{ fontSize: 16, fontWeight: "bold", padding: 5 }}
-                    >
-                      {ClinicName}
-                    </Text>
-                    <Text style={{ padding: 5 }}>{ClinicAddress}</Text>
-                    <ScrollView showsVerticalScrollIndicator={false}>
-                      <ScrollView horizontal={true}>
-                        <View
-                          style={{
-                            flex: 1,
-                            flexDirection: "row",
-                            marginBottom: 10,
-                          }}
-                        >
-                          <TouchableOpacity
-                            style={[
-                              styles.bubble,
-                              {
-                                width: 60,
-                                justifyContent: "center",
-                                marginRight: 5,
-                              },
-                            ]}
-                          >
-                            <Text style={styles.bubbleHeading}>Mon</Text>
-                          </TouchableOpacity>
-                          <TouchableOpacity
-                            style={[
-                              styles.bubble,
-                              {
-                                width: 60,
-                                justifyContent: "center",
-                                marginRight: 5,
-                              },
-                            ]}
-                          >
-                            <Text style={styles.bubbleHeading}>Tues</Text>
-                          </TouchableOpacity>
-                          <TouchableOpacity
-                            style={[
-                              styles.bubble,
-                              {
-                                width: 60,
-                                justifyContent: "center",
-                                marginRight: 5,
-                              },
-                            ]}
-                          >
-                            <Text style={styles.bubbleHeading}>Wed</Text>
-                          </TouchableOpacity>
-                          <TouchableOpacity
-                            style={[
-                              styles.bubble,
-                              {
-                                width: 60,
-                                justifyContent: "center",
-                                marginRight: 5,
-                              },
-                            ]}
-                          >
-                            <Text style={styles.bubbleHeading}>Thur</Text>
-                          </TouchableOpacity>
-                          <TouchableOpacity
-                            style={[
-                              styles.bubble,
-                              {
-                                width: 60,
-                                justifyContent: "center",
-                                marginRight: 5,
-                              },
-                            ]}
-                          >
-                            <Text style={styles.bubbleHeading}>Fri</Text>
-                          </TouchableOpacity>
-                          <TouchableOpacity
-                            style={[
-                              styles.bubble,
-                              {
-                                width: 60,
-                                justifyContent: "center",
-                                marginRight: 5,
-                              },
-                            ]}
-                          >
-                            <Text style={styles.bubbleHeading}>Sat</Text>
-                          </TouchableOpacity>
-                        </View>
-                      </ScrollView>
 
-                      <View style={{ flexDirection: "row", marginBottom: 10 }}>
+                    <ScrollView
+                      showsVerticalScrollIndicator={false}
+                      style={{ width: "95%", alignSelf: "center" }}
+                    >
+                      <View
+                        style={{
+                          justifyContent: "space-between",
+                          flexDirection: "row",
+                          marginBottom: 10,
+                        }}
+                      >
+                        <View style={{ flex: 0.45 }}>
+                          <Text style={{ fontWeight: "bold" }}>
+                            Select Clinic Name
+                          </Text>
+                          <SelectList
+                            defaultOption={ClinicDet[0].key}
+                            placeholder={" "}
+                            setSelected={(val) => setPCclinicName(val)}
+                            onSelect={setPCclinicAddress}
+                            data={ClinicDet}
+                            save={"key"}
+                            boxStyles={{
+                              backgroundColor: "#E8F0FE",
+                              borderWidth: 0,
+                              flex: 1,
+                              borderRadius: 5,
+                            }}
+                            dropdownStyles={{ backgroundColor: "white" }}
+                            dropdownTextStyles={{
+                              color: "#2b8ada",
+                              fontWeight: "bold",
+                            }}
+                            badgeStyles={{ backgroundColor: "#2b8ada" }}
+                          />
+                        </View>
+                        <View style={{ flex: 0.45 }}>
+                          <Text style={{ fontWeight: "bold" }}>
+                            Clinic Address
+                          </Text>
+                          <Text
+                            style={{
+                              marginTop: 1,
+                              paddingVertical: 10,
+                              padding: 5,
+                              backgroundColor: "#E8F0FE",
+                              borderRadius: 5,
+                            }}
+                          >
+                            {PCclinicName}
+                          </Text>
+                        </View>
+                      </View>
+                      <FlatList
+                        horizontal={true}
+                        data={DaysSlot}
+                        keyExtractor={(item) => item.date}
+                        renderItem={renderDaysSlot}
+                        style={{ marginVertical: 10 }}
+                      />
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          marginBottom: 10,
+                          flex: 1,
+                        }}
+                      >
                         <View
                           style={{
                             flexDirection: "column",
@@ -1913,7 +1924,25 @@ const DoctorRegistration2 = ({ navigation }) => {
                         >
                           Duration
                         </Text>
-                        <TextInput style={styles.textInput} />
+                        <TextInput
+                          keyboardType={"number-pad"}
+                          onChangeText={(text) => setPCduration(text)}
+                          value={PCduration}
+                          style={styles.textInput}
+                        />
+                      </View>
+                      <View style={{ flexDirection: "column", width: "100%" }}>
+                        <Text
+                          style={[styles.label, { alignSelf: "flex-start" }]}
+                        >
+                          Special Instruction
+                        </Text>
+                        <TextInput
+                          onChangeText={(text) => setPCspecialInstruction(text)}
+                          value={PCspecialInstruction}
+                          style={styles.textInput}
+                          multiline={true}
+                        />
                       </View>
                       <CustomButton
                         text="Save"
@@ -1926,11 +1955,25 @@ const DoctorRegistration2 = ({ navigation }) => {
                           marginTop: 20,
                         }}
                         onPress={() => {
-                          setpmodal(false);
+                          // let p = {
+                          //   clinicAddress: PCclinicAddress,
+                          //   clinicName: PCclinicName,
+                          //   consultationDate: "2022-11-13",
+                          //   consultationEndTime: PCoutTimeHH + PCoutTimeMM + "",
+                          //   consultationStartTime:
+                          //     PCoutTimeHH + PCoutTimeMM + "",
+                          //   slotDuration: PCduration,
+                          //   specialInstruction: PCspecialInstruction,
+                          // };
+                          // var tomorrow = new Date();
+                          // tomorrow.setDate(tomorrow.getDate() + 150);
+                          // console.log(tomorrow);
+                          //setpmodal(false);
                           // navigation.navigate("P-Consultation", {
                           //   ClinicName: ClinicName,
                           //   ClinicAddress: ClinicAddress,
                           // });
+                          //console.log(DaysCreator());
                         }}
                       />
                     </ScrollView>
