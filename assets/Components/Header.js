@@ -190,6 +190,7 @@ const Header = ({ title, showMenu }) => {
             color="white"
             onPress={() => {
               console.log("Menu");
+              navigation.toggleDrawer()
             }}
           />
         ) : (

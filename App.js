@@ -1,8 +1,14 @@
 import * as React from "react";
-import { View, Text, Button, Image } from "react-native";
+import { View, Text, Button, Image, TouchableOpacity } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import {
+  createDrawerNavigator,
+  DrawerContentScrollView,
+  DrawerItemList,
+  DrawerItem,
+} from '@react-navigation/drawer';
 import { LogBox } from "react-native";
 LogBox.ignoreLogs(["Warning: ..."]);
 //Screens
@@ -32,6 +38,7 @@ import MyAppointment from "./assets/Screens/MyAppointments";
 import PatientHealthRecords from "./assets/Screens/PatientHealthRecords";
 import PatientProfile from "./assets/Screens/PatientProfile";
 import DoctorHome from "./assets/Screens/DoctorHome";
+// import DoctorDrawer from "./assets/Screens/DoctorDrawer";
 import DoctorDetails from "./assets/Screens/DoctorDetails";
 import PatientPayment from "./assets/Screens/PatientPayment";
 import Support from "./assets/Screens/Support";
@@ -228,6 +235,57 @@ function DoctorTabNavigator() {
   );
 }
 
+function CustomDrawerContent(props) {
+  return (
+    <DrawerContentScrollView {...props}>
+      {/* <DrawerItemList {...props} /> */}
+      <View style={{flex: 1, marginTop: -28}}>
+        <View style={{backgroundColor: "#2B8ADA", flexDirection: 'row', padding: 10, borderTopRightRadius: 20}}>
+          <Image style={{height: 60, width: 60, borderRadius: 30, borderColor: "#ccc", borderWidth: 1}} 
+            source={require("./assets/Resources/doctor.png")}
+          />
+          <TouchableOpacity style={{marginLeft: 10}} onPress={() => props.navigation.closeDrawer()}>
+            <Text>Dr. Rohan</Text>
+            <Text>Reg. No: 12345</Text>
+            <Text>View and Edit</Text>
+          </TouchableOpacity>
+          {/* <DrawerItem
+            label="Close drawer"
+            onPress={() => props.navigation.closeDrawer()}
+          /> */}
+        </View>
+        <DrawerItem
+          label="Toggle drawer"
+          onPress={() => props.navigation.toggleDrawer()}
+        />
+      </View>
+    </DrawerContentScrollView>
+  );
+}
+
+const Drawer = createDrawerNavigator();
+
+function MyDrawer() {
+  return (
+    <Drawer.Navigator
+      useLegacyImplementation
+      drawerContent={(props) => <CustomDrawerContent {...props} />}
+      screenOptions={{
+        drawerStyle: {
+          backgroundColor: '#7BC1FC',
+          marginTop: 30,
+          borderTopRightRadius: 20,
+          borderBottomRightRadius: 20,
+          // width: 180,
+        },
+      }}
+    >
+      <Drawer.Screen name="Home" component={DoctorTabNavigator} options={{ headerShown: false }} />
+      {/* <Drawer.Screen name="Notifications" component={Notifications} /> */}
+    </Drawer.Navigator>
+  );
+}
+
 function App() {
   return (
     <View style={{ flex: 1 }}>
@@ -407,7 +465,7 @@ function App() {
           />
           <Stack.Screen
             name="DoctorHome"
-            component={DoctorTabNavigator}
+            component={MyDrawer}
             options={{ headerShown: false }}
           />
           <Stack.Screen

@@ -90,9 +90,10 @@ const RoleScreen = ({ navigation }) => {
                       : { backgroundColor: "#2b8ada", padding: 3 }
                   }
                   onPress={() =>
-                    navigation.push("OTPScreen", {
-                      nextScreen: "RegisterDoctor",
-                    })
+                    // navigation.push("OTPScreen", {
+                    //   nextScreen: "RegisterDoctor",
+                    // })
+                    navigation.push('DoctorHome')
                   }
                 />
               </TouchableOpacity>
