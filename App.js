@@ -38,7 +38,6 @@ import MyAppointment from "./assets/Screens/MyAppointments";
 import PatientHealthRecords from "./assets/Screens/PatientHealthRecords";
 import PatientProfile from "./assets/Screens/PatientProfile";
 import DoctorHome from "./assets/Screens/DoctorHome";
-// import DoctorDrawer from "./assets/Screens/DoctorDrawer";
 import DoctorDetails from "./assets/Screens/DoctorDetails";
 import PatientPayment from "./assets/Screens/PatientPayment";
 import Support from "./assets/Screens/Support";
