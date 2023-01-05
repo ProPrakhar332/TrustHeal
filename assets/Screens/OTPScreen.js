@@ -1073,7 +1073,7 @@ const FirstScreen = ({route, navigation}) => {
     // console.log(no);
     setisLoading(true);
     axios
-      .post(apiConfig.baseUrl + '/login/otp/gernate?mobilenumber=' + mob)
+      .post(apiConfig.baseUrl + '/login/otp/generate?mobilenumber=' + mob)
       .then(function (response) {
         setisLoading(false);
         if (response.status == 200) setModalVisible(true);

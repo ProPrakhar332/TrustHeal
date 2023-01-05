@@ -152,6 +152,7 @@ const EditProfile = ({navigation}) => {
   const [physicalConsulationFees, setphysicalConsulationFees] = useState(0);
   const [eConsulationFees, seteConsulationFees] = useState(0);
   const [followUpFees, setfollowUpFees] = useState(0);
+  const [doctorConsulationFeesPkId, setdoctorConsulationFeesPkId] = useState(0);
   const [isLoading, setisLoading] = useState(false);
 
   useEffect(() => {
@@ -246,7 +247,9 @@ const EditProfile = ({navigation}) => {
     if (TotalMonths.length == 2) monthCheck();
   }, [TotalMonths]);
 
-  //Api calls onpress label
+  //Api calls onpress labels
+
+  //get Medical Registration
   useEffect(() => {
     const getMedReg = async () => {
       axios
@@ -277,10 +280,11 @@ const EditProfile = ({navigation}) => {
     if (showMedReg == true) getMedReg();
   }, [showMedReg]);
 
+  //get Educational Qualifications
   useEffect(() => {
     const getEduDet = async () => {
       axios
-        .get(apiConfig.baseUrl + '/doctor/eductions?doctorId=' + doctorId)
+        .get(apiConfig.baseUrl + '/doctor/educations?doctorId=' + doctorId)
         .then(function (response) {
           if (response.status == 200) {
             if (response.data != null) {
@@ -295,6 +299,7 @@ const EditProfile = ({navigation}) => {
     if (showEduDet == true) getEduDet();
   }, [showEduDet]);
 
+  //get Experience
   useEffect(() => {
     const getExpDet = async () => {
       axios
@@ -313,6 +318,7 @@ const EditProfile = ({navigation}) => {
     if (showExpDet == true) getExpDet();
   }, [showExpDet]);
 
+  //get Identification
   useEffect(() => {
     const getIdenDocs = async () => {
       axios
@@ -329,6 +335,7 @@ const EditProfile = ({navigation}) => {
     if (showIdenDet == true) getIdenDocs();
   }, [showIdenDet]);
 
+  //get General Configuration
   useEffect(() => {
     const getGenConfig = async () => {
       let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
@@ -352,27 +359,25 @@ const EditProfile = ({navigation}) => {
     if (showGenConfig == true) getGenConfig();
   }, [showGenConfig]);
 
+  //get Consultation Fees
   useEffect(() => {
     const getFeesDet = async () => {
-      let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
-      setDoctorFees(x.doctorFeesDTO != null ? x.doctorFeesDTO : '');
-      //console.log(x.doctorFeesDTO);
-      setphysicalConsulationFees(
-        x.doctorFeesDTO.physicalConsulationFees != null
-          ? x.doctorFeesDTO.physicalConsulationFees
-          : '',
-      );
-      //console.log(physicalConsulationFees);
-      seteConsulationFees(
-        x.doctorFeesDTO.eConsulationFees != null
-          ? x.doctorFeesDTO.eConsulationFees
-          : '',
-      );
-      setfollowUpFees(
-        x.doctorFeesDTO.followUpFees != null
-          ? x.doctorFeesDTO.followUpFees
-          : '',
-      );
+      axios
+        .get(apiConfig.baseUrl + '/doctor/fees?doctorId=' + doctorId)
+        .then(function (response) {
+          if (response.data != '') {
+            setDoctorFees(response.data);
+            setphysicalConsulationFees(response.data.physicalConsulationFees);
+            seteConsulationFees(response.data.econsulationFees);
+            setfollowUpFees(response.data.followUpFees);
+            setdoctorConsulationFeesPkId(
+              response.data.doctorConsulationFeesPkId,
+            );
+          }
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
     };
     if (showConsultFees == true) getFeesDet();
   }, [showConsultFees]);
@@ -432,12 +437,22 @@ const EditProfile = ({navigation}) => {
 
   const updateEduDet = async () => {
     axios
-      .post(apiConfig.baseUrl + '/doctor/eduction/update', Education)
+      .post(apiConfig.baseUrl + '/doctor/education/update', Education)
       .then(function (response) {
         if (response.status == 200)
           Alert.alert(
             'Educational Qualifications Details Updated Successfully!',
           );
+        else Alert.alert('Could not Update Details. Please try again later.');
+      });
+  };
+
+  const updateExperience = async () => {
+    axios
+      .post(apiConfig.baseUrl + '/doctor/experience/save', Experience)
+      .then(function (response) {
+        if (response.status == 200)
+          Alert.alert('Experience Details Updated Successfully!');
         else Alert.alert('Could not Update Details. Please try again later.');
       });
   };
@@ -454,28 +469,39 @@ const EditProfile = ({navigation}) => {
 
   const updateGenConfig = async () => {
     let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
-    let doctorConfiguration = new Object();
-    doctorConfiguration.contactVisibility = showMobNo == 'Yes' ? true : false;
-    doctorConfiguration.followUpDuration = showFollowUp;
-    doctorConfiguration.doctorId = doctorId;
-    doctorConfiguration.configurationId =
-      DoctorConfiguration.doctorConfigurationPkId;
-    console.log(
-      'General Config Update---------\n' +
-        JSON.stringify(doctorConfiguration, null, 1),
-    );
+
+    console.log('General Config Update---------\n');
+    var flag = 1;
     axios
-      .post(apiConfig.baseUrl + '/doctor/config/update', doctorConfiguration)
+      .post(
+        apiConfig.baseUrl +
+          '/doctor/contact/visibility/update?contactVisibility=' +
+          '&doctorId=' +
+          doctorId,
+      )
       .then(function (response) {
         if (response.status == 200) {
-          x.doctorConfigurationDTO.followUpDuration = showFollowUp;
-          x.doctorConfigurationDTO.contactVisibility =
-            showMobNo == 'Yes' ? true : false;
-          AsyncStorage.setItem('UserDoctorProfile', JSON.stringify(x));
-          Alert.alert('All changes made in Genreal Config have been updated');
-          setGenConfigEdit(false);
-        } else Alert.alert('Could not Update Details. Please try again later.');
+          // x.doctorConfigurationDTO.followUpDuration = showFollowUp;
+          // x.doctorConfigurationDTO.contactVisibility =
+          //   showMobNo == 'Yes' ? true : false;
+          // AsyncStorage.setItem('UserDoctorProfile', JSON.stringify(x));
+          flag = 1;
+          //setGenConfigEdit(false);
+        } else flag = 0;
       });
+    let doctorFees = new Object();
+    doctorFees.doctorId = doctorId;
+    doctorFees.followUpDuration = followUpDuration;
+    axios
+      .post(apiConfig.baseUrl + '/doctor/fees/update', doctorFees)
+      .then(function (response) {
+        if (response.status == 200) {
+          flag = 1;
+        } else flag = 0;
+      });
+    if (flag == 1)
+      Alert.alert('All changes made in General Config have been updated');
+    else Alert.alert('Could not Update Details. Please try again later.');
   };
 
   const updatefees = async () => {
@@ -486,6 +512,7 @@ const EditProfile = ({navigation}) => {
     doctorFees.physicalConsulationFees = physicalConsulationFees;
     doctorFees.eConsulationFees = eConsulationFees;
     doctorFees.followUpFees = followUpFees;
+
     console.log('Fees Update---------\n' + JSON.stringify(doctorFees, null, 1));
     axios
       .post(apiConfig.baseUrl + '/doctor/fees/update', doctorFees)

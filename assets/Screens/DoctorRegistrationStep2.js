@@ -385,17 +385,18 @@ const DoctorRegistration2 = ({navigation}) => {
       // console.log('speciality.....');
       // console.log(temp);
       if (temp != null && temp.length > 0) {
-        setdataSpecialization(
-          temp.map(v => {
-            return {
-              key: v,
-              value: v,
-            };
-          }),
-        );
+        for (var i = 0; i < temp.length; ++i) {
+          if (temp[i] != 'Other')
+            dataSpecialization.push({key: temp[i], value: temp[i]});
+        }
+        console.log(dataSpecialization);
 
         var d = new Date().getFullYear();
-        for (var i = Number(dob.substring(0, 4)) + 17; i <= d; ++i) {
+        //console.log(dob.substring(0, 4));
+        var i = Number(dob.substring(0, 4));
+        if (i == 0) i = 1940;
+        else i += 17;
+        for (; i <= d; ++i) {
           dataYear.push({key: i + '', value: i + ''});
         }
       } else {
@@ -1504,7 +1505,10 @@ const DoctorRegistration2 = ({navigation}) => {
                             backgroundColor: '#e8f0fe',
                             borderWidth: 0,
                           }}
-                          dropdownItemStyles={{color: 'pink'}}
+                          dropdownTextStyles={{
+                            color: '#2b8ada',
+                            fontWeight: 'bold',
+                          }}
                           setSelected={setRegYear}
                           data={dataYear}
                         />
@@ -1602,7 +1606,10 @@ const DoctorRegistration2 = ({navigation}) => {
                               backgroundColor: '#e8f0fe',
                               borderWidth: 0,
                             }}
-                            dropdownItemStyles={{color: 'pink'}}
+                            dropdownTextStyles={{
+                              color: '#2b8ada',
+                              fontWeight: 'bold',
+                            }}
                             setSelected={setDegreePassingYear}
                             data={dataYear}
                           />
@@ -2092,7 +2099,10 @@ const DoctorRegistration2 = ({navigation}) => {
                               backgroundColor: '#e8f0fe',
                               borderWidth: 0,
                             }}
-                            dropdownItemStyles={{color: 'pink'}}
+                            dropdownTextStyles={{
+                              color: '#2b8ada',
+                              fontWeight: 'bold',
+                            }}
                             setSelected={setidentificationType}
                             data={dataIdenDocs}
                           />
@@ -2459,7 +2469,10 @@ const DoctorRegistration2 = ({navigation}) => {
                             backgroundColor: '#e8f0fe',
                             borderWidth: 0,
                           }}
-                          dropdownItemStyles={{backgroundColor: '#e8f0fe'}}
+                          dropdownTextStyles={{
+                            color: '#2b8ada',
+                            fontWeight: 'bold',
+                          }}
                           setSelected={setshowMobNo}
                           data={dataShowMobNo}
                         />
@@ -2475,7 +2488,10 @@ const DoctorRegistration2 = ({navigation}) => {
                             backgroundColor: '#e8f0fe',
                             borderWidth: 0,
                           }}
-                          dropdownItemStyles={{backgroundColor: '#e8f0fe'}}
+                          dropdownTextStyles={{
+                            color: '#2b8ada',
+                            fontWeight: 'bold',
+                          }}
                           setSelected={setshowFollowUp}
                           data={dataFollowUp}
                         />
@@ -2571,7 +2587,10 @@ const DoctorRegistration2 = ({navigation}) => {
                           backgroundColor: '#e8f0fe',
                           borderWidth: 0,
                         }}
-                        dropdownItemStyles={{backgroundColor: '#e8f0fe'}}
+                        dropdownTextStyles={{
+                          color: '#2b8ada',
+                          fontWeight: 'bold',
+                        }}
                         setSelected={val =>
                           setShowQuestions(val === 'Yes' ? true : false)
                         }
@@ -2704,7 +2723,10 @@ const DoctorRegistration2 = ({navigation}) => {
                           backgroundColor: '#e8f0fe',
                           borderWidth: 0,
                         }}
-                        dropdownItemStyles={{backgroundColor: '#e8f0fe'}}
+                        dropdownTextStyles={{
+                          color: '#2b8ada',
+                          fontWeight: 'bold',
+                        }}
                         setSelected={setquestionSpl}
                         data={splArray}
                       />

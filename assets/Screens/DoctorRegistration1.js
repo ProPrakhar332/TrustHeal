@@ -179,8 +179,7 @@ const DoctorRegistrationStep1 = ({navigation}) => {
       docObj.title = title;
       console.log(JSON.stringify(docObj));
 
-      setSpeciality(speciality.filter(e => e != 'Other'));
-      speciality.push(Otherspeciality);
+      if (Otherspeciality != '') speciality.push(Otherspeciality);
 
       // {
       //   age: await AsyncStorage.getItem('age'),
@@ -272,7 +271,10 @@ const DoctorRegistrationStep1 = ({navigation}) => {
         if (speciality[i] == 'Other') flag = 1;
       }
       if (flag == 1) setshowOtherSpeciality(true);
-      else setshowOtherSpeciality(false);
+      else {
+        setshowOtherSpeciality(false);
+        setOtherSpeciality('');
+      }
     }
   }, [speciality]);
 
