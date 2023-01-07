@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { useNavigation } from '@react-navigation/native';
+import React, {useEffect, useState} from 'react';
+import {useNavigation} from '@react-navigation/native';
 import {
   View,
   Text,
@@ -15,33 +15,33 @@ import {
   StatusBar,
   Alert,
   TextInput,
-  FlatList
-} from "react-native";
-import { CheckBox } from "react-native-elements";
-import FAIcon from "react-native-vector-icons/FontAwesome5";
-import CustomButton from "../Components/CustomButton";
+  FlatList,
+} from 'react-native';
+import {CheckBox} from 'react-native-elements';
+import FAIcon from 'react-native-vector-icons/FontAwesome5';
+import CustomButton from '../Components/CustomButton';
 //images
-import pfp1 from "../Resources/patient.png";
+import pfp1 from '../Resources/patient.png';
 // import pfp2 from "../Resources/pfp2.jpg";
 // import pfp3 from "../Resources/pfp3.jpg";
 // import pfp4 from "../Resources/pfp4.jpg";
-import chatting from "../Resources/chattingMedium.png";
-import Header from "../Components/Header";
+import chatting from '../Resources/chattingMedium.png';
+import Header from '../Components/Header';
 import {
   SelectList,
   MultipleSelectList,
-} from "react-native-dropdown-select-list";
-import axios from "axios";
-import apiConfig from "../API/apiConfig";
-import dateformatter from "../API/dateformatter";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+} from 'react-native-dropdown-select-list';
+import axios from 'axios';
+import apiConfig from '../API/apiConfig';
+import dateformatter from '../API/dateformatter';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const dataStatus = [
-  { key: "Yes", value: "Yes" },
-  { key: "No", value: "No" },
+  {key: 'Yes', value: 'Yes'},
+  {key: 'No', value: 'No'},
 ];
 
-const DoctorHome = (navigation) => {
+const DoctorHome = navigation => {
   // console.log("Doctor Home", route.params);
   const [doctorObj, setDoctorObj] = useState(null);
   //upcoming tab
@@ -49,7 +49,7 @@ const DoctorHome = (navigation) => {
   const [UpcomingData, setUpcomingData] = useState([]);
   const [UpcomingId, setUpcomingId] = useState(0);
   const [PreconsultaionQuestionData, setPreconsultaionQuestionData] = useState(
-    []
+    [],
   );
   const [PreConsultaion, setPreConsultaion] = useState([]);
   const [upcomingEConsultations, setupcomingEConsultations] = useState(false);
@@ -71,27 +71,27 @@ const DoctorHome = (navigation) => {
   const [Status, setStatus] = useState(false);
   const [StatusData, setStatusData] = useState([]);
   const [ManageStatusModal, setManageStatusModal] = useState(false);
-  const [ManageStatus, setManageStatus] = useState("");
-  const [PrescriptionMade, setPrescriptionMade] = useState("");
+  const [ManageStatus, setManageStatus] = useState('');
+  const [PrescriptionMade, setPrescriptionMade] = useState('');
 
   const layout = useWindowDimensions();
 
-  const dayextractor = (date) => {
+  const dayextractor = date => {
     var ch = new Date(date);
-    var days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    var days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     //console.log(days[ch.getDay()]);
     return days[ch.getDay()];
   };
 
   const nav = useNavigation();
   const onJoinPress = (consultationType, callID, userID, userName) => {
-      nav.navigate('CallPage', {
-        consultationType: consultationType,
-        callID: callID,
-        userID: userID,
-        userName: userName
-      })
-  }
+    nav.navigate('CallPage', {
+      consultationType: consultationType,
+      callID: callID,
+      userID: userID,
+      userName: userName,
+    });
+  };
 
   // const fomatDate = (date) => {
   //   var dateArr = date.split("-");
@@ -102,50 +102,48 @@ const DoctorHome = (navigation) => {
   //   return out.substring(0, out.length - 1);
   // };
 
-  const timeformatter = (time) => {
+  const timeformatter = time => {
     let text = time;
-    const myArray = text.split(":");
+    const myArray = text.split(':');
     var HH = Number(myArray[0]);
     var m = Number(myArray[1]);
     var MM = m;
-    if (m < 9) MM = "0" + m;
-    var PM = "AM";
+    if (m < 9) MM = '0' + m;
+    var PM = 'AM';
     if (HH > 12) {
       HH -= 12;
-      PM = "PM";
+      PM = 'PM';
     }
-    return HH + ":" + MM + PM;
+    return HH + ':' + MM + PM;
   };
 
-  const renderCard = ({ item }) => {
+  const renderCard = ({item}) => {
     return (
       <View
         style={{
-          backgroundColor: "white",
-          width: "95%",
-          alignSelf: "center",
+          backgroundColor: 'white',
+          width: '95%',
+          alignSelf: 'center',
           borderRadius: 10,
           marginVertical: 5,
-        }}
-      >
+        }}>
         <View
           style={{
-            flexDirection: "row",
-            alignSelf: "flex-end",
+            flexDirection: 'row',
+            alignSelf: 'flex-end',
             marginTop: 10,
-          }}
-        >
+          }}>
           <FAIcon
             name="prescription"
             size={20}
-            style={{ marginHorizontal: 5 }}
-            onPress={() => navigation.push("CheifComplaints")}
+            style={{marginHorizontal: 5}}
+            onPress={() => navigation.push('CheifComplaints')}
           />
           <CustomButton
             text="Pre Consultation"
-            textstyle={{ color: "white", fontSize: 10 }}
+            textstyle={{color: 'white', fontSize: 10}}
             style={{
-              backgroundColor: "#2B8ADA",
+              backgroundColor: '#2B8ADA',
               padding: 3,
               marginHorizontal: 5,
               paddingHorizontal: 7,
@@ -158,11 +156,11 @@ const DoctorHome = (navigation) => {
           />
           <CustomButton
             text="Manage Status"
-            textstyle={{ color: "#2B8ADA", fontSize: 10 }}
+            textstyle={{color: '#2B8ADA', fontSize: 10}}
             style={{
-              borderColor: "#2B8ADA",
+              borderColor: '#2B8ADA',
               borderWidth: 1,
-              backgroundColor: "white",
+              backgroundColor: 'white',
               padding: 3,
               marginHorizontal: 5,
               paddingHorizontal: 7,
@@ -173,46 +171,43 @@ const DoctorHome = (navigation) => {
         </View>
         <View
           style={{
-            flexDirection: "row",
+            flexDirection: 'row',
             // borderBottomColor: "gray",
             // borderBottomWidth: 1,
-          }}
-        >
+          }}>
           <Image
             source={pfp1}
             style={{
               width: 90,
               height: 90,
-              alignSelf: "center",
+              alignSelf: 'center',
               borderRadius: 5,
               margin: 5,
               marginHorizontal: 10,
             }}
           />
-          <View style={{ flexDirection: "column" }}>
+          <View style={{flexDirection: 'column'}}>
             <Text
               style={{
-                flexDirection: "row",
+                flexDirection: 'row',
                 fontSize: 20,
-                fontWeight: "bold",
-              }}
-            >
+                fontWeight: 'bold',
+              }}>
               {item.familyDetails == null
                 ? item.patientsDetails.patientName
                 : item.familyDetails.patientName}
             </Text>
 
-            <View style={{ flexDirection: "row" }}>
+            <View style={{flexDirection: 'row'}}>
               <View
                 style={{
-                  flexDirection: "column",
-                  width: "20%",
-                  marginRight: "5%",
-                }}
-              >
+                  flexDirection: 'column',
+                  width: '20%',
+                  marginRight: '5%',
+                }}>
                 <Text style={styles.cardText}>Age</Text>
               </View>
-              <View style={{ flexDirection: "column", width: "60%" }}>
+              <View style={{flexDirection: 'column', width: '60%'}}>
                 <Text style={styles.cardText}>
                   {item.familyDetails == null
                     ? item.patientsDetails.age
@@ -220,17 +215,16 @@ const DoctorHome = (navigation) => {
                 </Text>
               </View>
             </View>
-            <View style={{ flexDirection: "row" }}>
+            <View style={{flexDirection: 'row'}}>
               <View
                 style={{
-                  flexDirection: "column",
-                  width: "20%",
-                  marginRight: "5%",
-                }}
-              >
+                  flexDirection: 'column',
+                  width: '20%',
+                  marginRight: '5%',
+                }}>
                 <Text style={styles.cardText}>Location</Text>
               </View>
-              <View style={{ flexDirection: "column", width: "60%" }}>
+              <View style={{flexDirection: 'column', width: '60%'}}>
                 <Text style={styles.cardText}>
                   {item.familyDetails == null
                     ? item.patientsDetails.city
@@ -238,31 +232,47 @@ const DoctorHome = (navigation) => {
                 </Text>
               </View>
             </View>
-            <View style={{ flexDirection: "row" }}>
+            <View style={{flexDirection: 'row'}}>
               <View
                 style={{
-                  flexDirection: "column",
-                  width: "20%",
-                  marginRight: "5%",
-                }}
-              >
+                  flexDirection: 'column',
+                  width: '20%',
+                  marginRight: '5%',
+                }}>
                 <Text style={styles.cardText}>Symtoms</Text>
               </View>
-              <View style={{ flexDirection: "column", width: "60%" }}>
+              <View style={{flexDirection: 'column', width: '60%'}}>
                 <Text style={styles.cardText}>{item.symptoms}</Text>
               </View>
             </View>
-            <View style={{ flexDirection: "row" }}>
+            {item.consultationType == 'PHYSICAL' ? (
+              <View style={{flexDirection: 'row'}}>
+                <View
+                  style={{
+                    flexDirection: 'column',
+                    width: '20%',
+                    marginRight: '5%',
+                  }}>
+                  <Text style={styles.cardText}>Clinic</Text>
+                </View>
+                <View style={{flexDirection: 'column', width: '60%'}}>
+                  <Text style={styles.cardText}>
+                    {item.clinicName}
+                    {' | '} {item.clinicAddress}
+                  </Text>
+                </View>
+              </View>
+            ) : null}
+            <View style={{flexDirection: 'row'}}>
               <View
                 style={{
-                  flexDirection: "column",
-                  width: "20%",
-                  marginRight: "5%",
-                }}
-              >
+                  flexDirection: 'column',
+                  width: '20%',
+                  marginRight: '5%',
+                }}>
                 <Text style={styles.cardText}>Slot</Text>
               </View>
-              <View style={{ flexDirection: "column", width: "60%" }}>
+              <View style={{flexDirection: 'column', width: '60%'}}>
                 <Text style={styles.cardText}>
                   {timeformatter(item.slotTime)} {dayextractor(item.slotDate)}
                 </Text>
@@ -274,43 +284,48 @@ const DoctorHome = (navigation) => {
         <View
           style={{
             marginVertical: 10,
-            flexDirection: "row",
-            justifyContent: "space-evenly",
-          }}
-        >
-          {item.consultationType !== "PHYSICAL" ? (
+            flexDirection: 'row',
+            justifyContent: 'space-evenly',
+          }}>
+          {item.consultationType !== 'PHYSICAL' ? (
             <TouchableOpacity
               style={{
-                flexDirection: "row",
+                flexDirection: 'row',
                 padding: 3,
                 paddingHorizontal: 5,
-                alignSelf: "center",
+                alignSelf: 'center',
                 borderWidth: 1,
-                borderColor: "#2B8ADA",
+                borderColor: '#2B8ADA',
                 borderRadius: 5,
               }}
-              onPress={() => { onJoinPress(item.consultationType, item.consultationId + "", doctorObj.doctorId + "", doctorObj.doctorName ) }}
-            >
+              onPress={() => {
+                onJoinPress(
+                  item.consultationType,
+                  item.consultationId + '',
+                  doctorObj.doctorId + '',
+                  doctorObj.doctorName,
+                );
+              }}>
               <FAIcon
                 name={
-                  item.consultationType == "VIDEO_CALL" ? "video" : "phone-alt"
+                  item.consultationType == 'VIDEO_CALL' ? 'video' : 'phone-alt'
                 }
-                color={"#2B8ADA"}
+                color={'#2B8ADA'}
                 size={15}
-                style={{ marginRight: 5 }}
+                style={{marginRight: 5}}
               />
-              <Text style={{ fontSize: 13, color: "#2B8ADA" }}>
+              <Text style={{fontSize: 13, color: '#2B8ADA'}}>
                 E-Consultation
               </Text>
             </TouchableOpacity>
           ) : (
             <CustomButton
               text="P-Consultation"
-              textstyle={{ fontSize: 13, color: "white" }}
+              textstyle={{fontSize: 13, color: 'white'}}
               style={{
-                backgroundColor: "#2B8ADA",
+                backgroundColor: '#2B8ADA',
                 padding: 3,
-                alignSelf: "center",
+                alignSelf: 'center',
                 borderRadius: 5,
                 paddingHorizontal: 5,
               }}
@@ -318,82 +333,77 @@ const DoctorHome = (navigation) => {
           )}
           <TouchableOpacity
             style={{
-              flexDirection: "row",
+              flexDirection: 'row',
               padding: 3,
               paddingHorizontal: 5,
-              alignSelf: "center",
+              alignSelf: 'center',
               borderWidth: 1,
-              borderColor: "gray",
+              borderColor: 'gray',
               borderRadius: 5,
             }}
             onPress={() => {
               setpatientId(item.patientsDetails.patientId);
               setHistoryModal(true);
-            }}
-          >
+            }}>
             <FAIcon
               name="file-pdf"
-              color={"black"}
+              color={'black'}
               size={15}
-              style={{ marginRight: 5 }}
+              style={{marginRight: 5}}
             />
-            <Text style={{ fontSize: 13 }}>History</Text>
+            <Text style={{fontSize: 13}}>History</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={{
-              flexDirection: "row",
+              flexDirection: 'row',
               padding: 3,
               paddingHorizontal: 5,
-              alignSelf: "center",
+              alignSelf: 'center',
               borderWidth: 1,
-              borderColor: "gray",
+              borderColor: 'gray',
               borderRadius: 5,
             }}
             onPress={() => {
               setupcomingConsultationId(item.consultationId);
               setTodaysModal(true);
-            }}
-          >
+            }}>
             <FAIcon
               name="file-pdf"
-              color={"black"}
+              color={'black'}
               size={15}
-              style={{ marginRight: 5 }}
+              style={{marginRight: 5}}
             />
-            <Text style={{ fontSize: 13 }}>Today's Doc</Text>
+            <Text style={{fontSize: 13}}>Today's Doc</Text>
           </TouchableOpacity>
         </View>
       </View>
     );
   };
 
-  const renderCardCompleted = ({ item }) => {
+  const renderCardCompleted = ({item}) => {
     return (
       <View
         style={{
-          backgroundColor: "white",
-          width: "95%",
-          alignSelf: "center",
+          backgroundColor: 'white',
+          width: '95%',
+          alignSelf: 'center',
           borderRadius: 10,
           marginVertical: 5,
           padding: 10,
-        }}
-      >
+        }}>
         <View
           style={{
-            flexDirection: "row",
+            flexDirection: 'row',
             // borderBottomColor: "gray",
             // borderBottomWidth: 1,
-          }}
-        >
+          }}>
           <Text
             style={[
               styles.tag,
               {
-                backgroundColor: "#4DB707",
+                backgroundColor: '#4DB707',
               },
-            ]}
-          >
+            ]}>
             Completed
           </Text>
           <Image
@@ -401,36 +411,34 @@ const DoctorHome = (navigation) => {
             style={{
               width: 90,
               height: 90,
-              alignSelf: "center",
+              alignSelf: 'center',
               borderRadius: 5,
               margin: 5,
               marginHorizontal: 10,
             }}
           />
-          <View style={{ flexDirection: "column" }}>
+          <View style={{flexDirection: 'column'}}>
             <Text
               style={{
-                flexDirection: "row",
+                flexDirection: 'row',
                 fontSize: 20,
-                fontWeight: "bold",
-              }}
-            >
+                fontWeight: 'bold',
+              }}>
               {item.familyDetails == null
                 ? item.patientsDetails.patientName
                 : item.familyDetails.patientName}
             </Text>
 
-            <View style={{ flexDirection: "row" }}>
+            <View style={{flexDirection: 'row'}}>
               <View
                 style={{
-                  flexDirection: "column",
-                  width: "20%",
-                  marginRight: "5%",
-                }}
-              >
+                  flexDirection: 'column',
+                  width: '20%',
+                  marginRight: '5%',
+                }}>
                 <Text style={styles.cardText}>Age</Text>
               </View>
-              <View style={{ flexDirection: "column", width: "60%" }}>
+              <View style={{flexDirection: 'column', width: '60%'}}>
                 <Text style={styles.cardText}>
                   {item.familyDetails == null
                     ? item.patientsDetails.age
@@ -438,17 +446,16 @@ const DoctorHome = (navigation) => {
                 </Text>
               </View>
             </View>
-            <View style={{ flexDirection: "row" }}>
+            <View style={{flexDirection: 'row'}}>
               <View
                 style={{
-                  flexDirection: "column",
-                  width: "20%",
-                  marginRight: "5%",
-                }}
-              >
+                  flexDirection: 'column',
+                  width: '20%',
+                  marginRight: '5%',
+                }}>
                 <Text style={styles.cardText}>Location</Text>
               </View>
-              <View style={{ flexDirection: "column", width: "60%" }}>
+              <View style={{flexDirection: 'column', width: '60%'}}>
                 <Text style={styles.cardText}>
                   {item.familyDetails == null
                     ? item.patientsDetails.city
@@ -456,31 +463,47 @@ const DoctorHome = (navigation) => {
                 </Text>
               </View>
             </View>
-            <View style={{ flexDirection: "row" }}>
+            <View style={{flexDirection: 'row'}}>
               <View
                 style={{
-                  flexDirection: "column",
-                  width: "20%",
-                  marginRight: "5%",
-                }}
-              >
+                  flexDirection: 'column',
+                  width: '20%',
+                  marginRight: '5%',
+                }}>
                 <Text style={styles.cardText}>Symtoms</Text>
               </View>
-              <View style={{ flexDirection: "column", width: "60%" }}>
+              <View style={{flexDirection: 'column', width: '60%'}}>
                 <Text style={styles.cardText}>{item.symptoms}</Text>
               </View>
             </View>
-            <View style={{ flexDirection: "row" }}>
+            {item.consultationType == 'PHYSICAL' ? (
+              <View style={{flexDirection: 'row'}}>
+                <View
+                  style={{
+                    flexDirection: 'column',
+                    width: '20%',
+                    marginRight: '5%',
+                  }}>
+                  <Text style={styles.cardText}>Clinic</Text>
+                </View>
+                <View style={{flexDirection: 'column', width: '60%'}}>
+                  <Text style={styles.cardText}>
+                    {item.clinicName}
+                    {' | '} {item.clinicAddress}
+                  </Text>
+                </View>
+              </View>
+            ) : null}
+            <View style={{flexDirection: 'row'}}>
               <View
                 style={{
-                  flexDirection: "column",
-                  width: "20%",
-                  marginRight: "5%",
-                }}
-              >
+                  flexDirection: 'column',
+                  width: '20%',
+                  marginRight: '5%',
+                }}>
                 <Text style={styles.cardText}>Slot</Text>
               </View>
-              <View style={{ flexDirection: "column", width: "60%" }}>
+              <View style={{flexDirection: 'column', width: '60%'}}>
                 <Text style={styles.cardText}>
                   {timeformatter(item.slotTime)} {dayextractor(item.slotDate)}
                 </Text>
@@ -492,40 +515,40 @@ const DoctorHome = (navigation) => {
         <View
           style={{
             marginTop: 10,
-            flexDirection: "row",
-            justifyContent: "space-evenly",
-          }}
-        >
-          {item.consultationType !== "PHYSICAL" ? (
+            flexDirection: 'row',
+            justifyContent: 'space-evenly',
+          }}>
+          {item.consultationType !== 'PHYSICAL' ? (
             <TouchableOpacity
               style={{
-                flexDirection: "row",
+                flexDirection: 'row',
                 padding: 3,
                 paddingHorizontal: 15,
-                alignSelf: "center",
+                alignSelf: 'center',
                 borderWidth: 1,
-                borderColor: "#2B8ADA",
+                borderColor: '#2B8ADA',
                 borderRadius: 5,
-              }}
-            >
+              }}>
               <FAIcon
                 name={
-                  item.consultationType == "VIDEO_CALL" ? "video" : "phone-alt"
+                  item.consultationType == 'VIDEO_CALL' ? 'video' : 'phone-alt'
                 }
-                color={"#2B8ADA"}
+                color={'#2B8ADA'}
                 size={15}
-                style={{ marginRight: 5 }}
+                style={{marginRight: 5}}
               />
-              <Text style={{ fontSize: 13, color: "#2B8ADA" }}>E-Consultation</Text>
+              <Text style={{fontSize: 13, color: '#2B8ADA'}}>
+                E-Consultation
+              </Text>
             </TouchableOpacity>
           ) : (
             <CustomButton
               text="P-Consultation"
-              textstyle={{ fontSize: 13, color: "white" }}
+              textstyle={{fontSize: 13, color: 'white'}}
               style={{
-                backgroundColor: "#2B8ADA",
+                backgroundColor: '#2B8ADA',
                 padding: 3,
-                alignSelf: "center",
+                alignSelf: 'center',
                 borderRadius: 5,
                 paddingHorizontal: 15,
               }}
@@ -533,35 +556,34 @@ const DoctorHome = (navigation) => {
           )}
           <TouchableOpacity
             style={{
-              flexDirection: "row",
+              flexDirection: 'row',
               padding: 3,
               paddingHorizontal: 15,
-              alignSelf: "center",
+              alignSelf: 'center',
               borderWidth: 1,
-              borderColor: "gray",
+              borderColor: 'gray',
               borderRadius: 5,
             }}
             onPress={() => {
               setpatientId(item.patientsDetails.patientId);
               setHistoryModal(true);
-            }}
-          >
+            }}>
             <FAIcon
               name="file-pdf"
-              color={"black"}
+              color={'black'}
               size={15}
-              style={{ marginRight: 5 }}
+              style={{marginRight: 5}}
             />
-            <Text style={{ fontSize: 13 }}>History</Text>
+            <Text style={{fontSize: 13}}>History</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={{
-              flexDirection: "row",
+              flexDirection: 'row',
               padding: 3,
               paddingHorizontal: 15,
-              alignSelf: "center",
+              alignSelf: 'center',
               borderWidth: 1,
-              borderColor: "gray",
+              borderColor: 'gray',
               borderRadius: 5,
             }}
             //onPress={() => navigation.push("CheifComplaints")}
@@ -569,40 +591,37 @@ const DoctorHome = (navigation) => {
             <FAIcon
               name="prescription"
               size={15}
-              style={{ marginHorizontal: 5 }}
+              style={{marginHorizontal: 5}}
             />
           </TouchableOpacity>
         </View>
       </View>
     );
   };
-  const renderCardRecent = ({ item }) => {
+  const renderCardRecent = ({item}) => {
     return (
       <View
         style={{
-          backgroundColor: "white",
-          width: "95%",
-          alignSelf: "center",
+          backgroundColor: 'white',
+          width: '95%',
+          alignSelf: 'center',
           borderRadius: 10,
           marginVertical: 5,
           padding: 10,
-        }}
-      >
+        }}>
         <View
           style={{
-            flexDirection: "row",
+            flexDirection: 'row',
             // borderBottomColor: "gray",
             // borderBottomWidth: 1,
-          }}
-        >
+          }}>
           <Text
             style={[
               styles.tag,
               {
-                backgroundColor: "#2B8ADA",
+                backgroundColor: '#2B8ADA',
               },
-            ]}
-          >
+            ]}>
             Completed
           </Text>
           <Image
@@ -610,36 +629,34 @@ const DoctorHome = (navigation) => {
             style={{
               width: 90,
               height: 90,
-              alignSelf: "center",
+              alignSelf: 'center',
               borderRadius: 5,
               margin: 5,
               marginHorizontal: 10,
             }}
           />
-          <View style={{ flexDirection: "column" }}>
+          <View style={{flexDirection: 'column'}}>
             <Text
               style={{
-                flexDirection: "row",
+                flexDirection: 'row',
                 fontSize: 20,
-                fontWeight: "bold",
-              }}
-            >
+                fontWeight: 'bold',
+              }}>
               {item.familyDetails == null
                 ? item.patientsDetails.patientName
                 : item.familyDetails.patientName}
             </Text>
 
-            <View style={{ flexDirection: "row" }}>
+            <View style={{flexDirection: 'row'}}>
               <View
                 style={{
-                  flexDirection: "column",
-                  width: "20%",
-                  marginRight: "5%",
-                }}
-              >
+                  flexDirection: 'column',
+                  width: '20%',
+                  marginRight: '5%',
+                }}>
                 <Text style={styles.cardText}>Age</Text>
               </View>
-              <View style={{ flexDirection: "column", width: "60%" }}>
+              <View style={{flexDirection: 'column', width: '60%'}}>
                 <Text style={styles.cardText}>
                   {item.familyDetails == null
                     ? item.patientsDetails.age
@@ -647,17 +664,16 @@ const DoctorHome = (navigation) => {
                 </Text>
               </View>
             </View>
-            <View style={{ flexDirection: "row" }}>
+            <View style={{flexDirection: 'row'}}>
               <View
                 style={{
-                  flexDirection: "column",
-                  width: "20%",
-                  marginRight: "5%",
-                }}
-              >
+                  flexDirection: 'column',
+                  width: '20%',
+                  marginRight: '5%',
+                }}>
                 <Text style={styles.cardText}>Location</Text>
               </View>
-              <View style={{ flexDirection: "column", width: "60%" }}>
+              <View style={{flexDirection: 'column', width: '60%'}}>
                 <Text style={styles.cardText}>
                   {item.familyDetails == null
                     ? item.patientsDetails.city
@@ -665,31 +681,47 @@ const DoctorHome = (navigation) => {
                 </Text>
               </View>
             </View>
-            <View style={{ flexDirection: "row" }}>
+            <View style={{flexDirection: 'row'}}>
               <View
                 style={{
-                  flexDirection: "column",
-                  width: "20%",
-                  marginRight: "5%",
-                }}
-              >
+                  flexDirection: 'column',
+                  width: '20%',
+                  marginRight: '5%',
+                }}>
                 <Text style={styles.cardText}>Symtoms</Text>
               </View>
-              <View style={{ flexDirection: "column", width: "60%" }}>
+              <View style={{flexDirection: 'column', width: '60%'}}>
                 <Text style={styles.cardText}>{item.symptoms}</Text>
               </View>
             </View>
-            <View style={{ flexDirection: "row" }}>
+            {item.consultationType == 'PHYSICAL' ? (
+              <View style={{flexDirection: 'row'}}>
+                <View
+                  style={{
+                    flexDirection: 'column',
+                    width: '20%',
+                    marginRight: '5%',
+                  }}>
+                  <Text style={styles.cardText}>Clinic</Text>
+                </View>
+                <View style={{flexDirection: 'column', width: '60%'}}>
+                  <Text style={styles.cardText}>
+                    {item.clinicName}
+                    {' | '} {item.clinicAddress}
+                  </Text>
+                </View>
+              </View>
+            ) : null}
+            <View style={{flexDirection: 'row'}}>
               <View
                 style={{
-                  flexDirection: "column",
-                  width: "20%",
-                  marginRight: "5%",
-                }}
-              >
+                  flexDirection: 'column',
+                  width: '20%',
+                  marginRight: '5%',
+                }}>
                 <Text style={styles.cardText}>Slot</Text>
               </View>
-              <View style={{ flexDirection: "column", width: "60%" }}>
+              <View style={{flexDirection: 'column', width: '60%'}}>
                 <Text style={styles.cardText}>
                   {timeformatter(item.slotTime)} {dayextractor(item.slotDate)}
                 </Text>
@@ -701,40 +733,40 @@ const DoctorHome = (navigation) => {
         <View
           style={{
             marginTop: 10,
-            flexDirection: "row",
-            justifyContent: "space-evenly",
-          }}
-        >
-          {item.consultationType !== "PHYSICAL" ? (
+            flexDirection: 'row',
+            justifyContent: 'space-evenly',
+          }}>
+          {item.consultationType !== 'PHYSICAL' ? (
             <TouchableOpacity
               style={{
-                flexDirection: "row",
+                flexDirection: 'row',
                 padding: 3,
                 paddingHorizontal: 15,
-                alignSelf: "center",
+                alignSelf: 'center',
                 borderWidth: 1,
-                borderColor: "#2B8ADA",
+                borderColor: '#2B8ADA',
                 borderRadius: 5,
-              }}
-            >
+              }}>
               <FAIcon
                 name={
-                  item.consultationType == "VIDEO_CALL" ? "video" : "phone-alt"
+                  item.consultationType == 'VIDEO_CALL' ? 'video' : 'phone-alt'
                 }
-                color={"#2B8ADA"}
+                color={'#2B8ADA'}
                 size={15}
-                style={{ marginRight: 5 }}
+                style={{marginRight: 5}}
               />
-              <Text style={{ fontSize: 13, color: "#2B8ADA" }}>E-Consultation</Text>
+              <Text style={{fontSize: 13, color: '#2B8ADA'}}>
+                E-Consultation
+              </Text>
             </TouchableOpacity>
           ) : (
             <CustomButton
               text="P-Consultation"
-              textstyle={{ fontSize: 13, color: "white" }}
+              textstyle={{fontSize: 13, color: 'white'}}
               style={{
-                backgroundColor: "#2B8ADA",
+                backgroundColor: '#2B8ADA',
                 padding: 3,
-                alignSelf: "center",
+                alignSelf: 'center',
                 borderRadius: 5,
                 paddingHorizontal: 5,
               }}
@@ -742,35 +774,34 @@ const DoctorHome = (navigation) => {
           )}
           <TouchableOpacity
             style={{
-              flexDirection: "row",
+              flexDirection: 'row',
               padding: 3,
               paddingHorizontal: 15,
-              alignSelf: "center",
+              alignSelf: 'center',
               borderWidth: 1,
-              borderColor: "gray",
+              borderColor: 'gray',
               borderRadius: 5,
             }}
             onPress={() => {
               setpatientId(item.patientsDetails.patientId);
               setHistoryModal(true);
-            }}
-          >
+            }}>
             <FAIcon
               name="file-pdf"
-              color={"black"}
+              color={'black'}
               size={15}
-              style={{ marginRight: 5 }}
+              style={{marginRight: 5}}
             />
-            <Text style={{ fontSize: 13 }}>History</Text>
+            <Text style={{fontSize: 13}}>History</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={{
-              flexDirection: "row",
+              flexDirection: 'row',
               padding: 3,
               paddingHorizontal: 15,
-              alignSelf: "center",
+              alignSelf: 'center',
               borderWidth: 1,
-              borderColor: "gray",
+              borderColor: 'gray',
               borderRadius: 5,
             }}
             //onPress={() => navigation.push("CheifComplaints")}
@@ -778,7 +809,7 @@ const DoctorHome = (navigation) => {
             <FAIcon
               name="prescription"
               size={15}
-              style={{ marginHorizontal: 5 }}
+              style={{marginHorizontal: 5}}
             />
           </TouchableOpacity>
         </View>
@@ -786,30 +817,28 @@ const DoctorHome = (navigation) => {
     );
   };
 
-  const renderQuestionAnswers = ({ item }) => {
+  const renderQuestionAnswers = ({item}) => {
     return (
-      <View style={{ width: "95%", alignSelf: "center", marginBottom: 10 }}>
+      <View style={{width: '95%', alignSelf: 'center', marginBottom: 10}}>
         <TouchableOpacity
           style={[
             styles.WhiteLabel,
             {
               borderWidth: 1,
-              flexDirection: "row",
-              justifyContent: "space-between",
+              flexDirection: 'row',
+              justifyContent: 'space-between',
               marginBottom: 0,
-              backgroundColor: "#2B8ADA",
+              backgroundColor: '#2B8ADA',
             },
-          ]}
-        >
+          ]}>
           <Text
             style={[
               {
-                fontWeight: "bold",
+                fontWeight: 'bold',
                 fontSize: 14,
-                color: "white",
+                color: 'white',
               },
-            ]}
-          >
+            ]}>
             {item.question}
           </Text>
         </TouchableOpacity>
@@ -819,49 +848,45 @@ const DoctorHome = (navigation) => {
             padding: 5,
             borderWidth: 1,
             borderTopWidth: 0,
-            width: "95%",
-            alignSelf: "center",
+            width: '95%',
+            alignSelf: 'center',
             borderBottomRightRadius: 5,
             borderBottomLeftRadius: 5,
-          }}
-        >
+          }}>
           <Text
             style={{
               fontSize: 12,
               padding: 5,
-              textAlign: "justify",
-            }}
-          >
+              textAlign: 'justify',
+            }}>
             {item.answers}
           </Text>
         </View>
       </View>
     );
   };
-  const renderHistory = ({ item }) => {
+  const renderHistory = ({item}) => {
     return (
       <View
         style={{
-          backgroundColor: "#E8F0FE",
+          backgroundColor: '#E8F0FE',
           padding: 10,
-          width: "100%",
-          alignSelf: "center",
+          width: '100%',
+          alignSelf: 'center',
           borderRadius: 7,
           marginVertical: 10,
-        }}
-      >
-        <View style={{ width: "80%", alignSelf: "center" }}>
+        }}>
+        <View style={{width: '80%', alignSelf: 'center'}}>
           <View
             style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
+              flexDirection: 'row',
+              justifyContent: 'space-between',
               marginVertical: 5,
-            }}
-          >
-            <View style={{ flexDirection: "column" }}>
+            }}>
+            <View style={{flexDirection: 'column'}}>
               <Text style={styles.HistoryModalText}>Uploaded Date</Text>
             </View>
-            <View style={{ flexDirection: "column" }}>
+            <View style={{flexDirection: 'column'}}>
               <Text style={styles.HistoryModalText}>
                 {dateformatter(item.uploadedDate)}
               </Text>
@@ -869,19 +894,18 @@ const DoctorHome = (navigation) => {
           </View>
           <View
             style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
+              flexDirection: 'row',
+              justifyContent: 'space-between',
               marginVertical: 5,
-            }}
-          >
-            <View style={{ flexDirection: "column" }}>
+            }}>
+            <View style={{flexDirection: 'column'}}>
               <Text style={[styles.HistoryModalText]}>Document</Text>
             </View>
-            <View style={{ flexDirection: "row" }}>
+            <View style={{flexDirection: 'row'}}>
               <FAIcon
                 name="file-pdf"
                 size={20}
-                color={"black"}
+                color={'black'}
                 style={{
                   marginHorizontal: 5,
                 }}
@@ -893,30 +917,28 @@ const DoctorHome = (navigation) => {
       </View>
     );
   };
-  const renderToday = ({ item }) => {
+  const renderToday = ({item}) => {
     return (
       <TouchableOpacity
         style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
+          flexDirection: 'row',
+          justifyContent: 'space-between',
           marginBottom: 10,
           borderRadius: 15,
           padding: 10,
-          backgroundColor: "#E8F0FE",
-        }}
-      >
-        <View style={{ flexDirection: "column" }}>
+          backgroundColor: '#E8F0FE',
+        }}>
+        <View style={{flexDirection: 'column'}}>
           <Text style={styles.HistoryModalText}>{item.documentName}</Text>
         </View>
         <View
           style={{
-            flexDirection: "row",
-          }}
-        >
+            flexDirection: 'row',
+          }}>
           <FAIcon
             name="file-pdf"
             size={20}
-            color={"black"}
+            color={'black'}
             style={{
               marginHorizontal: 5,
             }}
@@ -928,7 +950,7 @@ const DoctorHome = (navigation) => {
 
   useEffect(() => {
     const getData = async () => {
-      let x = JSON.parse(await AsyncStorage.getItem("UserDoctorProfile"));
+      let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
       setDoctorObj(x);
       let doctorId = x.doctorId;
       //console.log(doctorId);
@@ -936,8 +958,8 @@ const DoctorHome = (navigation) => {
       axios
         .get(
           apiConfig.baseUrl +
-            "/doctor/upcoming/consultation?doctorId=" +
-            doctorId
+            '/doctor/upcoming/consultation?doctorId=' +
+            doctorId,
         )
         .then(function (response) {
           setUpcomingData(response.data);
@@ -949,19 +971,19 @@ const DoctorHome = (navigation) => {
 
   useEffect(() => {
     const getData = async () => {
-      let x = JSON.parse(await AsyncStorage.getItem("UserDoctorProfile"));
+      let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
       let doctorId = x.doctorId;
       //console.log("Completed");
 
       axios
         .get(
           apiConfig.baseUrl +
-            "/doctor/complete/consultation?doctorId=" +
+            '/doctor/complete/consultation?doctorId=' +
             doctorId +
-            "&start=" +
+            '&start=' +
             0 +
-            "&max=" +
-            5
+            '&max=' +
+            5,
         )
         .then(function (response) {
           setCompleteData(response.data);
@@ -973,13 +995,15 @@ const DoctorHome = (navigation) => {
 
   useEffect(() => {
     const getData = async () => {
-      let x = JSON.parse(await AsyncStorage.getItem("UserDoctorProfile"));
+      let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
       let doctorId = x.doctorId;
       //console.log("Recent");
 
       axios
         .get(
-          apiConfig.baseUrl + "/doctor/recent/consultation?doctorId=" + doctorId
+          apiConfig.baseUrl +
+            '/doctor/recent/consultation?doctorId=' +
+            doctorId,
         )
         .then(function (response) {
           setStatusData(response.data);
@@ -995,8 +1019,8 @@ const DoctorHome = (navigation) => {
       axios
         .get(
           apiConfig.baseUrl +
-            "/docs/questionanswer?upcomingConsultationId=" +
-            UpcomingId
+            '/docs/questionanswer?upcomingConsultationId=' +
+            UpcomingId,
         )
         .then(function (response) {
           setPreconsultaionQuestionData(response.data);
@@ -1010,7 +1034,7 @@ const DoctorHome = (navigation) => {
     const getHistoryDocs = async () => {
       console.log(patientId);
       axios
-        .get(apiConfig.baseUrl + "/docs/previous?patientId=" + patientId)
+        .get(apiConfig.baseUrl + '/docs/previous?patientId=' + patientId)
         .then(function (response) {
           sethistoryData(response.data);
           //console.log(historyData);
@@ -1028,8 +1052,8 @@ const DoctorHome = (navigation) => {
       axios
         .get(
           apiConfig.baseUrl +
-            "/docs/current?upcomingConsultationId=" +
-            upcomingConsultationId
+            '/docs/current?upcomingConsultationId=' +
+            upcomingConsultationId,
         )
         .then(function (response) {
           setTodaysDocs(response.data);
@@ -1044,29 +1068,26 @@ const DoctorHome = (navigation) => {
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}
-      enabled={true}
-    >
+      enabled={true}>
       <SafeAreaView
         style={{
-          backgroundColor: "#2B8ADA",
-          width: "100%",
-        }}
-      >
-      <StatusBar animated={true} backgroundColor="#2B8ADA"/>
+          backgroundColor: '#2B8ADA',
+          width: '100%',
+        }}>
+        <StatusBar animated={true} backgroundColor="#2B8ADA" />
         <ScrollView
           showsVerticalScrollIndicator={false}
           style={{
-            width: "100%",
-            backgroundColor: "#E8F0FE",
+            width: '100%',
+            backgroundColor: '#E8F0FE',
             height: layout.height - 120,
-            alignSelf: "center",
+            alignSelf: 'center',
             // marginTop: 30,
-          }}
-        >
+          }}>
           <Header showMenu={true} />
-          <View style={{ width: "95%", alignSelf: "center" }}>
+          <View style={{width: '95%', alignSelf: 'center'}}>
             {/* Search Bar */}
             <View style={styles.searchBar}>
               <TextInput placeholder="Search" style={styles.searchBarText} />
@@ -1080,43 +1101,40 @@ const DoctorHome = (navigation) => {
             {/* Filter */}
             <View
               style={{
-                flexDirection: "row",
-                justifyContent: "space-evenly",
-                width: "30%",
+                flexDirection: 'row',
+                justifyContent: 'space-evenly',
+                width: '30%',
                 borderRadius: 5,
                 borderWidth: 1,
-                borderColor: "#2B8ADA",
+                borderColor: '#2B8ADA',
                 padding: 5,
                 margin: 10,
-              }}
-            >
-              <Text style={{ color: "#2B8ADA" }}>By Date</Text>
-              <FAIcon name="caret-down" color={"#2B8ADA"} size={15} />
+              }}>
+              <Text style={{color: '#2B8ADA'}}>By Date</Text>
+              <FAIcon name="caret-down" color={'#2B8ADA'} size={15} />
             </View>
             {/* Upcoming Consultations White Label */}
             <TouchableOpacity
               style={styles.WhiteLabel}
-              onPress={() => setUpcoming(!Upcoming)}
-            >
+              onPress={() => setUpcoming(!Upcoming)}>
               <Text
                 style={[
                   styles.label,
-                  { width: "80%" },
-                  Upcoming ? { color: "#2B8ADA" } : { color: "black" },
-                ]}
-              >
+                  {width: '80%'},
+                  Upcoming ? {color: '#2B8ADA'} : {color: 'black'},
+                ]}>
                 Upcoming Consultations
               </Text>
               <FAIcon
-                name={Upcoming ? "chevron-down" : "chevron-right"}
+                name={Upcoming ? 'chevron-down' : 'chevron-right'}
                 size={20}
-                style={[Upcoming ? { color: "#2B8ADA" } : { color: "black" }]}
+                style={[Upcoming ? {color: '#2B8ADA'} : {color: 'black'}]}
               />
             </TouchableOpacity>
             {/* Upcoming Consultaions Data */}
             {Upcoming ? (
-              <View style={{ flexDirection: "column" }}>
-                <View style={{ backgroundColor: "#E8F0FE" }}>
+              <View style={{flexDirection: 'column'}}>
+                <View style={{backgroundColor: '#E8F0FE'}}>
                   {/* <View>
                     <Text
                       style={{
@@ -1162,10 +1180,10 @@ const DoctorHome = (navigation) => {
                   </View> */}
                   <View>
                     {/*Card Design */}
-                    {UpcomingData != "" ? (
+                    {UpcomingData != '' ? (
                       <FlatList
                         data={UpcomingData}
-                        keyExtractor={(item) => item.consultationId}
+                        keyExtractor={item => item.consultationId}
                         renderItem={renderCard}
                       />
                     ) : (
@@ -1173,10 +1191,9 @@ const DoctorHome = (navigation) => {
                         style={{
                           marginVertical: 10,
                           fontSize: 12,
-                          alignSelf: "center",
-                          fontWeight: "bold",
-                        }}
-                      >
+                          alignSelf: 'center',
+                          fontWeight: 'bold',
+                        }}>
                         No Data Available for Upcoming Consultations
                       </Text>
                     )}
@@ -1192,40 +1209,35 @@ const DoctorHome = (navigation) => {
                 visible={HistoryModal}
                 onRequestClose={() => {
                   setHistoryModal(!HistoryModal);
-                }}
-              >
+                }}>
                 <View
                   style={{
-                    height: "100%",
-                    backgroundColor: "rgba(0,0,0,0.8)",
-                    flexDirection: "row",
-                    justifyContent: "center",
-                  }}
-                >
+                    height: '100%',
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                  }}>
                   <View
                     style={[
                       styles.modalView,
                       {
                         borderRadius: 10,
                       },
-                    ]}
-                  >
+                    ]}>
                     <View
                       style={{
-                        width: "100%",
-                        alignSelf: "center",
+                        width: '100%',
+                        alignSelf: 'center',
                         marginBottom: 20,
                         borderBottomWidth: 1,
-                        borderBottomColor: "gray",
-                      }}
-                    >
+                        borderBottomColor: 'gray',
+                      }}>
                       <Text
                         style={{
-                          fontWeight: "bold",
+                          fontWeight: 'bold',
                           fontSize: 16,
                           padding: 5,
-                        }}
-                      >
+                        }}>
                         History
                       </Text>
                       <FAIcon
@@ -1233,18 +1245,18 @@ const DoctorHome = (navigation) => {
                         color="black"
                         size={26}
                         style={{
-                          position: "absolute",
+                          position: 'absolute',
                           top: 0,
                           right: 0,
                         }}
                         onPress={() => setHistoryModal(false)}
                       />
                     </View>
-                    {historyData != "" ? (
-                      <View style={{ height: 270, width: "100%" }}>
+                    {historyData != '' ? (
+                      <View style={{height: 270, width: '100%'}}>
                         <FlatList
                           data={historyData}
-                          keyExtractor={(item) => item.uploadedDate}
+                          keyExtractor={item => item.uploadedDate}
                           renderItem={renderHistory}
                         />
                       </View>
@@ -1265,40 +1277,35 @@ const DoctorHome = (navigation) => {
                 visible={TodaysModal}
                 onRequestClose={() => {
                   setTodaysModal(!TodaysModal);
-                }}
-              >
+                }}>
                 <View
                   style={{
-                    height: "100%",
-                    backgroundColor: "rgba(0,0,0,0.8)",
-                    flexDirection: "row",
-                    justifyContent: "center",
-                  }}
-                >
+                    height: '100%',
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                  }}>
                   <View
                     style={[
                       styles.modalView,
                       {
                         borderRadius: 10,
                       },
-                    ]}
-                  >
+                    ]}>
                     <View
                       style={{
-                        width: "100%",
-                        alignSelf: "center",
+                        width: '100%',
+                        alignSelf: 'center',
                         marginBottom: 5,
                         borderBottomWidth: 1,
-                        borderBottomColor: "gray",
-                      }}
-                    >
+                        borderBottomColor: 'gray',
+                      }}>
                       <Text
                         style={{
-                          fontWeight: "bold",
+                          fontWeight: 'bold',
                           fontSize: 16,
                           padding: 5,
-                        }}
-                      >
+                        }}>
                         Today's Document
                       </Text>
                       <FAIcon
@@ -1306,38 +1313,37 @@ const DoctorHome = (navigation) => {
                         color="black"
                         size={26}
                         style={{
-                          position: "absolute",
+                          position: 'absolute',
                           top: 0,
                           right: 0,
                         }}
                         onPress={() => setTodaysModal(false)}
                       />
                     </View>
-                    <View style={{ height: 150, width: "100%" }}>
+                    <View style={{height: 150, width: '100%'}}>
                       <View
                         style={{
                           padding: 10,
-                          width: "100%",
-                          alignSelf: "center",
+                          width: '100%',
+                          alignSelf: 'center',
                           borderRadius: 7,
                           marginVertical: 10,
-                        }}
-                      >
-                        {TodaysDocs != "" ? (
-                          <View style={{ width: "95%", alignSelf: "center" }}>
+                        }}>
+                        {TodaysDocs != '' ? (
+                          <View style={{width: '95%', alignSelf: 'center'}}>
                             <FlatList
                               data={TodaysDocs}
-                              keyExtractor={(item) => item.documentName}
+                              keyExtractor={item => item.documentName}
                               renderItem={renderToday}
                               scrollEnabled={true}
                             />
                             <CustomButton
                               text="Download All"
-                              textstyle={{ color: "white" }}
+                              textstyle={{color: 'white'}}
                               style={{
-                                backgroundColor: "#2B8ADA",
-                                width: "95%",
-                                alignSelf: "center",
+                                backgroundColor: '#2B8ADA',
+                                width: '95%',
+                                alignSelf: 'center',
                                 paddingVertical: 5,
                               }}
                             />
@@ -1345,7 +1351,7 @@ const DoctorHome = (navigation) => {
                         ) : (
                           <View>
                             <Text>
-                              No Document has been uploaded by the Pateint{" "}
+                              No Document has been uploaded by the Pateint{' '}
                             </Text>
                           </View>
                         )}
@@ -1362,39 +1368,34 @@ const DoctorHome = (navigation) => {
                 visible={ManageStatusModal}
                 onRequestClose={() => {
                   setManageStatusModal(!ManageStatusModal);
-                }}
-              >
+                }}>
                 <View
                   style={{
-                    height: "100%",
-                    backgroundColor: "rgba(0,0,0,0.8)",
-                    flexDirection: "row",
-                    justifyContent: "center",
-                  }}
-                >
+                    height: '100%',
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                  }}>
                   <View
                     style={[
                       styles.modalView,
                       {
                         borderRadius: 10,
                       },
-                    ]}
-                  >
+                    ]}>
                     <View
                       style={{
-                        width: "100%",
-                        alignSelf: "center",
+                        width: '100%',
+                        alignSelf: 'center',
                         borderBottomWidth: 1,
-                        borderBottomColor: "gray",
-                      }}
-                    >
+                        borderBottomColor: 'gray',
+                      }}>
                       <Text
                         style={{
-                          fontWeight: "bold",
+                          fontWeight: 'bold',
                           fontSize: 16,
                           padding: 5,
-                        }}
-                      >
+                        }}>
                         Manage Status
                       </Text>
                       <FAIcon
@@ -1402,7 +1403,7 @@ const DoctorHome = (navigation) => {
                         color="black"
                         size={26}
                         style={{
-                          position: "absolute",
+                          position: 'absolute',
                           top: 0,
                           right: 0,
                         }}
@@ -1411,79 +1412,77 @@ const DoctorHome = (navigation) => {
                     </View>
                     <View
                       style={{
-                        width: "100%",
-                        alignSelf: "center",
+                        width: '100%',
+                        alignSelf: 'center',
                         borderRadius: 7,
                         marginVertical: 10,
-                      }}
-                    >
-                      <Text style={{ fontWeight: "bold" }}>
+                      }}>
+                      <Text style={{fontWeight: 'bold'}}>
                         Consultation Completed?
                       </Text>
                       <SelectList
-                        defaultOption={"Yes"}
-                        placeholder={" "}
-                        setSelected={(val) => setManageStatus(val)}
+                        defaultOption={'Yes'}
+                        placeholder={' '}
+                        setSelected={val => setManageStatus(val)}
                         data={dataStatus}
                         save="value"
                         boxStyles={{
-                          backgroundColor: "#F3F7FE",
+                          backgroundColor: '#F3F7FE',
                           borderWidth: 0,
                           marginVertical: 5,
                         }}
-                        dropdownStyles={{ backgroundColor: "white" }}
+                        dropdownStyles={{backgroundColor: 'white'}}
                         dropdownTextStyles={{
-                          color: "#2b8ada",
-                          fontWeight: "bold",
+                          color: '#2b8ada',
+                          fontWeight: 'bold',
                         }}
-                        badgeStyles={{ backgroundColor: "#2b8ada" }}
+                        badgeStyles={{backgroundColor: '#2b8ada'}}
                       />
                     </View>
                     <View
                       style={{
-                        width: "100%",
-                        alignSelf: "center",
+                        width: '100%',
+                        alignSelf: 'center',
                         borderRadius: 7,
                         marginVertical: 10,
-                      }}
-                    >
-                      <Text style={{ fontWeight: "bold" }}>
+                      }}>
+                      <Text style={{fontWeight: 'bold'}}>
                         Have you made the prescription?
                       </Text>
                       <SelectList
-                        defaultOption={"Yes"}
-                        placeholder={" "}
-                        setSelected={(val) => setPrescriptionMade(val)}
+                        defaultOption={'Yes'}
+                        placeholder={' '}
+                        setSelected={val => setPrescriptionMade(val)}
                         data={dataStatus}
                         save="value"
                         boxStyles={{
-                          backgroundColor: "#F3F7FE",
+                          backgroundColor: '#F3F7FE',
                           borderWidth: 0,
                           marginVertical: 5,
                         }}
-                        dropdownStyles={{ backgroundColor: "white" }}
+                        dropdownStyles={{backgroundColor: 'white'}}
                         dropdownTextStyles={{
-                          color: "#2b8ada",
-                          fontWeight: "bold",
+                          color: '#2b8ada',
+                          fontWeight: 'bold',
                         }}
-                        badgeStyles={{ backgroundColor: "#2b8ada" }}
+                        badgeStyles={{backgroundColor: '#2b8ada'}}
                       />
                     </View>
                     <CustomButton
                       text="Save"
-                      textstyle={{ color: "white" }}
+                      textstyle={{color: 'white'}}
                       style={{
-                        backgroundColor: "#2B8ADA",
-                        width: "95%",
-                        alignSelf: "center",
+                        backgroundColor: '#2B8ADA',
+                        width: '95%',
+                        alignSelf: 'center',
                       }}
                       onPress={() => {
                         setManageStatusModal(false);
-                        if (PrescriptionMade == "No") {
+                        if (PrescriptionMade == 'No') {
                           Alert.alert(
-                            "Please make Prescription for the patient"
+                            'Please make Prescription for the patient',
                           );
-                          navigation.navigate("CheifComplaints");
+                          navigation.navigate('CheifComplaints');
                         }
                       }}
                     />
@@ -1498,40 +1497,35 @@ const DoctorHome = (navigation) => {
                 visible={ConsultationQuestionnaire}
                 onRequestClose={() => {
                   setConsultationQuestionnaire(!ConsultationQuestionnaire);
-                }}
-              >
+                }}>
                 <View
                   style={{
-                    height: "100%",
-                    backgroundColor: "rgba(0,0,0,0.8)",
-                    flexDirection: "row",
-                    justifyContent: "center",
-                  }}
-                >
+                    height: '100%',
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                  }}>
                   <View
                     style={[
                       styles.modalView,
                       {
                         borderRadius: 10,
                       },
-                    ]}
-                  >
+                    ]}>
                     <View
                       style={{
-                        width: "100%",
-                        alignSelf: "center",
+                        width: '100%',
+                        alignSelf: 'center',
                         borderBottomWidth: 1,
-                        borderBottomColor: "gray",
+                        borderBottomColor: 'gray',
                         marginBottom: 5,
-                      }}
-                    >
+                      }}>
                       <Text
                         style={{
-                          fontWeight: "bold",
+                          fontWeight: 'bold',
                           fontSize: 16,
                           padding: 5,
-                        }}
-                      >
+                        }}>
                         Consultation Questionnaire
                       </Text>
                       <FAIcon
@@ -1539,17 +1533,17 @@ const DoctorHome = (navigation) => {
                         color="black"
                         size={26}
                         style={{
-                          position: "absolute",
+                          position: 'absolute',
                           top: 0,
                           right: 0,
                         }}
                         onPress={() => setConsultationQuestionnaire(false)}
                       />
                     </View>
-                    <View style={{ width: "100%", height: 200 }}>
+                    <View style={{width: '100%', height: 200}}>
                       <FlatList
                         data={PreconsultaionQuestionData}
-                        keyExtractor={(item) => item.ques}
+                        keyExtractor={item => item.ques}
                         renderItem={renderQuestionAnswers}
                         scrollEnabled={true}
                       />
@@ -1561,39 +1555,36 @@ const DoctorHome = (navigation) => {
             {/* Completed Consultaions White Label */}
             <TouchableOpacity
               style={styles.WhiteLabel}
-              onPress={() => setComplete(!Complete)}
-            >
+              onPress={() => setComplete(!Complete)}>
               <Text
                 style={[
                   styles.label,
-                  { width: "80%" },
-                  Complete ? { color: "#2B8ADA" } : { color: "black" },
-                ]}
-              >
+                  {width: '80%'},
+                  Complete ? {color: '#2B8ADA'} : {color: 'black'},
+                ]}>
                 Completed Consultations
               </Text>
               <FAIcon
-                name={Complete ? "chevron-down" : "chevron-right"}
+                name={Complete ? 'chevron-down' : 'chevron-right'}
                 size={20}
-                style={[Complete ? { color: "#2B8ADA" } : { color: "black" }]}
+                style={[Complete ? {color: '#2B8ADA'} : {color: 'black'}]}
               />
             </TouchableOpacity>
             {/* Completed Consultaions Body Data */}
             {Complete ? (
-              <View style={{ flexDirection: "column" }}>
-                <View style={{ backgroundColor: "#E8F0FE" }}>
-                  {CompleteData != "" ? (
+              <View style={{flexDirection: 'column'}}>
+                <View style={{backgroundColor: '#E8F0FE'}}>
+                  {CompleteData != '' ? (
                     <View>
                       <Text
                         style={{
-                          color: "#2B8ADA",
-                          textDecorationLine: "underline",
-                          alignSelf: "flex-end",
+                          color: '#2B8ADA',
+                          textDecorationLine: 'underline',
+                          alignSelf: 'flex-end',
                           margin: 5,
                           marginHorizontal: 10,
                           fontSize: 12,
-                        }}
-                      >
+                        }}>
                         View More
                       </Text>
                     </View>
@@ -1601,10 +1592,10 @@ const DoctorHome = (navigation) => {
 
                   <View>
                     {/*Card Design Completed Consultaions */}
-                    {CompleteData != "" ? (
+                    {CompleteData != '' ? (
                       <FlatList
                         data={CompleteData}
-                        keyExtractor={(item) => item.bookingHistoryId}
+                        keyExtractor={item => item.bookingHistoryId}
                         renderItem={renderCardCompleted}
                       />
                     ) : (
@@ -1612,10 +1603,9 @@ const DoctorHome = (navigation) => {
                         style={{
                           marginVertical: 10,
                           fontSize: 12,
-                          alignSelf: "center",
-                          fontWeight: "bold",
-                        }}
-                      >
+                          alignSelf: 'center',
+                          fontWeight: 'bold',
+                        }}>
                         No Completed Consultations Data Found
                       </Text>
                     )}
@@ -1626,39 +1616,36 @@ const DoctorHome = (navigation) => {
             {/* Recent Consultaions White Label */}
             <TouchableOpacity
               style={styles.WhiteLabel}
-              onPress={() => setStatus(!Status)}
-            >
+              onPress={() => setStatus(!Status)}>
               <Text
                 style={[
                   styles.label,
-                  { width: "80%" },
-                  Status ? { color: "#2B8ADA" } : { color: "black" },
-                ]}
-              >
+                  {width: '80%'},
+                  Status ? {color: '#2B8ADA'} : {color: 'black'},
+                ]}>
                 Recent Consultations
               </Text>
               <FAIcon
-                name={Status ? "chevron-down" : "chevron-right"}
+                name={Status ? 'chevron-down' : 'chevron-right'}
                 size={20}
-                style={[Status ? { color: "#2B8ADA" } : { color: "black" }]}
+                style={[Status ? {color: '#2B8ADA'} : {color: 'black'}]}
               />
             </TouchableOpacity>
             {/* Recent Consultaions Body Data */}
             {Status ? (
-              <View style={{ flexDirection: "column" }}>
-                <View style={{ backgroundColor: "#E8F0FE" }}>
-                  {StatusData != "" ? (
+              <View style={{flexDirection: 'column'}}>
+                <View style={{backgroundColor: '#E8F0FE'}}>
+                  {StatusData != '' ? (
                     <View>
                       <Text
                         style={{
-                          color: "#2B8ADA",
-                          textDecorationLine: "underline",
-                          alignSelf: "flex-end",
+                          color: '#2B8ADA',
+                          textDecorationLine: 'underline',
+                          alignSelf: 'flex-end',
                           margin: 5,
                           marginHorizontal: 10,
                           fontSize: 12,
-                        }}
-                      >
+                        }}>
                         View More
                       </Text>
                     </View>
@@ -1666,10 +1653,10 @@ const DoctorHome = (navigation) => {
 
                   <View>
                     {/*Card Design Completed Consultaions */}
-                    {StatusData != "" ? (
+                    {StatusData != '' ? (
                       <FlatList
                         data={StatusData}
-                        keyExtractor={(item) => item.bookingHistoryId}
+                        keyExtractor={item => item.bookingHistoryId}
                         renderItem={renderCardRecent}
                       />
                     ) : (
@@ -1677,10 +1664,9 @@ const DoctorHome = (navigation) => {
                         style={{
                           marginVertical: 10,
                           fontSize: 12,
-                          alignSelf: "center",
-                          fontWeight: "bold",
-                        }}
-                      >
+                          alignSelf: 'center',
+                          fontWeight: 'bold',
+                        }}>
                         No Recent Consultations Data Found
                       </Text>
                     )}
@@ -1698,21 +1684,21 @@ const DoctorHome = (navigation) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: "row",
+    flexDirection: 'row',
     //alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#e8f0fe",
+    justifyContent: 'center',
+    backgroundColor: '#e8f0fe',
   },
   searchBar: {
     height: 50,
-    width: "95%",
-    flexDirection: "row",
+    width: '95%',
+    flexDirection: 'row',
     padding: 5,
     borderWidth: 1,
-    borderColor: "#2B8ADA",
-    backgroundColor: "white",
+    borderColor: '#2B8ADA',
+    backgroundColor: 'white',
     borderRadius: 25,
-    alignSelf: "center",
+    alignSelf: 'center',
     marginVertical: 10,
   },
   label: {
@@ -1720,10 +1706,10 @@ const styles = StyleSheet.create({
     marginLeft: 5,
   },
   searchBarText: {
-    width: "100%",
+    width: '100%',
   },
   searchIcon: {
-    position: "absolute",
+    position: 'absolute',
     right: 0,
     right: 0,
     margin: 15,
@@ -1731,73 +1717,73 @@ const styles = StyleSheet.create({
   card: {
     borderWidth: 2,
     borderRadius: 10,
-    backgroundColor: "white",
+    backgroundColor: 'white',
     marginVertical: 8,
     marginHorizontal: 5,
-    flexDirection: "column",
-    borderColor: "gray",
+    flexDirection: 'column',
+    borderColor: 'gray',
   },
   name: {
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
   text: {
     fontSize: 12,
     padding: 3,
   },
-  cardText: { fontSize: 12 },
+  cardText: {fontSize: 12},
   checkBoxContainerStyle: {
-    backgroundColor: "#E8F0FE",
+    backgroundColor: '#E8F0FE',
     flex: 0.45,
     borderWidth: 0,
     padding: 0,
   },
   WhiteLabel: {
-    flexDirection: "row",
-    width: "95%",
+    flexDirection: 'row',
+    width: '95%',
     marginVertical: 5,
-    alignSelf: "center",
-    backgroundColor: "white",
+    alignSelf: 'center',
+    backgroundColor: 'white',
     marginBottom: 5,
     padding: 10,
-    justifyContent: "space-between",
+    justifyContent: 'space-between',
     borderRadius: 10,
   },
   tag: {
-    color: "white",
+    color: 'white',
     padding: 5,
     paddingVertical: 10,
     fontSize: 5,
     borderRadius: 50,
-    position: "absolute",
+    position: 'absolute',
     top: 0,
     zIndex: 1,
   },
   modalView: {
-    position: "absolute",
-    width: "90%",
-    alignSelf: "center",
-    backgroundColor: "white",
+    position: 'absolute',
+    width: '90%',
+    alignSelf: 'center',
+    backgroundColor: 'white',
     padding: 15,
-    alignItems: "center",
-    shadowColor: "#000",
+    alignItems: 'center',
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2,
     },
   },
   HistoryModalText: {
-    fontWeight: "bold",
+    fontWeight: 'bold',
     fontSize: 14,
   },
   bubbleHeading: {
-    color: "black",
+    color: 'black',
     padding: 5,
-    width: "90%",
+    width: '90%',
   },
   bubble: {
-    flexDirection: "row",
-    alignSelf: "center",
-    backgroundColor: "#E8F0FE",
+    flexDirection: 'row',
+    alignSelf: 'center',
+    backgroundColor: '#E8F0FE',
     padding: 5,
     paddingHorizontal: 10,
     borderRadius: 15,
@@ -1805,14 +1791,14 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
   },
   bubbleHeadingActive: {
-    color: "white",
+    color: 'white',
     padding: 5,
-    width: "90%",
+    width: '90%',
   },
   bubbleActive: {
-    flexDirection: "row",
-    alignSelf: "center",
-    backgroundColor: "#2B8ADA",
+    flexDirection: 'row',
+    alignSelf: 'center',
+    backgroundColor: '#2B8ADA',
     padding: 5,
     paddingHorizontal: 10,
     borderRadius: 15,
