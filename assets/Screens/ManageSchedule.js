@@ -55,6 +55,7 @@ const ManageSchedule = () => {
   const [ViewPConsultations, setViewPConsultations] = useState(false);
   const [viewPDates, setviewPDates] = useState([]);
   const [viewPSlots, setviewPSlots] = useState([]);
+  const [PCclinicId, setPCclinicId] = useState('');
   const [PCclinicName, setPCclinicName] = useState('');
   const [PCclinicAddress, setPCclinicAddress] = useState('');
 
@@ -69,6 +70,7 @@ const ManageSchedule = () => {
   const [PCoutTimeMM, setPCoutTimeMM] = useState('');
   const [PCduration, setPCduration] = useState(0);
   const [PCspecialInstruction, setPCspecialInstruction] = useState('');
+  const [PCCreateClinicID, setPCCreateClinicID] = useState('');
   const [PCCreateClinicName, setPCCreateClinicName] = useState('');
   const [PCCreateClinicAddress, setPCCreateClinicAddress] = useState('');
   const [PCData, setPCData] = useState([]);
@@ -121,23 +123,26 @@ const ManageSchedule = () => {
   }, [ViewEConsultations]);
 
   useEffect(() => {
-    // const getPDates = async () => {
-    //   let x = JSON.parse(await AsyncStorage.getItem("UserDoctorProfile"));
-    //   let doctorId = Number(x.doctorId);
-    //
-    //   setviewPSlots("");
-    //   setPCclinicAddress("");
-    //
-    //   axios
-    //     .get(apiConfig.baseUrl + "/slot/clinic/details?doctorId=" + doctorId)
-    //     .then(function (response) {
-    //       setClinicDet(clinicMaker(response.data));
-    //     })
-    //     .catch(function (error) {
-    //       console.log(error);
-    //     });
-    // };
-    if (ViewPConsultations == true || CreatePConsultations == true) getPDates();
+    const getClinicDet = async () => {
+      let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
+      let doctorId = Number(x.doctorId);
+
+      setviewPSlots('');
+      setPCclinicAddress('');
+
+      axios
+        .get(apiConfig.baseUrl + '/doctor/clinic/details?doctorId=' + doctorId)
+        .then(function (response) {
+          //console.log(response.data);
+          setClinicDet(clinicMaker(response.data));
+        })
+        .catch(function (error) {
+          console.log('=====Get Clinic Detail=====');
+          console.log(error);
+        });
+    };
+    if (ViewPConsultations == true || CreatePConsultations == true)
+      getClinicDet();
   }, [ViewPConsultations]);
 
   const getEDates = async () => {
@@ -151,6 +156,8 @@ const ManageSchedule = () => {
         setviewEDates(DayDateMaker(response.data));
       })
       .catch(function (error) {
+        console.log('=====Get Eslot Dates Detail=====');
+
         console.log(error);
       });
   };
@@ -168,6 +175,8 @@ const ManageSchedule = () => {
         setClinicDet(clinicMaker(response.data));
       })
       .catch(function (error) {
+        console.log('=====Get PSlot Dates Detail=====');
+
         console.log(error);
       });
   };
@@ -184,20 +193,19 @@ const ManageSchedule = () => {
           apiConfig.baseUrl +
             '/slot/dates/pslot?doctorId=' +
             doctorId +
-            '&clinicName=' +
-            PCclinicName +
-            '&clinicAddress=' +
-            PCclinicAddress,
+            '&clinicId=' +
+            PCclinicId,
         )
         .then(function (response) {
           setviewPDates(DayDateMaker(response.data));
         })
         .catch(function (error) {
+          console.log('=====View PSlot Dates by Clinic Detail=====');
           console.log(error);
         });
     };
     getDate();
-  }, [PCclinicAddress, PCCreateClinicName]);
+  }, [PCclinicId]);
 
   // useEffect(() => {
   //   const getEDates = async () => {
@@ -237,6 +245,8 @@ const ManageSchedule = () => {
         //console.log(viewESlots === "");
       })
       .catch(function (error) {
+        console.log('=====Get Eslot date Detail=====');
+
         console.log(error);
       });
   };
@@ -248,10 +258,8 @@ const ManageSchedule = () => {
       apiConfig.baseUrl +
         '/slot/all/pslots?doctorId=' +
         doctorId +
-        '&clinicName=' +
-        PCclinicName +
-        '&clinicAddress=' +
-        PCclinicAddress +
+        '&clinicId=' +
+        PCCreateClinicID +
         '&date=' +
         date,
     );
@@ -260,10 +268,8 @@ const ManageSchedule = () => {
         apiConfig.baseUrl +
           '/slot/all/pslots?doctorId=' +
           doctorId +
-          '&clinicName=' +
-          PCclinicName +
-          '&clinicAddress=' +
-          PCclinicAddress +
+          '&clinicId=' +
+          PCCreateClinicID +
           '&date=' +
           date,
       )
@@ -272,6 +278,8 @@ const ManageSchedule = () => {
         setviewPSlots(response.data);
       })
       .catch(function (error) {
+        console.log('=====Get pslots for clinic Detail=====');
+
         console.log(error);
       });
   };
@@ -281,8 +289,7 @@ const ManageSchedule = () => {
     let doctorId = Number(x.doctorId);
 
     let p = {
-      clinicAddress: PCCreateClinicAddress,
-      clinicName: PCCreateClinicName,
+      clinicId: PCCreateClinicID,
       date: selectedDate,
       doctorId: doctorId,
       duration: Number(PCduration),
@@ -310,6 +317,8 @@ const ManageSchedule = () => {
         })
         .catch(function (error) {
           Alert.alert('There was some problem please try again');
+          console.log('=====Get Create PSlots=====');
+
           console.log(error);
           setPCData([]);
         });
@@ -356,6 +365,8 @@ const ManageSchedule = () => {
           })
           .catch(function (error) {
             Alert.alert('There was some problem please try again');
+            console.log('=====Create p slots=====');
+
             console.log(error);
             //setPCData([]);
           });
@@ -397,6 +408,8 @@ const ManageSchedule = () => {
           } else Alert.alert('There was some problem please try again');
         })
         .catch(function (error) {
+          console.log('=====Create Eslots Detail=====');
+
           console.log(error);
         });
     } else {
@@ -434,6 +447,8 @@ const ManageSchedule = () => {
             } else Alert.alert('There was some problem please try again');
           })
           .catch(function (error) {
+            console.log('=====Create eslots=====');
+
             console.log(error);
           });
         Alert.alert('Slot details submitted successfully');
@@ -598,32 +613,28 @@ const ManageSchedule = () => {
   };
 
   const renderSlot = ({item}) => {
-    return item.isBooked ? (
-      <TouchableOpacity
-        style={[
-          styles.slotBackgroundActive,
-          {
-            justifyContent: 'center',
-          },
-        ]}
-        onPress={() => {
-          console.log(item.slotId);
-        }}>
-        <Text style={styles.slotTitleActive}>
-          {timeformatter(item.startTime)} to {timeformatter(item.endTime)}
-        </Text>
-      </TouchableOpacity>
-    ) : (
+    return (
       <TouchableOpacity
         style={[
           styles.slotBackground,
           {
             justifyContent: 'center',
-            marginRight: 5,
           },
+          item.slotStatus == 'BOOKED'
+            ? {backgroundColor: '#2b8ada'}
+            : item.slotStatus == 'DELETED_BY_DOCTOR'
+            ? {backgroundColor: 'red', borderWidth: 0}
+            : null,
         ]}
-        onPress={() => console.log(item.slotId)}>
-        <Text style={styles.slotTitle}>
+        onPress={() => {
+          console.log(item.slotId);
+        }}>
+        <Text
+          style={[
+            item.slotStatus != 'CREATED'
+              ? styles.slotTitleActive
+              : styles.slotTitle,
+          ]}>
           {timeformatter(item.startTime)} to {timeformatter(item.endTime)}
         </Text>
       </TouchableOpacity>
@@ -725,16 +736,7 @@ const ManageSchedule = () => {
                           //defaultOption={ClinicDet[0].key}
                           placeholder={' '}
                           setSelected={item => {
-                            setPCclinicAddress(item);
-                          }}
-                          onSelect={() => {
-                            var i = 0;
-                            while (i < ClinicDet.length) {
-                              if (ClinicDet[i].key == PCclinicAddress)
-                                setPCclinicName(ClinicDet[i].value);
-                              i++;
-                            }
-                            setviewPSlots('');
+                            setPCclinicId(item);
                           }}
                           data={ClinicDet}
                           save={'key'}
@@ -750,20 +752,6 @@ const ManageSchedule = () => {
                           }}
                           badgeStyles={{backgroundColor: '#2b8ada'}}
                         />
-                      </View>
-                      <View style={{flex: 1}}>
-                        <Text style={styles.inputLabel}>Clinic Address</Text>
-                        <Text
-                          style={{
-                            marginTop: 1,
-                            paddingVertical: 10,
-                            padding: 10,
-                            backgroundColor: '#E8F0FE',
-                            borderRadius: 5,
-                            marginBottom: 5,
-                          }}>
-                          {PCclinicAddress}
-                        </Text>
                       </View>
                     </View>
                     {/* Slot Days */}
@@ -1116,17 +1104,17 @@ const ManageSchedule = () => {
                               //defaultOption={ClinicDet[0].key}
                               placeholder={' '}
                               setSelected={item => {
-                                setPCCreateClinicAddress(item);
+                                setPCCreateClinicID(item);
                               }}
-                              onSelect={() => {
-                                var i = 0;
-                                while (i < ClinicDet.length) {
-                                  if (ClinicDet[i].key == PCCreateClinicAddress)
-                                    setPCCreateClinicName(ClinicDet[i].value);
-                                  i++;
-                                }
-                                //setviewPSlots("");
-                              }}
+                              // onSelect={() => {
+                              //   var i = 0;
+                              //   while (i < ClinicDet.length) {
+                              //     if (ClinicDet[i].key == PCCreateClinicAddress)
+                              //       setPCCreateClinicName(ClinicDet[i].value);
+                              //     i++;
+                              //   }
+                              //   //setviewPSlots("");
+                              // }}
                               data={ClinicDet}
                               save={'key'}
                               boxStyles={{
@@ -1141,22 +1129,6 @@ const ManageSchedule = () => {
                               }}
                               badgeStyles={{backgroundColor: '#2b8ada'}}
                             />
-                          </View>
-                          <View style={{flex: 1}}>
-                            <Text style={styles.inputLabel}>
-                              Clinic Address
-                            </Text>
-                            <Text
-                              style={{
-                                marginTop: 1,
-                                paddingVertical: 10,
-                                padding: 10,
-                                backgroundColor: '#E8F0FE',
-                                borderRadius: 5,
-                                marginBottom: 5,
-                              }}>
-                              {PCCreateClinicAddress}
-                            </Text>
                           </View>
                         </View>
                         <Text style={styles.inputLabel}>Dates</Text>
@@ -1299,10 +1271,13 @@ const ManageSchedule = () => {
                             };
                             console.log(p);
 
-                            if (
-                              PCCreateClinicAddress == '' ||
-                              PCCreateClinicName == '' ||
-                              selectedDate == '' ||
+                            if (PCCreateClinicID == '')
+                              Alert.alert(
+                                'Please select a hospital from the list',
+                              );
+                            else if (selectedDate == '')
+                              Alert.alert('Please select date');
+                            else if (
                               PCinTimeHH == '' ||
                               PCinTimeMM == '' ||
                               PCoutTimeHH == '' ||
@@ -1310,7 +1285,7 @@ const ManageSchedule = () => {
                               PCduration == ''
                             )
                               Alert.alert(
-                                'Please fill all details before submiting',
+                                'Please fill all time details before submiting',
                               );
                             else {
                               if (PCinTimeHH.length == 1)
@@ -1703,7 +1678,7 @@ const styles = StyleSheet.create({
   },
   slotTitle: {
     fontSize: 12,
-    color: 'black',
+    color: '#2b8ada',
     textAlign: 'center',
     width: 100,
   },

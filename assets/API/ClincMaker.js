@@ -3,8 +3,8 @@ function clinicMaker(item) {
   var i = 0;
   while (i < item.length) {
     let p = {
-      key: item[i].clinicAddress,
-      value: item[i].clinicName,
+      key: item[i].clinicId,
+      value: item[i].clinicName + ' | ' + item[i].clinicAddress,
     };
     clinc.push(p);
     ++i;
