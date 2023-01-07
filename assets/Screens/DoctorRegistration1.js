@@ -52,12 +52,18 @@ const DoctorRegistrationStep1 = ({navigation}) => {
   const [Language, setLanguage] = useState([]);
   const [PIN, setPIN] = useState('');
   const [city, setCity] = useState('');
+  const [showMobNo, setshowMobNo] = useState('');
   const [mobile, setmobile] = useState('');
   const [checkTerms, setCheckTerms] = useState(false);
   const [doctorId, setDoctorId] = useState(0);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [isLoading, setisLoading] = useState(false);
   const [complete, setcomplete] = useState(0);
+
+  const dataShowMobNo = [
+    {key: 'Yes', value: 'Yes'},
+    {key: 'No', value: 'No'},
+  ];
 
   const dataTitle = [
     {key: 'Dr.', value: 'Dr.'},
@@ -165,18 +171,20 @@ const DoctorRegistrationStep1 = ({navigation}) => {
     else {
       setisLoading(true);
       let docObj = new Object();
+
       docObj.age = parseInt(await AsyncStorage.getItem('age'));
       docObj.city = city;
+      docObj.contactVisibility = showMobNo == 'Yes' ? true : false;
       docObj.countryName = await AsyncStorage.getItem('countryName');
       docObj.dob = dob;
       docObj.email = email;
-      docObj.fullName = name;
+      docObj.fullName = title + ' ' + name;
       docObj.gender = gender;
       docObj.mobileNumber = mobile;
       docObj.pincode = PIN;
+      docObj.phoneIp = 'phoneIP';
       docObj.profilephoto = '/aws/s3/pfp';
       docObj.termsAndCondition = checkTerms;
-      docObj.title = title;
       console.log(JSON.stringify(docObj));
 
       if (Otherspeciality != '') speciality.push(Otherspeciality);
@@ -195,15 +203,13 @@ const DoctorRegistrationStep1 = ({navigation}) => {
       //   termsAndCondition: checkTerms,
       //   title: title,
       // }
+      let flag = 1;
       axios
         .post(apiConfig.baseUrl + '/doctor/generalinfo/save', docObj)
         .then(async function (response) {
           //set is loading
           setisLoading(false);
           if (response.status == 201) {
-            Alert.alert(
-              'Welcome to Arogya! Your General Information has been saved.',
-            );
             let userObj = response.data;
             userObj.isLastStepComplete = false;
             await AsyncStorage.setItem(
@@ -218,18 +224,45 @@ const DoctorRegistrationStep1 = ({navigation}) => {
               d + 'speciality',
               JSON.stringify(speciality),
             );
-            await AsyncStorage.setItem(
-              d + 'language',
-              JSON.stringify(Language),
-            );
-            navigation.push('DoctorRegistrationStep2');
+            let langTemp = [];
+            Language.forEach(item => {
+              langTemp.push({doctorId: d, language: item});
+            });
+            console.log(langTemp);
+            axios
+              .post(
+                apiConfig.baseUrl + '/doctor/language/save/or/update',
+                langTemp,
+              )
+              .then(function (response) {
+                if (response.status == 200 || response.status == 201)
+                  console.log('Language feeded in');
+                else {
+                  flag = 0;
+                  console.log('Lang error');
+                }
+              })
+              .catch(function (error) {
+                flag = 0;
+                console.log('Language error------------------');
+                console.log(error);
+              });
+          } else {
+            flag = 0;
           }
         })
         .catch(function (error) {
           console.log(error);
           setisLoading(false);
+          flag = 0;
           Alert.alert('Please try again later');
         });
+      if (flag == 1) {
+        Alert.alert(
+          'Welcome to Arogya! Your General Information has been saved.',
+        );
+        navigation.push('DoctorRegistrationStep2');
+      }
     }
   };
 
@@ -558,6 +591,26 @@ const DoctorRegistrationStep1 = ({navigation}) => {
                   setCity(text);
                 }}
                 value={city}></TextInput>
+            </View>
+            <View style={{marginVertical: 10}}>
+              <View style={{flexDirection: 'row'}}>
+                <Text style={styles.inputLabel}>Contact Visibility</Text>
+                <Text style={{color: 'red'}}>*</Text>
+              </View>
+              <SelectList
+                placeholder={showMobNo}
+                boxStyles={{
+                  backgroundColor: 'white',
+                  borderWidth: 0,
+                }}
+                dropdownStyles={{backgroundColor: 'white'}}
+                dropdownTextStyles={{
+                  color: '#2b8ada',
+                  fontWeight: 'bold',
+                }}
+                setSelected={setshowMobNo}
+                data={dataShowMobNo}
+              />
             </View>
             <View style={{marginVertical: 10}}>
               <Text style={styles.inputLabel}>Mobile Number</Text>

@@ -84,8 +84,10 @@ const DoctorRegistration2 = ({navigation}) => {
   const [selectedDateFromModal, setselectedDateFromModal] =
     useState('YYYY-MM-DD');
   const [completePercentage, setCompletePercentage] = useState('13%');
+
   //General Information Field
   const [showGenInfo, setShowGenInfo] = useState(false);
+  const [dataSavedGenInfo, setdataSavedGenInfo] = useState(true);
   const [GenInfoEdit, setGenInfoEdit] = useState(false);
   const [title, setTitle] = useState('');
   const [name, setName] = useState('');
@@ -96,7 +98,8 @@ const DoctorRegistration2 = ({navigation}) => {
   const [city, setCity] = useState('');
   const [PinCode, setPinCode] = useState('');
   //Medical Registration Feild
-  const [showMedReg, setShowMedReg] = useState(false);
+  const [showMedReg, setShowMedReg] = useState(true);
+  const [dataSavedMedReg, setdataSavedMedReg] = useState(false);
   const [medReg, setmedReg] = useState([]);
   const [RegNo, setRegNo] = useState('');
   const [RegCouncil, setRegCouncil] = useState('');
@@ -104,6 +107,9 @@ const DoctorRegistration2 = ({navigation}) => {
   const [RegYear, setRegYear] = useState('');
   //Educational Details Field
   const [showEduDet, setShowEduDet] = useState(false);
+  const [addMoreEduDet, setaddMoreEduDet] = useState(false);
+  const [dataSavedEduDet, setdataSavedEduDet] = useState(false);
+
   const [dataSpecialization, setdataSpecialization] = useState([]);
   const [Education, setEducation] = useState([]);
   const [Degree, setDegree] = useState('');
@@ -112,6 +118,8 @@ const DoctorRegistration2 = ({navigation}) => {
   const [University, setUniversity] = useState('');
   //Experience Details Field
   const [showExpDet, setShowExpDet] = useState(false);
+  const [addMoreExpDet, setaddMoreExpDet] = useState(false);
+  const [dataSavedExpDet, setdataSavedExpDet] = useState(false);
   const [Experience, setExperience] = useState([]);
   const [practiceAt, setPracticeAt] = useState('');
   const [startExpDate, setStartExpDate] = useState('');
@@ -122,12 +130,16 @@ const DoctorRegistration2 = ({navigation}) => {
   const [FinalTotalMonths, setFinalTotalMonths] = useState(0);
   //Identification
   const [showIdenDet, setShowIdenDet] = useState(false);
+  const [addMoreIdenDet, setaddMoreIdenDet] = useState(false);
+  const [dataSavedIdenDet, setdataSavedIdenDet] = useState(false);
   const [Aadhar, setAadhar] = useState('');
   const [IdentificationDocs, setIdentificationDocs] = useState([]);
   const [identificationNumber, setidentificationNumber] = useState('');
   const [identificationType, setidentificationType] = useState('');
   //Additional Information
   const [showAddInfo, setShowAddInfo] = useState(false);
+  const [addMoreAddInfo, setaddMoreAddInfo] = useState(false);
+  const [dataSavedAddInfo, setdataSavedAddInfo] = useState(false);
   const [ClinicDet, setClinicDet] = useState([]);
   const [clinicName, setClinicName] = useState('');
   const [clinicAddress, setClinicAddress] = useState('');
@@ -169,17 +181,27 @@ const DoctorRegistration2 = ({navigation}) => {
   const [showFollowUp, setshowFollowUp] = useState('');
 
   //PreConsultation Questionnaire
+  const [showPreConsultationQuestionaire, setShowPreConsultationQuestionaire] =
+    useState(false);
+  const [
+    addMorePreConsultationQuestionaire,
+    setaddMorePreConsultationQuestionaire,
+  ] = useState(false);
+  const [
+    dataSavedPreConsultationQuestionaire,
+    setdataSavedPreConsultationQuestionaire,
+  ] = useState(false);
   const [questionare, setQuestionare] = useState(false);
   const [showQuestions, setShowQuestions] = useState(false);
   const [consultationQuestion, setConsultationQuestion] = useState('');
   const [questionareList, setQuestionareList] = useState([]);
-  const [showPreConsultationQuestionaire, setShowPreConsultationQuestionaire] =
-    useState(false);
   const [showPreConsulQues, setShowPreConsulQues] = useState(false);
   const [questionSpl, setquestionSpl] = useState('');
   const [splArray, setsplArray] = useState([]);
   //consultation fees
   const [showConsultFees, setShowConsultFees] = useState(false);
+  const [addMoreConsultFees, setaddMoreConsultFees] = useState(false);
+  const [dataSavedConsultFees, setdataSavedConsultFees] = useState(false);
   const [physicalConsulationFees, setphysicalConsulationFees] = useState(0);
   const [eConsulationFees, seteConsulationFees] = useState(0);
   const [followUpFees, setfollowUpFees] = useState(0);
@@ -195,10 +217,7 @@ const DoctorRegistration2 = ({navigation}) => {
     {key: '6', value: '6'},
     {key: '7', value: '7'},
   ];
-  const dataShowMobNo = [
-    {key: 'Yes', value: 'Yes'},
-    {key: 'No', value: 'No'},
-  ];
+
   const dataShowQues = [
     {key: 'Yes', value: 'Yes'},
     {key: 'No', value: 'No'},
@@ -277,7 +296,7 @@ const DoctorRegistration2 = ({navigation}) => {
         p += Experience[i].experienceInMonths;
       }
       setFinalTotalMonths(p);
-      console.log(p);
+      //console.log(p);
     };
     Display();
   }, [Experience]);
@@ -323,29 +342,61 @@ const DoctorRegistration2 = ({navigation}) => {
     settingAge();
   }, [age]);
 
+  // useEffect(() => {
+  //   const progressBar = () => {
+  //     var c = 0;
+  //     if (RegNo != '' && RegCouncil != '' && RegYear != '') ++c;
+  //     if (Education != null && Education.length > 0) ++c;
+  //     if (Experience != null && Experience.length > 0) ++c;
+  //     if (IdentificationDocs != null && IdentificationDocs.length > 0) ++c;
+  //     if (ClinicDet != null && ClinicDet.length > 0) ++c;
+  //     if (showQuestions == false) ++c;
+  //     else if (
+  //       showQuestions == true &&
+  //       questionareList != null &&
+  //       questionareList.length > 0
+  //     )
+  //       ++c;
+  //     if (
+  //       physicalConsulationFees != '' &&
+  //       eConsulationFees != '' &&
+  //       followUpFees != '' &&
+  //       showFollowUp != ''
+  //     )
+  //       ++c;
+  //     setCompletePercentage((50 + parseInt((c / 7) * 50)).toString() + '%');
+  //   };
+  //   progressBar();
+
+  //   //console.log('Use Effect ClinicDet-----------');
+  //   // console.log(ClinicDet);
+  // }, [
+  //   RegNo,
+  //   RegCouncil,
+  //   RegYear,
+  //   Education,
+  //   IdentificationDocs,
+  //   ClinicDet,
+  //   showMobNo,
+  //   showFollowUp,
+  //   questionareList,
+  //   physicalConsulationFees,
+  //   eConsulationFees,
+  //   followUpFees,
+  // ]);
+
   useEffect(() => {
     const progressBar = () => {
       var c = 0;
-      if (RegNo != '' && RegCouncil != '' && RegYear != '') ++c;
-      if (Education != null && Education.length > 0) ++c;
-      if (Experience != null && Experience.length > 0) ++c;
-      if (IdentificationDocs != null && IdentificationDocs.length > 0) ++c;
-      if (ClinicDet != null && ClinicDet.length > 0) ++c;
-      if (showMobNo != '' && showFollowUp != '') ++c;
-      if (showQuestions == false) ++c;
-      else if (
-        showQuestions == true &&
-        questionareList != null &&
-        questionareList.length > 0
-      )
-        ++c;
-      if (
-        physicalConsulationFees != '' &&
-        eConsulationFees != '' &&
-        followUpFees != ''
-      )
-        ++c;
-      setCompletePercentage((50 + parseInt((c / 8) * 50)).toString() + '%');
+      if (dataSavedMedReg) ++c;
+      if (dataSavedEduDet) ++c;
+      if (dataSavedExpDet) ++c;
+      if (dataSavedIdenDet) ++c;
+      if (dataSavedAddInfo) ++c;
+      if (dataSavedPreConsultationQuestionaire) ++c;
+      if (dataSavedConsultFees) ++c;
+
+      setCompletePercentage((50 + parseInt((c / 7) * 50)).toString() + '%');
     };
     progressBar();
 
@@ -369,10 +420,12 @@ const DoctorRegistration2 = ({navigation}) => {
   useEffect(() => {
     const onLoadSetData = async () => {
       let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
+      //console.log(DoctorID);
+      let Fn = x.fullName;
       //console.log(x);
       setDaysSlot(DaysCreator);
-      setTitle(x.title);
-      setName(x.fullName == null ? x.doctorName : x.fullName);
+      setTitle(Fn.substring(0, Fn.indexOf(' ')));
+      setName(Fn.substring(Fn.indexOf(' ') + 1));
       setEmail(x.email);
       setGender(x.gender);
       setCity(x.city);
@@ -389,7 +442,7 @@ const DoctorRegistration2 = ({navigation}) => {
           if (temp[i] != 'Other')
             dataSpecialization.push({key: temp[i], value: temp[i]});
         }
-        console.log(dataSpecialization);
+        //console.log(dataSpecialization);
 
         var d = new Date().getFullYear();
         //console.log(dob.substring(0, 4));
@@ -546,50 +599,53 @@ const DoctorRegistration2 = ({navigation}) => {
     setECGap('');
   };
 
+  //view list of details
+
   const ViewIdentifications = () => {
     return IdentificationDocs.map((IdentificationDocs, index) => {
       return (
         <View
           style={{
             flexDirection: 'column',
-            width: '95%',
-            alignSelf: 'center',
+            borderWidth: 1,
+            borderTopWidth: 0,
+            borderColor: '#d3d3d3',
           }}
           key={index}>
           <View
             style={{
-              alignSelf: 'center',
               flexDirection: 'row',
-              alignSelf: 'center',
+              justifyContent: 'space-between',
+              margin: 0,
+              padding: 0,
             }}>
-            <View style={{flex: 1}}>
-              <Text style={[styles.inputLabel, {marginTop: 0}]}>
+            {/*Document Type */}
+            <View style={styles.cellStyle}>
+              <FAIcon
+                name="file-pdf"
+                size={15}
+                color={'#2b8ada'}
+                style={{marginTop: 3}}
+              />
+              <Text
+                style={{textAlign: 'center', fontSize: 10, marginVertical: 3}}>
                 {IdentificationDocs.identificationType}
               </Text>
-              <Text style={[styles.textInput, {backgroundColor: '#d0e0fc'}]}>
+            </View>
+            {/* Identification Number */}
+            <View style={styles.cellStyle}>
+              <Text style={{textAlign: 'center', fontSize: 10}}>
                 {IdentificationDocs.identificationNumber}
               </Text>
             </View>
-          </View>
-          <View
-            style={{
-              marginTop: 5,
-              flexDirection: 'row',
-              alignSelf: 'flex-end',
-            }}>
-            <CustomButton
-              text="Delete"
-              textstyle={{color: 'white', fontSize: 12}}
-              style={{
-                backgroundColor: 'red',
-                borderRadius: 5,
-                padding: 6,
-                paddingHorizontal: 10,
-              }}
+            {/*Actions */}
+            <TouchableOpacity
+              style={styles.cellStyle}
               onPress={() => {
                 removeIdenHandler(index);
-              }}
-            />
+              }}>
+              <FAIcon name="trash" color={'red'} size={15} />
+            </TouchableOpacity>
           </View>
         </View>
       );
@@ -604,67 +660,61 @@ const DoctorRegistration2 = ({navigation}) => {
     return Education.map((Education, index) => {
       return (
         <View
-          style={{width: '95%', alignSelf: 'center', marginVertical: 10}}
+          style={{
+            flexDirection: 'column',
+            borderWidth: 1,
+            borderTopWidth: 0,
+            borderColor: '#d3d3d3',
+          }}
           key={index}>
           <View
             style={{
-              flexDirection: 'column',
-              marginBottom: 10,
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              margin: 0,
+              padding: 0,
             }}>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-              }}>
-              <View style={{flex: 0.45, marginRight: '5%'}}>
-                <Text style={styles.inputLabel}>Degree</Text>
-                <Text style={[styles.textInput, {backgroundColor: '#E8F0FE'}]}>
-                  {Education.degree}
-                </Text>
-              </View>
-              <View style={{flex: 0.45}}>
-                <Text style={styles.inputLabel}>Degree Passing Year</Text>
-                <Text style={[styles.textInput, {backgroundColor: '#E8F0FE'}]}>
-                  {Education.passingYear}
-                </Text>
-              </View>
+            {/* Degree */}
+            <View style={styles.cellStyle}>
+              <FAIcon
+                name="file-pdf"
+                size={15}
+                color={'#2b8ada'}
+                style={{marginTop: 3}}
+              />
+              <Text style={{textAlign: 'center', fontSize: 10}}>
+                {Education.degree}
+              </Text>
             </View>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-              }}>
-              <View style={{flex: 0.45, marginRight: '5%'}}>
-                <Text style={styles.inputLabel}>Specialization</Text>
-                <Text style={[styles.textInput, {backgroundColor: '#E8F0FE'}]}>
-                  {Education.specialization}
-                </Text>
-              </View>
-              <View style={{flex: 0.45}}>
-                <Text style={styles.inputLabel}>University</Text>
-                <Text style={[styles.textInput, {backgroundColor: '#E8F0FE'}]}>
-                  {Education.university}
-                </Text>
-              </View>
+            {/* Passing Year */}
+            <View style={styles.cellStyle}>
+              <Text style={{textAlign: 'center', fontSize: 10}}>
+                {Education.passingYear}
+              </Text>
             </View>
-          </View>
-
-          <View style={{flexDirection: 'row', marginVertical: 5}}>
-            <CustomButton
-              text="Delete"
-              textstyle={{color: 'white', fontSize: 12}}
-              style={{
-                backgroundColor: 'red',
-                borderRadius: 5,
-                padding: 6,
-                paddingHorizontal: 10,
-                position: 'absolute',
-                right: 0,
-              }}
+            {/* Specialization */}
+            <View style={styles.cellStyle}>
+              <Text style={{textAlign: 'center', fontSize: 10}}>
+                {Education.specialization}
+              </Text>
+            </View>
+            {/* University */}
+            <View style={styles.cellStyle}>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  fontSize: 10,
+                }}>
+                {Education.university}
+              </Text>
+            </View>
+            <TouchableOpacity
+              style={styles.cellStyle}
               onPress={() => {
                 removeEduHandler(index);
-              }}
-            />
+              }}>
+              <FAIcon name="trash" color={'red'} size={15} />
+            </TouchableOpacity>
           </View>
         </View>
       );
@@ -679,79 +729,69 @@ const DoctorRegistration2 = ({navigation}) => {
     return Experience.map((Experience, index) => {
       return (
         <View
-          style={{width: '95%', alignSelf: 'center', marginVertical: 10}}
+          style={{
+            flexDirection: 'column',
+            borderWidth: 1,
+            borderTopWidth: 0,
+            borderColor: '#d3d3d3',
+          }}
           key={index}>
-          <View
-            style={{
-              flexDirection: 'column',
-              marginBottom: 10,
-            }}>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-              }}>
-              <View style={{flex: 1}}>
-                <Text style={styles.inputLabel}>Practice At</Text>
-                <Text style={[styles.textInput, {backgroundColor: '#E8F0FE'}]}>
-                  {Experience.practiceAt}
-                </Text>
-              </View>
-            </View>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-              }}>
-              <View style={{flex: 0.475}}>
-                <Text style={styles.inputLabel}>Start Date</Text>
-                <Text style={[styles.textInput, {backgroundColor: '#E8F0FE'}]}>
-                  {dayjs(Experience.startDate).format('DD-MM-YYYY')}
-                </Text>
-              </View>
-              <View style={{flex: 0.475}}>
-                <Text style={styles.inputLabel}>End Date</Text>
-                <Text style={[styles.textInput, {backgroundColor: '#E8F0FE'}]}>
-                  {dayjs(Experience.endDate).format('DD-MM-YYYY')}
-                </Text>
-              </View>
-            </View>
-          </View>
-
           <View
             style={{
               flexDirection: 'row',
               justifyContent: 'space-between',
+              margin: 0,
+              padding: 0,
             }}>
-            <View style={{flex: 0.475, flexDirection: 'column'}}>
-              <Text style={styles.inputLabel}>Experience (in Years)</Text>
-              <Text style={styles.textInput}>
-                {Math.floor(parseInt(Experience.experienceInMonths) / 12)}
+            {/* Practice At */}
+            <View style={styles.cellStyle}>
+              <Text style={{textAlign: 'center', fontSize: 10}}>
+                {Experience.practiceAt}
               </Text>
             </View>
-            <View style={{flex: 0.475, flexDirection: 'column'}}>
-              <Text style={styles.inputLabel}>Experience (in Months)</Text>
-              <Text style={styles.textInput}>
-                {parseInt(Experience.experienceInMonths) % 12}
+            {/* Start Date */}
+            <View style={styles.cellStyle}>
+              <Text style={{textAlign: 'center', fontSize: 10}}>
+                {dayjs(Experience.startDate).isValid()
+                  ? dayjs(Experience.startDate).format('DD-MM-YYYY')
+                  : 'DD-MM-YYYY'}
               </Text>
             </View>
-          </View>
-          <View style={{flexDirection: 'row', marginVertical: 5}}>
-            <CustomButton
-              text="Delete"
-              textstyle={{color: 'white', fontSize: 12}}
-              style={{
-                backgroundColor: 'red',
-                borderRadius: 5,
-                padding: 6,
-                paddingHorizontal: 10,
-                position: 'absolute',
-                right: 0,
-              }}
+            {/* End Date */}
+            <View style={styles.cellStyle}>
+              <Text style={{textAlign: 'center', fontSize: 10}}>
+                {dayjs(Experience.endDate).isValid()
+                  ? dayjs(Experience.endDate).format('DD-MM-YYYY')
+                  : 'DD-MM-YYYY'}
+              </Text>
+            </View>
+            {/* Total Experience */}
+            <View style={styles.cellStyle}>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  fontSize: 10,
+                }}>
+                {Math.floor(Experience.experienceInMonths / 12)} {'years'}{' '}
+              </Text>
+
+              {parseInt(Experience.experienceInMonths % 12) != 0 ? (
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    fontSize: 10,
+                  }}>
+                  {parseInt(Experience.experienceInMonths % 12) + ' months'}
+                </Text>
+              ) : null}
+            </View>
+            <TouchableOpacity
+              style={styles.cellStyle}
               onPress={() => {
                 removeExpHandler(index);
-              }}
-            />
+              }}>
+              <FAIcon name="trash" color={'red'} size={15} />
+            </TouchableOpacity>
           </View>
         </View>
       );
@@ -766,40 +806,53 @@ const DoctorRegistration2 = ({navigation}) => {
     return questionareList.map((questionareList, index) => {
       return (
         <View
-          style={[
-            styles.bubble,
-            {
-              flexDirection: 'row',
-              padding: 5,
-              justifyContent: 'space-evenly',
-            },
-          ]}
+          style={{
+            flexDirection: 'column',
+            borderWidth: 1,
+            borderTopWidth: 0,
+            borderColor: '#d3d3d3',
+          }}
           key={index}>
-          <View style={{flex: 0.9, flexDirection: 'column'}}>
-            <Text style={{color: '#2B8ADA', fontSize: 13, fontWeight: 'bold'}}>
-              {questionareList.speciality}
-            </Text>
-            <Text style={[{fontSize: 12, fontWeight: 'bold'}]}>
-              {questionareList.questions}
-            </Text>
-          </View>
           <View
             style={{
-              flex: 0.1,
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              margin: 0,
+              padding: 0,
             }}>
-            <FAIcon
-              name="trash"
-              color={'#2B8ADA'}
-              size={15}
-              style={{alignSelf: 'center'}}
-              onPress={() => {
-                // console.log(questionareList.ques);
-                removeQuestHandler(index);
-              }}
-            />
+            {/* Practice At */}
+            <View style={[styles.cellStyle, {flex: 0.3}]}>
+              <Text style={{textAlign: 'center', fontSize: 10}}>
+                {index + 1}
+              </Text>
+            </View>
+            {/* Start Date */}
+            <View style={styles.cellStyle}>
+              <Text style={{textAlign: 'center', fontSize: 10}}>
+                {questionareList.speciality}
+              </Text>
+            </View>
+            {/* End Date */}
+            <View style={styles.cellStyle}>
+              <Text style={{textAlign: 'center', fontSize: 10}}>
+                {questionareList.questions}
+              </Text>
+            </View>
+
+            <TouchableOpacity
+              style={[styles.cellStyle, {flex: 0.4}]}
+              onPress={() => removeQuestHandler(index)}>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  fontSize: 11,
+                  fontWeight: 'bold',
+                  color: 'red',
+                  marginVertical: 5,
+                }}>
+                Delete
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
       );
@@ -812,34 +865,48 @@ const DoctorRegistration2 = ({navigation}) => {
   const ViewClinics = () => {
     return ClinicDet.map((ClinicDet, index) => {
       return (
-        <View style={{width: '95%', alignSelf: 'center'}} key={index}>
-          <View style={{flexDirection: 'column'}}>
-            <Text style={styles.inputLabel}>Clinic Name</Text>
-            <Text style={styles.textInput}>{ClinicDet.clinicName}</Text>
-          </View>
-          <View style={{flexDirection: 'column'}}>
-            <Text style={styles.inputLabel}>Clinic Address</Text>
-            <Text style={styles.textInput}>{ClinicDet.clinicAddress}</Text>
-          </View>
-          <View style={{flexDirection: 'column'}}>
-            <Text style={styles.inputLabel}>Special Instruction</Text>
-            <Text style={styles.textInput}>{ClinicDet.specialInstruction}</Text>
-          </View>
-          <CustomButton
-            text="Delete"
-            textstyle={{color: 'white', fontSize: 12}}
+        <View
+          style={{
+            flexDirection: 'column',
+            borderWidth: 1,
+            borderTopWidth: 0,
+            borderColor: '#d3d3d3',
+          }}
+          key={index}>
+          <View
             style={{
-              backgroundColor: 'red',
-              alignSelf: 'flex-end',
-              borderRadius: 5,
-              padding: 6,
-              paddingHorizontal: 10,
-              margin: 5,
-            }}
-            onPress={() => {
-              removeClinicHandler(index);
-            }}
-          />
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              margin: 0,
+              padding: 0,
+            }}>
+            {/* Clinic Name */}
+            <View style={styles.cellStyle}>
+              <Text style={{textAlign: 'center', fontSize: 10}}>
+                {ClinicDet.clinicName}
+              </Text>
+            </View>
+            {/* Clinic Address */}
+            <View style={styles.cellStyle}>
+              <Text style={{textAlign: 'center', fontSize: 10}}>
+                {ClinicDet.clinicAddress}
+              </Text>
+            </View>
+            {/* Special Instructions */}
+            <View style={styles.cellStyle}>
+              <Text style={{textAlign: 'center', fontSize: 10}}>
+                {ClinicDet.specialInstruction}
+              </Text>
+            </View>
+            {/* Actions */}
+            <TouchableOpacity
+              style={styles.cellStyle}
+              onPress={() => {
+                removeClinicHandler(index);
+              }}>
+              <FAIcon name="trash" color={'red'} size={15} />
+            </TouchableOpacity>
+          </View>
         </View>
       );
     });
@@ -853,23 +920,11 @@ const DoctorRegistration2 = ({navigation}) => {
     //console.log('hiii');
     setisLoading(true);
     let p = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
-    //console.log(await AsyncStorage.getAllKeys());
-    // console.log("From Cache");
-    // console.log(p);
+    let doctorId = Number(p.doctorId);
 
-    let lang = [];
-    let cacheLang = JSON.parse(
-      await AsyncStorage.getItem(p.doctorId + 'language'),
-    );
-    if (cacheLang != null) {
-      cacheLang.forEach(index => {
-        let t = {
-          language: index,
-        };
-        lang.push(t);
-      });
+    //post pre consultation questionnaire
+    if (showQuestions) {
     }
-    //console.log(lang);
 
     // let medtemp = {
     //   certificatePath: RegCert,
@@ -881,79 +936,217 @@ const DoctorRegistration2 = ({navigation}) => {
     // medArry.push(medtemp);
     // setmedReg(medArry);
     //console.log(medReg);
+  };
 
-    let x = {
-      age: Number(age),
-      allowWhatsAppNotification: true,
-      city: city,
-      countryCode: '+91',
-      countryName: p.countryName,
-      createdOn: '2022-12-15',
-      digialSignature: 'aws/s3/' + p.doctorId + '/digitalSign',
-      dob: dob,
-      doctorClinicDetailsDTOs: ClinicDet,
-      doctorConfigurationDTO: {
-        contactVisibility: showMobNo == 'Yes' ? true : false,
-        followUpDuration: Number(showFollowUp),
+  //post medical registration
+
+  const postMedReg = async () => {
+    let p = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
+    let doctorId = Number(p.doctorId);
+
+    let medArry = [
+      {
+        certificatePath: RegCert,
+        registrationCouncil: RegCouncil,
+        registrationNo: RegNo,
+        registrationYear: Number(RegYear),
+        doctorId: doctorId,
       },
-      doctorEducationsDTOs: Education,
-      doctorExperienceDTOs: Experience,
-      doctorFeesDTO: {
-        //doctorConsulationFeesPkId: 0,
-        eConsulationFees: Number(eConsulationFees),
-        followUpFees: Number(followUpFees),
-        physicalConsulationFees: Number(physicalConsulationFees),
-      },
-      doctorId: Number(p.doctorId),
-      doctorIdentificationDTOs: IdentificationDocs,
-      doctorLanguageDTOs: lang,
-      doctorMedicalRegistrationDTOs: [
-        {
-          certificatePath: RegCert,
-          registrationCouncil: RegCouncil,
-          registrationNo: RegNo,
-          registrationYear: Number(RegYear),
-        },
-      ],
-      doctorName: name,
-      email: email,
-      gender: gender,
-      locationPermissions: 'WHILE_USING_THE_APP',
-      mobileNumber: p.mobileNumber,
-      phoneIp: 'string',
-      pinCode: PinCode,
-      preConsultationQuestionDTOs: questionareList,
-      profilePhotoPath: 'aws/s3/profilepic',
-      termsAndConditions: Boolean(p.termsAndCondition),
-      title: title,
-      whatsAppNumber: p.mobileNumber,
-    };
-    console.log('post data is: ', x);
+    ];
 
     axios
-      .post(apiConfig.baseUrl + '/doctor/completeinfo/save', x)
-      .then(async function (response) {
-        console.log(response.status);
-        if (response.status == 200 || response.status == 201) {
-          setisLoading(false);
-          let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
-          x.isLastStepComplete = true;
-          await AsyncStorage.setItem('UserDoctorProfile', JSON.stringify(x));
-          Alert.alert('All Details have been saved succesfully');
-          setmedReg([]);
-          // await AsyncStorage.setItem(
-          //   'UserDoctorProfile',
-          //   JSON.stringify(response.data),
-          // );
-          navigation.navigate('DoctorHome', {doctorObj: x});
-        } else {
-          setmedReg([]);
-          setisLoading(false);
-          Alert.alert('Some Error Occured. Pls try again later');
+      .post(apiConfig.baseUrl + '/doctor/medicalregi/save/or/update', medArry)
+      .then(function (response) {
+        if (response.status == 201 || response.status == 200) {
+          Alert.alert('Medical Record Saved Successfully');
+          setShowMedReg(false);
+          setdataSavedMedReg(true);
+          setShowEduDet(true);
         }
       })
       .catch(function (error) {
-        setisLoading(false);
+        console.log('=================Medical Error Occured=================');
+        console.log(error);
+      });
+  };
+
+  //post educational qualification
+
+  const postEduDet = async () => {
+    let p = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
+    let doctorId = Number(p.doctorId);
+
+    Education.forEach(item => {
+      item.doctorId = doctorId;
+    });
+
+    console.log(Education);
+
+    axios
+      .post(apiConfig.baseUrl + '/doctor/education/save/or/update', Education)
+      .then(function (response) {
+        if (response.status == 201 || response.status == 200) {
+          Alert.alert('Educational Record Inserted Successfully');
+          setShowEduDet(false);
+          setdataSavedEduDet(true);
+          setShowExpDet(true);
+        }
+      })
+      .catch(function (error) {
+        console.log(
+          '=================Educational Error Occured=================',
+        );
+        console.log(error);
+      });
+  };
+
+  //post experience
+
+  const postExpDet = async () => {
+    let p = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
+    let doctorId = Number(p.doctorId);
+
+    Experience.forEach(item => {
+      item.doctorId = doctorId;
+    });
+
+    console.log(Experience);
+
+    axios
+      .post(apiConfig.baseUrl + '/doctor/experience/save/or/update', Experience)
+      .then(function (response) {
+        if (response.status == 201 || response.status == 200) {
+          Alert.alert('Experience Record Inserted Successfully');
+          setShowExpDet(false);
+          setdataSavedExpDet(true);
+          setShowIdenDet(true);
+        }
+      })
+      .catch(function (error) {
+        console.log(
+          '=================Experience Error Occured=================',
+        );
+        console.log(error);
+      });
+  };
+
+  //post Identification
+
+  const postIdenDet = async () => {
+    let p = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
+    let doctorId = Number(p.doctorId);
+
+    IdentificationDocs.forEach(item => {
+      item.doctorId = doctorId;
+    });
+
+    console.log(IdentificationDocs);
+
+    axios
+      .post(
+        apiConfig.baseUrl + '/doctor/identity/save/or/update',
+        IdentificationDocs,
+      )
+      .then(function (response) {
+        if (response.status == 201 || response.status == 200) {
+          Alert.alert('Identification Record Inserted Successfully');
+          setShowIdenDet(false);
+          setdataSavedIdenDet(true);
+          setShowAddInfo(true);
+        }
+      })
+      .catch(function (error) {
+        console.log(
+          '=================Identification Error Occured=================',
+        );
+        console.log(error);
+      });
+  };
+
+  //post Clinic Information
+
+  const postClinicDet = async () => {
+    let p = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
+    let doctorId = Number(p.doctorId);
+
+    ClinicDet.forEach(item => {
+      item.doctorId = doctorId;
+    });
+
+    console.log(ClinicDet);
+
+    axios
+      .post(apiConfig.baseUrl + '/doctor/clinic/save/or/update', ClinicDet)
+      .then(function (response) {
+        if (response.status == 201 || response.status == 200) {
+          Alert.alert('Clinic Record Inserted Successfully');
+          setShowAddInfo(false);
+          setdataSavedAddInfo(true);
+          setShowPreConsultationQuestionaire(true);
+        }
+      })
+      .catch(function (error) {
+        console.log('=================Clinic Error Occured=================');
+        console.log(error);
+      });
+  };
+
+  //post Clinic Information
+
+  const postPreConsultQues = async () => {
+    let p = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
+    let doctorId = Number(p.doctorId);
+
+    questionareList.forEach(item => {
+      item.doctorId = doctorId;
+    });
+
+    console.log(questionareList);
+
+    axios
+      .post(
+        apiConfig.baseUrl + '/doctor/preconsultation/questions/save/or/update',
+        questionareList,
+      )
+      .then(function (response) {
+        if (response.status == 201 || response.status == 200) {
+          console.log(
+            'Pre Consultation Questionnaire Record Inserted Successfully',
+          );
+        }
+      })
+      .catch(function (error) {
+        console.log(
+          '=================Pre Consultation Questionnaire Error Occured=================',
+        );
+        console.log(error);
+      });
+  };
+
+  //post consultation Fees
+
+  const postConsultFees = async () => {
+    let p = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
+    let doctorId = Number(p.doctorId);
+    axios
+      .post(apiConfig.baseUrl + '/doctor/generalinfo/fees/save', {
+        doctorFeesDTO: {
+          econsulationFees: eConsulationFees,
+          followUpDuration: showFollowUp,
+          followUpFees: followUpFees,
+          physicalConsulationFees: physicalConsulationFees,
+        },
+        doctorId: doctorId,
+      })
+      .then(function (response) {
+        if (response.status == 201 || response.status == 200) {
+          Alert.alert('Fees Record Inserted Successfully');
+          setShowConsultFees(false);
+          setdataSavedConsultFees(true);
+        }
+      })
+      .catch(function (error) {
+        console.log('=================Fees Error Occured=================');
         console.log(error);
       });
   };
@@ -1099,22 +1292,19 @@ const DoctorRegistration2 = ({navigation}) => {
                     showGenInfo
                       ? {borderBottomWidth: 0.5, borderBottomColor: '#707070'}
                       : null,
-                  ]}
-                  onPress={() => {
-                    setShowGenInfo(!showGenInfo);
-                  }}>
+                  ]}>
                   <Text
                     style={[
                       styles.label,
                       {width: '90%'},
-                      showGenInfo ? {color: '#2B8ADA'} : null,
+                      !showGenInfo ? {color: '#2B8ADA'} : null,
                     ]}>
                     General Information
                   </Text>
                   <FAIcon
-                    name={showGenInfo ? 'chevron-down' : 'chevron-right'}
+                    name={showGenInfo ? 'chevron-down' : 'check-circle'}
                     style={[styles.label, {width: '10%', fontSize: 20}]}
-                    color={showGenInfo ? '#2B8ADA' : 'gray'}></FAIcon>
+                    color={!showGenInfo ? '#2B8ADA' : 'gray'}></FAIcon>
                 </TouchableOpacity>
               </View>
             </View>
@@ -1409,21 +1599,24 @@ const DoctorRegistration2 = ({navigation}) => {
                     showMedReg
                       ? {borderBottomWidth: 0.5, borderBottomColor: '#707070'}
                       : null,
-                  ]}
-                  onPress={() => {
-                    setShowMedReg(!showMedReg);
-                  }}>
+                  ]}>
                   <Text
                     style={[
                       styles.label,
                       {width: '90%'},
-                      showMedReg ? {color: '#2B8ADA'} : null,
+                      dataSavedMedReg ? {color: '#2B8ADA'} : null,
                     ]}>
                     Medical Registration
                   </Text>
                   <FAIcon
-                    name={showMedReg ? 'chevron-down' : 'chevron-right'}
-                    color={showMedReg ? '#2B8ADA' : 'gray'}
+                    name={
+                      showMedReg
+                        ? 'chevron-down'
+                        : dataSavedMedReg
+                        ? 'check-circle'
+                        : 'chevron-right'
+                    }
+                    color={dataSavedMedReg ? '#2B8ADA' : 'gray'}
                     style={[
                       styles.label,
                       {width: '10%', fontSize: 20},
@@ -1514,10 +1707,54 @@ const DoctorRegistration2 = ({navigation}) => {
                         />
                       </View>
                     </View>
+                    <View
+                      style={{
+                        marginTop: 10,
+                        flexDirection: 'row',
+                        alignSelf: 'center',
+                      }}>
+                      <CustomButton
+                        text={'Skip For Now'}
+                        textstyle={{fontSize: 12, color: '#2b8ada'}}
+                        style={{
+                          marginRight: '5%',
+                          flex: 0.45,
+                          borderColor: '#2b8ada',
+                          borderWidth: 1,
+                          padding: 5,
+                          borderRadius: 10,
+                        }}
+                        onPress={() => {
+                          setShowMedReg(false);
+                          setdataSavedMedReg(false);
+                          setShowEduDet(true);
+                        }}
+                      />
+                      <CustomButton
+                        text={'Upload'}
+                        textstyle={{fontSize: 12, color: 'white'}}
+                        style={{
+                          flex: 0.45,
+                          backgroundColor: '#2b8ada',
+                          padding: 5,
+                          borderRadius: 10,
+                        }}
+                        onPress={() => {
+                          if (RegNo == '')
+                            Alert.alert('Please Fill Registration Number');
+                          else if (RegCouncil == '')
+                            Alert.alert('Please Fill Registration Council');
+                          else if (RegYear == '')
+                            Alert.alert('Please Select Registration');
+                          else postMedReg();
+                        }}
+                      />
+                    </View>
                   </View>
                 </View>
               </View>
             ) : null}
+
             {/* Education Qualifications & Certificates Label*/}
             <View
               style={{
@@ -1542,21 +1779,24 @@ const DoctorRegistration2 = ({navigation}) => {
                     showEduDet
                       ? {borderBottomWidth: 0.5, borderBottomColor: '#707070'}
                       : null,
-                  ]}
-                  onPress={() => {
-                    setShowEduDet(!showEduDet);
-                  }}>
+                  ]}>
                   <Text
                     style={[
                       styles.label,
                       {width: '90%'},
-                      showEduDet ? {color: '#2B8ADA'} : null,
+                      dataSavedEduDet ? {color: '#2B8ADA'} : null,
                     ]}>
                     Educational Qualifications & Certificates
                   </Text>
                   <FAIcon
-                    name={showEduDet ? 'chevron-down' : 'chevron-right'}
-                    color={showEduDet ? '#2B8ADA' : 'gray'}
+                    name={
+                      showEduDet
+                        ? 'chevron-down'
+                        : dataSavedEduDet
+                        ? 'check-circle'
+                        : 'chevron-right'
+                    }
+                    color={dataSavedEduDet ? '#2B8ADA' : 'gray'}
                     style={[
                       styles.label,
                       {width: '10%', fontSize: 20},
@@ -1568,164 +1808,281 @@ const DoctorRegistration2 = ({navigation}) => {
             {showEduDet ? (
               <View style={{flex: 1}}>
                 <View style={styles.whiteBodyView}>
-                  {Education.length > 0 ? <ViewEducation /> : null}
-                  <View
-                    style={{
-                      width: '95%',
-                      alignSelf: 'center',
-                      marginBottom: 10,
-                      padding: 5,
-                    }}>
-                    <View
-                      style={{
-                        flexDirection: 'column',
-                        marginBottom: 10,
-                      }}>
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          justifyContent: 'space-between',
-                        }}>
-                        <View style={{flex: 0.475}}>
-                          <Text style={styles.inputLabel}>Degree</Text>
-                          <TextInput
-                            style={[
-                              styles.textInput,
-                              {backgroundColor: '#E8F0FE'},
-                            ]}
-                            onChangeText={text => setDegree(text)}
-                            value={Degree}></TextInput>
-                        </View>
-                        <View style={{flex: 0.475}}>
-                          <Text style={styles.inputLabel}>
-                            Degree Passing Year
-                          </Text>
-                          <SelectList
-                            placeholder={DegreePassingYear}
-                            boxStyles={{
-                              backgroundColor: '#e8f0fe',
-                              borderWidth: 0,
-                            }}
-                            dropdownTextStyles={{
-                              color: '#2b8ada',
-                              fontWeight: 'bold',
-                            }}
-                            setSelected={setDegreePassingYear}
-                            data={dataYear}
-                          />
-                        </View>
-                      </View>
+                  {Education.length > 0 ? (
+                    <View>
+                      {/* Heading */}
                       <View
                         style={{
                           flexDirection: 'column',
-                          justifyContent: 'space-between',
+                          borderWidth: 1,
+                          borderColor: '#d3d3d3',
                         }}>
-                        <View style={{flex: 1}}>
-                          <Text style={[styles.inputLabel, {marginBottom: 10}]}>
-                            Specialization
-                          </Text>
-                          <SelectList
-                            labelStyles={{height: 0}}
-                            placeholder={' '}
-                            setSelected={val => setSpecialization(val)}
-                            data={dataSpecialization}
-                            save="value"
-                            boxStyles={{
-                              backgroundColor: '#E8F0FE',
-                              borderWidth: 0,
-                            }}
-                            dropdownStyles={{backgroundColor: 'white'}}
-                            dropdownTextStyles={{
-                              color: '#2b8ada',
-                              fontWeight: 'bold',
-                            }}
-                            badgeStyles={{backgroundColor: '#2b8ada'}}
-                          />
-                        </View>
-                        <View style={{flex: 1}}>
-                          <Text style={styles.inputLabel}>University</Text>
-                          <TextInput
-                            style={[
-                              styles.textInput,
-                              {backgroundColor: '#E8F0FE'},
-                            ]}
-                            onChangeText={text => setUniversity(text)}
-                            value={University}></TextInput>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                            margin: 0,
+                            padding: 0,
+                          }}>
+                          <View style={styles.cellHeading}>
+                            <Text style={styles.cellHeadingText}>Degree</Text>
+                          </View>
+                          <View style={styles.cellHeading}>
+                            <Text style={styles.cellHeadingText}>
+                              Degree Year
+                            </Text>
+                          </View>
+                          <View style={styles.cellHeading}>
+                            <Text style={styles.cellHeadingText}>
+                              Speciality
+                            </Text>
+                          </View>
+                          <View style={styles.cellHeading}>
+                            <Text style={styles.cellHeadingText}>
+                              University
+                            </Text>
+                          </View>
+                          <View
+                            style={{
+                              flex: 1,
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              paddingHorizontal: 1,
+                              paddingVertical: 1,
+                            }}>
+                            <Text style={styles.cellHeadingText}>Actions</Text>
+                          </View>
                         </View>
                       </View>
+                      <ViewEducation />
                     </View>
+                  ) : null}
+                  {Education.length == 0 || addMoreEduDet ? (
                     <View
                       style={{
-                        flexDirection: 'row',
-                        marginVertical: 5,
-                        flex: 1,
+                        width: '95%',
+                        alignSelf: 'center',
                         marginBottom: 10,
+                        padding: 5,
                       }}>
-                      <CustomButton
-                        text="Upload Document"
-                        textstyle={{color: '#2b8ada', fontSize: 12}}
+                      <View
                         style={{
-                          backgroundColor: 'white',
-                          borderRadius: 12,
-                          padding: 6,
-                          paddingHorizontal: 10,
-                          borderWidth: 2,
-                          borderColor: '#2b8ada',
-                        }}
-                      />
-                      <CustomButton
-                        text="Save"
-                        textstyle={{color: 'white', fontSize: 12}}
+                          flexDirection: 'column',
+                          marginBottom: 10,
+                        }}>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                          }}>
+                          <View style={{flex: 0.475}}>
+                            <Text style={styles.inputLabel}>Degree</Text>
+                            <TextInput
+                              style={[
+                                styles.textInput,
+                                {backgroundColor: '#E8F0FE'},
+                              ]}
+                              onChangeText={text => setDegree(text)}
+                              value={Degree}></TextInput>
+                          </View>
+                          <View style={{flex: 0.475}}>
+                            <Text style={styles.inputLabel}>
+                              Degree Passing Year
+                            </Text>
+                            <SelectList
+                              placeholder={DegreePassingYear}
+                              boxStyles={{
+                                backgroundColor: '#e8f0fe',
+                                borderWidth: 0,
+                              }}
+                              dropdownTextStyles={{
+                                color: '#2b8ada',
+                                fontWeight: 'bold',
+                              }}
+                              setSelected={setDegreePassingYear}
+                              data={dataYear}
+                            />
+                          </View>
+                        </View>
+                        <View
+                          style={{
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                          }}>
+                          <View style={{flex: 1}}>
+                            <Text
+                              style={[styles.inputLabel, {marginBottom: 10}]}>
+                              Specialization
+                            </Text>
+                            <SelectList
+                              labelStyles={{height: 0}}
+                              placeholder={' '}
+                              setSelected={val => setSpecialization(val)}
+                              data={dataSpecialization}
+                              save="value"
+                              boxStyles={{
+                                backgroundColor: '#E8F0FE',
+                                borderWidth: 0,
+                              }}
+                              dropdownStyles={{backgroundColor: 'white'}}
+                              dropdownTextStyles={{
+                                color: '#2b8ada',
+                                fontWeight: 'bold',
+                              }}
+                              badgeStyles={{backgroundColor: '#2b8ada'}}
+                            />
+                          </View>
+                          <View style={{flex: 1}}>
+                            <Text style={styles.inputLabel}>University</Text>
+                            <TextInput
+                              style={[
+                                styles.textInput,
+                                {backgroundColor: '#E8F0FE'},
+                              ]}
+                              onChangeText={text => setUniversity(text)}
+                              value={University}></TextInput>
+                          </View>
+                        </View>
+                      </View>
+                      <View
                         style={{
-                          backgroundColor: '#2b8ada',
-                          borderRadius: 5,
-                          padding: 6,
-                          paddingHorizontal: 10,
-                          position: 'absolute',
-                          right: 0,
-                        }}
-                        onPress={() => {
-                          if (
-                            Degree == '' ||
-                            DegreePassingYear == '' ||
-                            University == '' ||
-                            Specialization == ''
-                          )
-                            Alert.alert(
-                              'Please fill all details before adding more in Educational Qualification',
-                            );
-                          else {
-                            let totalexp =
-                              parseInt(TotalYear) * 12 + parseInt(TotalMonths);
-                            let newArry = [];
-                            newArry.push({
-                              key: Specialization,
-                              value: Specialization,
-                            });
-                            setsplArray([...splArray, ...newArry]);
+                          flexDirection: 'row',
+                          marginVertical: 5,
+                          flex: 1,
+                          marginBottom: 10,
+                        }}>
+                        <CustomButton
+                          text="Upload Document"
+                          textstyle={{color: '#2b8ada', fontSize: 12}}
+                          style={{
+                            backgroundColor: 'white',
+                            borderRadius: 12,
+                            padding: 6,
+                            paddingHorizontal: 10,
+                            borderWidth: 2,
+                            borderColor: '#2b8ada',
+                          }}
+                        />
+                        <CustomButton
+                          text="Save"
+                          textstyle={{color: 'white', fontSize: 12}}
+                          style={{
+                            backgroundColor: '#2b8ada',
+                            borderRadius: 5,
+                            padding: 6,
+                            paddingHorizontal: 10,
+                            position: 'absolute',
+                            right: 0,
+                          }}
+                          onPress={() => {
+                            if (Degree == '')
+                              Alert.alert('Please fill Degree Name');
+                            else if (DegreePassingYear == '')
+                              Alert.alert('Please fill Degree Passing Year');
+                            else if (Specialization == '')
+                              Alert.alert('Please Select Specialization');
+                            else if (University == '')
+                              Alert.alert('Please fill University Name');
+                            else {
+                              let totalexp =
+                                parseInt(TotalYear) * 12 +
+                                parseInt(TotalMonths);
+                              let newArry = [];
+                              newArry.push({
+                                key: Specialization,
+                                value: Specialization,
+                              });
+                              setsplArray([...splArray, ...newArry]);
 
-                            let p = {
-                              degree: Degree,
-                              degreePath: Degree + '.pdf',
-                              passingYear: Number(DegreePassingYear),
-                              specialization: Specialization,
-                              // totalExperiencedInMonths: Number(totalexp),
-                              university: University,
-                            };
-                            // Education.push(p);
-                            // console.log(Education);
-                            let arr = [...Education];
-                            arr.push(p);
-                            // console.log(arr);
-                            setEducation(arr);
-                            setDegree('');
-                            setDegreePassingYear('');
-                            setSpecialization('');
-                            setUniversity('');
-                          }
+                              let p = {
+                                degree: Degree,
+                                degreePath: Degree + '.pdf',
+                                passingYear: Number(DegreePassingYear),
+                                specialization: Specialization,
+                                // totalExperiencedInMonths: Number(totalexp),
+                                university: University,
+                              };
+                              // Education.push(p);
+                              // console.log(Education);
+                              let arr = [...Education];
+                              arr.push(p);
+                              // console.log(arr);
+                              setEducation(arr);
+                              setDegree('');
+                              setDegreePassingYear('');
+                              setSpecialization('');
+                              setUniversity('');
+                              setaddMoreEduDet(false);
+                            }
+                          }}
+                        />
+                      </View>
+                    </View>
+                  ) : (
+                    <View style={{flex: 1}}>
+                      <CustomButton
+                        text={'+ Add More'}
+                        textstyle={{color: '#2b8ada', fontSize: 10}}
+                        style={{
+                          alignSelf: 'flex-end',
+                          width: 80,
+                          borderColor: '#2b8ada',
+                          borderWidth: 1,
+                          borderRadius: 5,
+                          padding: 3,
+                          paddingHorizontal: 10,
+                          marginTop: 10,
                         }}
+                        onPress={() => setaddMoreEduDet(true)}
                       />
                     </View>
+                  )}
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      marginTop: 10,
+                      alignSelf: 'center',
+                      width: '95%',
+                    }}>
+                    <CustomButton
+                      text={'Skip For Now'}
+                      textstyle={{fontSize: 12, color: '#2b8ada'}}
+                      style={[
+                        {
+                          marginRight: '5%',
+                          flex: 0.45,
+                          borderColor: '#2b8ada',
+                          borderWidth: 1,
+                          padding: 5,
+                          borderRadius: 10,
+                        },
+                        Education.length == 0
+                          ? {flex: 1, alignSelf: 'center', marginRight: ' 0%'}
+                          : null,
+                      ]}
+                      onPress={() => {
+                        setShowEduDet(false);
+                        setShowExpDet(true);
+                        setdataSavedEduDet(false);
+                      }}
+                    />
+                    {Education.length > 0 ? (
+                      <CustomButton
+                        text={'Upload'}
+                        textstyle={{color: 'white', fontSize: 12}}
+                        style={{
+                          flex: 0.45,
+                          backgroundColor: '#2b8ada',
+                          padding: 5,
+                          borderRadius: 10,
+                        }}
+                        onPress={() => {
+                          if (Education.length == 0)
+                            Alert.alert('Please Fill Education Details ');
+                          else postEduDet();
+                        }}
+                      />
+                    ) : null}
                   </View>
                 </View>
               </View>
@@ -1754,21 +2111,24 @@ const DoctorRegistration2 = ({navigation}) => {
                     showExpDet
                       ? {borderBottomWidth: 0.5, borderBottomColor: '#707070'}
                       : null,
-                  ]}
-                  onPress={() => {
-                    setShowExpDet(!showExpDet);
-                  }}>
+                  ]}>
                   <Text
                     style={[
                       styles.label,
                       {width: '90%'},
-                      showExpDet ? {color: '#2B8ADA'} : null,
+                      dataSavedExpDet ? {color: '#2B8ADA'} : null,
                     ]}>
                     Experience
                   </Text>
                   <FAIcon
-                    name={showExpDet ? 'chevron-down' : 'chevron-right'}
-                    color={showExpDet ? '#2B8ADA' : 'gray'}
+                    name={
+                      showExpDet
+                        ? 'chevron-down'
+                        : dataSavedExpDet
+                        ? 'check-circle'
+                        : 'chevron-right'
+                    }
+                    color={dataSavedExpDet ? '#2B8ADA' : 'gray'}
                     style={[
                       styles.label,
                       {width: '10%', fontSize: 20},
@@ -1780,233 +2140,342 @@ const DoctorRegistration2 = ({navigation}) => {
             {showExpDet ? (
               <View style={{flex: 1}}>
                 <View style={styles.whiteBodyView}>
-                  {Experience.length > 0 ? <ViewExperience /> : null}
-                  <View
-                    style={{
-                      width: '95%',
-                      alignSelf: 'center',
-                      marginBottom: 10,
-                      padding: 5,
-                    }}>
+                  {Experience.length > 0 ? (
+                    <View>
+                      {/* Heading */}
+                      <View
+                        style={{
+                          flexDirection: 'column',
+                          borderWidth: 1,
+                          borderColor: '#d3d3d3',
+                        }}>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                            margin: 0,
+                            padding: 0,
+                          }}>
+                          <View style={styles.cellHeading}>
+                            <Text style={styles.cellHeadingText}>
+                              Practice At
+                            </Text>
+                          </View>
+                          <View style={styles.cellHeading}>
+                            <Text style={styles.cellHeadingText}>
+                              Start Date
+                            </Text>
+                          </View>
+                          <View style={styles.cellHeading}>
+                            <Text style={styles.cellHeadingText}>End Date</Text>
+                          </View>
+                          <View style={styles.cellHeading}>
+                            <Text style={styles.cellHeadingText}>
+                              Experience
+                            </Text>
+                          </View>
+                          <View
+                            style={{
+                              flex: 1,
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              paddingHorizontal: 1,
+                              paddingVertical: 1,
+                            }}>
+                            <Text style={styles.cellHeadingText}>Actions</Text>
+                          </View>
+                        </View>
+                      </View>
+                      <ViewExperience />
+                    </View>
+                  ) : null}
+                  {Experience.length == 0 || addMoreExpDet ? (
                     <View
                       style={{
-                        flexDirection: 'column',
+                        width: '95%',
+                        alignSelf: 'center',
                         marginBottom: 10,
+                        padding: 5,
                       }}>
                       <View
                         style={{
                           flexDirection: 'column',
-                          justifyContent: 'space-between',
+                          marginBottom: 10,
                         }}>
-                        <View style={{flex: 1}}>
-                          <Text style={[styles.inputLabel, {marginTop: 0}]}>
-                            Practice At
-                          </Text>
-                          <TextInput
-                            style={[
-                              styles.textInput,
-                              {backgroundColor: '#E8F0FE'},
-                            ]}
-                            onChangeText={text => setPracticeAt(text)}
-                            value={practiceAt}></TextInput>
+                        <View
+                          style={{
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                          }}>
+                          <View style={{flex: 1}}>
+                            <Text style={[styles.inputLabel, {marginTop: 0}]}>
+                              Practice At
+                            </Text>
+                            <TextInput
+                              style={[
+                                styles.textInput,
+                                {backgroundColor: '#E8F0FE'},
+                              ]}
+                              onChangeText={text => setPracticeAt(text)}
+                              value={practiceAt}></TextInput>
+                          </View>
+                        </View>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                          }}>
+                          <View style={{flex: 0.475}}>
+                            <Text style={styles.inputLabel}>Start Date</Text>
+                            <View
+                              style={{
+                                flexDirection: 'row',
+                                width: '100%',
+                                alignItems: 'center',
+                                backgroundColor: '#E8F0FE',
+                                borderRadius: 10,
+                              }}>
+                              <Text style={[styles.textInput, {flex: 1}]}>
+                                {dayjs(startExpDate).isValid()
+                                  ? dayjs(startExpDate).format('DD-MM-YYYY')
+                                  : 'DD-MM-YYYY'}
+                              </Text>
+                              <FAIcon
+                                name="calendar-alt"
+                                color={'gray'}
+                                size={20}
+                                style={{
+                                  marginHorizontal: 5,
+                                  position: 'absolute',
+                                  right: 0,
+                                }}
+                                onPress={() => {
+                                  setStartExpDatePickerVisible(true);
+                                }}
+                              />
+                            </View>
+                            <DateTimePickerModal
+                              isVisible={isStartExpDatePickerVisible}
+                              mode="date"
+                              display="spinner"
+                              date={
+                                dayjs(startExpDate).isValid()
+                                  ? dayjs(startExpDate).toDate()
+                                  : dayjs().toDate()
+                              }
+                              maximumDate={dayjs().toDate()}
+                              onConfirm={handleStartExpDate}
+                              onCancel={() => {
+                                setStartExpDatePickerVisible(false);
+                              }}
+                            />
+                          </View>
+                          <View style={{flex: 0.475}}>
+                            <Text style={styles.inputLabel}>End Date</Text>
+                            <View
+                              style={{
+                                flexDirection: 'row',
+                                width: '100%',
+                                alignItems: 'center',
+                                backgroundColor: '#E8F0FE',
+                                borderRadius: 10,
+                              }}>
+                              <Text style={[styles.textInput, {flex: 1}]}>
+                                {dayjs(endExpDate).isValid()
+                                  ? dayjs(endExpDate).format('DD-MM-YYYY')
+                                  : 'DD-MM-YYYY'}
+                              </Text>
+                              <FAIcon
+                                name="calendar-alt"
+                                color={'gray'}
+                                size={20}
+                                style={{
+                                  marginHorizontal: 5,
+                                  position: 'absolute',
+                                  right: 0,
+                                }}
+                                onPress={() => {
+                                  setEndExpDatePickerVisible(true);
+                                }}
+                              />
+                            </View>
+                            <DateTimePickerModal
+                              isVisible={isEndExpDatePickerVisible}
+                              mode="date"
+                              display="spinner"
+                              date={
+                                dayjs(endExpDate).isValid()
+                                  ? dayjs(endExpDate).toDate()
+                                  : dayjs().toDate()
+                              }
+                              maximumDate={dayjs().toDate()}
+                              onConfirm={handleEndExpDate}
+                              onCancel={() => {
+                                setEndExpDatePickerVisible(false);
+                              }}
+                            />
+                          </View>
                         </View>
                       </View>
+                      {/* Display Total Experience */}
                       <View
                         style={{
                           flexDirection: 'row',
                           justifyContent: 'space-between',
                         }}>
-                        <View style={{flex: 0.475}}>
-                          <Text style={styles.inputLabel}>Start Date</Text>
-                          <View
-                            style={{
-                              flexDirection: 'row',
-                              width: '100%',
-                              alignItems: 'center',
-                              backgroundColor: '#E8F0FE',
-                              borderRadius: 10,
-                            }}>
-                            <Text style={[styles.textInput, {flex: 1}]}>
-                              {dayjs(startExpDate).isValid()
-                                ? dayjs(startExpDate).format('DD-MM-YYYY')
-                                : 'DD-MM-YYYY'}
-                            </Text>
-                            <FAIcon
-                              name="calendar-alt"
-                              color={'gray'}
-                              size={20}
-                              style={{
-                                marginHorizontal: 5,
-                                position: 'absolute',
-                                right: 0,
-                              }}
-                              onPress={() => {
-                                setStartExpDatePickerVisible(true);
-                              }}
-                            />
-                          </View>
-                          <DateTimePickerModal
-                            isVisible={isStartExpDatePickerVisible}
-                            mode="date"
-                            display="spinner"
-                            date={
-                              dayjs(startExpDate).isValid()
-                                ? dayjs(startExpDate).toDate()
-                                : dayjs().toDate()
-                            }
-                            maximumDate={dayjs().toDate()}
-                            onConfirm={handleStartExpDate}
-                            onCancel={() => {
-                              setStartExpDatePickerVisible(false);
-                            }}
-                          />
-                        </View>
-                        <View style={{flex: 0.475}}>
-                          <Text style={styles.inputLabel}>End Date</Text>
-                          <View
-                            style={{
-                              flexDirection: 'row',
-                              width: '100%',
-                              alignItems: 'center',
-                              backgroundColor: '#E8F0FE',
-                              borderRadius: 10,
-                            }}>
-                            <Text style={[styles.textInput, {flex: 1}]}>
-                              {dayjs(endExpDate).isValid()
-                                ? dayjs(endExpDate).format('DD-MM-YYYY')
-                                : 'DD-MM-YYYY'}
-                            </Text>
-                            <FAIcon
-                              name="calendar-alt"
-                              color={'gray'}
-                              size={20}
-                              style={{
-                                marginHorizontal: 5,
-                                position: 'absolute',
-                                right: 0,
-                              }}
-                              onPress={() => {
-                                setEndExpDatePickerVisible(true);
-                              }}
-                            />
-                          </View>
-                          <DateTimePickerModal
-                            isVisible={isEndExpDatePickerVisible}
-                            mode="date"
-                            display="spinner"
-                            date={
-                              dayjs(endExpDate).isValid()
-                                ? dayjs(endExpDate).toDate()
-                                : dayjs().toDate()
-                            }
-                            maximumDate={dayjs().toDate()}
-                            onConfirm={handleEndExpDate}
-                            onCancel={() => {
-                              setEndExpDatePickerVisible(false);
-                            }}
-                          />
-                        </View>
-                      </View>
-                    </View>
-
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                      }}>
-                      <View style={{flex: 0.475, flexDirection: 'column'}}>
-                        <Text style={styles.inputLabel}>
-                          Experience (in Years)
-                        </Text>
-                        <Text style={styles.textInput}>{TotalYear}</Text>
-                      </View>
-                      <View style={{flex: 0.475, flexDirection: 'column'}}>
-                        <Text style={styles.inputLabel}>
-                          Experience (in Months)
-                        </Text>
-                        <Text style={styles.textInput}>{TotalMonths}</Text>
-                      </View>
-                    </View>
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        marginVertical: 5,
-                        flex: 1,
-                        marginBottom: 10,
-                      }}>
-                      <CustomButton
-                        text="Save"
-                        textstyle={{color: 'white', fontSize: 12}}
-                        style={{
-                          backgroundColor: '#2b8ada',
-                          borderRadius: 5,
-                          padding: 6,
-                          paddingHorizontal: 10,
-                          position: 'absolute',
-                          right: 0,
-                        }}
-                        onPress={() => {
-                          if (
-                            practiceAt == '' ||
-                            startExpDate == '' ||
-                            endExpDate == ''
-                          )
-                            Alert.alert(
-                              'Please fill all details before adding more in Experience.',
-                            );
-                          else {
-                            // let p = {
-                            //   practiceAt: practiceAt,
-                            //   startExpDate: startExpDate,
-                            //   endExpDate: endExpDate,
-                            //   totalExperiencedInMonths: experienceInMonths
-                            // };
-                            let p = {
-                              practiceAt: practiceAt,
-                              startDate: startExpDate,
-                              endDate: endExpDate,
-                              experienceInMonths: experienceInMonths,
-                            };
-                            // Experience.push(p);
-                            //console.log(Experience);
-                            let arr = [...Experience];
-                            arr.push(p);
-                            //console.log(arr);
-                            setExperience(arr);
-                            setPracticeAt('');
-                            setStartExpDate('');
-                            setEndExpDate('');
-                            setExperienceInMonths('');
-                            setTotalYear('');
-                            setTotalMonths('');
-                          }
-                        }}
-                      />
-                    </View>
-                    {Experience.length > 0 ? (
-                      <View
-                        style={{
-                          marginTop: 10,
-                          flexDirection: 'row',
-                          justifyContent: 'space-between',
-                        }}>
-                        <View style={{flex: 0.45, flexDirection: 'column'}}>
+                        <View style={{flex: 0.475, flexDirection: 'column'}}>
                           <Text style={styles.inputLabel}>
                             Experience (in Years)
                           </Text>
-                          <Text style={styles.textInput}>
-                            {Math.floor(FinalTotalMonths / 12)}
-                          </Text>
+                          <Text style={styles.textInput}>{TotalYear}</Text>
                         </View>
-                        <View style={{flex: 0.45, flexDirection: 'column'}}>
+                        <View style={{flex: 0.475, flexDirection: 'column'}}>
                           <Text style={styles.inputLabel}>
                             Experience (in Months)
                           </Text>
-                          <Text style={styles.textInput}>
-                            {FinalTotalMonths % 12}
-                          </Text>
+                          <Text style={styles.textInput}>{TotalMonths}</Text>
                         </View>
                       </View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          marginVertical: 5,
+                          flex: 1,
+                          marginBottom: 10,
+                        }}>
+                        <CustomButton
+                          text="Save"
+                          textstyle={{color: 'white', fontSize: 12}}
+                          style={{
+                            backgroundColor: '#2b8ada',
+                            borderRadius: 5,
+                            padding: 6,
+                            paddingHorizontal: 10,
+                            position: 'absolute',
+                            right: 0,
+                          }}
+                          onPress={() => {
+                            if (practiceAt == '')
+                              Alert.alert(
+                                'Please add Clinic/Hospital Practise Name',
+                              );
+                            else if (startExpDate == '')
+                              Alert.alert('Please Select Practise Start Date');
+                            else if (endExpDate == '')
+                              Alert.alert('Please Select Practise End Date');
+                            else {
+                              let p = {
+                                practiceAt: practiceAt,
+                                startDate: startExpDate,
+                                endDate: endExpDate,
+                                experienceInMonths: experienceInMonths,
+                              };
+
+                              let arr = [...Experience];
+                              arr.push(p);
+                              setExperience(arr);
+                              setPracticeAt('');
+                              setStartExpDate('');
+                              setEndExpDate('');
+                              setExperienceInMonths('');
+                              setTotalYear('');
+                              setTotalMonths('');
+                              setaddMoreExpDet(false);
+                            }
+                          }}
+                        />
+                      </View>
+                      {Experience.length > 0 ? (
+                        <View
+                          style={{
+                            marginTop: 10,
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                          }}>
+                          <View style={{flex: 0.45, flexDirection: 'column'}}>
+                            <Text style={styles.inputLabel}>
+                              Experience (in Years)
+                            </Text>
+                            <Text style={styles.textInput}>
+                              {Math.floor(FinalTotalMonths / 12)}
+                            </Text>
+                          </View>
+                          <View style={{flex: 0.45, flexDirection: 'column'}}>
+                            <Text style={styles.inputLabel}>
+                              Experience (in Months)
+                            </Text>
+                            <Text style={styles.textInput}>
+                              {FinalTotalMonths % 12}
+                            </Text>
+                          </View>
+                        </View>
+                      ) : null}
+                    </View>
+                  ) : (
+                    <View style={{flex: 1}}>
+                      <CustomButton
+                        text={'+ Add More'}
+                        textstyle={{color: '#2b8ada', fontSize: 10}}
+                        style={{
+                          alignSelf: 'flex-end',
+                          width: 80,
+                          borderColor: '#2b8ada',
+                          borderWidth: 1,
+                          borderRadius: 5,
+                          padding: 3,
+                          paddingHorizontal: 10,
+                          marginTop: 10,
+                        }}
+                        onPress={() => setaddMoreExpDet(true)}
+                      />
+                    </View>
+                  )}
+
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      marginTop: 10,
+                      alignSelf: 'center',
+                      width: '95%',
+                    }}>
+                    <CustomButton
+                      text={'Skip For Now'}
+                      textstyle={{fontSize: 12, color: '#2b8ada'}}
+                      style={[
+                        {
+                          marginRight: '5%',
+                          flex: 0.45,
+                          borderColor: '#2b8ada',
+                          borderWidth: 1,
+                          padding: 5,
+                          borderRadius: 10,
+                        },
+                        Experience.length == 0
+                          ? {flex: 1, alignSelf: 'center', marginRight: ' 0%'}
+                          : null,
+                      ]}
+                      onPress={() => {
+                        setShowExpDet(false);
+                        setShowIdenDet(true);
+                        setdataSavedExpDet(false);
+                      }}
+                    />
+                    {Experience.length > 0 ? (
+                      <CustomButton
+                        text={'Upload'}
+                        textstyle={{fontSize: 12, color: 'white'}}
+                        style={{
+                          backgroundColor: '#2b8ada',
+                          padding: 5,
+                          borderRadius: 10,
+                          flex: 0.45,
+                        }}
+                        onPress={() => {
+                          if (Experience.length == 0)
+                            Alert.alert('Please Fill Education Details ');
+                          else postExpDet();
+                        }}
+                      />
                     ) : null}
                   </View>
                 </View>
@@ -2035,21 +2504,24 @@ const DoctorRegistration2 = ({navigation}) => {
                     showIdenDet
                       ? {borderBottomWidth: 0.5, borderBottomColor: '#707070'}
                       : null,
-                  ]}
-                  onPress={() => {
-                    setShowIdenDet(!showIdenDet);
-                  }}>
+                  ]}>
                   <Text
                     style={[
                       styles.label,
                       {width: '90%'},
-                      showIdenDet ? {color: '#2B8ADA'} : null,
+                      dataSavedIdenDet ? {color: '#2B8ADA'} : null,
                     ]}>
                     Identification
                   </Text>
                   <FAIcon
-                    name={showIdenDet ? 'chevron-down' : 'chevron-right'}
-                    color={showIdenDet ? '#2B8ADA' : 'gray'}
+                    name={
+                      showIdenDet
+                        ? 'chevron-down'
+                        : dataSavedIdenDet
+                        ? 'check-circle'
+                        : 'chevron-right'
+                    }
+                    color={dataSavedIdenDet ? '#2B8ADA' : 'gray'}
                     style={[
                       styles.label,
                       {width: '10%', fontSize: 20},
@@ -2061,154 +2533,244 @@ const DoctorRegistration2 = ({navigation}) => {
             {showIdenDet ? (
               <View>
                 <View style={styles.whiteBodyView}>
-                  {/* <View
-                    style={{
-                      flexDirection: 'column',
-                      width: '95%',
-                      alignSelf: 'center',
-                    }}></View> */}
-
                   {IdentificationDocs.length > 0 ? (
-                    <ViewIdentifications />
-                  ) : null}
-
-                  <View style={{marginBottom: 10}}>
-                    <View
-                      style={{
-                        flexDirection: 'column',
-                        width: '95%',
-                        alignSelf: 'center',
-                      }}>
+                    <View>
+                      {/* Heading */}
                       <View
                         style={{
                           flexDirection: 'column',
-                          justifyContent: 'space-between',
+                          borderWidth: 1,
+                          borderColor: '#d3d3d3',
                         }}>
-                        <View style={{flexDirection: 'column', flex: 1}}>
-                          <Text style={styles.inputLabel}>Document Name</Text>
-                          {/* <View>
-                            <TextInput
-                              style={[styles.textInput]}
-                              onChangeText={text => setidentificationType(text)}
-                              value={identificationType}
-                            />
-                          </View> */}
-                          <SelectList
-                            placeholder={identificationType}
-                            boxStyles={{
-                              backgroundColor: '#e8f0fe',
-                              borderWidth: 0,
-                            }}
-                            dropdownTextStyles={{
-                              color: '#2b8ada',
-                              fontWeight: 'bold',
-                            }}
-                            setSelected={setidentificationType}
-                            data={dataIdenDocs}
-                          />
-                        </View>
-                        <View style={{flexDirection: 'column', flex: 1}}>
-                          <Text style={styles.inputLabel}>
-                            Identification No
-                          </Text>
-                          <View>
-                            <TextInput
-                              style={[styles.textInput]}
-                              onChangeText={text =>
-                                setidentificationNumber(text)
-                              }
-                              value={identificationNumber}
-                            />
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                            margin: 0,
+                            padding: 0,
+                          }}>
+                          <View style={styles.cellHeading}>
+                            <Text style={styles.cellHeadingText}>Name</Text>
+                          </View>
+                          <View style={styles.cellHeading}>
+                            <Text style={styles.cellHeadingText}>ID No.</Text>
+                          </View>
+
+                          <View
+                            style={{
+                              flex: 1,
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              paddingHorizontal: 1,
+                              paddingVertical: 1,
+                            }}>
+                            <Text style={styles.cellHeadingText}>Actions</Text>
                           </View>
                         </View>
                       </View>
+                      <ViewIdentifications />
                     </View>
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        marginVertical: 5,
-                        width: '95%',
-                        alignSelf: 'center',
-                        marginBottom: 15,
-                      }}>
-                      <CustomButton
-                        text="Upload Document"
-                        textstyle={{color: '#2b8ada', fontSize: 12}}
+                  ) : null}
+
+                  {IdentificationDocs.length == 0 || addMoreIdenDet ? (
+                    <View style={{marginBottom: 10}}>
+                      <View
                         style={{
-                          backgroundColor: 'white',
-                          borderRadius: 12,
-                          padding: 6,
-                          paddingHorizontal: 10,
-                          borderWidth: 2,
-                          borderColor: '#2b8ada',
-                        }}
-                      />
+                          flexDirection: 'column',
+                          width: '95%',
+                          alignSelf: 'center',
+                        }}>
+                        <View
+                          style={{
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                          }}>
+                          <View style={{flexDirection: 'column', flex: 1}}>
+                            <Text style={styles.inputLabel}>Document Name</Text>
+
+                            <SelectList
+                              placeholder={identificationType}
+                              boxStyles={{
+                                backgroundColor: '#e8f0fe',
+                                borderWidth: 0,
+                              }}
+                              dropdownTextStyles={{
+                                color: '#2b8ada',
+                                fontWeight: 'bold',
+                              }}
+                              setSelected={setidentificationType}
+                              data={dataIdenDocs}
+                            />
+                          </View>
+                          <View style={{flexDirection: 'column', flex: 1}}>
+                            <Text style={styles.inputLabel}>
+                              Identification No
+                            </Text>
+                            <View>
+                              <TextInput
+                                style={[styles.textInput]}
+                                onChangeText={text =>
+                                  setidentificationNumber(text)
+                                }
+                                value={identificationNumber}
+                              />
+                            </View>
+                          </View>
+                        </View>
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          marginVertical: 5,
+                          width: '95%',
+                          alignSelf: 'center',
+                          marginBottom: 15,
+                        }}>
+                        <CustomButton
+                          text="Upload Document"
+                          textstyle={{color: '#2b8ada', fontSize: 12}}
+                          style={{
+                            backgroundColor: 'white',
+                            borderRadius: 12,
+                            padding: 6,
+                            paddingHorizontal: 10,
+                            borderWidth: 2,
+                            borderColor: '#2b8ada',
+                          }}
+                        />
+                        <CustomButton
+                          text="Save"
+                          textstyle={{color: 'white', fontSize: 12}}
+                          style={{
+                            backgroundColor: '#2b8ada',
+                            borderRadius: 5,
+                            padding: 6,
+                            paddingHorizontal: 10,
+                            position: 'absolute',
+                            right: 0,
+                          }}
+                          onPress={() => {
+                            if (
+                              identificationNumber != '' &&
+                              identificationType != ''
+                            ) {
+                              var flag = 1;
+                              if (IdentificationDocs.length > 0) {
+                                for (
+                                  var i = 0;
+                                  i < IdentificationDocs.length;
+                                  ++i
+                                ) {
+                                  if (
+                                    IdentificationDocs[i].identificationType ==
+                                    identificationType
+                                  ) {
+                                    flag = 0;
+                                    break;
+                                  }
+                                }
+                                if (flag == 0) {
+                                  Alert.alert(
+                                    'You can not add duplicate documents',
+                                  );
+                                  setidentificationNumber('');
+                                  setidentificationType('');
+                                }
+                              }
+
+                              if (flag == 1) {
+                                let p = {
+                                  identificationNumber: identificationNumber,
+
+                                  identificationType: identificationType,
+                                  identificationPath:
+                                    'aws/s3/Docs/' +
+                                    identificationNumber +
+                                    '.pdf',
+                                };
+                                // IdentificationDocs.push(p);
+                                let arr = [...IdentificationDocs];
+                                arr.push(p);
+                                //console.log(arr);
+                                setIdentificationDocs(arr);
+                                setidentificationNumber('');
+                                setidentificationType('');
+                                //console.log(IdentificationDocs);
+                                setaddMoreIdenDet(false);
+                              }
+                            } else if (identificationNumber == '')
+                              Alert.alert('Please fill Identification Number');
+                            else if (identificationType == '')
+                              Alert.alert('Please Select Document Name');
+                          }}
+                        />
+                      </View>
+                    </View>
+                  ) : (
+                    <View style={{flex: 1}}>
                       <CustomButton
-                        text="Save"
+                        text={'+ Add More'}
+                        textstyle={{color: '#2b8ada', fontSize: 10}}
+                        style={{
+                          alignSelf: 'flex-end',
+                          width: 80,
+                          borderColor: '#2b8ada',
+                          borderWidth: 1,
+                          borderRadius: 5,
+                          padding: 3,
+                          paddingHorizontal: 10,
+                          marginTop: 10,
+                        }}
+                        onPress={() => setaddMoreIdenDet(true)}
+                      />
+                    </View>
+                  )}
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      marginTop: 10,
+                      alignSelf: 'center',
+                      width: '95%',
+                    }}>
+                    <CustomButton
+                      text={'Skip For Now'}
+                      textstyle={{fontSize: 12, color: '#2b8ada'}}
+                      style={[
+                        {
+                          marginRight: '5%',
+                          flex: 0.45,
+                          borderColor: '#2b8ada',
+                          borderWidth: 1,
+                          padding: 5,
+                          borderRadius: 10,
+                        },
+                        IdentificationDocs.length == 0
+                          ? {flex: 1, alignSelf: 'center', marginRight: ' 0%'}
+                          : null,
+                      ]}
+                      onPress={() => {
+                        setShowIdenDet(false);
+                        setShowAddInfo(true);
+                        setdataSavedIdenDet(false);
+                      }}
+                    />
+                    {IdentificationDocs.length > 0 ? (
+                      <CustomButton
+                        text={'Upload'}
                         textstyle={{color: 'white', fontSize: 12}}
                         style={{
                           backgroundColor: '#2b8ada',
-                          borderRadius: 5,
-                          padding: 6,
-                          paddingHorizontal: 10,
-                          position: 'absolute',
-                          right: 0,
+                          padding: 5,
+                          borderRadius: 10,
+                          flex: 0.45,
                         }}
                         onPress={() => {
-                          if (
-                            identificationNumber != '' &&
-                            identificationType != ''
-                          ) {
-                            var flag = 1;
-                            if (IdentificationDocs.length > 0) {
-                              for (
-                                var i = 0;
-                                i < IdentificationDocs.length;
-                                ++i
-                              ) {
-                                if (
-                                  IdentificationDocs[i].identificationType ==
-                                  identificationType
-                                ) {
-                                  flag = 0;
-                                  break;
-                                }
-                              }
-                              if (flag == 0) {
-                                Alert.alert(
-                                  'You can not add duplicate documents',
-                                );
-                                setidentificationNumber('');
-                                setidentificationType('');
-                              }
-                            }
-
-                            if (flag == 1) {
-                              let p = {
-                                identificationNumber: identificationNumber,
-
-                                identificationType: identificationType,
-                                identificationPath:
-                                  'aws/s3/Docs/' +
-                                  identificationNumber +
-                                  '.pdf',
-                              };
-                              // IdentificationDocs.push(p);
-                              let arr = [...IdentificationDocs];
-                              arr.push(p);
-                              //console.log(arr);
-                              setIdentificationDocs(arr);
-                              setidentificationNumber('');
-                              setidentificationType('');
-                              //console.log(IdentificationDocs);
-                            }
-                          } else
-                            Alert.alert(
-                              'Please fill all details before saving',
-                            );
+                          if (IdentificationDocs.length == 0)
+                            Alert.alert('Please Fill Identification Details ');
+                          else postIdenDet();
                         }}
                       />
-                    </View>
+                    ) : null}
                   </View>
                 </View>
               </View>
@@ -2236,21 +2798,24 @@ const DoctorRegistration2 = ({navigation}) => {
                     showAddInfo
                       ? {borderBottomWidth: 0.5, borderBottomColor: '#707070'}
                       : null,
-                  ]}
-                  onPress={() => {
-                    setShowAddInfo(!showAddInfo);
-                  }}>
+                  ]}>
                   <Text
                     style={[
                       styles.label,
                       {width: '90%'},
-                      showAddInfo ? {color: '#2B8ADA'} : null,
+                      dataSavedAddInfo ? {color: '#2B8ADA'} : null,
                     ]}>
                     Clinic Information
                   </Text>
                   <FAIcon
-                    name={showAddInfo ? 'chevron-down' : 'chevron-right'}
-                    color={showAddInfo ? '#2B8ADA' : 'gray'}
+                    name={
+                      showAddInfo
+                        ? 'chevron-down'
+                        : dataSavedAddInfo
+                        ? 'check-circle'
+                        : 'chevron-right'
+                    }
+                    color={dataSavedAddInfo ? '#2B8ADA' : 'gray'}
                     style={[
                       styles.label,
                       {width: '10%', fontSize: 20},
@@ -2263,244 +2828,209 @@ const DoctorRegistration2 = ({navigation}) => {
               <View>
                 <View style={styles.whiteBodyView}>
                   <View style={{flexDirection: 'column', marginBottom: 10}}>
-                    {/* <View
-                      style={{
-                        flexDirection: 'row',
-                        alignSelf: 'center',
-                      }}>
-                      <CustomButton
-                        text="My Clinic Details"
-                        textstyle={{color: 'white', fontSize: 12}}
-                        style={{
-                          backgroundColor: '#2b8ada',
-                          borderRadius: 5,
-                          padding: 10,
-                          marginRight: '5%',
-                          flex: 0.45,
-                          paddingHorizontal: 10,
-                        }}
-                      />
-                      <CustomButton
-                        text="Consultation Duration"
-                        textstyle={{color: '#2b8ada', fontSize: 12}}
-                        style={{
-                          backgroundColor: 'white',
-                          borderRadius: 5,
-                          padding: 10,
-                          flex: 0.45,
-                          paddingHorizontal: 10,
-                          borderWidth: 2,
-                          borderColor: '#2b8ada',
-                        }}
-                        onPress={() => {
-                          setconsultView(true);
-                        }}
-                      />
-                    </View> */}
-                    {ClinicDet.length > 0 ? <ViewClinics /> : null}
+                    {ClinicDet.length > 0 ? (
+                      <View>
+                        {/* Heading */}
+                        <View
+                          style={{
+                            flexDirection: 'column',
+                            borderWidth: 1,
+                            borderColor: '#d3d3d3',
+                          }}>
+                          <View
+                            style={{
+                              flexDirection: 'row',
+                              justifyContent: 'space-between',
+                              margin: 0,
+                              padding: 0,
+                            }}>
+                            <View style={styles.cellHeading}>
+                              <Text style={styles.cellHeadingText}>Name</Text>
+                            </View>
+                            <View style={styles.cellHeading}>
+                              <Text style={styles.cellHeadingText}>
+                                Address
+                              </Text>
+                            </View>
+                            <View style={styles.cellHeading}>
+                              <Text style={styles.cellHeadingText}>
+                                Instructions
+                              </Text>
+                            </View>
+                            <View
+                              style={{
+                                flex: 1,
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                paddingHorizontal: 1,
+                                paddingVertical: 1,
+                              }}>
+                              <Text style={styles.cellHeadingText}>
+                                Actions
+                              </Text>
+                            </View>
+                          </View>
+                        </View>
+                        <ViewClinics />
+                      </View>
+                    ) : null}
                     {/* Add Clinic */}
-                    <View style={{width: '95%', alignSelf: 'center'}}>
-                      <View style={{flexDirection: 'column'}}>
-                        <Text style={styles.inputLabel}>Clinic Name</Text>
-                        <TextInput
-                          style={styles.textInput}
-                          value={clinicName}
-                          onChangeText={text => setClinicName(text)}
+                    {ClinicDet.length == 0 || addMoreAddInfo ? (
+                      <View style={{width: '95%', alignSelf: 'center'}}>
+                        <View style={{flexDirection: 'column'}}>
+                          <Text style={styles.inputLabel}>Clinic Name</Text>
+                          <TextInput
+                            style={styles.textInput}
+                            value={clinicName}
+                            onChangeText={text => setClinicName(text)}
+                          />
+                        </View>
+                        <View style={{flexDirection: 'column'}}>
+                          <Text style={styles.inputLabel}>Clinic Address</Text>
+                          <TextInput
+                            style={styles.textInput}
+                            value={clinicAddress}
+                            onChangeText={text => setClinicAddress(text)}
+                          />
+                        </View>
+                        <View style={{flexDirection: 'column'}}>
+                          <Text style={styles.inputLabel}>
+                            Special Instruction
+                          </Text>
+                          <TextInput
+                            style={styles.textInput}
+                            multiline={true}
+                            value={specialInstruction}
+                            onChangeText={text => setSpecialInstruction(text)}
+                          />
+                        </View>
+                        <CustomButton
+                          text="Save"
+                          textstyle={{color: 'white', fontSize: 12}}
+                          style={{
+                            backgroundColor: '#2b8ada',
+                            alignSelf: 'flex-end',
+                            borderRadius: 5,
+                            padding: 6,
+                            paddingHorizontal: 10,
+                            margin: 5,
+                          }}
+                          onPress={() => {
+                            if (clinicAddress == '')
+                              Alert.alert('Please fill Clinic Name ');
+                            else if (clinicName == '')
+                              Alert.alert('Please fill Clinic Address');
+                            else {
+                              let p = [
+                                {
+                                  clinicName: clinicName,
+                                  clinicAddress: clinicAddress,
+                                  specialInstruction: specialInstruction,
+                                },
+                              ];
+                              if (
+                                ClinicDet.findIndex(
+                                  v =>
+                                    v.clinicName == p[0].clinicName &&
+                                    v.clinicAddress == p[0].clinicAddress,
+                                ) == -1
+                              ) {
+                                let newArr = [...ClinicDet, ...p];
+                                newArr = newArr.map((v, i) => {
+                                  return {
+                                    clinicSl: i + 1,
+                                    clinicName: v.clinicName,
+                                    clinicAddress: v.clinicAddress,
+                                    specialInstruction: v.specialInstruction,
+                                  };
+                                });
+                                // console.log("newArr--------");
+                                // console.log(newArr);
+                                setClinicDet(newArr);
+                                setClinicAddress('');
+                                setClinicName('');
+                                setSpecialInstruction('');
+                                setaddMoreAddInfo(false);
+                                // console.log("ClinicDet--------");
+                                // console.log(ClinicDet);
+                              } else {
+                                Alert.alert('Duplicate clinic details found.');
+                              }
+                            }
+                          }}
                         />
                       </View>
-                      <View style={{flexDirection: 'column'}}>
-                        <Text style={styles.inputLabel}>Clinic Address</Text>
-                        <TextInput
-                          style={styles.textInput}
-                          value={clinicAddress}
-                          onChangeText={text => setClinicAddress(text)}
+                    ) : (
+                      <View style={{flex: 1}}>
+                        <CustomButton
+                          text={'+ Add More'}
+                          textstyle={{color: '#2b8ada', fontSize: 10}}
+                          style={{
+                            alignSelf: 'flex-end',
+                            width: 80,
+                            borderColor: '#2b8ada',
+                            borderWidth: 1,
+                            borderRadius: 5,
+                            padding: 3,
+                            paddingHorizontal: 10,
+                            marginTop: 10,
+                          }}
+                          onPress={() => setaddMoreAddInfo(true)}
                         />
                       </View>
-                      <View style={{flexDirection: 'column'}}>
-                        <Text style={styles.inputLabel}>
-                          Special Instruction
-                        </Text>
-                        <TextInput
-                          style={styles.textInput}
-                          value={specialInstruction}
-                          onChangeText={text => setSpecialInstruction(text)}
-                        />
-                      </View>
-                    </View>
-                    <CustomButton
-                      text="Save"
-                      textstyle={{color: 'white', fontSize: 12}}
-                      style={{
-                        backgroundColor: '#2b8ada',
-                        alignSelf: 'flex-end',
-                        borderRadius: 5,
-                        padding: 6,
-                        paddingHorizontal: 10,
-                        margin: 5,
-                      }}
-                      onPress={() => {
-                        if (clinicAddress == '' || clinicName == '')
-                          Alert.alert(
-                            'Please fill Clinic Name and Address before adding other.',
-                          );
-                        else {
-                          let p = [
-                            {
-                              clinicName: clinicName,
-                              clinicAddress: clinicAddress,
-                              specialInstruction: specialInstruction,
-                            },
-                          ];
-                          if (
-                            ClinicDet.findIndex(
-                              v =>
-                                v.clinicName == p[0].clinicName &&
-                                v.clinicAddress == p[0].clinicAddress,
-                            ) == -1
-                          ) {
-                            let newArr = [...ClinicDet, ...p];
-                            newArr = newArr.map((v, i) => {
-                              return {
-                                clinicSl: i + 1,
-                                clinicName: v.clinicName,
-                                clinicAddress: v.clinicAddress,
-                                specialInstruction: v.specialInstruction,
-                              };
-                            });
-                            // console.log("newArr--------");
-                            // console.log(newArr);
-                            setClinicDet(newArr);
-                            setClinicAddress('');
-                            setClinicName('');
-                            setSpecialInstruction('');
-                            // console.log("ClinicDet--------");
-                            // console.log(ClinicDet);
-                          } else {
-                            Alert.alert('Duplicate clinic details found.');
-                          }
-                        }
-                      }}
-                    />
-                  </View>
-                </View>
-              </View>
-            ) : null}
-            {/* General Configuration Label*/}
-            <View
-              style={{
-                width: '100%',
-                alignSelf: 'center',
-              }}>
-              <View
-                style={[
-                  styles.whiteLabelView,
-                  showGenConfig
-                    ? {
-                        borderBottomLeftRadius: 0,
-                        borderBottomRightRadius: 0,
-                        marginBottom: 0,
-                      }
-                    : null,
-                ]}>
-                <TouchableOpacity
-                  style={[
-                    {flexDirection: 'row', width: '100%'},
-                    showGenConfig
-                      ? {
-                          borderBottomWidth: 0.5,
-                          borderBottomColor: '#707070',
-                        }
-                      : null,
-                  ]}
-                  onPress={() => {
-                    if (!showGenConfig) {
-                      setShowGenConfig(!showGenConfig);
-                    } else {
-                      setShowGenConfig(!showGenConfig);
-                    }
-                  }}>
-                  <Text
-                    style={[
-                      styles.label,
-                      {width: '90%'},
-                      showGenConfig ? {color: '#2B8ADA'} : null,
-                    ]}>
-                    General Configuration
-                  </Text>
-                  <FAIcon
-                    name={showGenConfig ? 'chevron-down' : 'chevron-right'}
-                    color={showGenConfig ? '#2B8ADA' : 'gray'}
-                    style={[
-                      styles.label,
-                      {width: '10%', fontSize: 20},
-                    ]}></FAIcon>
-                </TouchableOpacity>
-              </View>
-            </View>
-            {/* General Configuration Body*/}
-            {showGenConfig ? (
-              <View>
-                <View style={styles.whiteBodyView}>
-                  <View
-                    style={{
-                      flexDirection: 'column',
-                      marginBottom: 10,
-                    }}>
+                    )}
                     <View
                       style={{
                         flexDirection: 'row',
+                        marginTop: 10,
                         alignSelf: 'center',
-                        justifyContent: 'space-between',
                         width: '95%',
-                        marginBottom: 10,
                       }}>
-                      <View
-                        style={{
-                          flexDirection: 'column',
-                          flex: 0.45,
-                          marginRight: '5%',
-                        }}>
-                        <Text style={[styles.inputLabel, {marginTop: 0}]}>
-                          Show Mobile Number
-                        </Text>
-                        <SelectList
-                          placeholder={showMobNo}
-                          boxStyles={{
-                            backgroundColor: '#e8f0fe',
-                            borderWidth: 0,
+                      <CustomButton
+                        text={'Skip For Now'}
+                        textstyle={{fontSize: 12, color: '#2b8ada'}}
+                        style={[
+                          {
+                            marginRight: '5%',
+                            flex: 0.45,
+                            borderColor: '#2b8ada',
+                            borderWidth: 1,
+                            padding: 5,
+                            borderRadius: 10,
+                          },
+                          ClinicDet.length == 0
+                            ? {flex: 1, alignSelf: 'center', marginRight: ' 0%'}
+                            : null,
+                        ]}
+                        onPress={() => {
+                          setShowAddInfo(false);
+                          setShowPreConsultationQuestionaire(true);
+                          setdataSavedAddInfo(false);
+                        }}
+                      />
+                      {ClinicDet.length > 0 ? (
+                        <CustomButton
+                          text={'Upload'}
+                          textstyle={{color: 'white', fontSize: 12}}
+                          style={{
+                            backgroundColor: '#2b8ada',
+                            padding: 5,
+                            borderRadius: 10,
+                            flex: 0.45,
                           }}
-                          dropdownTextStyles={{
-                            color: '#2b8ada',
-                            fontWeight: 'bold',
+                          onPress={() => {
+                            if (ClinicDet.length == 0)
+                              Alert.alert('Please Fill ClinicDet Details ');
+                            else postClinicDet();
                           }}
-                          setSelected={setshowMobNo}
-                          data={dataShowMobNo}
                         />
-                      </View>
-                      <View style={{flexDirection: 'column', flex: 0.45}}>
-                        <Text style={[styles.inputLabel, {marginTop: 0}]}>
-                          Follow-Up (in Days)
-                        </Text>
-
-                        <SelectList
-                          placeholder={showFollowUp}
-                          boxStyles={{
-                            backgroundColor: '#e8f0fe',
-                            borderWidth: 0,
-                          }}
-                          dropdownTextStyles={{
-                            color: '#2b8ada',
-                            fontWeight: 'bold',
-                          }}
-                          setSelected={setshowFollowUp}
-                          data={dataFollowUp}
-                        />
-                      </View>
+                      ) : null}
                     </View>
                   </View>
                 </View>
               </View>
             ) : null}
+
             {/* Preconsultation Questionnaire Label*/}
             <View
               style={{
@@ -2527,23 +3057,12 @@ const DoctorRegistration2 = ({navigation}) => {
                           borderBottomColor: '#707070',
                         }
                       : null,
-                  ]}
-                  onPress={() => {
-                    if (!showPreConsultationQuestionaire) {
-                      setShowPreConsultationQuestionaire(
-                        !showPreConsultationQuestionaire,
-                      );
-                    } else {
-                      setShowPreConsultationQuestionaire(
-                        !showPreConsultationQuestionaire,
-                      );
-                    }
-                  }}>
+                  ]}>
                   <Text
                     style={[
                       styles.label,
                       {width: '90%'},
-                      showPreConsultationQuestionaire
+                      dataSavedPreConsultationQuestionaire
                         ? {color: '#2B8ADA'}
                         : null,
                     ]}>
@@ -2553,9 +3072,13 @@ const DoctorRegistration2 = ({navigation}) => {
                     name={
                       showPreConsultationQuestionaire
                         ? 'chevron-down'
+                        : dataSavedPreConsultationQuestionaire
+                        ? 'check-circle'
                         : 'chevron-right'
                     }
-                    color={showPreConsultationQuestionaire ? '#2B8ADA' : 'gray'}
+                    color={
+                      dataSavedPreConsultationQuestionaire ? '#2B8ADA' : 'gray'
+                    }
                     style={[
                       styles.label,
                       {width: '10%', fontSize: 20},
@@ -2576,7 +3099,7 @@ const DoctorRegistration2 = ({navigation}) => {
                       style={{
                         width: '95%',
                         alignSelf: 'center',
-                        marginBottom: 5,
+                        marginBottom: 10,
                       }}>
                       <Text style={[styles.inputLabel, {marginTop: 0}]}>
                         Set PreConsultation Questionnaire
@@ -2595,38 +3118,63 @@ const DoctorRegistration2 = ({navigation}) => {
                           setShowQuestions(val === 'Yes' ? true : false)
                         }
                         onSelect={() => {
-                          if (showQuestions == 'No') setQuestionareList([]);
+                          if (showQuestions == 'No') setQuestionareList('');
                         }}
                         data={dataShowQues}
                       />
                     </View>
-                    {questionareList !== '' && showQuestions
-                      ? questionareList.map((questionareList, index) => {
-                          return (
-                            <View
-                              key={index}
-                              style={[
-                                styles.bubble,
-                                {
-                                  flexDirection: 'column',
-                                  width: '95%',
-                                  alignSelf: 'center',
-                                },
-                              ]}>
-                              <Text
-                                style={[
-                                  styles.bubbleHeading,
-                                  {color: '#2B8ADA', fontSize: 14},
-                                ]}>
-                                {questionareList.speciality}
-                              </Text>
-                              <Text style={styles.bubbleHeading}>
-                                {questionareList.questions}
+                    {questionareList.length > 0 ? (
+                      <View
+                        style={{
+                          marginBottom: 5,
+                          width: '95%',
+                          alignSelf: 'center',
+                        }}>
+                        {/* Heading */}
+                        <View
+                          style={{
+                            flexDirection: 'column',
+                            borderWidth: 1,
+                            borderColor: '#d3d3d3',
+                          }}>
+                          <View
+                            style={{
+                              flexDirection: 'row',
+                              justifyContent: 'space-between',
+                              margin: 0,
+                              padding: 0,
+                            }}>
+                            <View style={[styles.cellHeading, {flex: 0.3}]}>
+                              <Text style={styles.cellHeadingText}>S.No.</Text>
+                            </View>
+                            <View style={styles.cellHeading}>
+                              <Text style={styles.cellHeadingText}>
+                                Speciality
                               </Text>
                             </View>
-                          );
-                        })
-                      : null}
+                            <View style={styles.cellHeading}>
+                              <Text style={styles.cellHeadingText}>
+                                Question
+                              </Text>
+                            </View>
+
+                            <View
+                              style={{
+                                flex: 0.4,
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                paddingHorizontal: 1,
+                                paddingVertical: 1,
+                              }}>
+                              <Text style={styles.cellHeadingText}>
+                                Actions
+                              </Text>
+                            </View>
+                          </View>
+                        </View>
+                        <RenderQuestion />
+                      </View>
+                    ) : null}
 
                     {showQuestions ? (
                       <View
@@ -2636,24 +3184,73 @@ const DoctorRegistration2 = ({navigation}) => {
                             styles.textInput,
                             {
                               alignSelf: 'center',
-                              justifyContent: 'space-between',
+                              justifyContent: 'space-evenly',
                               flexDirection: 'row',
                               width: '95%',
+                              backgroundColor: '#2b8ada',
                             },
                           ]}
                           onPress={() => setQuestionare(true)}>
-                          <Text style={[styles.label, {fontWeight: '400'}]}>
-                            Add Pre Consultation Questionnaire
-                          </Text>
                           <FAIcon
                             name="plus"
-                            color={'black'}
+                            color={'white'}
                             size={20}
-                            style={{alignSelf: 'center', marginRight: 5}}
+                            style={{alignSelf: 'center'}}
                           />
+                          <Text style={[styles.label, {color: 'white'}]}>
+                            Add Pre Consultation Questionnaire
+                          </Text>
                         </TouchableOpacity>
                       </View>
                     ) : null}
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        marginTop: 10,
+                        alignSelf: 'center',
+                        width: '95%',
+                      }}>
+                      <CustomButton
+                        text={'Skip For Now'}
+                        textstyle={{fontSize: 12, color: '#2b8ada'}}
+                        style={[
+                          {
+                            marginRight: '5%',
+                            flex: 0.45,
+                            borderColor: '#2b8ada',
+                            borderWidth: 1,
+                            padding: 5,
+                            borderRadius: 10,
+                          },
+                        ]}
+                        onPress={() => {
+                          setShowPreConsultationQuestionaire(false);
+                          setShowConsultFees(true);
+                          setdataSavedAddInfo(false);
+                        }}
+                      />
+                      <CustomButton
+                        text={'Upload'}
+                        textstyle={{color: 'white', fontSize: 12}}
+                        style={{
+                          flex: 0.45,
+                          backgroundColor: '#2b8ada',
+                          padding: 5,
+                          borderRadius: 10,
+                        }}
+                        onPress={() => {
+                          if (questionareList.length == 0 && showQuestions)
+                            Alert.alert('Please Add Questions ');
+                          else if (showQuestions == false) {
+                            setShowPreConsultationQuestionaire(false);
+                            setShowConsultFees(true);
+                            setdataSavedPreConsultationQuestionaire(true);
+                          } else {
+                            postPreConsultQues();
+                          }
+                        }}
+                      />
+                    </View>
                   </View>
                 </View>
               </View>
@@ -2715,94 +3312,173 @@ const DoctorRegistration2 = ({navigation}) => {
                         alignSelf: 'center',
                         marginBottom: 10,
                       }}>
-                      <Text style={[styles.inputLabel, {marginTop: 0}]}>
-                        Select Speciality
-                      </Text>
-                      <SelectList
-                        boxStyles={{
-                          backgroundColor: '#e8f0fe',
-                          borderWidth: 0,
-                        }}
-                        dropdownTextStyles={{
-                          color: '#2b8ada',
-                          fontWeight: 'bold',
-                        }}
-                        setSelected={setquestionSpl}
-                        data={splArray}
-                      />
+                      {questionareList.length > 0 ? (
+                        <View style={{marginBottom: 5}}>
+                          {/* Heading */}
+                          <View
+                            style={{
+                              flexDirection: 'column',
+                              borderWidth: 1,
+                              borderColor: '#d3d3d3',
+                            }}>
+                            <View
+                              style={{
+                                flexDirection: 'row',
+                                justifyContent: 'space-between',
+                                margin: 0,
+                                padding: 0,
+                              }}>
+                              <View style={[styles.cellHeading, {flex: 0.3}]}>
+                                <Text style={styles.cellHeadingText}>
+                                  S.No.
+                                </Text>
+                              </View>
+                              <View style={styles.cellHeading}>
+                                <Text style={styles.cellHeadingText}>
+                                  Speciality
+                                </Text>
+                              </View>
+                              <View style={styles.cellHeading}>
+                                <Text style={styles.cellHeadingText}>
+                                  Question
+                                </Text>
+                              </View>
+
+                              <View
+                                style={{
+                                  flex: 0.4,
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  paddingHorizontal: 1,
+                                  paddingVertical: 1,
+                                }}>
+                                <Text style={styles.cellHeadingText}>
+                                  Actions
+                                </Text>
+                              </View>
+                            </View>
+                          </View>
+                          <RenderQuestion />
+                        </View>
+                      ) : null}
+
+                      {questionareList.length == 0 ||
+                      addMorePreConsultationQuestionaire ? (
+                        <View>
+                          <View>
+                            <Text style={[styles.inputLabel, {marginTop: 0}]}>
+                              Select Speciality
+                            </Text>
+                            <SelectList
+                              boxStyles={{
+                                backgroundColor: '#e8f0fe',
+                                borderWidth: 0,
+                              }}
+                              dropdownTextStyles={{
+                                color: '#2b8ada',
+                                fontWeight: 'bold',
+                              }}
+                              setSelected={setquestionSpl}
+                              data={splArray}
+                            />
+                          </View>
+                          <View
+                            style={{
+                              width: '100%',
+                              alignSelf: 'center',
+                              marginBottom: 5,
+                            }}>
+                            <Text
+                              style={[styles.inputLabel, {marginBottom: 5}]}>
+                              Write Question
+                            </Text>
+                            <View
+                              style={{
+                                height: 80,
+                                textAlignVertical: 'top',
+                                width: '100%',
+                                borderWidth: 1,
+                                borderColor: 'gray',
+                                borderRadius: 5,
+                                alignSelf: 'center',
+                              }}>
+                              <TextInput
+                                placeholder="Write your Question Here"
+                                style={{
+                                  textAlign: 'left',
+                                  alignSelf: 'center',
+                                  width: '80%',
+                                  fontSize: 13,
+                                }}
+                                value={consultationQuestion}
+                                onChangeText={text =>
+                                  setConsultationQuestion(text)
+                                }
+                              />
+                            </View>
+                          </View>
+                          <CustomButton
+                            text="Save"
+                            textstyle={{color: '#2B8ADA', fontSize: 10}}
+                            style={{
+                              borderColor: '#2B8ADA',
+                              borderWidth: 1,
+                              alignSelf: 'flex-end',
+                              marginVertical: 5,
+                              padding: 5,
+                              paddingHorizontal: 10,
+                              borderRadius: 5,
+                            }}
+                            onPress={() => {
+                              if (consultationQuestion !== '') {
+                                // questionareList.push({
+                                //   questions: consultationQuestion,
+                                //   speciality: questionSpl,
+                                // });
+                                let p = {
+                                  questions: consultationQuestion,
+                                  speciality: questionSpl,
+                                };
+                                let arr = [...questionareList];
+                                arr.push(p);
+                                setQuestionareList(arr);
+                              }
+                              setConsultationQuestion('');
+                            }}
+                          />
+                        </View>
+                      ) : (
+                        <View style={{flex: 1}}>
+                          <CustomButton
+                            text={'+ Add More'}
+                            textstyle={{color: '#2b8ada', fontSize: 10}}
+                            style={{
+                              alignSelf: 'flex-end',
+                              width: 80,
+                              borderColor: '#2b8ada',
+                              borderWidth: 1,
+                              borderRadius: 5,
+                              padding: 3,
+                              paddingHorizontal: 10,
+                              marginTop: 10,
+                            }}
+                            onPress={() =>
+                              setaddMorePreConsultationQuestionaire(true)
+                            }
+                          />
+                        </View>
+                      )}
                     </View>
-                    <View
-                      style={{
-                        width: '95%',
-                        alignSelf: 'center',
-                        marginBottom: 5,
-                      }}>
-                      <Text style={[styles.inputLabel, {marginBottom: 5}]}>
-                        Write Question
-                      </Text>
-                      <View
-                        style={{
-                          height: 80,
-                          textAlignVertical: 'top',
-                          width: '95%',
-                          borderWidth: 1,
-                          borderColor: 'gray',
-                          borderRadius: 5,
-                          alignSelf: 'center',
-                        }}>
-                        <TextInput
-                          placeholder="Write your Question Here"
-                          style={{
-                            textAlign: 'left',
-                            alignSelf: 'center',
-                            width: '80%',
-                            fontSize: 13,
-                          }}
-                          value={consultationQuestion}
-                          onChangeText={text => setConsultationQuestion(text)}
-                        />
-                      </View>
-                    </View>
+
                     <CustomButton
-                      text="+ Add More"
-                      textstyle={{color: 'white', fontSize: 12}}
-                      style={{
-                        backgroundColor: '#2B8ADA',
-                        alignSelf: 'flex-end',
-                        marginVertical: 5,
-                        padding: 5,
-                        paddingHorizontal: 10,
-                        borderRadius: 5,
-                      }}
-                      onPress={() => {
-                        if (consultationQuestion !== '') {
-                          // questionareList.push({
-                          //   questions: consultationQuestion,
-                          //   speciality: questionSpl,
-                          // });
-                          let p = {
-                            questions: consultationQuestion,
-                            speciality: questionSpl,
-                          };
-                          let arr = [...questionareList];
-                          arr.push(p);
-                          setQuestionareList(arr);
-                        }
-                        setConsultationQuestion('');
-                      }}
-                    />
-                    <ScrollView
-                      style={{width: '90%', maxHeight: 120, minHeight: 0}}>
-                      <RenderQuestion />
-                    </ScrollView>
-                    <CustomButton
-                      text="Save"
+                      text="Done"
                       textstyle={{color: 'white'}}
                       style={{
                         width: '95%',
                         backgroundColor: '#2B8ADA',
                         marginVertical: 5,
                         paddingVertical: 5,
+                        borderRadius: 10,
                       }}
                       onPress={() => setQuestionare(false)}
                     />
@@ -2810,6 +3486,7 @@ const DoctorRegistration2 = ({navigation}) => {
                 </View>
               </Modal>
             ) : null}
+
             {/* Consultation Fees Label*/}
             <View
               style={{
@@ -2836,25 +3513,24 @@ const DoctorRegistration2 = ({navigation}) => {
                           borderBottomColor: '#707070',
                         }
                       : null,
-                  ]}
-                  onPress={() => {
-                    if (!showConsultFees) {
-                      setShowConsultFees(!showConsultFees);
-                    } else {
-                      setShowConsultFees(!showConsultFees);
-                    }
-                  }}>
+                  ]}>
                   <Text
                     style={[
                       styles.label,
                       {width: '90%'},
-                      showConsultFees ? {color: '#2B8ADA'} : null,
+                      dataSavedConsultFees ? {color: '#2B8ADA'} : null,
                     ]}>
                     Consultation Fees
                   </Text>
                   <FAIcon
-                    name={showConsultFees ? 'chevron-down' : 'chevron-right'}
-                    color={showConsultFees ? '#2B8ADA' : 'gray'}
+                    name={
+                      showConsultFees
+                        ? 'chevron-down'
+                        : dataSavedConsultFees
+                        ? 'check-circle'
+                        : 'chevron-right'
+                    }
+                    color={dataSavedConsultFees ? '#2B8ADA' : 'gray'}
                     style={[
                       styles.label,
                       {width: '10%', fontSize: 20},
@@ -2867,21 +3543,20 @@ const DoctorRegistration2 = ({navigation}) => {
               <View style={styles.whiteBodyView}>
                 <View
                   style={{
+                    width: '95%',
+                    alignSelf: 'center',
                     flexDirection: 'column',
                     marginBottom: 10,
                   }}>
-                  <View style={{flexDirection: 'row', alignSelf: 'center'}}>
+                  <View style={{flexDirection: 'row'}}>
                     <View
                       style={{
                         flexDirection: 'column',
-                        flex: 0.65,
-                        marginRight: '5%',
+                        width: '100%',
                       }}>
-                      <Text style={[styles.textInput, {fontWeight: 'bold'}]}>
+                      <Text style={styles.inputLabel}>
                         Physical Consultation Fees
                       </Text>
-                    </View>
-                    <View style={{flexDirection: 'column', flex: 0.25}}>
                       <TextInput
                         style={[styles.textInput]}
                         maxLength={5}
@@ -2891,18 +3566,13 @@ const DoctorRegistration2 = ({navigation}) => {
                       />
                     </View>
                   </View>
-                  <View style={{flexDirection: 'row', alignSelf: 'center'}}>
+                  <View style={{flexDirection: 'row'}}>
                     <View
                       style={{
                         flexDirection: 'column',
-                        flex: 0.65,
-                        marginRight: '5%',
+                        width: '100%',
                       }}>
-                      <Text style={[styles.textInput, {fontWeight: 'bold'}]}>
-                        E-Consultation Fees
-                      </Text>
-                    </View>
-                    <View style={{flexDirection: 'column', flex: 0.25}}>
+                      <Text style={styles.inputLabel}>E-Consultation Fees</Text>
                       <TextInput
                         style={[styles.textInput]}
                         maxLength={5}
@@ -2912,18 +3582,13 @@ const DoctorRegistration2 = ({navigation}) => {
                       />
                     </View>
                   </View>
-                  <View style={{flexDirection: 'row', alignSelf: 'center'}}>
+                  <View style={{flexDirection: 'row'}}>
                     <View
                       style={{
                         flexDirection: 'column',
-                        flex: 0.65,
-                        marginRight: '5%',
+                        width: '100%',
                       }}>
-                      <Text style={[styles.textInput, {fontWeight: 'bold'}]}>
-                        Follow-Up Fees
-                      </Text>
-                    </View>
-                    <View style={{flexDirection: 'column', flex: 0.25}}>
+                      <Text style={styles.inputLabel}>Follow-Up Fees</Text>
                       <TextInput
                         style={[styles.textInput]}
                         keyboardType={'number-pad'}
@@ -2932,6 +3597,75 @@ const DoctorRegistration2 = ({navigation}) => {
                         value={followUpFees}
                       />
                     </View>
+                  </View>
+                  <View style={{flexDirection: 'row'}}>
+                    <View
+                      style={{
+                        flexDirection: 'column',
+                        width: '100%',
+                      }}>
+                      <Text style={styles.inputLabel}>
+                        Duration of Follow-Up
+                      </Text>
+                      <SelectList
+                        defaultOption={'4'}
+                        placeholder={showFollowUp}
+                        boxStyles={{
+                          backgroundColor: '#e8f0fe',
+                          borderWidth: 0,
+                        }}
+                        dropdownTextStyles={{
+                          color: '#2b8ada',
+                          fontWeight: 'bold',
+                        }}
+                        setSelected={setshowFollowUp}
+                        data={dataFollowUp}
+                      />
+                    </View>
+                  </View>
+
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      marginTop: 10,
+                      alignSelf: 'center',
+                      width: '95%',
+                    }}>
+                    <CustomButton
+                      text={'Skip For Now'}
+                      textstyle={{fontSize: 12, color: '#2b8ada'}}
+                      style={[
+                        {
+                          marginRight: '5%',
+                          flex: 0.45,
+                          borderColor: '#2b8ada',
+                          borderWidth: 1,
+                          padding: 5,
+                          borderRadius: 10,
+                        },
+                      ]}
+                      onPress={() => {
+                        setShowConsultFees(false);
+                        setdataSavedConsultFees(false);
+                      }}
+                    />
+                    <CustomButton
+                      text={'Upload'}
+                      textstyle={{color: 'white', fontSize: 12}}
+                      style={{
+                        flex: 0.45,
+                        backgroundColor: '#2b8ada',
+                        padding: 5,
+                        borderRadius: 10,
+                      }}
+                      onPress={() => {
+                        if (showFollowUp == '')
+                          Alert.alert('Please Add Follow-Up Duration');
+                        else {
+                          postConsultFees();
+                        }
+                      }}
+                    />
                   </View>
                 </View>
               </View>
@@ -2944,28 +3678,6 @@ const DoctorRegistration2 = ({navigation}) => {
                 marginVertical: 15,
               }}>
               <CustomButton
-                text="Submit"
-                textstyle={{
-                  color: 'white',
-                  fontSize: 16,
-                  fontWeight: 'bold',
-                }}
-                style={{
-                  flex: 0.45,
-                  marginRight: '5%',
-                  marginBottom: 50,
-                  marginVertical: 10,
-                  padding: 10,
-                  borderRadius: 10,
-                  backgroundColor: '#2b8ada',
-                }}
-                onPress={() => {
-                  if (completePercentage == '100%') {
-                    PostData();
-                  } else
-                    Alert.alert('Please fill all details before continuing');
-                }}></CustomButton>
-              {/* <CustomButton
                 text="Do it Later"
                 textstyle={{
                   color: '#2b8ada',
@@ -2973,9 +3685,10 @@ const DoctorRegistration2 = ({navigation}) => {
                   fontWeight: 'bold',
                 }}
                 style={{
+                  marginRight: '5%',
                   borderColor: '#2b8ada',
                   borderWidth: 2,
-                  flex: 0.45,
+                  flex: 0.475,
                   marginBottom: 50,
                   marginVertical: 10,
                   padding: 10,
@@ -2983,7 +3696,26 @@ const DoctorRegistration2 = ({navigation}) => {
                 }}
                 onPress={() => {
                   navigation.navigate('DoctorHome');
-                }}></CustomButton> */}
+                }}></CustomButton>
+              <CustomButton
+                text="Submit"
+                textstyle={{
+                  color: 'white',
+                  fontSize: 16,
+                  fontWeight: 'bold',
+                }}
+                style={{
+                  flex: 0.475,
+                  marginBottom: 50,
+                  marginVertical: 10,
+                  padding: 10,
+                  borderRadius: 10,
+                  backgroundColor: '#2b8ada',
+                }}
+                onPress={() => {
+                  Alert.alert(completePercentage + ' Profile Details Filled');
+                  navigation.navigate('DoctorHome');
+                }}></CustomButton>
             </View>
           </View>
         </ScrollView>
@@ -3181,6 +3913,30 @@ const styles = StyleSheet.create({
     color: '#fff',
     textAlign: 'center',
     width: 100,
+  },
+  cellStyle: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRightWidth: 1,
+    borderColor: '#d3d3d3',
+    paddingHorizontal: 1,
+    paddingVertical: 1,
+  },
+  cellHeading: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRightWidth: 1,
+    borderColor: '#d3d3d3',
+    paddingHorizontal: 1,
+    paddingVertical: 1,
+  },
+  cellHeadingText: {
+    textAlign: 'center',
+    fontWeight: 'bold',
+    fontSize: 11,
+    marginVertical: 5,
   },
 });
 

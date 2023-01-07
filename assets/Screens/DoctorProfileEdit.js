@@ -116,6 +116,7 @@ const EditProfile = ({navigation}) => {
   const [EduDetEdit, setEduDetEdit] = useState(false);
   const [dataSpecialization, setdataSpecialization] = useState([]);
   const [Education, setEducation] = useState([]);
+  const [EducationUpdate, setEducationUpdate] = useState([]);
   const [Degree, setDegree] = useState('');
   const [DegreePassingYear, setDegreePassingYear] = useState('');
   const [Specialization, setSpecialization] = useState('');
@@ -124,6 +125,7 @@ const EditProfile = ({navigation}) => {
   //Experience
   const [showExpDet, setShowExpDet] = useState(false);
   const [Experience, setExperience] = useState([]);
+  const [ExperienceUpdate, setExperienceUpdate] = useState([]);
   const [practiceAt, setPracticeAt] = useState('');
   const [startExpDate, setStartExpDate] = useState('');
   const [endExpDate, setEndExpDate] = useState('');
@@ -135,6 +137,7 @@ const EditProfile = ({navigation}) => {
   const [IdenDetEdit, setIdenDetEdit] = useState(false);
   const [Aadhar, setAadhar] = useState('');
   const [IdentificationDocs, setIdentificationDocs] = useState([]);
+  const [IdentificationDocsUpdate, setIdentificationDocsUpdate] = useState([]);
   const [identificationNumber, setidentificationNumber] = useState('');
   const [identificationType, setidentificationType] = useState('');
 
@@ -326,6 +329,7 @@ const EditProfile = ({navigation}) => {
         .then(function (response) {
           if (response.data != '') {
             setIdentificationDocs(response.data);
+            //console.log(response.data);
           }
         })
         .catch(function (error) {
@@ -437,7 +441,7 @@ const EditProfile = ({navigation}) => {
 
   const updateEduDet = async () => {
     axios
-      .post(apiConfig.baseUrl + '/doctor/education/update', Education)
+      .post(apiConfig.baseUrl + '/doctor/education/update', EducationUpdate)
       .then(function (response) {
         if (response.status == 200)
           Alert.alert(
@@ -449,7 +453,7 @@ const EditProfile = ({navigation}) => {
 
   const updateExperience = async () => {
     axios
-      .post(apiConfig.baseUrl + '/doctor/experience/save', Experience)
+      .post(apiConfig.baseUrl + '/doctor/experience/save', ExperienceUpdate)
       .then(function (response) {
         if (response.status == 200)
           Alert.alert('Experience Details Updated Successfully!');
@@ -459,7 +463,10 @@ const EditProfile = ({navigation}) => {
 
   const updateIden = async () => {
     axios
-      .post(apiConfig.baseUrl + '/doctor/identity/update', IdentificationDocs)
+      .post(
+        apiConfig.baseUrl + '/doctor/identity/update',
+        IdentificationDocsUpdate,
+      )
       .then(function (response) {
         if (response.status == 200)
           Alert.alert('Identification Details Updated Successfully!');
@@ -607,6 +614,45 @@ const EditProfile = ({navigation}) => {
       );
     });
   };
+  const ViewIdentificationsTabular = () => {
+    return IdentificationDocs.map((IdentificationDocs, index) => {
+      return (
+        <View
+          style={{
+            flexDirection: 'column',
+            borderWidth: 1,
+            borderTopWidth: 0,
+            borderColor: '#d3d3d3',
+          }}
+          key={index}>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              margin: 0,
+              padding: 0,
+            }}>
+            {/* Practice At */}
+            <View style={styles.cellStyle}>
+              <Text style={{textAlign: 'center', fontSize: 10}}>
+                {IdentificationDocs.identificationType}
+              </Text>
+            </View>
+            {/* Start Date */}
+            <View style={styles.cellStyle}>
+              <Text style={{textAlign: 'center', fontSize: 10}}>
+                {IdentificationDocs.identificationNumber}
+              </Text>
+            </View>
+            {/* End Date */}
+            <View style={styles.cellStyle}>
+              <FAIcon name="file-pdf" size={15} color={'#2b8ada'} />
+            </View>
+          </View>
+        </View>
+      );
+    });
+  };
 
   const ViewEducation = () => {
     return Education.map((Education, index) => {
@@ -650,10 +696,30 @@ const EditProfile = ({navigation}) => {
                 style={{
                   textAlign: 'center',
                   fontSize: 10,
-                  fontWeight: 'bold',
-                  color: 'red',
                 }}>
                 {Education.university}
+              </Text>
+            </View>
+            <View style={styles.cellStyle}>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  fontSize: 11,
+                  fontWeight: 'bold',
+                  color: 'blue',
+                  marginVertical: 5,
+                }}>
+                Edit
+              </Text>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  fontSize: 11,
+                  fontWeight: 'bold',
+                  color: 'red',
+                  marginBottom: 5,
+                }}>
+                Delete
               </Text>
             </View>
           </View>
@@ -708,11 +774,40 @@ const EditProfile = ({navigation}) => {
                 style={{
                   textAlign: 'center',
                   fontSize: 10,
+                }}>
+                {Math.floor(Exp.experienceInMonths / 12)} {'years'}{' '}
+              </Text>
+
+              {parseInt(Exp.experienceInMonths % 12) != 0 ? (
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    fontSize: 10,
+                  }}>
+                  {parseInt(Exp.experienceInMonths % 12) + ' months'}
+                </Text>
+              ) : null}
+            </View>
+            <View style={styles.cellStyle}>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  fontSize: 11,
+                  fontWeight: 'bold',
+                  color: 'blue',
+                  marginVertical: 5,
+                }}>
+                Edit
+              </Text>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  fontSize: 11,
                   fontWeight: 'bold',
                   color: 'red',
+                  marginBottom: 5,
                 }}>
-                {Math.floor(Exp.experienceInMonths / 12)} {'yrs'}{' '}
-                {parseInt(Exp.experienceInMonths % 12)} {'months'}
+                Delete
               </Text>
             </View>
           </View>
@@ -1584,61 +1679,22 @@ const EditProfile = ({navigation}) => {
                               margin: 0,
                               padding: 0,
                             }}>
-                            <View
-                              style={{
-                                flex: 1,
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                borderRightWidth: 1,
-                                borderColor: '#d3d3d3',
-                                paddingHorizontal: 1,
-                                paddingVertical: 1,
-                              }}>
-                              <Text
-                                style={{
-                                  textAlign: 'center',
-                                  fontWeight: 'bold',
-                                  fontSize: 10,
-                                }}>
-                                Degree
-                              </Text>
+                            <View style={styles.cellHeading}>
+                              <Text style={styles.cellHeadingText}>Degree</Text>
                             </View>
-                            <View
-                              style={{
-                                flex: 1,
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                borderRightWidth: 1,
-                                borderColor: '#d3d3d3',
-                                paddingHorizontal: 1,
-                                paddingVertical: 1,
-                              }}>
-                              <Text
-                                style={{
-                                  textAlign: 'center',
-                                  fontWeight: 'bold',
-                                  fontSize: 10,
-                                }}>
+                            <View style={styles.cellHeading}>
+                              <Text style={styles.cellHeadingText}>
                                 Degree Year
                               </Text>
                             </View>
-                            <View
-                              style={{
-                                flex: 1,
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                borderRightWidth: 1,
-                                borderColor: '#d3d3d3',
-                                paddingHorizontal: 1,
-                                paddingVertical: 1,
-                              }}>
-                              <Text
-                                style={{
-                                  textAlign: 'center',
-                                  fontWeight: 'bold',
-                                  fontSize: 10,
-                                }}>
-                                Specialization
+                            <View style={styles.cellHeading}>
+                              <Text style={styles.cellHeadingText}>
+                                Speciality
+                              </Text>
+                            </View>
+                            <View style={styles.cellHeading}>
+                              <Text style={styles.cellHeadingText}>
+                                University
                               </Text>
                             </View>
                             <View
@@ -1649,13 +1705,8 @@ const EditProfile = ({navigation}) => {
                                 paddingHorizontal: 1,
                                 paddingVertical: 1,
                               }}>
-                              <Text
-                                style={{
-                                  textAlign: 'center',
-                                  fontWeight: 'bold',
-                                  fontSize: 10,
-                                }}>
-                                University
+                              <Text style={styles.cellHeadingText}>
+                                Actions
                               </Text>
                             </View>
                           </View>
@@ -1909,15 +1960,7 @@ const EditProfile = ({navigation}) => {
                               padding: 0,
                             }}>
                             <View
-                              style={{
-                                flex: 1,
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                borderRightWidth: 1,
-                                borderColor: '#d3d3d3',
-                                paddingHorizontal: 1,
-                                paddingVertical: 1,
-                              }}>
+                              style={styles.cellHeading}>
                               <Text
                                 style={{
                                   textAlign: 'center',
@@ -1928,15 +1971,7 @@ const EditProfile = ({navigation}) => {
                               </Text>
                             </View>
                             <View
-                              style={{
-                                flex: 1,
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                borderRightWidth: 1,
-                                borderColor: '#d3d3d3',
-                                paddingHorizontal: 1,
-                                paddingVertical: 1,
-                              }}>
+                              style={styles.cellHeading}>
                               <Text
                                 style={{
                                   textAlign: 'center',
@@ -1947,15 +1982,7 @@ const EditProfile = ({navigation}) => {
                               </Text>
                             </View>
                             <View
-                              style={{
-                                flex: 1,
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                borderRightWidth: 1,
-                                borderColor: '#d3d3d3',
-                                paddingHorizontal: 1,
-                                paddingVertical: 1,
-                              }}>
+                              style={styles.cellHeading}>
                               <Text
                                 style={{
                                   textAlign: 'center',
@@ -1988,7 +2015,59 @@ const EditProfile = ({navigation}) => {
                       </View>
                     ) : null} */}
 
-                    {Experience.length > 0 ? <ViewExperience /> : null}
+                    {Experience.length > 0 ? (
+                      <View>
+                        {/* Heading */}
+                        <View
+                          style={{
+                            flexDirection: 'column',
+                            borderWidth: 1,
+                            borderColor: '#d3d3d3',
+                          }}>
+                          <View
+                            style={{
+                              flexDirection: 'row',
+                              justifyContent: 'space-between',
+                              margin: 0,
+                              padding: 0,
+                            }}>
+                            <View style={styles.cellHeading}>
+                              <Text style={styles.cellHeadingText}>
+                                Practice At
+                              </Text>
+                            </View>
+                            <View style={styles.cellHeading}>
+                              <Text style={styles.cellHeadingText}>
+                                Start Date
+                              </Text>
+                            </View>
+                            <View style={styles.cellHeading}>
+                              <Text style={styles.cellHeadingText}>
+                                End Date
+                              </Text>
+                            </View>
+                            <View style={styles.cellHeading}>
+                              <Text style={styles.cellHeadingText}>
+                                Experience
+                              </Text>
+                            </View>
+                            <View
+                              style={{
+                                flex: 1,
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                paddingHorizontal: 1,
+                                paddingVertical: 1,
+                              }}>
+                              <Text style={styles.cellHeadingText}>
+                                Actions
+                              </Text>
+                            </View>
+                          </View>
+                        </View>
+                        <ViewExperienceTabular />
+                      </View>
+                    ) : null}
 
                     {/* <View
                     style={{
@@ -3021,6 +3100,20 @@ const styles = StyleSheet.create({
     borderColor: '#d3d3d3',
     paddingHorizontal: 1,
     paddingVertical: 1,
+  },
+  cellHeading: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRightWidth: 1,
+    borderColor: '#d3d3d3',
+    paddingHorizontal: 1,
+    paddingVertical: 1,
+  },
+  cellHeadingText: {
+    textAlign: 'center',
+    fontWeight: 'bold',
+    fontSize: 10,
   },
 });
 
