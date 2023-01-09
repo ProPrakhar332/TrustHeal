@@ -44,6 +44,17 @@ const dataMode = [
 ];
 
 const ManageSchedule = () => {
+  const [manageSlotsLabel, setmanageSlotsLabel] = useState(false);
+  const [manageClinicsLabel, setmanageClinicsLabel] = useState(false);
+  const [ClinicDetEdit, setClinicDetEdit] = useState(false);
+  const [ManageClinic, setManageClinic] = useState([]);
+  const [clinicName, setclinicName] = useState('');
+  const [clinicAddress, setclinicAddress] = useState('');
+  const [clinicId, setclinicId] = useState('');
+  const [specialInstruction, setspecialInstruction] = useState('');
+  const [ClinicModal, setClinicModal] = useState(false);
+  const [editClinic, seteditClinic] = useState(false);
+
   const [SlotView, setSlotView] = useState(false);
   const [ViewSchedulesModal, setViewSchedulesModal] = useState(false);
   const [selectedDate, setselectedDate] = useState('');
@@ -90,15 +101,16 @@ const ManageSchedule = () => {
   const [DaysSlot, setDaysSlot] = useState([]);
   const [DaysSlotRefresh, setDaysSlotRefresh] = useState(false);
   const [Days, setDays] = useState(null);
-
-  //Manage Clinics
-  // const [ManageClinics, setManageClinics] = useState(false);
+  const [doctorId, setdoctorId] = useState(0);
 
   useEffect(() => {
     const onLoadSetData = async () => {
       setDaysSlot(DaysCreator);
       //console.log(DaysSlot);
       setselectedDate('');
+      let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
+      setdoctorId(Number(x.doctorId));
+      console.log(doctorId);
     };
     onLoadSetData();
   }, []);
@@ -207,25 +219,25 @@ const ManageSchedule = () => {
     getDate();
   }, [PCclinicId]);
 
-  // useEffect(() => {
-  //   const getEDates = async () => {
-  //     let x = JSON.parse(await AsyncStorage.getItem("UserDoctorProfile"));
-  //     let doctorId = Number(x.doctorId);
+  useEffect(() => {
+    const getClinics = async () => {
+      let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
+      let doctorId = Number(x.doctorId);
 
-  //     setviewPSlots("");
-  //     setPCclinicAddress("");
+      setviewPSlots('');
+      setPCclinicAddress('');
 
-  //     axios
-  //       .get(apiConfig.baseUrl + "/slot/clinic/details?doctorId=" + doctorId)
-  //       .then(function (response) {
-  //         setClinicDet(clinicMaker(response.data));
-  //       })
-  //       .catch(function (error) {
-  //         console.log(error);
-  //       });
-  //   };
-  //   if (ManageClinics == true) getEDates();
-  // }, [ManageClinics]);
+      axios
+        .get(apiConfig.baseUrl + '/doctor/clinic/details?doctorId=' + doctorId)
+        .then(function (response) {
+          setManageClinic(response.data);
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+    };
+    if (manageClinicsLabel == true) getClinics();
+  }, [manageClinicsLabel]);
 
   //get data of slots and dates
   const getEViewSlots = async date => {
@@ -475,6 +487,38 @@ const ManageSchedule = () => {
     setECGap('');
   };
 
+  const updateClinic = async item => {
+    let amp = [];
+    amp.push(item);
+
+    axios
+      .post(apiConfig.baseUrl + '/doctor/clinic/save/or/update', amp)
+      .then(function (response) {
+        if (response.status == 200 || response.status == 201) {
+          Alert.alert('Clinic Details has been updated successfully!');
+          setClinicModal(false);
+        }
+      })
+      .catch(function (error) {
+        console.log('Error in Clinic Update');
+        Alert.alert('Pls try again later!');
+      });
+  };
+  const deleteClinic = async id => {
+    axios
+      .delete(apiConfig.baseUrl + '/doctor/clinic/disable?clinicId=' + id)
+      .then(function (response) {
+        if (response.status == 200 || response.status == 201) {
+          Alert.alert('Clinic has been deleted successfully!');
+          setmanageClinicsLabel(false);
+        }
+      })
+      .catch(function (error) {
+        console.log('Error in Clinic Deletion');
+        Alert.alert('Pls try again later!');
+      });
+  };
+
   //render slots and dates
   const renderDaysSlot = ({item}) => {
     return item.isActive ? (
@@ -623,7 +667,7 @@ const ManageSchedule = () => {
           item.slotStatus == 'BOOKED'
             ? {backgroundColor: '#2b8ada'}
             : item.slotStatus == 'DELETED_BY_DOCTOR'
-            ? {backgroundColor: 'red', borderWidth: 0}
+            ? {backgroundColor: '#eb4034', borderWidth: 0}
             : null,
         ]}
         onPress={() => {
@@ -640,7 +684,76 @@ const ManageSchedule = () => {
       </TouchableOpacity>
     );
   };
+  const ViewClinics = () => {
+    return ManageClinic.map((ManageClinic, index) => {
+      return (
+        <View
+          style={{
+            width: '95%',
+            alignSelf: 'center',
+            flexDirection: 'column',
+            borderWidth: 1,
+            borderTopWidth: 0,
+            borderColor: '#d3d3d3',
+          }}
+          key={index}>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              margin: 0,
+              padding: 0,
+            }}>
+            {/* Practice At */}
+            <View style={styles.cellStyle}>
+              <Text style={styles.cellText}>{ManageClinic.clinicName}</Text>
+            </View>
+            {/* Start Date */}
+            <View style={styles.cellStyle}>
+              <Text style={styles.cellText}>{ManageClinic.clinicAddress}</Text>
+            </View>
 
+            <View
+              style={[
+                styles.cellStyle,
+                {flexDirection: 'row', alignContent: 'space-around'},
+              ]}>
+              <TouchableOpacity
+                style={{flexDirection: 'column', flex: 0.45}}
+                onPress={() => {
+                  setclinicName(ManageClinic.clinicName);
+                  setclinicAddress(ManageClinic.clinicAddress);
+                  setclinicId(ManageClinic.clinicId);
+                  setspecialInstruction(ManageClinic.specialInstruction);
+                  seteditClinic(true);
+                  setClinicModal(true);
+                }}>
+                <FAIcon
+                  name="edit"
+                  size={13}
+                  color={'#2b8ada'}
+                  style={{alignSelf: 'center'}}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{flexDirection: 'column', flex: 0.45}}
+                onPress={() => {
+                  deleteClinic(Number(ManageClinic.clinicId));
+                  setManageClinic(false);
+                }}>
+                <FAIcon
+                  name="trash"
+                  size={13}
+                  color={'red'}
+                  style={{alignSelf: 'center'}}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      );
+    });
+  };
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -662,336 +775,6 @@ const ManageSchedule = () => {
           showsVerticalScrollIndicator={false}>
           <Header showMenu={false} title={'Manage Schedule'} />
           <View style={{width: '95%', alignSelf: 'center', marginVertical: 10}}>
-            <View style={{flex: 1, flexDirection: 'column'}}>
-              {/* Buttons */}
-              <View
-                style={{
-                  flexDirection: 'row',
-                  marginVertical: 10,
-                  borderWidth: 1,
-                  borderRadius: 15,
-                  borderColor: '#2b8ada',
-                  width: '95%',
-                  alignSelf: 'center',
-                }}>
-                <CustomButton
-                  text={'E-CONSULTATIONS'}
-                  textstyle={[
-                    {fontSize: 13},
-                    ViewEConsultations ? {color: 'white'} : {color: '#2b8ada'},
-                  ]}
-                  style={[
-                    {flex: 0.5},
-                    ViewEConsultations ? {backgroundColor: '#2b8ada'} : null,
-                  ]}
-                  onPress={() => {
-                    setViewEConsultations(true);
-                    setViewPConsultations(false);
-                    setCreateEConsultations(true);
-                    setCreatePConsultations(false);
-                  }}
-                />
-                <CustomButton
-                  text={'P-CONSULTATIONS'}
-                  textstyle={[
-                    {fontSize: 13},
-                    ViewPConsultations ? {color: 'white'} : {color: '#2b8ada'},
-                  ]}
-                  style={[
-                    {flex: 0.5},
-                    ViewPConsultations ? {backgroundColor: '#2b8ada'} : null,
-                  ]}
-                  onPress={() => {
-                    setViewPConsultations(true);
-                    setViewEConsultations(false);
-                    setCreateEConsultations(false);
-                    setCreatePConsultations(true);
-                  }}
-                />
-              </View>
-              {/* P-consultation clinic names */}
-              {ViewPConsultations ? (
-                <ScrollView
-                  style={{
-                    width: '95%',
-                    alignSelf: 'center',
-                    backgroundColor: 'white',
-                    padding: 10,
-                    borderRadius: 15,
-                  }}>
-                  <View style={{width: '95%', alignSelf: 'center'}}>
-                    <View
-                      style={{
-                        width: '100%',
-                        justifyContent: 'space-between',
-                        flexDirection: 'column',
-                        marginBottom: 10,
-                        alignSelf: 'center',
-                      }}>
-                      <View style={{flex: 1}}>
-                        <Text style={styles.inputLabel}>
-                          Select Clinic Name
-                        </Text>
-                        <SelectList
-                          //defaultOption={ClinicDet[0].key}
-                          placeholder={' '}
-                          setSelected={item => {
-                            setPCclinicId(item);
-                          }}
-                          data={ClinicDet}
-                          save={'key'}
-                          boxStyles={{
-                            backgroundColor: '#E8F0FE',
-                            borderWidth: 0,
-                            borderRadius: 5,
-                          }}
-                          dropdownStyles={{backgroundColor: 'white'}}
-                          dropdownTextStyles={{
-                            color: '#2b8ada',
-                            fontWeight: 'bold',
-                          }}
-                          badgeStyles={{backgroundColor: '#2b8ada'}}
-                        />
-                      </View>
-                    </View>
-                    {/* Slot Days */}
-                    <Text
-                      style={[
-                        styles.inputLabel,
-                        {
-                          paddingBottom: 5,
-                          borderBottomWidth: 1,
-                          borderBottomColor: '#2b8ada',
-                        },
-                      ]}>
-                      Slot Dates
-                    </Text>
-                    <View
-                      style={{
-                        flexDirection: 'column',
-                      }}>
-                      {viewPDates.length > 0 ? (
-                        <View>
-                          <FlatList
-                            horizontal={true}
-                            data={viewPDates}
-                            extraData={DaysSlotRefresh}
-                            keyExtractor={item => item.date}
-                            renderItem={renderPViewDaysSlot}
-                            style={{marginVertical: 10}}
-                          />
-                        </View>
-                      ) : (
-                        <View>
-                          <Text
-                            style={{
-                              marginVertical: 10,
-                              alignSelf: 'center',
-                              fontSize: 12,
-                            }}>
-                            No Dates Available
-                          </Text>
-                        </View>
-                      )}
-                    </View>
-                    {/* Slot Timings */}
-                    <Text
-                      style={[
-                        styles.inputLabel,
-                        {
-                          paddingBottom: 5,
-                          borderBottomWidth: 1,
-                          borderBottomColor: '#2b8ada',
-                        },
-                      ]}>
-                      Slots
-                    </Text>
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        justifyContent: 'center',
-                        width: '100%',
-                      }}>
-                      {viewPSlots.length > 0 ? (
-                        <View style={{width: '100%', justifyContent: 'center'}}>
-                          <FlatList
-                            horizontal={false}
-                            data={viewPSlots}
-                            keyExtractor={(item, index) => index}
-                            renderItem={renderSlot}
-                            style={{marginVertical: 10, alignSelf: 'center'}}
-                            numColumns={3}
-                            scrollEnabled={true}
-                          />
-                          <CustomButton
-                            text="Add More Slots"
-                            style={{
-                              alignSelf: 'center',
-                              width: '90%',
-                              backgroundColor: '#2b8ada',
-                              padding: 5,
-                              marginVertical: 10,
-                            }}
-                            textstyle={{color: 'white', fontSize: 16}}
-                            onPress={() =>
-                              setCreateSchedulesModal(!CreateSchedulesModal)
-                            }
-                          />
-                        </View>
-                      ) : (
-                        <View style={{width: '100%', justifyContent: 'center'}}>
-                          <Text
-                            style={{
-                              marginVertical: 10,
-                              alignSelf: 'center',
-                              fontSize: 12,
-                            }}>
-                            No Slots Available
-                          </Text>
-                          <CustomButton
-                            text="Create Slots"
-                            style={{
-                              alignSelf: 'center',
-                              width: '90%',
-                              backgroundColor: '#2b8ada',
-                              padding: 5,
-                              marginVertical: 10,
-                            }}
-                            textstyle={{color: 'white', fontSize: 16}}
-                            onPress={() =>
-                              setCreateSchedulesModal(!CreateSchedulesModal)
-                            }
-                          />
-                        </View>
-                      )}
-                    </View>
-                  </View>
-                </ScrollView>
-              ) : (
-                <ScrollView
-                  style={{
-                    width: '95%',
-                    alignSelf: 'center',
-                    backgroundColor: 'white',
-                    padding: 10,
-                    borderRadius: 15,
-                  }}>
-                  <View style={{width: '95%', alignSelf: 'center'}}>
-                    {/* Slot Days */}
-                    <Text
-                      style={[
-                        styles.inputLabel,
-                        {
-                          paddingBottom: 5,
-                          borderBottomWidth: 1,
-                          borderBottomColor: '#2b8ada',
-                        },
-                      ]}>
-                      Slot Dates
-                    </Text>
-                    <View
-                      style={{
-                        flexDirection: 'column',
-                      }}>
-                      {viewEDates.length > 0 ? (
-                        <View style={{width: '100%', justifyContent: 'center'}}>
-                          <FlatList
-                            horizontal={true}
-                            data={viewEDates}
-                            extraData={DaysSlotRefresh}
-                            keyExtractor={item => item.date}
-                            renderItem={renderEViewDaysSlot}
-                            style={{marginVertical: 10}}
-                          />
-                        </View>
-                      ) : (
-                        <View>
-                          <Text
-                            style={{
-                              marginVertical: 10,
-                              alignSelf: 'center',
-                              fontSize: 12,
-                            }}>
-                            No Dates Available
-                          </Text>
-                        </View>
-                      )}
-                    </View>
-                    {/* Slot Timings */}
-                    <Text
-                      style={[
-                        styles.inputLabel,
-                        {
-                          paddingBottom: 5,
-                          borderBottomWidth: 1,
-                          borderBottomColor: '#2b8ada',
-                        },
-                      ]}>
-                      Slots
-                    </Text>
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        justifyContent: 'center',
-                        width: '100%',
-                      }}>
-                      {viewESlots.length > 0 ? (
-                        <View style={{width: '100%', justifyContent: 'center'}}>
-                          <FlatList
-                            horizontal={false}
-                            data={viewESlots}
-                            keyExtractor={(item, index) => index}
-                            renderItem={renderSlot}
-                            style={{marginVertical: 10, alignSelf: 'center'}}
-                            numColumns={3}
-                          />
-                          <CustomButton
-                            text="Add More Slots"
-                            style={{
-                              alignSelf: 'center',
-                              width: '90%',
-                              backgroundColor: '#2b8ada',
-                              padding: 5,
-                              marginVertical: 10,
-                            }}
-                            textstyle={{color: 'white', fontSize: 16}}
-                            onPress={() =>
-                              setCreateSchedulesModal(!CreateSchedulesModal)
-                            }
-                          />
-                        </View>
-                      ) : (
-                        <View style={{width: '100%', justifyContent: 'center'}}>
-                          <Text
-                            style={{
-                              marginVertical: 10,
-                              alignSelf: 'center',
-                              fontSize: 12,
-                            }}>
-                            No Slots Available
-                          </Text>
-                          <CustomButton
-                            text="Create Slots"
-                            style={{
-                              alignSelf: 'center',
-                              width: '90%',
-                              backgroundColor: '#2b8ada',
-                              padding: 5,
-                              marginVertical: 10,
-                            }}
-                            textstyle={{color: 'white', fontSize: 16}}
-                            onPress={() =>
-                              setCreateSchedulesModal(!CreateSchedulesModal)
-                            }
-                          />
-                        </View>
-                      )}
-                    </View>
-                  </View>
-                </ScrollView>
-              )}
-            </View>
-
             {/* Create Modal */}
             {CreateSchedulesModal ? (
               <Modal
@@ -1545,40 +1328,619 @@ const ManageSchedule = () => {
                 </View>
               </Modal>
             ) : null}
-            {/* Manage Clinics Modal */}
-            {/* <TouchableOpacity
+
+            {ClinicModal ? (
+              <Modal
+                animationType="slide"
+                transparent={true}
+                visible={ClinicModal}
+                onRequestClose={() => {
+                  setClinicModal(!ClinicModal);
+                }}>
+                <View
+                  style={{
+                    height: '100%',
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                  }}>
+                  <View
+                    style={[
+                      styles.modalView,
+                      {
+                        borderRadius: 10,
+                        padding: 15,
+                        height: 400,
+                      },
+                    ]}>
+                    <View
+                      style={{
+                        width: '100%',
+                        alignSelf: 'center',
+                        marginBottom: 20,
+                        borderBottomWidth: 1,
+                        borderBottomColor: 'gray',
+                      }}>
+                      <Text
+                        style={{
+                          fontWeight: 'bold',
+                          fontSize: 14,
+                          padding: 5,
+                        }}>
+                        {editClinic ? ' Edit' : 'Add More'} Clinic Details
+                      </Text>
+                      <FAIcon
+                        name="window-close"
+                        color="black"
+                        size={26}
+                        style={{
+                          position: 'absolute',
+                          top: 0,
+                          right: 0,
+                        }}
+                        onPress={() => setClinicModal(false)}
+                      />
+                    </View>
+                    <View style={{width: '95%', alignSelf: 'center', flex: 1}}>
+                      <View style={{flexDirection: 'column', flex: 1}}>
+                        <Text style={[styles.inputLabel, {marginTop: 0}]}>
+                          Clinic Name
+                        </Text>
+                        <TextInput
+                          style={[styles.textInput]}
+                          value={clinicName}
+                          onChangeText={text => setclinicName(text)}
+                        />
+                      </View>
+                      <View style={{flexDirection: 'column', flex: 1}}>
+                        <Text style={[styles.inputLabel, {marginTop: 0}]}>
+                          Clinic Address
+                        </Text>
+                        <TextInput
+                          style={[styles.textInput]}
+                          value={clinicAddress}
+                          onChangeText={text => setclinicAddress(text)}
+                        />
+                      </View>
+                      <View style={{flexDirection: 'column', flex: 1}}>
+                        <Text style={[styles.inputLabel, {marginTop: 0}]}>
+                          Special Instruction
+                        </Text>
+                        <TextInput
+                          style={[styles.textInput]}
+                          multiline={true}
+                          value={specialInstruction}
+                          onChangeText={text => setspecialInstruction(text)}
+                        />
+                      </View>
+                    </View>
+
+                    <CustomButton
+                      text={editClinic ? 'Update' : 'Save'}
+                      textstyle={{color: 'white', fontSize: 12}}
+                      style={{
+                        width: '95%',
+                        backgroundColor: '#2B8ADA',
+                        marginVertical: 5,
+                        paddingVertical: 10,
+                        borderRadius: 10,
+                      }}
+                      onPress={() => {
+                        if (clinicName == '')
+                          Alert.alert('Please fill Clinic Name ');
+                        else if (clinicAddress == '')
+                          Alert.alert('Please fill Clinic Address');
+                        else {
+                          let p = {
+                            clinicAddress: clinicAddress,
+                            clinicName: clinicName,
+                            doctorId: doctorId,
+                            specialInstruction: specialInstruction,
+                          };
+                          if (
+                            ManageClinic.findIndex(
+                              v =>
+                                v.clinicName == p.clinicName &&
+                                v.clinicAddress == p.clinicAddress,
+                            ) == -1
+                          ) {
+                            if (editClinic) p.clinicId = clinicId;
+
+                            updateClinic(p);
+                            setclinicAddress('');
+                            setclinicName('');
+                            setmanageClinicsLabel(false);
+                          } else {
+                            Alert.alert('Duplicate clinic details found.');
+                          }
+                        }
+                      }}
+                    />
+                  </View>
+                </View>
+              </Modal>
+            ) : null}
+
+            {/* Manage Clinics Label */}
+            <TouchableOpacity
               style={styles.WhiteLabel}
-              onPress={() => setManageClinics(!ManageClinics)}
-            >
+              onPress={() => setmanageClinicsLabel(!manageClinicsLabel)}>
+              <FAIcon
+                name="clinic-medical"
+                size={15}
+                color={manageClinicsLabel ? '#2b8ada' : 'gray'}
+              />
               <Text
                 style={[
                   styles.label,
-                  { width: "80%" },
-                  ManageClinics ? { color: "#2B8ADA" } : { color: "black" },
-                ]}
-              >
+                  {width: '80%'},
+                  manageClinicsLabel ? {color: '#2B8ADA'} : {color: 'black'},
+                ]}>
                 Manage Clinics
               </Text>
               <FAIcon
-                name={ManageClinics ? "chevron-down" : "chevron-right"}
+                name={manageClinicsLabel ? 'chevron-down' : 'chevron-right'}
                 size={20}
                 style={[
-                  ManageClinics ? { color: "#2B8ADA" } : { color: "black" },
+                  manageClinicsLabel ? {color: '#2B8ADA'} : {color: 'black'},
                 ]}
               />
             </TouchableOpacity>
-            {ManageClinics ? (
-              <View>
-                {ClinicDet.map((ClinicDet, index) => {
-                  return (
-                    <View key={index}>
-                      <Text>{index}</Text>
-                      <Text>{index}</Text>
+            {/* Manage Clinic Body */}
+            {manageClinicsLabel ? (
+              <View
+                style={[
+                  styles.whiteBodyView,
+                  {width: '95%', alignSelf: 'center'},
+                ]}>
+                <View
+                  style={{
+                    width: '100%',
+                    alignSelf: 'center',
+                    marginVertical: 10,
+                  }}>
+                  <View
+                    style={{
+                      width: '95%',
+                      alignSelf: 'center',
+                      flexDirection: 'column',
+                      borderWidth: 1,
+                      borderColor: '#d3d3d3',
+                    }}>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        margin: 0,
+                        padding: 0,
+                      }}>
+                      <View style={styles.cellHeading}>
+                        <Text style={styles.cellHeadingText}>Name</Text>
+                      </View>
+                      <View style={styles.cellHeading}>
+                        <Text style={styles.cellHeadingText}>Address</Text>
+                      </View>
+
+                      <View
+                        style={{
+                          flex: 1,
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          paddingHorizontal: 1,
+                          paddingVertical: 1,
+                        }}>
+                        <Text style={styles.cellHeadingText}>Actions</Text>
+                      </View>
                     </View>
-                  );
-                })}
+                  </View>
+                  <ViewClinics />
+                  <View style={{flex: 1}}>
+                    <CustomButton
+                      text={'+ Add More'}
+                      textstyle={{color: 'white', fontSize: 10}}
+                      style={{
+                        alignSelf: 'flex-end',
+                        width: 80,
+                        backgroundColor: '#2b8ada',
+                        borderRadius: 5,
+                        padding: 3,
+                        paddingHorizontal: 10,
+                        marginTop: 10,
+                      }}
+                      onPress={() => {
+                        setClinicModal(true);
+                      }}
+                    />
+                  </View>
+                </View>
               </View>
-            ) : null} */}
+            ) : null}
+            {/* Manage Slots Label */}
+            <TouchableOpacity
+              style={styles.WhiteLabel}
+              onPress={() => setmanageSlotsLabel(!manageSlotsLabel)}>
+              <FAIcon
+                name="calendar-week"
+                size={15}
+                color={manageSlotsLabel ? '#2b8ada' : 'gray'}
+              />
+              <Text
+                style={[
+                  styles.label,
+                  {width: '80%'},
+                  manageSlotsLabel ? {color: '#2B8ADA'} : {color: 'black'},
+                ]}>
+                Manage Slots
+              </Text>
+              <FAIcon
+                name={manageSlotsLabel ? 'chevron-down' : 'chevron-right'}
+                size={20}
+                style={[
+                  manageSlotsLabel ? {color: '#2B8ADA'} : {color: 'black'},
+                ]}
+              />
+            </TouchableOpacity>
+            {/* Manage Slots Body */}
+            {manageSlotsLabel ? (
+              <View
+                style={[
+                  styles.whiteBodyView,
+                  {width: '95%', alignSelf: 'center'},
+                ]}>
+                <View style={{flex: 1, flexDirection: 'column'}}>
+                  {/* Buttons */}
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      marginVertical: 10,
+                      borderWidth: 1,
+                      borderRadius: 15,
+                      borderColor: '#2b8ada',
+                      width: '95%',
+                      alignSelf: 'center',
+                    }}>
+                    <CustomButton
+                      text={'E-CONSULTATIONS'}
+                      textstyle={[
+                        {fontSize: 10},
+                        ViewEConsultations
+                          ? {color: 'white'}
+                          : {color: '#2b8ada'},
+                      ]}
+                      style={[
+                        {flex: 0.5},
+                        ViewEConsultations
+                          ? {backgroundColor: '#2b8ada'}
+                          : null,
+                      ]}
+                      onPress={() => {
+                        setViewEConsultations(true);
+                        setViewPConsultations(false);
+                        setCreateEConsultations(true);
+                        setCreatePConsultations(false);
+                      }}
+                    />
+                    <CustomButton
+                      text={'P-CONSULTATIONS'}
+                      textstyle={[
+                        {fontSize: 10},
+                        ViewPConsultations
+                          ? {color: 'white'}
+                          : {color: '#2b8ada'},
+                      ]}
+                      style={[
+                        {flex: 0.5},
+                        ViewPConsultations
+                          ? {backgroundColor: '#2b8ada'}
+                          : null,
+                      ]}
+                      onPress={() => {
+                        setViewPConsultations(true);
+                        setViewEConsultations(false);
+                        setCreateEConsultations(false);
+                        setCreatePConsultations(true);
+                      }}
+                    />
+                  </View>
+                  {/* P-consultation clinic names */}
+                  {ViewPConsultations ? (
+                    <ScrollView
+                      style={{
+                        width: '95%',
+                        alignSelf: 'center',
+                        backgroundColor: 'white',
+                        padding: 10,
+                        borderRadius: 15,
+                      }}>
+                      <View style={{width: '95%', alignSelf: 'center'}}>
+                        <View
+                          style={{
+                            width: '100%',
+                            justifyContent: 'space-between',
+                            flexDirection: 'column',
+                            marginBottom: 10,
+                            alignSelf: 'center',
+                          }}>
+                          <View style={{flex: 1}}>
+                            <Text style={styles.inputLabel}>
+                              Select Clinic Name
+                            </Text>
+                            <SelectList
+                              //defaultOption={ClinicDet[0].key}
+                              placeholder={' '}
+                              setSelected={item => {
+                                setPCclinicId(item);
+                              }}
+                              data={ClinicDet}
+                              save={'key'}
+                              boxStyles={{
+                                backgroundColor: '#E8F0FE',
+                                borderWidth: 0,
+                                borderRadius: 5,
+                              }}
+                              dropdownStyles={{backgroundColor: 'white'}}
+                              dropdownTextStyles={{
+                                color: '#2b8ada',
+                                fontWeight: 'bold',
+                              }}
+                              badgeStyles={{backgroundColor: '#2b8ada'}}
+                            />
+                          </View>
+                        </View>
+                        {/* Slot Days */}
+                        <Text
+                          style={[
+                            styles.inputLabel,
+                            {
+                              paddingBottom: 5,
+                              borderBottomWidth: 1,
+                              borderBottomColor: '#2b8ada',
+                            },
+                          ]}>
+                          Slot Dates
+                        </Text>
+                        <View
+                          style={{
+                            flexDirection: 'column',
+                          }}>
+                          {viewPDates.length > 0 ? (
+                            <View>
+                              <FlatList
+                                horizontal={true}
+                                data={viewPDates}
+                                extraData={DaysSlotRefresh}
+                                keyExtractor={item => item.date}
+                                renderItem={renderPViewDaysSlot}
+                                style={{marginVertical: 10}}
+                              />
+                            </View>
+                          ) : (
+                            <View>
+                              <Text
+                                style={{
+                                  marginVertical: 10,
+                                  alignSelf: 'center',
+                                  fontSize: 12,
+                                }}>
+                                No Dates Available
+                              </Text>
+                            </View>
+                          )}
+                        </View>
+                        {/* Slot Timings */}
+                        <Text
+                          style={[
+                            styles.inputLabel,
+                            {
+                              paddingBottom: 5,
+                              borderBottomWidth: 1,
+                              borderBottomColor: '#2b8ada',
+                            },
+                          ]}>
+                          Slots
+                        </Text>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            justifyContent: 'center',
+                            width: '100%',
+                          }}>
+                          {viewPSlots.length > 0 ? (
+                            <View
+                              style={{width: '100%', justifyContent: 'center'}}>
+                              <FlatList
+                                horizontal={false}
+                                data={viewPSlots}
+                                keyExtractor={(item, index) => index}
+                                renderItem={renderSlot}
+                                style={{
+                                  marginVertical: 10,
+                                  alignSelf: 'center',
+                                }}
+                                numColumns={3}
+                                scrollEnabled={true}
+                              />
+                              <CustomButton
+                                text="Add More Slots"
+                                style={{
+                                  alignSelf: 'center',
+                                  width: '90%',
+                                  backgroundColor: '#2b8ada',
+                                  padding: 5,
+                                  marginVertical: 10,
+                                  borderRadius: 5,
+                                }}
+                                textstyle={{color: 'white', fontSize: 12}}
+                                onPress={() =>
+                                  setCreateSchedulesModal(!CreateSchedulesModal)
+                                }
+                              />
+                            </View>
+                          ) : (
+                            <View
+                              style={{width: '100%', justifyContent: 'center'}}>
+                              <Text
+                                style={{
+                                  marginVertical: 10,
+                                  alignSelf: 'center',
+                                  fontSize: 12,
+                                }}>
+                                No Slots Available
+                              </Text>
+                              <CustomButton
+                                text="Create Slots"
+                                style={{
+                                  alignSelf: 'center',
+                                  width: '90%',
+                                  backgroundColor: '#2b8ada',
+                                  padding: 5,
+                                  marginVertical: 10,
+                                  borderRadius: 5,
+                                }}
+                                textstyle={{color: 'white', fontSize: 12}}
+                                onPress={() =>
+                                  setCreateSchedulesModal(!CreateSchedulesModal)
+                                }
+                              />
+                            </View>
+                          )}
+                        </View>
+                      </View>
+                    </ScrollView>
+                  ) : (
+                    <ScrollView
+                      style={{
+                        width: '95%',
+                        alignSelf: 'center',
+                        backgroundColor: 'white',
+                        padding: 10,
+                        borderRadius: 15,
+                      }}>
+                      <View style={{width: '95%', alignSelf: 'center'}}>
+                        {/* Slot Days */}
+                        <Text
+                          style={[
+                            styles.inputLabel,
+                            {
+                              paddingBottom: 5,
+                              borderBottomWidth: 1,
+                              borderBottomColor: '#2b8ada',
+                            },
+                          ]}>
+                          Slot Dates
+                        </Text>
+                        <View
+                          style={{
+                            flexDirection: 'column',
+                          }}>
+                          {viewEDates.length > 0 ? (
+                            <View
+                              style={{width: '100%', justifyContent: 'center'}}>
+                              <FlatList
+                                horizontal={true}
+                                data={viewEDates}
+                                extraData={DaysSlotRefresh}
+                                keyExtractor={item => item.date}
+                                renderItem={renderEViewDaysSlot}
+                                style={{marginVertical: 10}}
+                              />
+                            </View>
+                          ) : (
+                            <View>
+                              <Text
+                                style={{
+                                  marginVertical: 10,
+                                  alignSelf: 'center',
+                                  fontSize: 12,
+                                }}>
+                                No Dates Available
+                              </Text>
+                            </View>
+                          )}
+                        </View>
+                        {/* Slot Timings */}
+                        <Text
+                          style={[
+                            styles.inputLabel,
+                            {
+                              paddingBottom: 5,
+                              borderBottomWidth: 1,
+                              borderBottomColor: '#2b8ada',
+                            },
+                          ]}>
+                          Slots
+                        </Text>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            justifyContent: 'center',
+                            width: '100%',
+                          }}>
+                          {viewESlots.length > 0 ? (
+                            <View
+                              style={{width: '100%', justifyContent: 'center'}}>
+                              <FlatList
+                                horizontal={false}
+                                data={viewESlots}
+                                keyExtractor={(item, index) => index}
+                                renderItem={renderSlot}
+                                style={{
+                                  marginVertical: 10,
+                                  alignSelf: 'center',
+                                }}
+                                numColumns={3}
+                              />
+                              <CustomButton
+                                text="Add More Slots"
+                                style={{
+                                  alignSelf: 'center',
+                                  width: '90%',
+                                  backgroundColor: '#2b8ada',
+                                  padding: 5,
+                                  marginVertical: 10,
+                                  borderRadius: 5,
+                                }}
+                                textstyle={{color: 'white', fontSize: 12}}
+                                onPress={() =>
+                                  setCreateSchedulesModal(!CreateSchedulesModal)
+                                }
+                              />
+                            </View>
+                          ) : (
+                            <View
+                              style={{width: '100%', justifyContent: 'center'}}>
+                              <Text
+                                style={{
+                                  marginVertical: 10,
+                                  alignSelf: 'center',
+                                  fontSize: 12,
+                                }}>
+                                No Slots Available
+                              </Text>
+                              <CustomButton
+                                text="Create Slots"
+                                style={{
+                                  alignSelf: 'center',
+                                  width: '90%',
+                                  backgroundColor: '#2b8ada',
+                                  padding: 5,
+                                  marginVertical: 10,
+                                  borderRadius: 5,
+                                }}
+                                textstyle={{color: 'white', fontSize: 12}}
+                                onPress={() =>
+                                  setCreateSchedulesModal(!CreateSchedulesModal)
+                                }
+                              />
+                            </View>
+                          )}
+                        </View>
+                      </View>
+                    </ScrollView>
+                  )}
+                </View>
+              </View>
+            ) : null}
           </View>
         </ScrollView>
       </SafeAreaView>
@@ -1674,13 +2036,14 @@ const styles = StyleSheet.create({
     padding: 2,
     borderRadius: 10,
     margin: 2,
-    width: 100,
+    width: 80,
   },
   slotTitle: {
     fontSize: 12,
     color: '#2b8ada',
     textAlign: 'center',
-    width: 100,
+    width: 50,
+    alignSelf: 'center',
   },
   slotBackgroundActive: {
     alignSelf: 'center',
@@ -1690,13 +2053,14 @@ const styles = StyleSheet.create({
     padding: 2,
     borderRadius: 10,
     margin: 2,
-    width: 100,
+    width: 80,
   },
   slotTitleActive: {
     fontSize: 12,
     color: '#fff',
     textAlign: 'center',
-    // width: 100,
+    width: 50,
+    alignSelf: 'center',
   },
   WhiteLabel: {
     flexDirection: 'row',
@@ -1709,7 +2073,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     borderRadius: 10,
   },
-
+  whiteBodyView: {
+    marginTop: 5,
+    backgroundColor: 'white',
+    padding: 10,
+    borderRadius: 10,
+    marginBottom: 10,
+  },
   label: {
     fontSize: 14,
     marginLeft: 5,
@@ -1729,6 +2099,31 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginTop: 10,
     color: '#2b8ada',
+  },
+  cellStyle: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRightWidth: 1,
+    borderColor: '#d3d3d3',
+    paddingHorizontal: 1,
+    paddingVertical: 1,
+  },
+  cellText: {textAlign: 'center', fontSize: 10, marginVertical: 10},
+  cellHeading: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRightWidth: 1,
+    borderColor: '#d3d3d3',
+    paddingHorizontal: 1,
+    paddingVertical: 1,
+  },
+  cellHeadingText: {
+    textAlign: 'center',
+    fontWeight: 'bold',
+    fontSize: 10,
+    marginVertical: 3,
   },
 });
 
