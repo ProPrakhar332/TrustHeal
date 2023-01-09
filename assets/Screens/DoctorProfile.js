@@ -14,7 +14,7 @@ import {
   KeyboardAvoidingView,
   StatusBar,
   ScrollView,
-  StyleSheet
+  StyleSheet,
 } from 'react-native';
 import CustomButton from '../Components/CustomButton';
 import Header from '../Components/Header';
@@ -57,15 +57,15 @@ function BasicDesign({navigation}) {
     await AsyncStorage.removeItem('countryName');
     await AsyncStorage.removeItem('age');
     console.log(await AsyncStorage.getAllKeys());
-    navigation.navigate("RoleScreen");
+    navigation.navigate('RoleScreen');
   };
 
   useEffect(() => {
     const onLoadSetData = async () => {
       let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
 
-      setTitle(x.title);
-      setName(x.doctorName == undefined ? x.fullName : x.doctorName);
+      //setTitle(x.fullName.substring(0, x.fullName.indexOf(' ')));
+      setName(x.fullName);
       setCity(x.city);
       setEmail(x.email);
       setAge(x.age + '');
@@ -100,7 +100,7 @@ function BasicDesign({navigation}) {
           backgroundColor: '#2B8ADA',
           width: '100%',
         }}>
-        <StatusBar animated={true} backgroundColor="#2B8ADA"/>
+        <StatusBar animated={true} backgroundColor="#2B8ADA" />
         <ScrollView
           style={{
             width: '100%',
@@ -147,7 +147,7 @@ function BasicDesign({navigation}) {
               </View>
               <View style={{alignSelf: 'center'}}>
                 <Text style={[styles.blueUnderText, {textAlign: 'center'}]}>
-                  {title} {name}
+                  {name}
                 </Text>
                 <Text
                   style={[
@@ -233,7 +233,7 @@ function BasicDesign({navigation}) {
                 style={styles.whiteBoxRow}
                 onPress={() => {
                   // setHelpModal(true);
-                  navigation.navigate("Support");
+                  navigation.navigate('Support');
                 }}>
                 <View style={{flex: 0.3}}>
                   <Image source={help} style={styles.whiteBoxRowIcon} />

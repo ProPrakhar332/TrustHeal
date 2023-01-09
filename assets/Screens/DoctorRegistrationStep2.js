@@ -3392,6 +3392,7 @@ const DoctorRegistration2 = ({navigation}) => {
                               style={[styles.inputLabel, {marginBottom: 5}]}>
                               Write Question
                             </Text>
+
                             <View
                               style={{
                                 height: 80,
@@ -3410,6 +3411,7 @@ const DoctorRegistration2 = ({navigation}) => {
                                   width: '80%',
                                   fontSize: 13,
                                 }}
+                                maxLength={50}
                                 value={consultationQuestion}
                                 onChangeText={text =>
                                   setConsultationQuestion(text)
@@ -3417,6 +3419,9 @@ const DoctorRegistration2 = ({navigation}) => {
                               />
                             </View>
                           </View>
+                          <Text>
+                            {50 - consultationQuestion.length} words left
+                          </Text>
                           <CustomButton
                             text="Save"
                             textstyle={{color: '#2B8ADA', fontSize: 10}}

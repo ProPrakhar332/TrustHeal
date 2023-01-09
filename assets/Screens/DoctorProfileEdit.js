@@ -124,6 +124,7 @@ const EditProfile = ({navigation}) => {
 
   //Experience
   const [showExpDet, setShowExpDet] = useState(false);
+  const [ExpDetEdit, setExpDetEdit] = useState(false);
   const [Experience, setExperience] = useState([]);
   const [ExperienceUpdate, setExperienceUpdate] = useState([]);
   const [practiceAt, setPracticeAt] = useState('');
@@ -165,8 +166,8 @@ const EditProfile = ({navigation}) => {
       setdoctorObj(x);
       setdoctorId(Number(x.doctorId));
       //console.log(doctorId);
-      setTitle(x.title);
-      setName(x.fullName == null ? x.doctorName : x.fullName);
+      setTitle(x.fullName.substring(0, x.fullName.indexOf(' ')));
+      setName(x.fullName.substring(x.fullName.indexOf(' ') + 1));
       setEmail(x.email);
       setGender(x.gender);
       setCity(x.city);
@@ -272,7 +273,7 @@ const EditProfile = ({navigation}) => {
               setRegNo(doctorMedicalRegistrations[0].registrationNo);
               setRegCouncil(doctorMedicalRegistrations[0].registrationCouncil);
               setRegYear(doctorMedicalRegistrations[0].registrationYear);
-              setRegCert(doctorMedicalRegistrations[0].certificatePath);
+              //setRegCert(doctorMedicalRegistrations[0].certificatePath);
             }
           } else Alert.alert('Could not get Details. Please try again later.');
         })
@@ -377,6 +378,7 @@ const EditProfile = ({navigation}) => {
             setdoctorConsulationFeesPkId(
               response.data.doctorConsulationFeesPkId,
             );
+            setshowFollowUp(response.data.followUpDuration);
           }
         })
         .catch(function (error) {
@@ -396,10 +398,9 @@ const EditProfile = ({navigation}) => {
     mainOnj.doctorId = doctorId;
     mainOnj.mobileNumber = doctorObj.mobileNumber;
     mainOnj.email = email;
-    mainOnj.fullName = name;
+    mainOnj.fullName = title + ' ' + name;
     mainOnj.gender = gender;
     mainOnj.pincode = pinCode;
-    mainOnj.title = title;
     console.log(
       'General Info Update---------\n' + JSON.stringify(mainOnj, null, 1),
     );
@@ -416,19 +417,21 @@ const EditProfile = ({navigation}) => {
   };
 
   const updateMedReg = async () => {
-    let mainOnj = new Object();
-    mainOnj.medicalRegistrationId =
-      doctorMedicalRegistration.doctorMedicalRegistrationPkId;
-    mainOnj.doctorId = doctorId;
-    mainOnj.registrationCouncil = RegCouncil;
-    mainOnj.registrationNo = RegNo;
-    mainOnj.registrationYear = Number(RegYear);
-    mainOnj.certificatePath = 'aws/s3/' + doctorId + '/cerificates';
-    console.log(
-      'Medical Regd Update---------\n' + JSON.stringify(mainOnj, null, 1),
-    );
+    let p = {
+      certificatePath: 'aws/s3/' + doctorId + '/cerificates',
+      doctorId: doctorId,
+      doctorMedicalRegistrationPkId:
+        doctorMedicalRegistration.doctorMedicalRegistrationPkId,
+      registrationCouncil: RegCouncil,
+      registrationNo: RegNo,
+      registrationYear: Number(RegYear),
+    };
+    let mj = [];
+    mj.push(p);
+
+    console.log('Medical Regd Update---------\n' + mj);
     axios
-      .post(apiConfig.baseUrl + '/doctor/medicalregi/update', mainOnj)
+      .post(apiConfig.baseUrl + '/doctor/medicalregi/save/or/update', mj)
       .then(function (response) {
         if (response.status == 200) {
           Alert.alert(
@@ -441,7 +444,10 @@ const EditProfile = ({navigation}) => {
 
   const updateEduDet = async () => {
     axios
-      .post(apiConfig.baseUrl + '/doctor/education/update', EducationUpdate)
+      .post(
+        apiConfig.baseUrl + '/doctor/education/save/or/update',
+        EducationUpdate,
+      )
       .then(function (response) {
         if (response.status == 200)
           Alert.alert(
@@ -451,9 +457,12 @@ const EditProfile = ({navigation}) => {
       });
   };
 
-  const updateExperience = async () => {
+  const updateExpDet = async () => {
     axios
-      .post(apiConfig.baseUrl + '/doctor/experience/save', ExperienceUpdate)
+      .post(
+        apiConfig.baseUrl + '/doctor/experience/save/or/update',
+        ExperienceUpdate,
+      )
       .then(function (response) {
         if (response.status == 200)
           Alert.alert('Experience Details Updated Successfully!');
@@ -464,74 +473,81 @@ const EditProfile = ({navigation}) => {
   const updateIden = async () => {
     axios
       .post(
-        apiConfig.baseUrl + '/doctor/identity/update',
+        apiConfig.baseUrl + '/doctor/identity/save/or/update',
         IdentificationDocsUpdate,
       )
       .then(function (response) {
-        if (response.status == 200)
+        if (response.status == 200) {
+          setisLoading(false);
+          setIdenDetEdit(false);
           Alert.alert('Identification Details Updated Successfully!');
-        else Alert.alert('Could not Update Details. Please try again later.');
+        } else {
+          setisLoading(false);
+          Alert.alert('Could not Update Details. Please try again later.');
+        }
       });
   };
 
-  const updateGenConfig = async () => {
-    let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
+  // const updateGenConfig = async () => {
+  //   let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
 
-    console.log('General Config Update---------\n');
-    var flag = 1;
-    axios
-      .post(
-        apiConfig.baseUrl +
-          '/doctor/contact/visibility/update?contactVisibility=' +
-          '&doctorId=' +
-          doctorId,
-      )
-      .then(function (response) {
-        if (response.status == 200) {
-          // x.doctorConfigurationDTO.followUpDuration = showFollowUp;
-          // x.doctorConfigurationDTO.contactVisibility =
-          //   showMobNo == 'Yes' ? true : false;
-          // AsyncStorage.setItem('UserDoctorProfile', JSON.stringify(x));
-          flag = 1;
-          //setGenConfigEdit(false);
-        } else flag = 0;
-      });
-    let doctorFees = new Object();
-    doctorFees.doctorId = doctorId;
-    doctorFees.followUpDuration = followUpDuration;
-    axios
-      .post(apiConfig.baseUrl + '/doctor/fees/update', doctorFees)
-      .then(function (response) {
-        if (response.status == 200) {
-          flag = 1;
-        } else flag = 0;
-      });
-    if (flag == 1)
-      Alert.alert('All changes made in General Config have been updated');
-    else Alert.alert('Could not Update Details. Please try again later.');
-  };
+  //   console.log('General Config Update---------\n');
+  //   var flag = 1;
+  //   axios
+  //     .post(
+  //       apiConfig.baseUrl +
+  //         '/doctor/contact/visibility/update?contactVisibility=' +
+  //         '&doctorId=' +
+  //         doctorId,
+  //     )
+  //     .then(function (response) {
+  //       if (response.status == 200) {
+  //         // x.doctorConfigurationDTO.followUpDuration = showFollowUp;
+  //         // x.doctorConfigurationDTO.contactVisibility =
+  //         //   showMobNo == 'Yes' ? true : false;
+  //         // AsyncStorage.setItem('UserDoctorProfile', JSON.stringify(x));
+  //         flag = 1;
+  //         //setGenConfigEdit(false);
+  //       } else flag = 0;
+  //     });
+  //   let doctorFees = new Object();
+  //   doctorFees.doctorId = doctorId;
+  //   doctorFees.followUpDuration = followUpDuration;
+  //   axios
+  //     .post(apiConfig.baseUrl + '/doctor/fees/update', doctorFees)
+  //     .then(function (response) {
+  //       if (response.status == 200) {
+  //         flag = 1;
+  //       } else flag = 0;
+  //     });
+  //   if (flag == 1)
+  //     Alert.alert('All changes made in General Config have been updated');
+  //   else Alert.alert('Could not Update Details. Please try again later.');
+  // };
 
+  //updating Consultation Fees Details(completed)
   const updatefees = async () => {
     let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
     let doctorFees = new Object();
     doctorFees.feesId = DoctorFees.doctorConsulationFeesPkId;
     doctorFees.doctorId = doctorId;
-    doctorFees.physicalConsulationFees = physicalConsulationFees;
-    doctorFees.eConsulationFees = eConsulationFees;
-    doctorFees.followUpFees = followUpFees;
+    doctorFees.physicalConsulationFees = Number(physicalConsulationFees);
+    doctorFees.econsulationFees = Number(eConsulationFees);
+    doctorFees.followUpFees = Number(followUpFees);
+    doctorFees.followUpDuration = Number(showFollowUp);
 
     console.log('Fees Update---------\n' + JSON.stringify(doctorFees, null, 1));
     axios
       .post(apiConfig.baseUrl + '/doctor/fees/update', doctorFees)
       .then(function (response) {
         if (response.status == 200) {
-          x.doctorFeesDTO.physicalConsulationFees = physicalConsulationFees;
-          x.doctorFeesDTO.eConsulationFees = eConsulationFees;
-          x.doctorFeesDTO.followUpFees = followUpFees;
-          AsyncStorage.setItem('UserDoctorProfile', JSON.stringify(x));
+          setisLoading(false);
           Alert.alert('All changes made in Fees Config have been updated');
           setConsultFeesEdit(false);
-        } else Alert.alert('Could not Update Details. Please try again later.');
+        } else {
+          setisLoading(false);
+          Alert.alert('Could not Update Details. Please try again later.');
+        }
       });
   };
 
@@ -565,6 +581,7 @@ const EditProfile = ({navigation}) => {
   };
 
   //rendering dynamic components
+
   const ViewIdentifications = () => {
     return IdentificationDocs.map((IdentificationDocs, index) => {
       return (
@@ -619,6 +636,8 @@ const EditProfile = ({navigation}) => {
       return (
         <View
           style={{
+            width: '95%',
+            alignSelf: 'center',
             flexDirection: 'column',
             borderWidth: 1,
             borderTopWidth: 0,
@@ -646,8 +665,38 @@ const EditProfile = ({navigation}) => {
             </View>
             {/* End Date */}
             <View style={styles.cellStyle}>
-              <FAIcon name="file-pdf" size={15} color={'#2b8ada'} />
+              <FAIcon
+                name="file-pdf"
+                size={15}
+                color={'#2b8ada'}
+                style={{marginVertical: 3}}
+              />
             </View>
+            {IdenDetEdit ? (
+              <View
+                style={[
+                  styles.cellStyle,
+                  {flexDirection: 'row', alignContent: 'space-around'},
+                ]}>
+                <View style={{flexDirection: 'column', flex: 0.45}}>
+                  <FAIcon
+                    name="edit"
+                    size={13}
+                    color={'#2b8ada'}
+                    style={{alignSelf: 'center'}}
+                  />
+                </View>
+                <View style={{flexDirection: 'column', flex: 0.45}}>
+                  <FAIcon
+                    name="trash"
+                    size={13}
+                    color={'red'}
+                    style={{alignSelf: 'center'}}
+                    onPress={() => removeIdenHandler(index)}
+                  />
+                </View>
+              </View>
+            ) : null}
           </View>
         </View>
       );
@@ -659,6 +708,8 @@ const EditProfile = ({navigation}) => {
       return (
         <View
           style={{
+            width: '95%',
+            alignSelf: 'center',
             flexDirection: 'column',
             borderWidth: 1,
             borderTopWidth: 0,
@@ -674,54 +725,44 @@ const EditProfile = ({navigation}) => {
             }}>
             {/* Degree */}
             <View style={styles.cellStyle}>
-              <Text style={{textAlign: 'center', fontSize: 10}}>
-                {Education.degree}
-              </Text>
+              <Text style={styles.cellText}>{Education.degree}</Text>
             </View>
             {/* Passing Year */}
             <View style={styles.cellStyle}>
-              <Text style={{textAlign: 'center', fontSize: 10}}>
-                {Education.passingYear}
-              </Text>
+              <Text style={styles.cellText}>{Education.passingYear}</Text>
             </View>
             {/* Specialization */}
             <View style={styles.cellStyle}>
-              <Text style={{textAlign: 'center', fontSize: 10}}>
-                {Education.specialization}
-              </Text>
+              <Text style={styles.cellText}>{Education.specialization}</Text>
             </View>
             {/* University */}
             <View style={styles.cellStyle}>
-              <Text
-                style={{
-                  textAlign: 'center',
-                  fontSize: 10,
-                }}>
-                {Education.university}
-              </Text>
+              <Text style={styles.cellText}>{Education.university}</Text>
             </View>
-            <View style={styles.cellStyle}>
-              <Text
-                style={{
-                  textAlign: 'center',
-                  fontSize: 11,
-                  fontWeight: 'bold',
-                  color: 'blue',
-                  marginVertical: 5,
-                }}>
-                Edit
-              </Text>
-              <Text
-                style={{
-                  textAlign: 'center',
-                  fontSize: 11,
-                  fontWeight: 'bold',
-                  color: 'red',
-                  marginBottom: 5,
-                }}>
-                Delete
-              </Text>
-            </View>
+            {EduDetEdit ? (
+              <View
+                style={[
+                  styles.cellStyle,
+                  {flexDirection: 'row', alignContent: 'space-around'},
+                ]}>
+                <View style={{flexDirection: 'column', flex: 0.45}}>
+                  <FAIcon
+                    name="edit"
+                    size={13}
+                    color={'#2b8ada'}
+                    style={{alignSelf: 'center'}}
+                  />
+                </View>
+                <View style={{flexDirection: 'column', flex: 0.45}}>
+                  <FAIcon
+                    name="trash"
+                    size={13}
+                    color={'red'}
+                    style={{alignSelf: 'center'}}
+                  />
+                </View>
+              </View>
+            ) : null}
           </View>
         </View>
       );
@@ -733,6 +774,8 @@ const EditProfile = ({navigation}) => {
       return (
         <View
           style={{
+            width: '95%',
+            alignSelf: 'center',
             flexDirection: 'column',
             borderWidth: 1,
             borderTopWidth: 0,
@@ -748,13 +791,11 @@ const EditProfile = ({navigation}) => {
             }}>
             {/* Practice At */}
             <View style={styles.cellStyle}>
-              <Text style={{textAlign: 'center', fontSize: 10}}>
-                {Exp.practiceAt}
-              </Text>
+              <Text style={styles.cellText}>{Exp.practiceAt}</Text>
             </View>
             {/* Start Date */}
             <View style={styles.cellStyle}>
-              <Text style={{textAlign: 'center', fontSize: 10}}>
+              <Text style={styles.cellText}>
                 {dayjs(Exp.startDate).isValid()
                   ? dayjs(Exp.startDate).format('DD-MM-YYYY')
                   : 'DD-MM-YYYY'}
@@ -762,7 +803,7 @@ const EditProfile = ({navigation}) => {
             </View>
             {/* End Date */}
             <View style={styles.cellStyle}>
-              <Text style={{textAlign: 'center', fontSize: 10}}>
+              <Text style={styles.cellText}>
                 {dayjs(Exp.endDate).isValid()
                   ? dayjs(Exp.endDate).format('DD-MM-YYYY')
                   : 'DD-MM-YYYY'}
@@ -770,46 +811,40 @@ const EditProfile = ({navigation}) => {
             </View>
             {/* Total Experience */}
             <View style={styles.cellStyle}>
-              <Text
-                style={{
-                  textAlign: 'center',
-                  fontSize: 10,
-                }}>
+              <Text style={styles.cellText}>
                 {Math.floor(Exp.experienceInMonths / 12)} {'years'}{' '}
               </Text>
 
               {parseInt(Exp.experienceInMonths % 12) != 0 ? (
-                <Text
-                  style={{
-                    textAlign: 'center',
-                    fontSize: 10,
-                  }}>
+                <Text style={styles.cellText}>
                   {parseInt(Exp.experienceInMonths % 12) + ' months'}
                 </Text>
               ) : null}
             </View>
-            <View style={styles.cellStyle}>
-              <Text
-                style={{
-                  textAlign: 'center',
-                  fontSize: 11,
-                  fontWeight: 'bold',
-                  color: 'blue',
-                  marginVertical: 5,
-                }}>
-                Edit
-              </Text>
-              <Text
-                style={{
-                  textAlign: 'center',
-                  fontSize: 11,
-                  fontWeight: 'bold',
-                  color: 'red',
-                  marginBottom: 5,
-                }}>
-                Delete
-              </Text>
-            </View>
+            {ExpDetEdit ? (
+              <View
+                style={[
+                  styles.cellStyle,
+                  {flexDirection: 'row', alignContent: 'space-around'},
+                ]}>
+                <View style={{flexDirection: 'column', flex: 0.45}}>
+                  <FAIcon
+                    name="edit"
+                    size={13}
+                    color={'#2b8ada'}
+                    style={{alignSelf: 'center'}}
+                  />
+                </View>
+                <View style={{flexDirection: 'column', flex: 0.45}}>
+                  <FAIcon
+                    name="trash"
+                    size={13}
+                    color={'red'}
+                    style={{alignSelf: 'center'}}
+                  />
+                </View>
+              </View>
+            ) : null}
           </View>
         </View>
       );
@@ -1040,64 +1075,46 @@ const EditProfile = ({navigation}) => {
                         : null,
                     ]}
                     onPress={() => {
-                      if (GenInfoEdit) {
-                        setGenInfoEdit(false);
+                      if (!showGenInfo) {
+                        setShowGenInfo(!showGenInfo);
+                      } else {
+                        setShowGenInfo(!showGenInfo);
                       }
-                      setShowGenInfo(!showGenInfo);
                     }}>
                     <Text
                       style={[
                         styles.label,
                         {width: '90%'},
-                        showGenInfo ? {color: '#2B8ADA'} : null,
+                        showGenInfo ? {color: '#2B8ADA', width: '80%'} : null,
                       ]}>
                       General Information
                     </Text>
-                    {
-                      GenInfoEdit ? (
-                        <Text
-                          style={[
-                            {
-                              alignSelf: 'center',
-                              color: '#2B8ADA',
-                              padding: 5,
-                              textDecorationLine: 'underline',
-                            },
-                            showGenInfo ? null : {color: 'white'},
-                          ]}
-                          onPress={() => {
-                            setGenInfoEdit(false);
-                          }}>
-                          Cancel
-                        </Text>
-                      ) : null
-                      // <Text
-                      //   style={[
-                      //     {
-                      //       alignSelf: 'center',
-                      //       color: '#2B8ADA',
-                      //       padding: 5,
-                      //       textDecorationLine: 'underline',
-                      //     },
-                      //     showGenInfo ? null : {color: 'white'},
-                      //   ]}
-                      //   onPress={() => {
-                      //     if (showGenInfo == true) {
-                      //       Alert.alert(
-                      //         'You can now edit General Information Field',
-                      //       );
-                      //       setGenInfoEdit(true);
-                      //     }
-                      //   }}>
-                      //   Edit
-                      // </Text>
-                    }
-                    {GenInfoEdit ? null : (
-                      <FAIcon
-                        name={showGenInfo ? 'chevron-down' : 'chevron-right'}
-                        style={[styles.label, {width: '10%', fontSize: 20}]}
-                        color={showGenInfo ? '#2B8ADA' : 'gray'}></FAIcon>
-                    )}
+                    {showGenInfo ? (
+                      <Text
+                        style={[
+                          {
+                            alignSelf: 'center',
+                            color: '#2B8ADA',
+                            padding: 5,
+                            textDecorationLine: 'underline',
+                          },
+                          GenInfoEdit ? {color: 'white'} : null,
+                        ]}
+                        onPress={() => {
+                          if (GenInfoEdit == false) {
+                            Alert.alert(
+                              'You can now edit General Information Field',
+                            );
+                            setGenInfoEdit(true);
+                          }
+                        }}>
+                        Edit
+                      </Text>
+                    ) : null}
+                    <FAIcon
+                      name={showGenInfo ? 'chevron-down' : 'chevron-right'}
+                      style={[styles.label, {width: '10%', fontSize: 20}]}
+                      color={showGenInfo ? '#2B8ADA' : 'gray'}></FAIcon>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -1335,6 +1352,7 @@ const EditProfile = ({navigation}) => {
                         <DateTimePickerModal
                           isVisible={isDatePickerVisible}
                           mode="date"
+                          display="spinner"
                           onConfirm={handleConfirm}
                           onCancel={hideDatePicker}
                         />
@@ -1350,24 +1368,45 @@ const EditProfile = ({navigation}) => {
                         }}></View> */}
                       </View>
                       {GenInfoEdit ? (
-                        <CustomButton
-                          text="Update"
-                          textstyle={{color: 'white', alignSelf: 'center'}}
-                          onPress={() => {
-                            updateGenInfo();
-                            //clearKeys();
-                          }}
+                        <View
                           style={{
-                            backgroundColor: '#2b8ada',
-                            borderRadius: 5,
-                            padding: 6,
-                            paddingHorizontal: 10,
-                            flex: 1,
+                            flexDirection: 'row',
                             alignSelf: 'center',
-                            width: '95%',
                             marginVertical: 10,
-                          }}
-                        />
+                          }}>
+                          <CustomButton
+                            text="Update"
+                            textstyle={{color: 'white', alignSelf: 'center'}}
+                            onPress={() => {
+                              updateGenInfo();
+                              //clearKeys();
+                            }}
+                            style={{
+                              backgroundColor: '#2b8ada',
+                              borderRadius: 5,
+                              padding: 6,
+                              paddingHorizontal: 10,
+                              flex: 0.45,
+                              marginRight: '5%',
+                            }}
+                          />
+                          <CustomButton
+                            text="Cancel"
+                            textstyle={{color: '#2b8ada', alignSelf: 'center'}}
+                            onPress={() => {
+                              setGenInfoEdit(false);
+                              //clearKeys();
+                            }}
+                            style={{
+                              borderWidth: 1,
+                              borderColor: '#2b8ada',
+                              borderRadius: 5,
+                              padding: 6,
+                              paddingHorizontal: 10,
+                              flex: 0.45,
+                            }}
+                          />
+                        </View>
                       ) : null}
                     </View>
                   </View>
@@ -1398,67 +1437,49 @@ const EditProfile = ({navigation}) => {
                         : null,
                     ]}
                     onPress={() => {
-                      if (MedInfoEdit) {
-                        setMedInfoEdit(false);
+                      if (!showMedReg) {
+                        setShowMedReg(!showMedReg);
+                      } else {
+                        setShowMedReg(!showMedReg);
                       }
-                      setShowMedReg(!showMedReg);
                     }}>
                     <Text
                       style={[
                         styles.label,
                         {width: '90%'},
-                        showMedReg ? {color: '#2B8ADA', width: '90%'} : null,
+                        showMedReg ? {color: '#2B8ADA', width: '80%'} : null,
                       ]}>
                       Medical Registration
                     </Text>
-                    {
-                      MedInfoEdit ? (
-                        <Text
-                          style={[
-                            {
-                              alignSelf: 'center',
-                              color: '#2B8ADA',
-                              padding: 5,
-                              textDecorationLine: 'underline',
-                            },
-                            showMedReg ? null : {color: 'white'},
-                          ]}
-                          onPress={() => {
-                            setMedInfoEdit(false);
-                          }}>
-                          Cancel
-                        </Text>
-                      ) : null
-                      // <Text
-                      //   style={[
-                      //     {
-                      //       alignSelf: 'center',
-                      //       color: '#2B8ADA',
-                      //       padding: 5,
-                      //       textDecorationLine: 'underline',
-                      //     },
-                      //     showMedReg ? null : {color: 'white'},
-                      //   ]}
-                      //   onPress={() => {
-                      //     if (showMedReg == true) {
-                      //       Alert.alert(
-                      //         'You can now edit Medical Registration Details',
-                      //       );
-                      //       setMedInfoEdit(true);
-                      //     }
-                      //   }}>
-                      //   Edit
-                      // </Text>
-                    }
-                    {MedInfoEdit ? null : (
-                      <FAIcon
-                        name={showMedReg ? 'chevron-down' : 'chevron-right'}
-                        color={showMedReg ? '#2B8ADA' : 'gray'}
+                    {showMedReg ? (
+                      <Text
                         style={[
-                          styles.label,
-                          {width: '10%', fontSize: 20},
-                        ]}></FAIcon>
-                    )}
+                          {
+                            alignSelf: 'center',
+                            color: '#2B8ADA',
+                            padding: 5,
+                            textDecorationLine: 'underline',
+                          },
+                          MedInfoEdit ? {color: 'white'} : null,
+                        ]}
+                        onPress={() => {
+                          if (MedInfoEdit == false) {
+                            Alert.alert(
+                              'You can now edit Medical Registration Details',
+                            );
+                            setMedInfoEdit(true);
+                          }
+                        }}>
+                        Edit
+                      </Text>
+                    ) : null}
+                    <FAIcon
+                      name={showMedReg ? 'chevron-down' : 'chevron-right'}
+                      color={showMedReg ? '#2B8ADA' : 'gray'}
+                      style={[
+                        styles.label,
+                        {width: '10%', fontSize: 20},
+                      ]}></FAIcon>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -1520,14 +1541,20 @@ const EditProfile = ({navigation}) => {
                               name="upload"
                               color={'gray'}
                               size={16}
-                              style={{
-                                position: 'absolute',
-                                right: 0,
-                                bottom: 0,
-                                marginRight: '5%',
-                                marginBottom: '5%',
-                                backgroundColor: '#d0e0fc',
-                              }}
+                              style={[
+                                {
+                                  position: 'absolute',
+                                  right: 0,
+                                  bottom: 0,
+                                  marginRight: '5%',
+                                  marginBottom: '5%',
+                                  backgroundColor: '#d0e0fc',
+                                },
+                                {backgroundColor: '#d0e0fc'},
+                                MedInfoEdit
+                                  ? {backgroundColor: '#E8F0FE'}
+                                  : null,
+                              ]}
                               onPress={() => {}}
                             />
                           </View>
@@ -1549,23 +1576,24 @@ const EditProfile = ({navigation}) => {
                         </View>
                       </View>
                       {MedInfoEdit ? (
-                        <CustomButton
-                          text="Update"
-                          textstyle={{color: 'white', alignSelf: 'center'}}
-                          onPress={() => {
-                            updateMedReg();
-                          }}
-                          style={{
-                            backgroundColor: '#2b8ada',
-                            borderRadius: 5,
-                            padding: 6,
-                            paddingHorizontal: 10,
-                            flex: 1,
-                            alignSelf: 'center',
-                            width: '95%',
-                            marginVertical: 10,
-                          }}
-                        />
+                        <View style={styles.ButtonView}>
+                          <CustomButton
+                            text="Update"
+                            textstyle={styles.ButtonText}
+                            onPress={() => {
+                              updateMedReg();
+                            }}
+                            style={styles.ButtonUpdate}
+                          />
+                          <CustomButton
+                            text="Cancel"
+                            textstyle={styles.ButtonTextCancel}
+                            onPress={() => {
+                              setMedInfoEdit(false);
+                            }}
+                            style={styles.ButtonCancel}
+                          />
+                        </View>
                       ) : null}
                     </View>
                   </View>
@@ -1596,65 +1624,46 @@ const EditProfile = ({navigation}) => {
                         : null,
                     ]}
                     onPress={() => {
-                      if (EduDetEdit) {
-                        setEduDetEdit(false);
-                      }
-                      setShowEduDet(!showEduDet);
+                      if (!showEduDet) {
+                        setShowEduDet(!showEduDet);
+                      } else setShowEduDet(!showEduDet);
                     }}>
                     <Text
                       style={[
                         styles.label,
                         {width: '90%'},
-                        showEduDet ? {color: '#2B8ADA', width: '90%'} : null,
+                        showEduDet ? {color: '#2B8ADA', width: '80%'} : null,
                       ]}>
                       Educational Qualifications & Certificates
                     </Text>
-                    {
-                      EduDetEdit ? (
-                        <Text
-                          style={[
-                            {
-                              alignSelf: 'center',
-                              color: '#2B8ADA',
-                              padding: 5,
-                              textDecorationLine: 'underline',
-                            },
-                            showEduDet ? null : {color: 'white'},
-                          ]}
-                          onPress={() => {
-                            setEduDetEdit(false);
-                          }}>
-                          Cancel
-                        </Text>
-                      ) : null
-                      // <Text
-                      //   style={[
-                      //     {
-                      //       alignSelf: 'center',
-                      //       color: '#2B8ADA',
-                      //       padding: 5,
-                      //       textDecorationLine: 'underline',
-                      //     },
-                      //     showEduDet ? null : {color: 'white'} ,
-                      //   ]}
-                      //   onPress={() => {
-                      //     if (showEduDet == true) {
-                      //       Alert.alert('You can now edit Educational Details');
-                      //       setEduDetEdit(true);
-                      //     }
-                      //   }}>
-                      //   Edit
-                      // </Text>
-                    }
-                    {EduDetEdit ? null : (
-                      <FAIcon
-                        name={showEduDet ? 'chevron-down' : 'chevron-right'}
-                        color={showEduDet ? '#2B8ADA' : 'gray'}
+                    {showEduDet ? (
+                      <Text
                         style={[
-                          styles.label,
-                          {width: '10%', fontSize: 20},
-                        ]}></FAIcon>
-                    )}
+                          {
+                            alignSelf: 'center',
+                            color: '#2B8ADA',
+                            padding: 5,
+                            textDecorationLine: 'underline',
+                          },
+                          EduDetEdit ? {color: 'white'} : null,
+                        ]}
+                        onPress={() => {
+                          if (EduDetEdit == false) {
+                            Alert.alert('You can now edit Education Details');
+                            setEduDetEdit(true);
+                          }
+                        }}>
+                        Edit
+                      </Text>
+                    ) : null}
+
+                    <FAIcon
+                      name={showEduDet ? 'chevron-down' : 'chevron-right'}
+                      color={showEduDet ? '#2B8ADA' : 'gray'}
+                      style={[
+                        styles.label,
+                        {width: '10%', fontSize: 20},
+                      ]}></FAIcon>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -1668,6 +1677,8 @@ const EditProfile = ({navigation}) => {
                         {/* Heading */}
                         <View
                           style={{
+                            width: '95%',
+                            alignSelf: 'center',
                             flexDirection: 'column',
                             borderWidth: 1,
                             borderColor: '#d3d3d3',
@@ -1697,198 +1708,46 @@ const EditProfile = ({navigation}) => {
                                 University
                               </Text>
                             </View>
-                            <View
-                              style={{
-                                flex: 1,
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                paddingHorizontal: 1,
-                                paddingVertical: 1,
-                              }}>
-                              <Text style={styles.cellHeadingText}>
-                                Actions
-                              </Text>
-                            </View>
+                            {EduDetEdit ? (
+                              <View
+                                style={{
+                                  flex: 1,
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  paddingHorizontal: 1,
+                                  paddingVertical: 1,
+                                }}>
+                                <Text style={styles.cellHeadingText}>
+                                  Actions
+                                </Text>
+                              </View>
+                            ) : null}
                           </View>
                         </View>
                         <ViewEducation />
                       </View>
                     ) : null}
-                    {/* Add Education */}
-                    {/* <View style={{flexDirection: 'row', flex: 1}}>
-                      <View>Degree</View>
-                      <View>Specialization</View>
-                      <View>University</View>
-                      <View>Degree Year</View>
-                    </View> */}
 
                     {EduDetEdit ? (
-                      <View
-                        style={{
-                          width: '95%',
-                          alignSelf: 'center',
-                          marginBottom: 10,
-                          padding: 5,
-                        }}>
-                        <View
-                          style={{
-                            flexDirection: 'column',
-                            marginBottom: 10,
-                          }}>
-                          <View
-                            style={{
-                              flexDirection: 'row',
-                              justifyContent: 'space-between',
-                            }}>
-                            <View style={{flex: 0.475}}>
-                              <Text style={[styles.inputLabel, {marginTop: 0}]}>
-                                Degree
-                              </Text>
-                              <TextInput
-                                style={[
-                                  styles.textInput,
-                                  {backgroundColor: '#E8F0FE'},
-                                ]}
-                                onChangeText={text => setDegree(text)}
-                                value={Degree}></TextInput>
-                            </View>
-                            <View style={{flex: 0.475}}>
-                              <Text style={[styles.inputLabel, {marginTop: 0}]}>
-                                Degree Passing Year
-                              </Text>
-                              <TextInput
-                                style={[
-                                  styles.textInput,
-                                  {backgroundColor: '#E8F0FE'},
-                                ]}
-                                onChangeText={text =>
-                                  setDegreePassingYear(text)
-                                }
-                                value={DegreePassingYear}
-                                keyboardType={'numeric'}></TextInput>
-                            </View>
-                          </View>
-                          <View
-                            style={{
-                              flexDirection: 'column',
-                              justifyContent: 'space-between',
-                            }}>
-                            <View style={{flex: 1}}>
-                              <Text style={styles.inputLabel}>
-                                Specialization
-                              </Text>
-                              <SelectList
-                                labelStyles={{height: 0}}
-                                placeholder={' '}
-                                setSelected={val => setSpecialization(val)}
-                                data={
-                                  Education == '' ? data : dataSpecialization
-                                }
-                                save="value"
-                                boxStyles={{
-                                  backgroundColor: '#E8F0FE',
-                                  borderWidth: 0,
-                                }}
-                                dropdownStyles={{backgroundColor: 'white'}}
-                                dropdownTextStyles={{
-                                  color: '#2b8ada',
-                                  fontWeight: 'bold',
-                                }}
-                                badgeStyles={{backgroundColor: '#2b8ada'}}
-                              />
-                            </View>
-                            <View style={{flex: 1}}>
-                              <Text style={styles.inputLabel}>University</Text>
-                              <TextInput
-                                style={[
-                                  styles.textInput,
-                                  {backgroundColor: '#E8F0FE'},
-                                ]}
-                                onChangeText={text => setUniversity(text)}
-                                value={University}></TextInput>
-                            </View>
-                          </View>
-                        </View>
-
-                        <View
-                          style={{
-                            flexDirection: 'column',
-                            marginVertical: 5,
-                            flex: 1,
-                            marginVertical: 10,
-                          }}>
-                          <CustomButton
-                            text="Save/Add More"
-                            textstyle={{color: '#2b8ada', fontSize: 12}}
-                            style={{
-                              borderColor: '#2b8ada',
-                              borderWidth: 1,
-                              borderRadius: 5,
-                              padding: 6,
-                              paddingHorizontal: 10,
-                              width: 120,
-                              right: 0,
-                              alignSelf: 'flex-end',
-                              marginBottom: 10,
-                            }}
-                            onPress={() => {
-                              if (
-                                Degree == '' ||
-                                DegreePassingYear == '' ||
-                                University == '' ||
-                                TotalYear == '' ||
-                                TotalMonths == '' ||
-                                Specialization == ''
-                              )
-                                Alert.alert(
-                                  'Please fill all details before adding more in Educational Qualification',
-                                );
-                              else {
-                                let totalexp =
-                                  parseInt(TotalYear) * 12 +
-                                  parseInt(TotalMonths);
-                                splArray.push({
-                                  key: Specialization,
-                                  value: Specialization,
-                                });
-                                let p = {
-                                  degree: Degree,
-                                  degreePath: Degree + '.pdf',
-                                  passingYear: Number(DegreePassingYear),
-                                  specialization: Specialization,
-                                  totalExperiencedInMonths: Number(totalexp),
-                                  university: University,
-                                };
-                                Education.push(p);
-                                //console.log(Education);
-                                setDegree('');
-                                setDegreePassingYear('');
-                                setSpecialization('');
-                                setTotalMonths('');
-                                setTotalYear('');
-                                setUniversity('');
-                              }
-                            }}
-                          />
-                          <CustomButton
-                            text={'Update'}
-                            textstyle={{color: 'white', fontSize: 12}}
-                            style={{
-                              backgroundColor: '#2b8ada',
-                              borderRadius: 5,
-                              padding: 6,
-                              paddingHorizontal: 10,
-                              flex: 1,
-                            }}
-                            onPress={() => {
-                              //updateEduDet();
-                              Alert.alert(
-                                'Educational Qualifications Details Updated Successfully!',
-                              );
-                              setEduDetEdit(false);
-                            }}
-                          />
-                        </View>
+                      <View style={styles.ButtonView}>
+                        <CustomButton
+                          text={'Update'}
+                          textstyle={styles.ButtonText}
+                          style={styles.ButtonUpdate}
+                          onPress={() => {
+                            //updateEduDet();
+                            Alert.alert(
+                              'Educational Qualifications Details Updated Successfully!',
+                            );
+                            setEduDetEdit(false);
+                          }}
+                        />
+                        <CustomButton
+                          text={'Cancel'}
+                          textstyle={styles.ButtonTextCancel}
+                          style={styles.ButtonCancel}
+                          onPress={() => setEduDetEdit(false)}
+                        />
                       </View>
                     ) : null}
                   </View>
@@ -1903,7 +1762,6 @@ const EditProfile = ({navigation}) => {
                 <View
                   style={[
                     styles.whiteLabelView,
-
                     showExpDet
                       ? {
                           borderBottomRightRadius: 0,
@@ -1920,16 +1778,38 @@ const EditProfile = ({navigation}) => {
                         : null,
                     ]}
                     onPress={() => {
-                      setShowExpDet(!showExpDet);
+                      if (!showExpDet) {
+                        setShowExpDet(!showExpDet);
+                      } else setShowExpDet(!showExpDet);
                     }}>
                     <Text
                       style={[
                         styles.label,
                         {width: '90%'},
-                        showExpDet ? {color: '#2B8ADA'} : null,
+                        showExpDet ? {color: '#2B8ADA', width: '80%'} : null,
                       ]}>
                       Experience
                     </Text>
+                    {showExpDet ? (
+                      <Text
+                        style={[
+                          {
+                            alignSelf: 'center',
+                            color: '#2B8ADA',
+                            padding: 5,
+                            textDecorationLine: 'underline',
+                          },
+                          ExpDetEdit ? {color: 'white'} : null,
+                        ]}
+                        onPress={() => {
+                          if (ExpDetEdit == false) {
+                            Alert.alert('You can now edit Experience Details');
+                            setExpDetEdit(true);
+                          }
+                        }}>
+                        Edit
+                      </Text>
+                    ) : null}
                     <FAIcon
                       name={showExpDet ? 'chevron-down' : 'chevron-right'}
                       color={showExpDet ? '#2B8ADA' : 'gray'}
@@ -1944,82 +1824,13 @@ const EditProfile = ({navigation}) => {
               {showExpDet ? (
                 <View style={{flex: 1}}>
                   <View style={styles.whiteBodyView}>
-                    {/* {Experience.length > 0 ? (
-                      <View>
-                        <View
-                          style={{
-                            flexDirection: 'column',
-                            borderWidth: 1,
-                            borderColor: '#d3d3d3',
-                          }}>
-                          <View
-                            style={{
-                              flexDirection: 'row',
-                              justifyContent: 'space-between',
-                              margin: 0,
-                              padding: 0,
-                            }}>
-                            <View
-                              style={styles.cellHeading}>
-                              <Text
-                                style={{
-                                  textAlign: 'center',
-                                  fontWeight: 'bold',
-                                  fontSize: 10,
-                                }}>
-                                Practice At
-                              </Text>
-                            </View>
-                            <View
-                              style={styles.cellHeading}>
-                              <Text
-                                style={{
-                                  textAlign: 'center',
-                                  fontWeight: 'bold',
-                                  fontSize: 10,
-                                }}>
-                                Start Date
-                              </Text>
-                            </View>
-                            <View
-                              style={styles.cellHeading}>
-                              <Text
-                                style={{
-                                  textAlign: 'center',
-                                  fontWeight: 'bold',
-                                  fontSize: 10,
-                                }}>
-                                End Date
-                              </Text>
-                            </View>
-                            <View
-                              style={{
-                                flex: 1,
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                paddingHorizontal: 1,
-                                paddingVertical: 1,
-                              }}>
-                              <Text
-                                style={{
-                                  textAlign: 'center',
-                                  fontWeight: 'bold',
-                                  fontSize: 10,
-                                }}>
-                                Experience
-                              </Text>
-                            </View>
-                          </View>
-                        </View>
-                        <ViewExperienceTabular />
-                      </View>
-                    ) : null} */}
-
                     {Experience.length > 0 ? (
                       <View>
                         {/* Heading */}
                         <View
                           style={{
+                            width: '95%',
+                            alignSelf: 'center',
                             flexDirection: 'column',
                             borderWidth: 1,
                             borderColor: '#d3d3d3',
@@ -2051,216 +1862,47 @@ const EditProfile = ({navigation}) => {
                                 Experience
                               </Text>
                             </View>
-                            <View
-                              style={{
-                                flex: 1,
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                paddingHorizontal: 1,
-                                paddingVertical: 1,
-                              }}>
-                              <Text style={styles.cellHeadingText}>
-                                Actions
-                              </Text>
-                            </View>
+                            {ExpDetEdit ? (
+                              <View
+                                style={{
+                                  flex: 1,
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  paddingHorizontal: 1,
+                                  paddingVertical: 1,
+                                }}>
+                                <Text style={styles.cellHeadingText}>
+                                  Actions
+                                </Text>
+                              </View>
+                            ) : null}
                           </View>
                         </View>
                         <ViewExperienceTabular />
                       </View>
                     ) : null}
-
-                    {/* <View
-                    style={{
-                      width: '95%',
-                      alignSelf: 'center',
-                      marginBottom: 10,
-                      padding: 5,
-                    }}>
-                    <View
-                      style={{
-                        flexDirection: 'column',
-                        marginBottom: 10,
-                      }}>
-                      <View
-                        style={{
-                          flexDirection: 'column',
-                          justifyContent: 'space-between',
-                        }}>
-                        <View style={{flex: 1}}>
-                          <Text style={styles.inputLabel}>Practice At</Text>
-                          <TextInput
-                            style={[
-                              styles.textInput,
-                              {backgroundColor: '#E8F0FE'},
-                            ]}
-                            onChangeText={text => setPracticeAt(text)}
-                            value={practiceAt}></TextInput>
-                        </View>
-                      </View>
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          justifyContent: 'space-between',
-                        }}>
-                        <View style={{flex: 0.475}}>
-                          <Text style={styles.inputLabel}>Start Date</Text>
-                          <View
-                            style={{
-                              flexDirection: 'row',
-                              width: '100%',
-                              alignItems: 'center',
-                              backgroundColor: '#E8F0FE',
-                              borderRadius: 10,
-                            }}>
-                            <Text
-                              style={[
-                                styles.textInput,
-                                {flex: 1},
-                              ]}>
-                              {dayjs(startExpDate).isValid() ? dayjs(startExpDate).format("YYYY-MM-DD") : "YYYY-MM-DD"}
-                            </Text>
-                            <FAIcon
-                              name="calendar-alt"
-                              color={'gray'}
-                              size={20}
-                              style={{
-                                marginHorizontal: 5,
-                                position: 'absolute',
-                                right: 0,
-                              }}
-                              onPress={() => {setStartExpDatePickerVisible(true)}}
-                            />
-                          </View>
-                          <DateTimePickerModal
-                            isVisible={isStartExpDatePickerVisible}
-                            mode="date"
-                            date={dayjs(startExpDate).isValid() ? dayjs(startExpDate).toDate() : dayjs().toDate()}
-                            maximumDate={dayjs().toDate()}
-                            onConfirm={handleStartExpDate}
-                            onCancel={() => {setStartExpDatePickerVisible(false)}}
-                          />
-                        </View>
-                        <View style={{flex: 0.475}}>
-                          <Text style={styles.inputLabel}>End Date</Text>
-                          <View
-                            style={{
-                              flexDirection: 'row',
-                              width: '100%',
-                              alignItems: 'center',
-                              backgroundColor: '#E8F0FE',
-                              borderRadius: 10,
-                            }}>
-                            <Text
-                              style={[
-                                styles.textInput,
-                                {flex: 1},
-                              ]}>
-                              {dayjs(endExpDate).isValid() ? dayjs(endExpDate).format("YYYY-MM-DD") : "YYYY-MM-DD"}
-                            </Text>
-                            <FAIcon
-                              name="calendar-alt"
-                              color={'gray'}
-                              size={20}
-                              style={{
-                                marginHorizontal: 5,
-                                position: 'absolute',
-                                right: 0,
-                              }}
-                              onPress={() => {setEndExpDatePickerVisible(true)}}
-                            />
-                          </View>
-                          <DateTimePickerModal
-                            isVisible={isEndExpDatePickerVisible}
-                            mode="date"
-                            date={dayjs(endExpDate).isValid() ? dayjs(endExpDate).toDate() : dayjs().toDate()}
-                            maximumDate={dayjs().toDate()}
-                            onConfirm={handleEndExpDate}
-                            onCancel={() => {setEndExpDatePickerVisible(false)}}
-                          />
-                        </View>
-                      </View>
-                    </View>
-
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                      }}>
-                      <View style={{flex: 0.475, flexDirection: 'column'}}>
-                        <Text style={styles.inputLabel}>
-                          Total Experience(Year)
-                        </Text>
-                        <Text style={styles.textInput}>
-                          {TotalYear}
-                        </Text>
-                      </View>
-                      <View style={{flex: 0.475, flexDirection: 'column'}}>
-                        <Text style={styles.inputLabel}>
-                          Total Experience(Month)
-                        </Text>
-                        <Text style={styles.textInput}>
-                          {TotalMonths}
-                        </Text>
-                      </View>
-                    </View>
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        marginVertical: 5,
-                        flex: 1,
-                        marginBottom: 10,
-                      }}>
-                      
-                      <CustomButton
-                        text="Save"
-                        textstyle={{color: 'white', fontSize: 12}}
-                        style={{
-                          backgroundColor: '#2b8ada',
-                          borderRadius: 5,
-                          padding: 6,
-                          paddingHorizontal: 10,
-                          position: 'absolute',
-                          right: 0,
-                        }}
-                        onPress={() => {
-                          if (
-                            practiceAt == '' ||
-                            startExpDate == '' ||
-                            endExpDate == ''
-                          )
+                    {ExpDetEdit ? (
+                      <View style={styles.ButtonView}>
+                        <CustomButton
+                          text={'Update'}
+                          textstyle={styles.ButtonText}
+                          style={styles.ButtonUpdate}
+                          onPress={() => {
+                            //updateExpDet();
                             Alert.alert(
-                              'Please fill all details before adding more in Experience.',
+                              'Experience Details Updated Successfully!',
                             );
-                          else {
-                            // let p = {
-                            //   practiceAt: practiceAt,
-                            //   startExpDate: startExpDate,
-                            //   endExpDate: endExpDate,
-                            //   totalExperiencedInMonths: experienceInMonths
-                            // };
-                            let p = {
-                              practiceAt: practiceAt,
-                              startDate: startExpDate,
-                              endDate: endExpDate,
-                              experienceInMonths: experienceInMonths
-                            };
-                            // Experience.push(p);
-                            //console.log(Experience);
-                            let arr = [...Experience];
-                            arr.push(p);
-                            console.log(arr);
-                            setExperience(arr);
-                            setPracticeAt('');
-                            setStartExpDate('');
-                            setEndExpDate('');
-                            setExperienceInMonths('');
-                            setTotalYear('');
-                            setTotalMonths('');
-                          }
-                        }}
-                      />
-                    </View>
-                  </View> */}
+                            setExpDetEdit(false);
+                          }}
+                        />
+                        <CustomButton
+                          text={'Cancel'}
+                          textstyle={styles.ButtonTextCancel}
+                          style={styles.ButtonCancel}
+                          onPress={() => setExpDetEdit(false)}
+                        />
+                      </View>
+                    ) : null}
                   </View>
                 </View>
               ) : null}
@@ -2289,67 +1931,47 @@ const EditProfile = ({navigation}) => {
                         : null,
                     ]}
                     onPress={() => {
-                      if (IdenDetEdit) {
-                        setIdenDetEdit(false);
-                      }
-                      setShowIdenDet(!showIdenDet);
+                      if (!showIdenDet) {
+                        setShowIdenDet(!showIdenDet);
+                      } else setShowIdenDet(!showIdenDet);
                     }}>
                     <Text
                       style={[
                         styles.label,
                         {width: '90%'},
-                        showIdenDet ? {color: '#2B8ADA', width: '90%'} : null,
+                        showIdenDet ? {color: '#2B8ADA', width: '80%'} : null,
                       ]}>
                       Identification
                     </Text>
-                    {
-                      IdenDetEdit ? (
-                        <Text
-                          style={[
-                            {
-                              alignSelf: 'center',
-                              color: '#2B8ADA',
-                              padding: 5,
-                              textDecorationLine: 'underline',
-                            },
-                            showIdenDet ? null : {color: 'white'},
-                          ]}
-                          onPress={() => {
-                            setIdenDetEdit(false);
-                          }}>
-                          Cancel
-                        </Text>
-                      ) : null
-                      // <Text
-                      //   style={[
-                      //     {
-                      //       alignSelf: 'center',
-                      //       color: '#2B8ADA',
-                      //       padding: 5,
-                      //       textDecorationLine: 'underline',
-                      //     },
-                      //     showIdenDet ? null : {color: 'white'},
-                      //   ]}
-                      //   onPress={() => {
-                      //     if (showIdenDet == true) {
-                      //       Alert.alert(
-                      //         'You can now edit Identification Details',
-                      //       );
-                      //       setIdenDetEdit(true);
-                      //     }
-                      //   }}>
-                      //   Edit
-                      // </Text>
-                    }
-                    {IdenDetEdit ? null : (
-                      <FAIcon
-                        name={showIdenDet ? 'chevron-down' : 'chevron-right'}
-                        color={showIdenDet ? '#2B8ADA' : 'gray'}
+                    {showIdenDet ? (
+                      <Text
                         style={[
-                          styles.label,
-                          {width: '10%', fontSize: 20},
-                        ]}></FAIcon>
-                    )}
+                          {
+                            alignSelf: 'center',
+                            color: '#2B8ADA',
+                            padding: 5,
+                            textDecorationLine: 'underline',
+                          },
+                          IdenDetEdit ? {color: 'white'} : null,
+                        ]}
+                        onPress={() => {
+                          if (showIdenDet == true) {
+                            Alert.alert(
+                              'You can now edit Identification Details',
+                            );
+                            setIdenDetEdit(true);
+                          }
+                        }}>
+                        Edit
+                      </Text>
+                    ) : null}
+                    <FAIcon
+                      name={showIdenDet ? 'chevron-down' : 'chevron-right'}
+                      color={showIdenDet ? '#2B8ADA' : 'gray'}
+                      style={[
+                        styles.label,
+                        {width: '10%', fontSize: 20},
+                      ]}></FAIcon>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -2357,112 +1979,74 @@ const EditProfile = ({navigation}) => {
               {showIdenDet ? (
                 <View>
                   <View style={styles.whiteBodyView}>
-                    {IdentificationDocs != '' ? <ViewIdentifications /> : null}
-
-                    {IdenDetEdit ? (
-                      <View
-                        style={{
-                          flexDirection: 'column',
-                          width: '95%',
-                          alignSelf: 'center',
-                        }}>
+                    {IdentificationDocs != '' ? (
+                      <View>
                         <View
                           style={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                          }}>
-                          <View style={{flexDirection: 'column', flex: 0.45}}>
-                            <Text style={[styles.inputLabel, {marginTop: 0}]}>
-                              Document Name
-                            </Text>
-                            <View>
-                              <TextInput
-                                style={[styles.textInput]}
-                                onChangeText={text =>
-                                  setidentificationType(text)
-                                }
-                                value={identificationType}
-                              />
-                            </View>
-                          </View>
-                          <View style={{flexDirection: 'column', flex: 0.45}}>
-                            <Text style={[styles.inputLabel, {marginTop: 0}]}>
-                              Identification No
-                            </Text>
-                            <View>
-                              <TextInput
-                                style={[styles.textInput]}
-                                onChangeText={text =>
-                                  setidentificationNumber(text)
-                                }
-                                value={identificationNumber}
-                              />
-                            </View>
-                          </View>
-                        </View>
-                        <View
-                          style={{
-                            flexDirection: 'column',
-                            marginVertical: 10,
                             width: '95%',
                             alignSelf: 'center',
+                            flexDirection: 'column',
+                            borderWidth: 1,
+                            borderColor: '#d3d3d3',
                           }}>
-                          <CustomButton
-                            text={'Save/Add More'}
-                            textstyle={{color: '#2b8ada', fontSize: 12}}
+                          <View
                             style={{
-                              borderColor: '#2b8ada',
-                              borderWidth: 1,
-                              borderRadius: 5,
-                              padding: 6,
-                              paddingHorizontal: 10,
-                              width: 120,
-                              right: 0,
-                              alignSelf: 'flex-end',
-                              marginBottom: 10,
-                            }}
-                            onPress={() => {
-                              if (
-                                identificationNumber != '' &&
-                                identificationType != ''
-                              ) {
-                                let p = {
-                                  identificationNumber: identificationNumber,
+                              flexDirection: 'row',
+                              justifyContent: 'space-between',
+                              margin: 0,
+                              padding: 0,
+                            }}>
+                            <View style={styles.cellHeading}>
+                              <Text style={styles.cellHeadingText}>Name</Text>
+                            </View>
+                            <View style={styles.cellHeading}>
+                              <Text style={styles.cellHeadingText}>ID No.</Text>
+                            </View>
 
-                                  identificationType: identificationType,
-                                  identificationPath:
-                                    'aws/s3/Docs/' +
-                                    identificationNumber +
-                                    '.pdf',
-                                };
-                                IdentificationDocs.push(p);
-                                setidentificationNumber('');
-                                setidentificationType('');
-                                //console.log(IdentificationDocs);
-                              }
-                            }}
-                          />
-                          {IdenDetEdit ? (
-                            <CustomButton
-                              text={'Update'}
-                              textstyle={{color: 'white', fontSize: 12}}
-                              style={{
-                                backgroundColor: '#2b8ada',
-                                borderRadius: 5,
-                                padding: 6,
-                                paddingHorizontal: 10,
-                                flex: 1,
-                              }}
-                              onPress={() => {
-                                //updateIden();
-                                setIdenDetEdit(false);
-                                Alert.alert(
-                                  'Identification Details Saved Successfully',
-                                );
-                              }}
-                            />
-                          ) : null}
+                            <View style={styles.cellHeading}>
+                              <Text style={styles.cellHeadingText}>File</Text>
+                            </View>
+                            {IdenDetEdit ? (
+                              <View
+                                style={{
+                                  flex: 1,
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  paddingHorizontal: 1,
+                                  paddingVertical: 1,
+                                }}>
+                                <Text style={styles.cellHeadingText}>
+                                  Actions
+                                </Text>
+                              </View>
+                            ) : null}
+                          </View>
                         </View>
+                        <ViewIdentificationsTabular />
+                      </View>
+                    ) : null}
+
+                    {IdenDetEdit ? (
+                      <View style={styles.ButtonView}>
+                        <CustomButton
+                          text={'Update'}
+                          textstyle={styles.ButtonText}
+                          style={styles.ButtonUpdate}
+                          onPress={() => {
+                            setisLoading(true);
+                            updateIden();
+                            // setIdenDetEdit(false);
+                            // Alert.alert(
+                            //   'Identification Details Saved Successfully',
+                            // );
+                          }}
+                        />
+                        <CustomButton
+                          text={'Cancel'}
+                          textstyle={styles.ButtonTextCancel}
+                          style={styles.ButtonCancel}
+                          onPress={() => setIdenDetEdit(false)}
+                        />
                       </View>
                     ) : null}
                   </View>
@@ -2470,7 +2054,7 @@ const EditProfile = ({navigation}) => {
               ) : null}
 
               {/* General Configuration Label*/}
-              <View
+              {/* <View
                 style={{
                   width: '100%',
                   alignSelf: 'center',
@@ -2559,9 +2143,9 @@ const EditProfile = ({navigation}) => {
                     )}
                   </TouchableOpacity>
                 </View>
-              </View>
+              </View> */}
               {/* General Configuration Body*/}
-              {showGenConfig ? (
+              {/* {showGenConfig ? (
                 <View>
                   <View style={styles.whiteBodyView}>
                     <View
@@ -2670,7 +2254,7 @@ const EditProfile = ({navigation}) => {
                     </View>
                   </View>
                 </View>
-              ) : null}
+              ) : null} */}
 
               {/* Consultation Fees Label*/}
               <View
@@ -2700,22 +2284,19 @@ const EditProfile = ({navigation}) => {
                         : null,
                     ]}
                     onPress={() => {
-                      if (ConsultFeesEdit) {
-                        setConsultFeesEdit(false);
-                      }
                       setShowConsultFees(!showConsultFees);
                     }}>
                     <Text
                       style={[
                         styles.label,
-                        {width: '80%'},
+                        {width: '90%'},
                         showConsultFees
                           ? {color: '#2B8ADA', width: '80%'}
                           : null,
                       ]}>
                       Consultation Fees
                     </Text>
-                    {ConsultFeesEdit ? (
+                    {showConsultFees ? (
                       <Text
                         style={[
                           {
@@ -2724,44 +2305,24 @@ const EditProfile = ({navigation}) => {
                             padding: 5,
                             textDecorationLine: 'underline',
                           },
-                          showConsultFees ? null : {color: 'white'},
+                          ConsultFeesEdit ? {color: 'white'} : null,
                         ]}
                         onPress={() => {
-                          setConsultFeesEdit(false);
-                        }}>
-                        Cancel
-                      </Text>
-                    ) : (
-                      <Text
-                        style={[
-                          {
-                            alignSelf: 'center',
-                            color: '#2B8ADA',
-                            padding: 5,
-                            textDecorationLine: 'underline',
-                          },
-                          showConsultFees ? null : {color: 'white'},
-                        ]}
-                        onPress={() => {
-                          if (showConsultFees == true) {
-                            Alert.alert('You can now edit Fees Configuration');
+                          if (ConsultFeesEdit == false) {
+                            Alert.alert('You can now edit Fees Details');
                             setConsultFeesEdit(true);
                           }
                         }}>
                         Edit
                       </Text>
-                    )}
-                    {ConsultFeesEdit ? null : (
-                      <FAIcon
-                        name={
-                          showConsultFees ? 'chevron-down' : 'chevron-right'
-                        }
-                        color={showConsultFees ? '#2B8ADA' : 'gray'}
-                        style={[
-                          styles.label,
-                          {width: '10%', fontSize: 20},
-                        ]}></FAIcon>
-                    )}
+                    ) : null}
+                    <FAIcon
+                      name={showConsultFees ? 'chevron-down' : 'chevron-right'}
+                      color={showConsultFees ? '#2B8ADA' : 'gray'}
+                      style={[
+                        styles.label,
+                        {width: '10%', fontSize: 20},
+                      ]}></FAIcon>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -2770,6 +2331,8 @@ const EditProfile = ({navigation}) => {
                 <View style={styles.whiteBodyView}>
                   <View
                     style={{
+                      width: '95%',
+                      alignSelf: 'center',
                       flexDirection: 'column',
                       marginBottom: 10,
                     }}>
@@ -2777,18 +2340,12 @@ const EditProfile = ({navigation}) => {
                       <View
                         style={{
                           flexDirection: 'column',
-                          flex: 0.65,
-                          marginRight: '5%',
+                          width: '100%',
                         }}>
-                        <Text
-                          style={[
-                            styles.textInput,
-                            {fontWeight: 'bold', backgroundColor: '#d0e0fc'},
-                          ]}>
+                        <Text style={styles.inputLabel}>
                           Physical Consultation Fees
                         </Text>
-                      </View>
-                      <View style={{flexDirection: 'column', flex: 0.25}}>
+
                         <TextInput
                           style={[
                             styles.textInput,
@@ -2808,18 +2365,12 @@ const EditProfile = ({navigation}) => {
                       <View
                         style={{
                           flexDirection: 'column',
-                          flex: 0.65,
-                          marginRight: '5%',
+                          width: '100%',
                         }}>
-                        <Text
-                          style={[
-                            styles.textInput,
-                            {fontWeight: 'bold', backgroundColor: '#d0e0fc'},
-                          ]}>
+                        <Text style={styles.inputLabel}>
                           E-Consultation Fees
                         </Text>
-                      </View>
-                      <View style={{flexDirection: 'column', flex: 0.25}}>
+
                         <TextInput
                           style={[
                             styles.textInput,
@@ -2837,18 +2388,10 @@ const EditProfile = ({navigation}) => {
                       <View
                         style={{
                           flexDirection: 'column',
-                          flex: 0.65,
-                          marginRight: '5%',
+                          width: '100%',
                         }}>
-                        <Text
-                          style={[
-                            styles.textInput,
-                            {fontWeight: 'bold', backgroundColor: '#d0e0fc'},
-                          ]}>
-                          Follow-Up Fees
-                        </Text>
-                      </View>
-                      <View style={{flexDirection: 'column', flex: 0.25}}>
+                        <Text style={styles.inputLabel}>Follow-Up Fees</Text>
+
                         <TextInput
                           style={[
                             styles.textInput,
@@ -2862,26 +2405,64 @@ const EditProfile = ({navigation}) => {
                         />
                       </View>
                     </View>
-                    {ConsultFeesEdit ? (
-                      <CustomButton
-                        text="Update"
-                        textstyle={{color: 'white', alignSelf: 'center'}}
-                        onPress={() => {
-                          updatefees();
-                        }}
+                    <View style={{flexDirection: 'row', alignSelf: 'center'}}>
+                      <View
                         style={{
-                          backgroundColor: '#2b8ada',
-                          borderRadius: 5,
-                          padding: 6,
-                          paddingHorizontal: 10,
-                          flex: 1,
-                          alignSelf: 'center',
-                          width: '95%',
-                          marginVertical: 10,
+                          flexDirection: 'column',
+                          width: '100%',
+                        }}>
+                        <Text style={styles.inputLabel}>
+                          Duration of Follow-Up
+                        </Text>
+
+                        {!ConsultFeesEdit ? (
+                          <TextInput
+                            style={[
+                              styles.textInput,
+                              {backgroundColor: '#d0e0fc'},
+                            ]}
+                            value={showFollowUp + ''}
+                            editable={ConsultFeesEdit}
+                          />
+                        ) : (
+                          <SelectList
+                            placeholder={showFollowUp}
+                            boxStyles={{
+                              backgroundColor: '#e8f0fe',
+                              borderWidth: 0,
+                            }}
+                            dropdownTextStyles={{
+                              color: '#2b8ada',
+                              fontWeight: 'bold',
+                            }}
+                            setSelected={setshowFollowUp}
+                            data={dataFollowUp}
+                          />
+                        )}
+                      </View>
+                    </View>
+                  </View>
+                  {ConsultFeesEdit ? (
+                    <View style={styles.ButtonView}>
+                      <CustomButton
+                        text={'Update'}
+                        textstyle={styles.ButtonText}
+                        style={styles.ButtonUpdate}
+                        onPress={() => {
+                          setisLoading(true);
+                          updatefees();
+                          //Alert.alert('Fees Details Updated Successfully!');
+                          //setConsultFeesEdit(false);
                         }}
                       />
-                    ) : null}
-                  </View>
+                      <CustomButton
+                        text={'Cancel'}
+                        textstyle={styles.ButtonTextCancel}
+                        style={styles.ButtonCancel}
+                        onPress={() => setConsultFeesEdit(false)}
+                      />
+                    </View>
+                  ) : null}
                 </View>
               ) : null}
               {/* Buttons */}
@@ -2939,7 +2520,7 @@ const EditProfile = ({navigation}) => {
                   width: '100%',
                   padding: 10,
                 }}>
-                Please Wait...
+                Updating Please Wait...
               </Text>
             </View>
           </View>
@@ -3101,6 +2682,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 1,
     paddingVertical: 1,
   },
+  cellText: {textAlign: 'center', fontSize: 10, marginVertical: 3},
   cellHeading: {
     flex: 1,
     alignItems: 'center',
@@ -3114,6 +2696,39 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: 'bold',
     fontSize: 10,
+    marginVertical: 3,
+  },
+  ButtonView: {
+    alignContent: 'space-between',
+    flexDirection: 'row',
+    alignSelf: 'center',
+    marginVertical: 10,
+  },
+  ButtonText: {
+    color: 'white',
+    alignSelf: 'center',
+    fontSize: 12,
+  },
+  ButtonTextCancel: {
+    color: '#2b8ada',
+    alignSelf: 'center',
+    fontSize: 12,
+  },
+  ButtonUpdate: {
+    backgroundColor: '#2b8ada',
+    borderRadius: 5,
+    padding: 6,
+    paddingHorizontal: 10,
+    flex: 0.45,
+    marginRight: '5%',
+  },
+  ButtonCancel: {
+    borderWidth: 1,
+    borderColor: '#2b8ada',
+    borderRadius: 5,
+    padding: 6,
+    paddingHorizontal: 10,
+    flex: 0.45,
   },
 });
 
