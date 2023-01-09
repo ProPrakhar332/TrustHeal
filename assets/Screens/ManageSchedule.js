@@ -739,7 +739,7 @@ const ManageSchedule = () => {
                 style={{flexDirection: 'column', flex: 0.45}}
                 onPress={() => {
                   deleteClinic(Number(ManageClinic.clinicId));
-                  setManageClinic(false);
+                  setmanageClinicsLabel(false);
                 }}>
                 <FAIcon
                   name="trash"
@@ -754,6 +754,7 @@ const ManageSchedule = () => {
       );
     });
   };
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -1449,6 +1450,7 @@ const ManageSchedule = () => {
                             updateClinic(p);
                             setclinicAddress('');
                             setclinicName('');
+                            setspecialInstruction('');
                             setmanageClinicsLabel(false);
                           } else {
                             Alert.alert('Duplicate clinic details found.');
@@ -1548,6 +1550,7 @@ const ManageSchedule = () => {
                         marginTop: 10,
                       }}
                       onPress={() => {
+                        seteditClinic(false);
                         setClinicModal(true);
                       }}
                     />
