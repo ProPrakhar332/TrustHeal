@@ -65,7 +65,7 @@ function BasicDesign({navigation}) {
       let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
 
       //setTitle(x.fullName.substring(0, x.fullName.indexOf(' ')));
-      setName(x.fullName);
+      setName(x.doctorName != undefined ? x.doctorName : x.fullName);
       setCity(x.city);
       setEmail(x.email);
       setAge(x.age + '');

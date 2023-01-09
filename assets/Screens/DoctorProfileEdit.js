@@ -33,6 +33,13 @@ import axios from 'axios';
 import apiConfig from '../API/apiConfig';
 import Header from '../Components/Header';
 
+const dataIdenDocs = [
+  {key: 'Aadhar', value: 'Aadhar'},
+  {key: 'Driving License', value: 'Driving License'},
+  {key: 'PAN', value: 'PAN'},
+  {key: 'Passport No.', value: 'Passport No.'},
+];
+
 const dataTitle = [
   {key: 'Dr.', value: 'Dr.'},
   {key: 'Mr.', value: 'Mr.'},
@@ -44,7 +51,7 @@ const dataGender = [
   {key: 'Female', value: 'Female'},
   {key: 'Other', value: 'Other'},
 ];
-const data = [
+const dataSpecialization = [
   {key: 'Dermatologist', value: 'Dermatologist'},
   {key: 'Dietician & Nutition', value: 'Dietician & Nutition'},
   {key: 'ENT', value: 'ENT'},
@@ -80,6 +87,8 @@ const dataMode = [
   {key: 'PHONE_CALL', value: 'Phone'},
 ];
 
+const dataYear = [];
+
 const EditProfile = ({navigation}) => {
   //General Information Field
   const [doctorObj, setdoctorObj] = useState(null);
@@ -113,18 +122,23 @@ const EditProfile = ({navigation}) => {
   const [RegYear, setRegYear] = useState('');
   //Educational Details Field
   const [showEduDet, setShowEduDet] = useState(false);
+  const [EduElementModal, setEduElementModal] = useState(false);
+  const [editEduDet, seteditEduDet] = useState(false);
+
   const [EduDetEdit, setEduDetEdit] = useState(false);
-  const [dataSpecialization, setdataSpecialization] = useState([]);
+  //const [dataSpecialization, setdataSpecialization] = useState([]);
   const [Education, setEducation] = useState([]);
-  const [EducationUpdate, setEducationUpdate] = useState([]);
   const [Degree, setDegree] = useState('');
   const [DegreePassingYear, setDegreePassingYear] = useState('');
   const [Specialization, setSpecialization] = useState('');
   const [University, setUniversity] = useState('');
+  const [doctorEducationPkId, setdoctorEducationPkId] = useState(0);
 
   //Experience
   const [showExpDet, setShowExpDet] = useState(false);
   const [ExpDetEdit, setExpDetEdit] = useState(false);
+  const [ExpElementModal, setExpElementModal] = useState(false);
+  const [editExp, seteditExp] = useState(false);
   const [Experience, setExperience] = useState([]);
   const [ExperienceUpdate, setExperienceUpdate] = useState([]);
   const [practiceAt, setPracticeAt] = useState('');
@@ -133,6 +147,7 @@ const EditProfile = ({navigation}) => {
   const [experienceInMonths, setExperienceInMonths] = useState('');
   const [TotalYear, setTotalYear] = useState('');
   const [TotalMonths, setTotalMonths] = useState('');
+  const [experienceId, setexperienceId] = useState(0);
   //Identification
   const [showIdenDet, setShowIdenDet] = useState(false);
   const [IdenDetEdit, setIdenDetEdit] = useState(false);
@@ -141,6 +156,9 @@ const EditProfile = ({navigation}) => {
   const [IdentificationDocsUpdate, setIdentificationDocsUpdate] = useState([]);
   const [identificationNumber, setidentificationNumber] = useState('');
   const [identificationType, setidentificationType] = useState('');
+  const [doctorIdentificationPkId, setdoctorIdentificationPkId] = useState(0);
+  const [IdenElementModal, setIdenElementModal] = useState(false);
+  const [editIden, seteditIden] = useState(false);
 
   //General Configuration
   const [showGenConfig, setShowGenConfig] = useState(false);
@@ -166,8 +184,16 @@ const EditProfile = ({navigation}) => {
       setdoctorObj(x);
       setdoctorId(Number(x.doctorId));
       //console.log(doctorId);
-      setTitle(x.fullName.substring(0, x.fullName.indexOf(' ')));
-      setName(x.fullName.substring(x.fullName.indexOf(' ') + 1));
+      setTitle(
+        x.doctorName == undefined
+          ? x.fullName.substring(0, x.fullName.indexOf(' '))
+          : x.doctorName.substring(0, x.doctorName.indexOf(' ')),
+      );
+      setName(
+        x.doctorName != undefined
+          ? x.doctorName.substring(x.doctorName.indexOf(' ') + 1)
+          : x.fullName.substring(x.fullName.indexOf(' ') + 1),
+      );
       setEmail(x.email);
       setGender(x.gender);
       setCity(x.city);
@@ -217,6 +243,17 @@ const EditProfile = ({navigation}) => {
     }
     await AsyncStorage.setItem('age', x + '');
     setAge(x);
+  };
+
+  const setDateData = () => {
+    var d = new Date().getFullYear();
+    //console.log(dob.substring(0, 4));
+    var i = Number(dob.substring(0, 4));
+    if (i == 0) i = 1940;
+    else i += 17;
+    for (; i <= d; ++i) {
+      dataYear.push({key: i + '', value: i + ''});
+    }
   };
 
   // useEffect(() => {
@@ -442,40 +479,46 @@ const EditProfile = ({navigation}) => {
       });
   };
 
-  const updateEduDet = async () => {
+  const updateEduDet = async item => {
+    let amp = [];
+    amp.push(item);
     axios
-      .post(
-        apiConfig.baseUrl + '/doctor/education/save/or/update',
-        EducationUpdate,
-      )
+      .post(apiConfig.baseUrl + '/doctor/education/save/or/update', amp)
       .then(function (response) {
-        if (response.status == 200)
+        if (response.status == 200) {
+          setisLoading(false);
           Alert.alert(
             'Educational Qualifications Details Updated Successfully!',
           );
-        else Alert.alert('Could not Update Details. Please try again later.');
+          setShowEduDet(false);
+        } else {
+          setisLoading(false);
+          Alert.alert('Could not Update Details. Please try again later.');
+        }
       });
   };
 
-  const updateExpDet = async () => {
+  const updateExpDet = async item => {
+    let amp = [];
+    amp.push(item);
     axios
-      .post(
-        apiConfig.baseUrl + '/doctor/experience/save/or/update',
-        ExperienceUpdate,
-      )
+      .post(apiConfig.baseUrl + '/doctor/experience/save/or/update', amp)
       .then(function (response) {
-        if (response.status == 200)
+        if (response.status == 200) {
+          setisLoading(false);
           Alert.alert('Experience Details Updated Successfully!');
-        else Alert.alert('Could not Update Details. Please try again later.');
+        } else {
+          setisLoading(false);
+          Alert.alert('Could not Update Details. Please try again later.');
+        }
       });
   };
 
-  const updateIden = async () => {
+  const updateIden = async item => {
+    let amp = [];
+    amp.push(item);
     axios
-      .post(
-        apiConfig.baseUrl + '/doctor/identity/save/or/update',
-        IdentificationDocsUpdate,
-      )
+      .post(apiConfig.baseUrl + '/doctor/identity/save/or/update', amp)
       .then(function (response) {
         if (response.status == 200) {
           setisLoading(false);
@@ -678,15 +721,29 @@ const EditProfile = ({navigation}) => {
                   styles.cellStyle,
                   {flexDirection: 'row', alignContent: 'space-around'},
                 ]}>
-                <View style={{flexDirection: 'column', flex: 0.45}}>
+                <TouchableOpacity
+                  style={{flexDirection: 'column', flex: 0.45}}
+                  onPress={() => {
+                    setidentificationType(
+                      IdentificationDocs.identificationType,
+                    );
+                    setidentificationNumber(
+                      IdentificationDocs.identificationNumber,
+                    );
+                    setdoctorIdentificationPkId(
+                      IdentificationDocs.doctorIdentificationPkId,
+                    );
+                    seteditIden(true);
+                    setIdenElementModal(true);
+                  }}>
                   <FAIcon
                     name="edit"
                     size={13}
                     color={'#2b8ada'}
                     style={{alignSelf: 'center'}}
                   />
-                </View>
-                <View style={{flexDirection: 'column', flex: 0.45}}>
+                </TouchableOpacity>
+                {/* <View style={{flexDirection: 'column', flex: 0.45}}>
                   <FAIcon
                     name="trash"
                     size={13}
@@ -694,7 +751,7 @@ const EditProfile = ({navigation}) => {
                     style={{alignSelf: 'center'}}
                     onPress={() => removeIdenHandler(index)}
                   />
-                </View>
+                </View> */}
               </View>
             ) : null}
           </View>
@@ -745,22 +802,33 @@ const EditProfile = ({navigation}) => {
                   styles.cellStyle,
                   {flexDirection: 'row', alignContent: 'space-around'},
                 ]}>
-                <View style={{flexDirection: 'column', flex: 0.45}}>
+                <TouchableOpacity
+                  style={{flexDirection: 'column', flex: 0.45}}
+                  onPress={() => {
+                    setDateData();
+                    setDegree(Education.degree);
+                    setDegreePassingYear(Education.passingYear);
+                    setSpecialization(Education.specialization);
+                    setUniversity(Education.university);
+                    setdoctorEducationPkId(Education.doctorEducationPkId);
+                    setEduElementModal(true);
+                    seteditEduDet(true);
+                  }}>
                   <FAIcon
                     name="edit"
                     size={13}
                     color={'#2b8ada'}
                     style={{alignSelf: 'center'}}
                   />
-                </View>
-                <View style={{flexDirection: 'column', flex: 0.45}}>
+                </TouchableOpacity>
+                {/* <View style={{flexDirection: 'column', flex: 0.45}}>
                   <FAIcon
                     name="trash"
                     size={13}
                     color={'red'}
                     style={{alignSelf: 'center'}}
                   />
-                </View>
+                </View> */}
               </View>
             ) : null}
           </View>
@@ -811,9 +879,11 @@ const EditProfile = ({navigation}) => {
             </View>
             {/* Total Experience */}
             <View style={styles.cellStyle}>
-              <Text style={styles.cellText}>
-                {Math.floor(Exp.experienceInMonths / 12)} {'years'}{' '}
-              </Text>
+              {Math.floor(Exp.experienceInMonths / 12) > 0 ? (
+                <Text style={styles.cellText}>
+                  {Math.floor(Exp.experienceInMonths / 12) + ' years'}
+                </Text>
+              ) : null}
 
               {parseInt(Exp.experienceInMonths % 12) != 0 ? (
                 <Text style={styles.cellText}>
@@ -833,16 +903,24 @@ const EditProfile = ({navigation}) => {
                     size={13}
                     color={'#2b8ada'}
                     style={{alignSelf: 'center'}}
+                    onPress={() => {
+                      setPracticeAt(Exp.practiceAt);
+                      setStartExpDate(Exp.startDate);
+                      setEndExpDate(Exp.endDate);
+                      setexperienceId(Exp.experienceId);
+                      seteditExp(true);
+                      setExpElementModal(true);
+                    }}
                   />
                 </View>
-                <View style={{flexDirection: 'column', flex: 0.45}}>
+                {/* <View style={{flexDirection: 'column', flex: 0.45}}>
                   <FAIcon
                     name="trash"
                     size={13}
                     color={'red'}
                     style={{alignSelf: 'center'}}
                   />
-                </View>
+                </View> */}
               </View>
             ) : null}
           </View>
@@ -1368,43 +1446,25 @@ const EditProfile = ({navigation}) => {
                         }}></View> */}
                       </View>
                       {GenInfoEdit ? (
-                        <View
-                          style={{
-                            flexDirection: 'row',
-                            alignSelf: 'center',
-                            marginVertical: 10,
-                          }}>
+                        <View style={styles.ButtonView}>
                           <CustomButton
-                            text="Update"
-                            textstyle={{color: 'white', alignSelf: 'center'}}
+                            text="Done"
+                            textstyle={styles.ButtonText}
                             onPress={() => {
-                              updateGenInfo();
+                              setGenInfoEdit(false);
+                              //updateGenInfo();
                               //clearKeys();
                             }}
-                            style={{
-                              backgroundColor: '#2b8ada',
-                              borderRadius: 5,
-                              padding: 6,
-                              paddingHorizontal: 10,
-                              flex: 0.45,
-                              marginRight: '5%',
-                            }}
+                            style={styles.ButtonUpdate}
                           />
                           <CustomButton
                             text="Cancel"
-                            textstyle={{color: '#2b8ada', alignSelf: 'center'}}
+                            textstyle={styles.ButtonTextCancel}
                             onPress={() => {
                               setGenInfoEdit(false);
                               //clearKeys();
                             }}
-                            style={{
-                              borderWidth: 1,
-                              borderColor: '#2b8ada',
-                              borderRadius: 5,
-                              padding: 6,
-                              paddingHorizontal: 10,
-                              flex: 0.45,
-                            }}
+                            style={styles.ButtonCancel}
                           />
                         </View>
                       ) : null}
@@ -1578,10 +1638,10 @@ const EditProfile = ({navigation}) => {
                       {MedInfoEdit ? (
                         <View style={styles.ButtonView}>
                           <CustomButton
-                            text="Update"
+                            text="Done"
                             textstyle={styles.ButtonText}
                             onPress={() => {
-                              updateMedReg();
+                              setMedInfoEdit(false);
                             }}
                             style={styles.ButtonUpdate}
                           />
@@ -1725,20 +1785,39 @@ const EditProfile = ({navigation}) => {
                           </View>
                         </View>
                         <ViewEducation />
+                        {EduDetEdit ? (
+                          <View style={{flex: 1}}>
+                            <CustomButton
+                              text={'+ Add More'}
+                              textstyle={{color: 'white', fontSize: 10}}
+                              style={{
+                                alignSelf: 'flex-end',
+                                width: 80,
+                                backgroundColor: '#2b8ada',
+                                borderRadius: 5,
+                                padding: 3,
+                                paddingHorizontal: 10,
+                                marginTop: 10,
+                              }}
+                              onPress={() => {
+                                setDateData();
+                                setEduElementModal(true);
+                              }}
+                            />
+                          </View>
+                        ) : null}
                       </View>
                     ) : null}
 
                     {EduDetEdit ? (
                       <View style={styles.ButtonView}>
                         <CustomButton
-                          text={'Update'}
+                          text={'Done'}
                           textstyle={styles.ButtonText}
                           style={styles.ButtonUpdate}
                           onPress={() => {
                             //updateEduDet();
-                            Alert.alert(
-                              'Educational Qualifications Details Updated Successfully!',
-                            );
+
                             setEduDetEdit(false);
                           }}
                         />
@@ -1879,19 +1958,39 @@ const EditProfile = ({navigation}) => {
                           </View>
                         </View>
                         <ViewExperienceTabular />
+                        {ExpDetEdit ? (
+                          <View style={{flex: 1}}>
+                            <CustomButton
+                              text={'+ Add More'}
+                              textstyle={{color: 'white', fontSize: 10}}
+                              style={{
+                                alignSelf: 'flex-end',
+                                width: 80,
+                                backgroundColor: '#2b8ada',
+                                borderRadius: 5,
+                                padding: 3,
+                                paddingHorizontal: 10,
+                                marginTop: 10,
+                              }}
+                              onPress={() => {
+                                setExpElementModal(true);
+                              }}
+                            />
+                          </View>
+                        ) : null}
                       </View>
                     ) : null}
                     {ExpDetEdit ? (
                       <View style={styles.ButtonView}>
                         <CustomButton
-                          text={'Update'}
+                          text={'Done'}
                           textstyle={styles.ButtonText}
                           style={styles.ButtonUpdate}
                           onPress={() => {
                             //updateExpDet();
-                            Alert.alert(
-                              'Experience Details Updated Successfully!',
-                            );
+                            // Alert.alert(
+                            //   'Experience Details Updated Successfully!',
+                            // );
                             setExpDetEdit(false);
                           }}
                         />
@@ -2023,19 +2122,39 @@ const EditProfile = ({navigation}) => {
                           </View>
                         </View>
                         <ViewIdentificationsTabular />
+                        {IdenDetEdit ? (
+                          <View style={{flex: 1}}>
+                            <CustomButton
+                              text={'+ Add More'}
+                              textstyle={{color: 'white', fontSize: 10}}
+                              style={{
+                                alignSelf: 'flex-end',
+                                width: 80,
+                                backgroundColor: '#2b8ada',
+                                borderRadius: 5,
+                                padding: 3,
+                                paddingHorizontal: 10,
+                                marginTop: 10,
+                              }}
+                              onPress={() => {
+                                setIdenElementModal(true);
+                              }}
+                            />
+                          </View>
+                        ) : null}
                       </View>
                     ) : null}
 
                     {IdenDetEdit ? (
                       <View style={styles.ButtonView}>
                         <CustomButton
-                          text={'Update'}
+                          text={'Done'}
                           textstyle={styles.ButtonText}
                           style={styles.ButtonUpdate}
                           onPress={() => {
-                            setisLoading(true);
-                            updateIden();
-                            // setIdenDetEdit(false);
+                            //setisLoading(true);
+                            //updateIden();
+                            setIdenDetEdit(false);
                             // Alert.alert(
                             //   'Identification Details Saved Successfully',
                             // );
@@ -2445,14 +2564,14 @@ const EditProfile = ({navigation}) => {
                   {ConsultFeesEdit ? (
                     <View style={styles.ButtonView}>
                       <CustomButton
-                        text={'Update'}
+                        text={'Done'}
                         textstyle={styles.ButtonText}
                         style={styles.ButtonUpdate}
                         onPress={() => {
-                          setisLoading(true);
-                          updatefees();
+                          // setisLoading(true);
+                          // updatefees();
                           //Alert.alert('Fees Details Updated Successfully!');
-                          //setConsultFeesEdit(false);
+                          setConsultFeesEdit(false);
                         }}
                       />
                       <CustomButton
@@ -2466,18 +2585,623 @@ const EditProfile = ({navigation}) => {
                 </View>
               ) : null}
               {/* Buttons */}
-              <CustomButton
-                text={'Done'}
+              {/* <CustomButton
+                text={'Go Back'}
                 textstyle={{color: 'white', fontSize: 20}}
                 style={{
                   flex: 1,
                   backgroundColor: '#2b8ada',
                   padding: 6,
                   marginVertical: 10,
+                  borderRadius: 10,
                 }}
                 onPress={() => navigation.goBack()}
-              />
+              /> */}
             </View>
+            {EduElementModal ? (
+              <Modal
+                animationType="slide"
+                transparent={true}
+                visible={EduElementModal}
+                onRequestClose={() => {
+                  setEduElementModal(!EduElementModal);
+                }}>
+                <View
+                  style={{
+                    height: '100%',
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                  }}>
+                  <View
+                    style={[
+                      styles.modalView,
+                      {
+                        borderRadius: 10,
+                        padding: 15,
+                      },
+                    ]}>
+                    <View
+                      style={{
+                        width: '100%',
+                        alignSelf: 'center',
+                        marginBottom: 20,
+                        borderBottomWidth: 1,
+                        borderBottomColor: 'gray',
+                      }}>
+                      <Text
+                        style={{
+                          fontWeight: 'bold',
+                          fontSize: 14,
+                          padding: 5,
+                        }}>
+                        {editEduDet ? 'Edit' : 'Add More'} Education
+                      </Text>
+                      <FAIcon
+                        name="window-close"
+                        color="black"
+                        size={26}
+                        style={{
+                          position: 'absolute',
+                          top: 0,
+                          right: 0,
+                        }}
+                        onPress={() => setEduElementModal(false)}
+                      />
+                    </View>
+                    <View
+                      style={{
+                        width: '95%',
+                        alignSelf: 'center',
+                        marginBottom: 10,
+                        padding: 5,
+                      }}>
+                      <View
+                        style={{
+                          flexDirection: 'column',
+                          marginBottom: 10,
+                        }}>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                          }}>
+                          <View style={{flex: 0.475}}>
+                            <Text style={styles.inputLabel}>Degree</Text>
+                            <TextInput
+                              style={[
+                                styles.textInput,
+                                {backgroundColor: '#E8F0FE'},
+                              ]}
+                              onChangeText={text => setDegree(text)}
+                              value={Degree}></TextInput>
+                          </View>
+                          <View style={{flex: 0.475}}>
+                            <Text style={styles.inputLabel}>
+                              Degree Passing Year
+                            </Text>
+                            <SelectList
+                              placeholder={DegreePassingYear}
+                              boxStyles={{
+                                backgroundColor: '#e8f0fe',
+                                borderWidth: 0,
+                              }}
+                              dropdownTextStyles={{
+                                color: '#2b8ada',
+                                fontWeight: 'bold',
+                              }}
+                              setSelected={setDegreePassingYear}
+                              data={dataYear}
+                            />
+                          </View>
+                        </View>
+                        <View
+                          style={{
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                          }}>
+                          <View style={{flex: 1}}>
+                            <Text
+                              style={[styles.inputLabel, {marginBottom: 10}]}>
+                              Specialization
+                            </Text>
+                            <SelectList
+                              labelStyles={{height: 0}}
+                              placeholder={Specialization}
+                              setSelected={val => setSpecialization(val)}
+                              data={dataSpecialization}
+                              save="value"
+                              boxStyles={{
+                                backgroundColor: '#E8F0FE',
+                                borderWidth: 0,
+                              }}
+                              dropdownStyles={{backgroundColor: 'white'}}
+                              dropdownTextStyles={{
+                                color: '#2b8ada',
+                                fontWeight: 'bold',
+                              }}
+                              badgeStyles={{backgroundColor: '#2b8ada'}}
+                            />
+                          </View>
+                          <View style={{flex: 1}}>
+                            <Text style={styles.inputLabel}>University</Text>
+                            <TextInput
+                              style={[
+                                styles.textInput,
+                                {backgroundColor: '#E8F0FE'},
+                              ]}
+                              onChangeText={text => setUniversity(text)}
+                              value={University}></TextInput>
+                          </View>
+                        </View>
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          marginVertical: 5,
+                          flex: 1,
+                          marginBottom: 10,
+                        }}>
+                        <CustomButton
+                          text="Upload Document"
+                          textstyle={{color: '#2b8ada', fontSize: 12}}
+                          style={{
+                            backgroundColor: 'white',
+                            borderRadius: 12,
+                            padding: 6,
+                            paddingHorizontal: 10,
+                            borderWidth: 2,
+                            borderColor: '#2b8ada',
+                          }}
+                        />
+                      </View>
+                    </View>
+
+                    <CustomButton
+                      text="Update"
+                      textstyle={{color: 'white'}}
+                      style={{
+                        width: '95%',
+                        backgroundColor: '#2B8ADA',
+                        marginVertical: 5,
+                        paddingVertical: 5,
+                        borderRadius: 10,
+                      }}
+                      onPress={() => {
+                        if (Degree == '')
+                          Alert.alert('Please fill Degree Name');
+                        else if (DegreePassingYear == '')
+                          Alert.alert('Please fill Degree Passing Year');
+                        else if (Specialization == '')
+                          Alert.alert('Please Select Specialization');
+                        else if (University == '')
+                          Alert.alert('Please fill University Name');
+                        else {
+                          let totalexp =
+                            parseInt(TotalYear) * 12 + parseInt(TotalMonths);
+                          let p = {
+                            degree: Degree,
+                            degreePath: Degree + '.pdf',
+
+                            doctorId: doctorId,
+                            passingYear: Number(DegreePassingYear),
+                            specialization: Specialization,
+                            university: University,
+                          };
+                          if (editEduDet)
+                            p.doctorEducationPkId = doctorEducationPkId;
+
+                          setisLoading(true);
+                          updateEduDet(p);
+                          setDegree('');
+                          setDegreePassingYear('');
+                          setdoctorEducationPkId(0);
+                          setSpecialization('');
+                          setUniversity('');
+                          setEduElementModal(false);
+                        }
+                      }}
+                    />
+                  </View>
+                </View>
+              </Modal>
+            ) : null}
+            {ExpElementModal ? (
+              <Modal
+                animationType="slide"
+                transparent={true}
+                visible={ExpElementModal}
+                onRequestClose={() => {
+                  setExpElementModal(!ExpElementModal);
+                }}>
+                <View
+                  style={{
+                    height: '100%',
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                  }}>
+                  <View
+                    style={[
+                      styles.modalView,
+                      {
+                        borderRadius: 10,
+                        padding: 15,
+                      },
+                    ]}>
+                    <View
+                      style={{
+                        width: '100%',
+                        alignSelf: 'center',
+                        marginBottom: 20,
+                        borderBottomWidth: 1,
+                        borderBottomColor: 'gray',
+                      }}>
+                      <Text
+                        style={{
+                          fontWeight: 'bold',
+                          fontSize: 14,
+                          padding: 5,
+                        }}>
+                        {editExp ? ' Edit' : 'Add More'} Experience
+                      </Text>
+                      <FAIcon
+                        name="window-close"
+                        color="black"
+                        size={26}
+                        style={{
+                          position: 'absolute',
+                          top: 0,
+                          right: 0,
+                        }}
+                        onPress={() => setExpElementModal(false)}
+                      />
+                    </View>
+                    <View
+                      style={{
+                        width: '95%',
+                        alignSelf: 'center',
+                        marginBottom: 10,
+                        padding: 5,
+                      }}>
+                      <View
+                        style={{
+                          flexDirection: 'column',
+                          marginBottom: 10,
+                        }}>
+                        <View
+                          style={{
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                          }}>
+                          <View style={{flex: 1}}>
+                            <Text style={[styles.inputLabel, {marginTop: 0}]}>
+                              Practice At
+                            </Text>
+                            <TextInput
+                              style={[
+                                styles.textInput,
+                                {backgroundColor: '#E8F0FE'},
+                              ]}
+                              onChangeText={text => setPracticeAt(text)}
+                              value={practiceAt}></TextInput>
+                          </View>
+                        </View>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                          }}>
+                          <View style={{flex: 0.475}}>
+                            <Text style={styles.inputLabel}>Start Date</Text>
+                            <View
+                              style={{
+                                flexDirection: 'row',
+                                width: '100%',
+                                alignItems: 'center',
+                                backgroundColor: '#E8F0FE',
+                                borderRadius: 10,
+                              }}>
+                              <Text style={[styles.textInput, {flex: 1}]}>
+                                {dayjs(startExpDate).isValid()
+                                  ? dayjs(startExpDate).format('DD-MM-YYYY')
+                                  : 'DD-MM-YYYY'}
+                              </Text>
+                              <FAIcon
+                                name="calendar-alt"
+                                color={'gray'}
+                                size={20}
+                                style={{
+                                  marginHorizontal: 5,
+                                  position: 'absolute',
+                                  right: 0,
+                                }}
+                                onPress={() => {
+                                  setStartExpDatePickerVisible(true);
+                                }}
+                              />
+                            </View>
+                            <DateTimePickerModal
+                              isVisible={isStartExpDatePickerVisible}
+                              mode="date"
+                              display="spinner"
+                              date={
+                                dayjs(startExpDate).isValid()
+                                  ? dayjs(startExpDate).toDate()
+                                  : dayjs().toDate()
+                              }
+                              maximumDate={dayjs().toDate()}
+                              onConfirm={handleStartExpDate}
+                              onCancel={() => {
+                                setStartExpDatePickerVisible(false);
+                              }}
+                            />
+                          </View>
+                          <View style={{flex: 0.475}}>
+                            <Text style={styles.inputLabel}>End Date</Text>
+                            <View
+                              style={{
+                                flexDirection: 'row',
+                                width: '100%',
+                                alignItems: 'center',
+                                backgroundColor: '#E8F0FE',
+                                borderRadius: 10,
+                              }}>
+                              <Text style={[styles.textInput, {flex: 1}]}>
+                                {dayjs(endExpDate).isValid()
+                                  ? dayjs(endExpDate).format('DD-MM-YYYY')
+                                  : 'DD-MM-YYYY'}
+                              </Text>
+                              <FAIcon
+                                name="calendar-alt"
+                                color={'gray'}
+                                size={20}
+                                style={{
+                                  marginHorizontal: 5,
+                                  position: 'absolute',
+                                  right: 0,
+                                }}
+                                onPress={() => {
+                                  setEndExpDatePickerVisible(true);
+                                }}
+                              />
+                            </View>
+                            <DateTimePickerModal
+                              isVisible={isEndExpDatePickerVisible}
+                              mode="date"
+                              display="spinner"
+                              date={
+                                dayjs(endExpDate).isValid()
+                                  ? dayjs(endExpDate).toDate()
+                                  : dayjs().toDate()
+                              }
+                              maximumDate={dayjs().toDate()}
+                              onConfirm={handleEndExpDate}
+                              onCancel={() => {
+                                setEndExpDatePickerVisible(false);
+                              }}
+                            />
+                          </View>
+                        </View>
+                      </View>
+                    </View>
+
+                    <CustomButton
+                      text="Update"
+                      textstyle={{color: 'white'}}
+                      style={{
+                        width: '95%',
+                        backgroundColor: '#2B8ADA',
+                        marginVertical: 5,
+                        paddingVertical: 5,
+                        borderRadius: 10,
+                      }}
+                      onPress={() => {
+                        if (practiceAt == '')
+                          Alert.alert(
+                            'Please add Clinic/Hospital Practise Name',
+                          );
+                        else if (startExpDate == '')
+                          Alert.alert('Please Select Practise Start Date');
+                        else if (endExpDate == '')
+                          Alert.alert('Please Select Practise End Date');
+                        else {
+                          let p = {
+                            doctorId: Number(doctorId),
+                            endDate: endExpDate,
+
+                            experienceInMonths: Number(experienceInMonths),
+                            practiceAt: practiceAt,
+                            startDate: startExpDate,
+                          };
+
+                          if (editExp) p.experienceId = Number(experienceId);
+
+                          setisLoading(true);
+                          updateExpDet(p);
+                          setPracticeAt('');
+                          setStartExpDate('');
+                          setEndExpDate('');
+                          setExperienceInMonths('');
+                          setTotalYear('');
+                          setTotalMonths('');
+                          setShowExpDet(false);
+                          setExpElementModal(false);
+                        }
+                      }}
+                    />
+                  </View>
+                </View>
+              </Modal>
+            ) : null}
+            {IdenElementModal ? (
+              <Modal
+                animationType="slide"
+                transparent={true}
+                visible={IdenElementModal}
+                onRequestClose={() => {
+                  setIdenElementModal(!IdenElementModal);
+                }}>
+                <View
+                  style={{
+                    height: '100%',
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                  }}>
+                  <View
+                    style={[
+                      styles.modalView,
+                      {
+                        borderRadius: 10,
+                        padding: 15,
+                      },
+                    ]}>
+                    <View
+                      style={{
+                        width: '100%',
+                        alignSelf: 'center',
+                        marginBottom: 20,
+                        borderBottomWidth: 1,
+                        borderBottomColor: 'gray',
+                      }}>
+                      <Text
+                        style={{
+                          fontWeight: 'bold',
+                          fontSize: 14,
+                          padding: 5,
+                        }}>
+                        {editIden ? ' Edit' : 'Add More '} Identification
+                      </Text>
+                      <FAIcon
+                        name="window-close"
+                        color="black"
+                        size={26}
+                        style={{
+                          position: 'absolute',
+                          top: 0,
+                          right: 0,
+                        }}
+                        onPress={() => setIdenElementModal(false)}
+                      />
+                    </View>
+                    <View
+                      style={{
+                        flexDirection: 'column',
+                        width: '95%',
+                        alignSelf: 'center',
+                      }}>
+                      <View
+                        style={{
+                          flexDirection: 'column',
+                          justifyContent: 'space-between',
+                        }}>
+                        <View style={{flexDirection: 'column', flex: 1}}>
+                          <Text style={styles.inputLabel}>Document Name</Text>
+
+                          <SelectList
+                            placeholder={identificationType}
+                            boxStyles={{
+                              backgroundColor: '#e8f0fe',
+                              borderWidth: 0,
+                            }}
+                            dropdownTextStyles={{
+                              color: '#2b8ada',
+                              fontWeight: 'bold',
+                            }}
+                            setSelected={setidentificationType}
+                            data={dataIdenDocs}
+                          />
+                        </View>
+                        <View style={{flexDirection: 'column', flex: 1}}>
+                          <Text style={styles.inputLabel}>
+                            Identification No
+                          </Text>
+                          <View>
+                            <TextInput
+                              style={[styles.textInput]}
+                              onChangeText={text =>
+                                setidentificationNumber(text)
+                              }
+                              value={identificationNumber}
+                            />
+                          </View>
+                        </View>
+                      </View>
+                    </View>
+
+                    <CustomButton
+                      text="Update"
+                      textstyle={{color: 'white'}}
+                      style={{
+                        width: '95%',
+                        backgroundColor: '#2B8ADA',
+                        marginVertical: 5,
+                        paddingVertical: 5,
+                        borderRadius: 10,
+                      }}
+                      onPress={() => {
+                        if (
+                          identificationNumber != '' &&
+                          identificationType != ''
+                        ) {
+                          var flag = 1;
+                          if (
+                            IdentificationDocs.length > 0 &&
+                            editIden == false
+                          ) {
+                            for (
+                              var i = 0;
+                              i < IdentificationDocs.length;
+                              ++i
+                            ) {
+                              if (
+                                IdentificationDocs[i].identificationType ==
+                                identificationType
+                              ) {
+                                flag = 0;
+                                break;
+                              }
+                            }
+                            if (flag == 0) {
+                              Alert.alert(
+                                'You can not add duplicate documents',
+                              );
+                              setidentificationNumber('');
+                              setidentificationType('');
+                            }
+                          }
+                          if (flag == 1) {
+                            let p = {
+                              doctorId: doctorId,
+
+                              identificationNumber: identificationNumber,
+                              identificationPath:
+                                'aws/s3/Docs/' + identificationNumber + '.pdf',
+                              identificationType: identificationType,
+                            };
+
+                            if (editIden)
+                              p.doctorIdentificationPkId =
+                                doctorIdentificationPkId;
+
+                            setisLoading(true);
+                            updateIden(p);
+                            setidentificationNumber('');
+                            setidentificationType('');
+                            setIdenElementModal(false);
+                            setShowIdenDet(false);
+                          }
+                        } else if (identificationNumber == '')
+                          Alert.alert('Please fill Identification Number');
+                        else if (identificationType == '')
+                          Alert.alert('Please Select Document Name');
+                      }}
+                    />
+                  </View>
+                </View>
+              </Modal>
+            ) : null}
           </View>
         </ScrollView>
 
@@ -2505,9 +3229,9 @@ const EditProfile = ({navigation}) => {
                 source={waiting}
                 style={{
                   alignSelf: 'center',
-                  width: 150,
-                  height: 150,
-                  borderRadius: 150,
+                  width: 100,
+                  height: 100,
+                  borderRadius: 100,
                 }}
               />
               <Text

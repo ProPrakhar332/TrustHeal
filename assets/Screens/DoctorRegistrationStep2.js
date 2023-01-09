@@ -421,7 +421,7 @@ const DoctorRegistration2 = ({navigation}) => {
     const onLoadSetData = async () => {
       let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
       //console.log(DoctorID);
-      let Fn = x.fullName;
+      let Fn = x.fullName == undefined ? x.doctorName : x.fullName;
       //console.log(x);
       setDaysSlot(DaysCreator);
       setTitle(Fn.substring(0, Fn.indexOf(' ')));
