@@ -32,6 +32,7 @@ import dayjs from 'dayjs';
 import axios from 'axios';
 import apiConfig from '../API/apiConfig';
 import Header from '../Components/Header';
+import {Switch} from 'react-native-elements';
 
 const dataIdenDocs = [
   {key: 'Aadhar', value: 'Aadhar'},
@@ -164,7 +165,7 @@ const EditProfile = ({navigation}) => {
   const [showGenConfig, setShowGenConfig] = useState(false);
   const [GenConfigEdit, setGenConfigEdit] = useState(false);
   const [DoctorConfiguration, setDoctorConfiguration] = useState(null);
-  const [showMobNo, setshowMobNo] = useState('');
+  const [showMobNo, setshowMobNo] = useState(false);
   const [showFollowUp, setshowFollowUp] = useState('');
 
   //consultation fees
@@ -300,7 +301,7 @@ const EditProfile = ({navigation}) => {
             doctorId,
         )
         .then(function (response) {
-          if (response.status == 200) {
+          if (response.status == 200 || response.status == 201) {
             let doctorMedicalRegistrations = response.data;
             if (
               doctorMedicalRegistrations != null &&
@@ -472,10 +473,10 @@ const EditProfile = ({navigation}) => {
       .then(function (response) {
         if (response.status == 200) {
           Alert.alert(
-            'All changes made in Medical Registration Updated successfully!',
+            'Medical Registration details have been updated successfully!',
           );
           setMedInfoEdit(false);
-        } else Alert.alert('Could not Update Details. Please try again later.');
+        } else Alert.alert('Could not update details. Please try again later.');
       });
   };
 
@@ -881,13 +882,13 @@ const EditProfile = ({navigation}) => {
             <View style={styles.cellStyle}>
               {Math.floor(Exp.experienceInMonths / 12) > 0 ? (
                 <Text style={styles.cellText}>
-                  {Math.floor(Exp.experienceInMonths / 12) + ' years'}
+                  {Math.floor(Exp.experienceInMonths / 12) + ' year(s)'}
                 </Text>
               ) : null}
 
               {parseInt(Exp.experienceInMonths % 12) != 0 ? (
                 <Text style={styles.cellText}>
-                  {parseInt(Exp.experienceInMonths % 12) + ' months'}
+                  {parseInt(Exp.experienceInMonths % 12) + ' month(s)'}
                 </Text>
               ) : null}
             </View>
@@ -1398,6 +1399,47 @@ const EditProfile = ({navigation}) => {
                       </View>
                       <View
                         style={{
+                          flexDirection: 'row',
+                          alignSelf: 'center',
+                          width: '90%',
+                          marginTop: 10,
+                        }}>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            flex: 1,
+                            alignSelf: 'center',
+                            // borderColor: 'gray',
+                            // borderWidth: 1,
+                            justifyContent: 'space-between',
+
+                            padding: 5,
+                          }}>
+                          <Text
+                            style={[
+                              styles.inputLabel,
+                              {marginTop: 0, alignSelf: 'center'},
+                            ]}>
+                            Contact Visibility
+                          </Text>
+                          <Switch
+                            trackColor={{false: '#767577', true: '#81b0ff'}}
+                            thumbColor={showMobNo ? '#81b0ff' : '#f4f3f4'}
+                            ios_backgroundColor="#3e3e3e"
+                            onValueChange={() => {
+                              setshowMobNo(!showMobNo);
+                              Alert.alert(
+                                'Contact Visbility',
+                                'Your Contact Visibility is turned ' +
+                                  (showMobNo ? 'ON' : 'OFF'),
+                              );
+                            }}
+                            value={showMobNo}
+                          />
+                        </View>
+                      </View>
+                      <View
+                        style={{
                           flexDirection: 'column',
                           width: '95%',
                           alignSelf: 'center',
@@ -1641,7 +1683,8 @@ const EditProfile = ({navigation}) => {
                             text="Done"
                             textstyle={styles.ButtonText}
                             onPress={() => {
-                              setMedInfoEdit(false);
+                              updateMedReg();
+                              //setMedInfoEdit(false);
                             }}
                             style={styles.ButtonUpdate}
                           />
@@ -1816,9 +1859,9 @@ const EditProfile = ({navigation}) => {
                           textstyle={styles.ButtonText}
                           style={styles.ButtonUpdate}
                           onPress={() => {
-                            //updateEduDet();
+                            updateEduDet();
 
-                            setEduDetEdit(false);
+                            //setEduDetEdit(false);
                           }}
                         />
                         <CustomButton
@@ -1973,6 +2016,7 @@ const EditProfile = ({navigation}) => {
                                 marginTop: 10,
                               }}
                               onPress={() => {
+                                seteditExp(false);
                                 setExpElementModal(true);
                               }}
                             />
@@ -1987,11 +2031,11 @@ const EditProfile = ({navigation}) => {
                           textstyle={styles.ButtonText}
                           style={styles.ButtonUpdate}
                           onPress={() => {
-                            //updateExpDet();
+                            updateExpDet();
                             // Alert.alert(
                             //   'Experience Details Updated Successfully!',
                             // );
-                            setExpDetEdit(false);
+                            //setExpDetEdit(false);
                           }}
                         />
                         <CustomButton
@@ -2123,7 +2167,12 @@ const EditProfile = ({navigation}) => {
                         </View>
                         <ViewIdentificationsTabular />
                         {IdenDetEdit ? (
-                          <View style={{flex: 1}}>
+                          <View
+                            style={{
+                              flex: 1,
+                              flexDirection: 'row',
+                              alignSelf: 'flex-end',
+                            }}>
                             <CustomButton
                               text={'+ Add More'}
                               textstyle={{color: 'white', fontSize: 10}}
@@ -2131,249 +2180,41 @@ const EditProfile = ({navigation}) => {
                                 alignSelf: 'flex-end',
                                 width: 80,
                                 backgroundColor: '#2b8ada',
+                                borderColor: '#2b8ada',
+                                borderWidth: 1,
+                                borderRadius: 5,
+                                padding: 3,
+                                paddingHorizontal: 10,
+                                marginTop: 10,
+                                marginRight: 5,
+                              }}
+                              onPress={() => {
+                                seteditIden(false);
+                                setIdenElementModal(true);
+                              }}
+                            />
+                            <CustomButton
+                              text={'Cancel'}
+                              textstyle={{color: '#2b8ada', fontSize: 10}}
+                              style={{
+                                alignSelf: 'flex-end',
+                                width: 80,
+                                borderColor: '#2b8ada',
+                                borderWidth: 1,
                                 borderRadius: 5,
                                 padding: 3,
                                 paddingHorizontal: 10,
                                 marginTop: 10,
                               }}
-                              onPress={() => {
-                                setIdenElementModal(true);
-                              }}
+                              onPress={() => setIdenDetEdit(false)}
                             />
                           </View>
                         ) : null}
                       </View>
                     ) : null}
-
-                    {IdenDetEdit ? (
-                      <View style={styles.ButtonView}>
-                        <CustomButton
-                          text={'Done'}
-                          textstyle={styles.ButtonText}
-                          style={styles.ButtonUpdate}
-                          onPress={() => {
-                            //setisLoading(true);
-                            //updateIden();
-                            setIdenDetEdit(false);
-                            // Alert.alert(
-                            //   'Identification Details Saved Successfully',
-                            // );
-                          }}
-                        />
-                        <CustomButton
-                          text={'Cancel'}
-                          textstyle={styles.ButtonTextCancel}
-                          style={styles.ButtonCancel}
-                          onPress={() => setIdenDetEdit(false)}
-                        />
-                      </View>
-                    ) : null}
                   </View>
                 </View>
               ) : null}
-
-              {/* General Configuration Label*/}
-              {/* <View
-                style={{
-                  width: '100%',
-                  alignSelf: 'center',
-                }}>
-                <View
-                  style={[
-                    styles.whiteLabelView,
-                    showGenConfig
-                      ? {
-                          borderBottomLeftRadius: 0,
-                          borderBottomRightRadius: 0,
-                          marginBottom: 0,
-                        }
-                      : null,
-                  ]}>
-                  <TouchableOpacity
-                    style={[
-                      {flexDirection: 'row', width: '100%'},
-                      showGenConfig
-                        ? {
-                            borderBottomWidth: 0.5,
-                            borderBottomColor: '#707070',
-                          }
-                        : null,
-                    ]}
-                    onPress={() => {
-                      if (GenConfigEdit) {
-                        setGenConfigEdit(false);
-                      }
-                      setShowGenConfig(!showGenConfig);
-                    }}>
-                    <Text
-                      style={[
-                        styles.label,
-                        {width: '80%'},
-                        showGenConfig ? {color: '#2B8ADA', width: '80%'} : null,
-                      ]}>
-                      General Configuration
-                    </Text>
-                    {GenConfigEdit ? (
-                      <Text
-                        style={[
-                          {
-                            alignSelf: 'center',
-                            color: '#2B8ADA',
-                            padding: 5,
-                            textDecorationLine: 'underline',
-                          },
-                          showGenConfig ? null : {color: 'white'},
-                        ]}
-                        onPress={() => {
-                          setGenConfigEdit(false);
-                        }}>
-                        Cancel
-                      </Text>
-                    ) : (
-                      <Text
-                        style={[
-                          {
-                            alignSelf: 'center',
-                            color: '#2B8ADA',
-                            padding: 5,
-                            textDecorationLine: 'underline',
-                          },
-                          showGenConfig ? null : {color: 'white'},
-                        ]}
-                        onPress={() => {
-                          if (showGenConfig == true) {
-                            Alert.alert(
-                              'You can now edit General Configuration',
-                            );
-                            setGenConfigEdit(true);
-                          }
-                        }}>
-                        Edit
-                      </Text>
-                    )}
-                    {GenConfigEdit ? null : (
-                      <FAIcon
-                        name={showGenConfig ? 'chevron-down' : 'chevron-right'}
-                        color={showGenConfig ? '#2B8ADA' : 'gray'}
-                        style={[
-                          styles.label,
-                          {width: '10%', fontSize: 20},
-                        ]}></FAIcon>
-                    )}
-                  </TouchableOpacity>
-                </View>
-              </View> */}
-              {/* General Configuration Body*/}
-              {/* {showGenConfig ? (
-                <View>
-                  <View style={styles.whiteBodyView}>
-                    <View
-                      style={{
-                        flexDirection: 'column',
-                        marginBottom: 10,
-                      }}>
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          alignSelf: 'center',
-                          justifyContent: 'space-between',
-                          width: '95%',
-                          marginBottom: 10,
-                        }}>
-                        <View
-                          style={{
-                            flexDirection: 'column',
-                            flex: 0.45,
-                            marginRight: '5%',
-                          }}>
-                          <Text style={[styles.inputLabel, {marginTop: 0}]}>
-                            Show Mobile Number
-                          </Text>
-                          {GenConfigEdit ? (
-                            <SelectList
-                              boxStyles={{
-                                backgroundColor: '#e8f0fe',
-                                borderWidth: 0,
-                              }}
-                              dropdownItemStyles={{backgroundColor: '#e8f0fe'}}
-                              setSelected={setshowMobNo}
-                              data={dataShowMobNo}
-                              placeholder={showMobNo}
-                            />
-                          ) : (
-                            <Text
-                              style={[
-                                styles.inputLabel,
-                                {
-                                  marginTop: 0,
-                                  backgroundColor: '#d0e0fc',
-                                  padding: 10,
-                                  borderRadius: 10,
-                                },
-                              ]}>
-                              {showMobNo}
-                            </Text>
-                          )}
-                        </View>
-                        <View style={{flexDirection: 'column', flex: 0.45}}>
-                          <Text style={[styles.inputLabel, {marginTop: 0}]}>
-                            Follow-Up (in Days)
-                          </Text>
-
-                          {GenConfigEdit ? (
-                            <SelectList
-                              boxStyles={{
-                                backgroundColor: '#e8f0fe',
-                                borderWidth: 0,
-                              }}
-                              dropdownItemStyles={{backgroundColor: '#e8f0fe'}}
-                              setSelected={setshowFollowUp}
-                              data={dataFollowUp}
-                              placeholder={
-                                DoctorConfiguration.followUpDuration != ''
-                                  ? DoctorConfiguration.followUpDuration
-                                  : ''
-                              }
-                            />
-                          ) : (
-                            <Text
-                              style={[
-                                styles.inputLabel,
-                                {
-                                  marginTop: 0,
-                                  backgroundColor: '#d0e0fc',
-                                  padding: 10,
-                                  borderRadius: 10,
-                                },
-                              ]}>
-                              {showFollowUp}
-                            </Text>
-                          )}
-                        </View>
-                      </View>
-                      {GenConfigEdit ? (
-                        <CustomButton
-                          text="Update"
-                          textstyle={{color: 'white', alignSelf: 'center'}}
-                          onPress={() => {
-                            updateGenConfig();
-                          }}
-                          style={{
-                            backgroundColor: '#2b8ada',
-                            borderRadius: 5,
-                            padding: 6,
-                            paddingHorizontal: 10,
-                            flex: 1,
-                            alignSelf: 'center',
-                            width: '95%',
-                            marginVertical: 10,
-                          }}
-                        />
-                      ) : null}
-                    </View>
-                  </View>
-                </View>
-              ) : null} */}
 
               {/* Consultation Fees Label*/}
               <View
@@ -2569,9 +2410,9 @@ const EditProfile = ({navigation}) => {
                         style={styles.ButtonUpdate}
                         onPress={() => {
                           // setisLoading(true);
-                          // updatefees();
+                          updatefees();
                           //Alert.alert('Fees Details Updated Successfully!');
-                          setConsultFeesEdit(false);
+                          //setConsultFeesEdit(false);
                         }}
                       />
                       <CustomButton
@@ -3263,7 +3104,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#2B8ADA',
   },
   textInput: {
-    flex: 0.45,
     padding: 5,
     color: 'black',
     backgroundColor: '#E8F0FE',

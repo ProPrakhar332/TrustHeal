@@ -288,7 +288,7 @@ const DoctorRegistrationStep1 = ({navigation}) => {
       if (PIN != '') ++c;
       if (city != '') ++c;
 
-      setcomplete(c / 10);
+      setcomplete(c / 20);
     };
     progressBar();
   }, [title, name, email, dob, gender, speciality, Language, PIN, city]);
@@ -716,7 +716,7 @@ const DoctorRegistrationStep1 = ({navigation}) => {
                     var validRegex =
                       /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
                     if (email.match(validRegex)) {
-                      setTermsView(true);
+                      PostData();
                     } else Alert.alert('Please Enter Valid Email!');
                   }
                 }}></CustomButton>

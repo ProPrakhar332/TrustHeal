@@ -97,8 +97,9 @@ const DoctorRegistration2 = ({navigation}) => {
   const [gender, setGender] = useState('');
   const [city, setCity] = useState('');
   const [PinCode, setPinCode] = useState('');
+  const [doctorId, setdoctorId] = useState(0);
   //Medical Registration Feild
-  const [showMedReg, setShowMedReg] = useState(true);
+  const [showMedReg, setShowMedReg] = useState(false);
   const [dataSavedMedReg, setdataSavedMedReg] = useState(false);
   const [medReg, setmedReg] = useState([]);
   const [RegNo, setRegNo] = useState('');
@@ -386,35 +387,173 @@ const DoctorRegistration2 = ({navigation}) => {
   // ]);
 
   useEffect(() => {
+    const getspl = async () => {
+      let arr = [];
+      let p = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
+      let doctorId = p.doctorId;
+      console.log(doctorId);
+      axios
+        .get(apiConfig.baseUrl + '/doctor/educations?doctorId=' + doctorId)
+        .then(function (response) {
+          if (response.status == 200) {
+            setdataSavedEduDet(true);
+            arr = response.data;
+          } else {
+            setdataSavedEduDet(false);
+            setdataSpecialization(data);
+          }
+        })
+        .catch(function (error) {
+          console.log('===== Error in fetching education =====');
+          console.log(error);
+        });
+      if (setdataSavedEduDet) {
+        for (var i = 0; i < arr.length; ++i)
+          dataSpecialization.push({
+            key: arr[i].specialization,
+            value: arr[i].specialization,
+          });
+        arr = [];
+      }
+    };
+
+    if (showPreConsultationQuestionaire == true) getspl();
+  }, [showPreConsultationQuestionaire]);
+
+  useEffect(() => {
+    const checkMedical = async () => {
+      axios
+        .get(
+          apiConfig.baseUrl +
+            '/doctor/medicalregistrations?doctorId=' +
+            doctorId,
+        )
+        .then(function (response) {
+          if (response.data != '') {
+            setdataSavedMedReg(true);
+          } else setdataSavedMedReg(false);
+        })
+        .catch(function (error) {
+          console.log('=====Error in fetching Med Reg=====');
+          console.log(error);
+        });
+    };
+    const checkEducation = async () => {
+      axios
+        .get(apiConfig.baseUrl + '/doctor/educations?doctorId=' + doctorId)
+        .then(function (response) {
+          if (response.data != '') {
+            setdataSavedEduDet(true);
+          } else setdataSavedEduDet(false);
+        })
+        .catch(function (error) {
+          console.log('===== Error in fetching Edu Det =====');
+          console.log(error);
+        });
+    };
+    const checkExp = async () => {
+      axios
+        .get(apiConfig.baseUrl + '/doctor/experience?doctorId=' + doctorId)
+        .then(function (response) {
+          if (response.data != '') {
+            setdataSavedExpDet(true);
+          } else setdataSavedExpDet(false);
+        })
+        .catch(function (error) {
+          console.log('=====Error in fetching Experience=====');
+          console.log(error);
+        });
+    };
+    const checkIden = async () => {
+      axios
+        .get(apiConfig.baseUrl + '/doctor/identifications?doctorId=' + doctorId)
+        .then(function (response) {
+          if (response.data != '') {
+            setdataSavedIdenDet(true);
+          } else setdataSavedIdenDet(false);
+        })
+        .catch(function (error) {
+          console.log('=====Error in fetching Iden det=====');
+          console.log(error);
+        });
+    };
+    const checkAddInfo = async () => {
+      axios
+        .get(apiConfig.baseUrl + '/doctor/clinic/details?doctorId=' + doctorId)
+        .then(function (response) {
+          if (response.data != '') {
+            setdataSavedAddInfo(true);
+          } else setdataSavedAddInfo(false);
+        })
+        .catch(function (error) {
+          console.log('=====Error in fetching Clinic Det=====');
+          console.log(error);
+        });
+    };
+    const checkPreConsult = async () => {
+      axios
+        .get(
+          apiConfig.baseUrl +
+            '/doctor/pre/consultation/questions?doctorId=' +
+            doctorId,
+        )
+        .then(function (response) {
+          if (response.data != '') {
+            setdataSavedPreConsultationQuestionaire(true);
+          } else setdataSavedPreConsultationQuestionaire(false);
+        })
+        .catch(function (error) {
+          console.log('=====Error in fetching Preconsult ques=====');
+          console.log(error);
+        });
+    };
+    const checkFees = async () => {
+      axios
+        .get(apiConfig.baseUrl + '/doctor/fees?doctorId=' + doctorId)
+        .then(function (response) {
+          if (response.status == 400) {
+            setdataSavedConsultFees(false);
+          } else setdataSavedConsultFees(true);
+        })
+        .catch(function (error) {
+          setdataSavedConsultFees(false);
+
+          console.log('=====Error in fetching Consultation Fees=====');
+          console.log(error);
+        });
+    };
+    checkMedical();
+    checkEducation();
+    checkExp();
+    checkIden();
+    checkAddInfo();
+    checkPreConsult();
+    checkFees();
+  }, []);
+
+  useEffect(() => {
     const progressBar = () => {
-      var c = 0;
+      var c = 1;
       if (dataSavedMedReg) ++c;
       if (dataSavedEduDet) ++c;
-      if (dataSavedExpDet) ++c;
+      // if (dataSavedExpDet) ++c;
       if (dataSavedIdenDet) ++c;
-      if (dataSavedAddInfo) ++c;
+      // if (dataSavedAddInfo) ++c;
       if (dataSavedPreConsultationQuestionaire) ++c;
       if (dataSavedConsultFees) ++c;
 
-      setCompletePercentage((50 + parseInt((c / 7) * 50)).toString() + '%');
+      setCompletePercentage(parseInt((c / 6) * 100).toString() + '%');
     };
     progressBar();
 
     //console.log('Use Effect ClinicDet-----------');
     // console.log(ClinicDet);
   }, [
-    RegNo,
-    RegCouncil,
-    RegYear,
-    Education,
-    IdentificationDocs,
-    ClinicDet,
-    showMobNo,
-    showFollowUp,
-    questionareList,
-    physicalConsulationFees,
-    eConsulationFees,
-    followUpFees,
+    dataSavedMedReg,
+    dataSavedEduDet,
+    dataSavedIdenDet,
+    dataSavedPreConsultationQuestionaire,
+    dataSavedConsultFees,
   ]);
 
   useEffect(() => {
@@ -422,10 +561,11 @@ const DoctorRegistration2 = ({navigation}) => {
       let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
       //console.log(DoctorID);
       let Fn = x.fullName == undefined ? x.doctorName : x.fullName;
-      //console.log(x);
+      console.log(x);
       setDaysSlot(DaysCreator);
       setTitle(Fn.substring(0, Fn.indexOf(' ')));
       setName(Fn.substring(Fn.indexOf(' ') + 1));
+      setdoctorId(x.doctorId);
       setEmail(x.email);
       setGender(x.gender);
       setCity(x.city);
@@ -481,6 +621,7 @@ const DoctorRegistration2 = ({navigation}) => {
     onLoadSetData();
     onLoadSetDay();
   }, []);
+
   const pushSlot = async () => {
     let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
     //let doctorId = Number(x.doctorId);
@@ -621,12 +762,6 @@ const DoctorRegistration2 = ({navigation}) => {
             }}>
             {/*Document Type */}
             <View style={styles.cellStyle}>
-              <FAIcon
-                name="file-pdf"
-                size={15}
-                color={'#2b8ada'}
-                style={{marginTop: 3}}
-              />
               <Text
                 style={{textAlign: 'center', fontSize: 10, marginVertical: 3}}>
                 {IdentificationDocs.identificationType}
@@ -639,13 +774,29 @@ const DoctorRegistration2 = ({navigation}) => {
               </Text>
             </View>
             {/*Actions */}
-            <TouchableOpacity
-              style={styles.cellStyle}
-              onPress={() => {
-                removeIdenHandler(index);
-              }}>
-              <FAIcon name="trash" color={'red'} size={15} />
-            </TouchableOpacity>
+            <View
+              style={[
+                styles.cellStyle,
+                {
+                  flexDirection: 'row',
+                  alignContent: 'center',
+                },
+              ]}>
+              <TouchableOpacity>
+                <FAIcon
+                  name="file-pdf"
+                  size={15}
+                  color={'#2b8ada'}
+                  style={{marginRight: 7}}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  removeIdenHandler(index);
+                }}>
+                <FAIcon name="trash" color={'red'} size={15} />
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       );
@@ -767,21 +918,14 @@ const DoctorRegistration2 = ({navigation}) => {
             </View>
             {/* Total Experience */}
             <View style={styles.cellStyle}>
-              <Text
-                style={{
-                  textAlign: 'center',
-                  fontSize: 10,
-                }}>
-                {Math.floor(Experience.experienceInMonths / 12)} {'years'}{' '}
-              </Text>
-
+              {Math.floor(Experience.experienceInMonths / 12) > 0 ? (
+                <Text style={{textAlign: 'center', fontSize: 10}}>
+                  {Math.floor(Experience.experienceInMonths / 12) + ' year(s)'}
+                </Text>
+              ) : null}
               {parseInt(Experience.experienceInMonths % 12) != 0 ? (
-                <Text
-                  style={{
-                    textAlign: 'center',
-                    fontSize: 10,
-                  }}>
-                  {parseInt(Experience.experienceInMonths % 12) + ' months'}
+                <Text style={{textAlign: 'center', fontSize: 10}}>
+                  {parseInt(Experience.experienceInMonths % 12) + ' month(s)'}
                 </Text>
               ) : null}
             </View>
@@ -1128,16 +1272,27 @@ const DoctorRegistration2 = ({navigation}) => {
   const postConsultFees = async () => {
     let p = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
     let doctorId = Number(p.doctorId);
+    let amp = {
+      age: age,
+      city: city,
+      countryName: p.countryName,
+      dob: dob,
+      doctorFeesDTO: {
+        econsulationFees: eConsulationFees,
+        followUpDuration: showFollowUp,
+        followUpFees: followUpFees,
+        physicalConsulationFees: physicalConsulationFees,
+      },
+      doctorId: doctorId,
+      doctorName: p.doctorName != undefined ? p.doctorName : p.fullName,
+      email: email,
+      gender: gender,
+      mobileNumber: p.mobileNumber,
+      pinCode: PinCode,
+    };
+
     axios
-      .post(apiConfig.baseUrl + '/doctor/generalinfo/fees/save', {
-        doctorFeesDTO: {
-          econsulationFees: eConsulationFees,
-          followUpDuration: showFollowUp,
-          followUpFees: followUpFees,
-          physicalConsulationFees: physicalConsulationFees,
-        },
-        doctorId: doctorId,
-      })
+      .post(apiConfig.baseUrl + '/doctor/generalinfo/fees/save', amp)
       .then(function (response) {
         if (response.status == 201 || response.status == 200) {
           Alert.alert('Fees Record Inserted Successfully');
@@ -1202,13 +1357,43 @@ const DoctorRegistration2 = ({navigation}) => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}
       enabled={true}>
+      <StatusBar animated={true} backgroundColor="#2B8ADA" />
+
       <SafeAreaView
         style={{
-          backgroundColor: '#2B8ADA',
+          backgroundColor: '#e8f0fe',
           width: '100%',
           // marginTop: 30,
         }}>
-        <StatusBar animated={true} backgroundColor="#2B8ADA" />
+        {/* Completion Bar */}
+        <View
+          style={{
+            //elevation: 20,
+            marginTop: 30,
+            backgroundColor: 'white',
+            width: '90%',
+            height: 15,
+            alignSelf: 'center',
+            borderRadius: 10,
+          }}>
+          <View
+            style={{
+              width: completePercentage,
+              height: 15,
+              borderRadius: 10,
+              backgroundColor: '#2b8ada',
+              flexDirection: 'column',
+            }}>
+            <Text
+              style={{
+                fontSize: 10,
+                alignSelf: 'center',
+                color: 'white',
+              }}>
+              {completePercentage}
+            </Text>
+          </View>
+        </View>
         <ScrollView
           style={{
             width: '100%',
@@ -1219,34 +1404,6 @@ const DoctorRegistration2 = ({navigation}) => {
           }}
           showsVerticalScrollIndicator={false}>
           <View>
-            {/* Completion Bar */}
-            <View
-              style={{
-                // elevation: 20,
-                backgroundColor: 'white',
-                width: '90%',
-                height: 15,
-                alignSelf: 'center',
-                borderRadius: 10,
-              }}>
-              <View
-                style={{
-                  width: completePercentage,
-                  height: 15,
-                  borderRadius: 10,
-                  backgroundColor: '#2b8ada',
-                  flexDirection: 'column',
-                }}>
-                <Text
-                  style={{
-                    fontSize: 10,
-                    alignSelf: 'center',
-                    color: 'white',
-                  }}>
-                  {completePercentage}
-                </Text>
-              </View>
-            </View>
             {/* Doctor Image */}
             <View
               style={{
@@ -1599,7 +1756,11 @@ const DoctorRegistration2 = ({navigation}) => {
                     showMedReg
                       ? {borderBottomWidth: 0.5, borderBottomColor: '#707070'}
                       : null,
-                  ]}>
+                  ]}
+                  onPress={() => {
+                    if (dataSavedMedReg) setShowMedReg(false);
+                    else setShowMedReg(!showMedReg);
+                  }}>
                   <Text
                     style={[
                       styles.label,
@@ -1779,7 +1940,11 @@ const DoctorRegistration2 = ({navigation}) => {
                     showEduDet
                       ? {borderBottomWidth: 0.5, borderBottomColor: '#707070'}
                       : null,
-                  ]}>
+                  ]}
+                  onPress={() => {
+                    if (dataSavedEduDet) setShowEduDet(false);
+                    else setShowEduDet(!showEduDet);
+                  }}>
                   <Text
                     style={[
                       styles.label,
@@ -2111,7 +2276,11 @@ const DoctorRegistration2 = ({navigation}) => {
                     showExpDet
                       ? {borderBottomWidth: 0.5, borderBottomColor: '#707070'}
                       : null,
-                  ]}>
+                  ]}
+                  onPress={() => {
+                    if (dataSavedExpDet) setShowExpDet(false);
+                    else setShowExpDet(!showExpDet);
+                  }}>
                   <Text
                     style={[
                       styles.label,
@@ -2504,7 +2673,11 @@ const DoctorRegistration2 = ({navigation}) => {
                     showIdenDet
                       ? {borderBottomWidth: 0.5, borderBottomColor: '#707070'}
                       : null,
-                  ]}>
+                  ]}
+                  onPress={() => {
+                    if (dataSavedIdenDet) setShowIdenDet(false);
+                    else setShowIdenDet(!showIdenDet);
+                  }}>
                   <Text
                     style={[
                       styles.label,
@@ -2798,7 +2971,11 @@ const DoctorRegistration2 = ({navigation}) => {
                     showAddInfo
                       ? {borderBottomWidth: 0.5, borderBottomColor: '#707070'}
                       : null,
-                  ]}>
+                  ]}
+                  onPress={() => {
+                    if (dataSavedAddInfo) setShowAddInfo(false);
+                    else setShowAddInfo(!showAddInfo);
+                  }}>
                   <Text
                     style={[
                       styles.label,
@@ -3057,7 +3234,15 @@ const DoctorRegistration2 = ({navigation}) => {
                           borderBottomColor: '#707070',
                         }
                       : null,
-                  ]}>
+                  ]}
+                  onPress={() => {
+                    if (dataSavedPreConsultationQuestionaire)
+                      setShowPreConsultationQuestionaire(false);
+                    else
+                      setShowPreConsultationQuestionaire(
+                        !showPreConsultationQuestionaire,
+                      );
+                  }}>
                   <Text
                     style={[
                       styles.label,
@@ -3518,7 +3703,11 @@ const DoctorRegistration2 = ({navigation}) => {
                           borderBottomColor: '#707070',
                         }
                       : null,
-                  ]}>
+                  ]}
+                  onPress={() => {
+                    if (dataSavedConsultFees) setShowConsultFees(false);
+                    else setShowConsultFees(!showConsultFees);
+                  }}>
                   <Text
                     style={[
                       styles.label,
@@ -3683,26 +3872,6 @@ const DoctorRegistration2 = ({navigation}) => {
                 marginVertical: 15,
               }}>
               <CustomButton
-                text="Do it Later"
-                textstyle={{
-                  color: '#2b8ada',
-                  fontSize: 16,
-                  fontWeight: 'bold',
-                }}
-                style={{
-                  marginRight: '5%',
-                  borderColor: '#2b8ada',
-                  borderWidth: 2,
-                  flex: 0.475,
-                  marginBottom: 50,
-                  marginVertical: 10,
-                  padding: 10,
-                  borderRadius: 10,
-                }}
-                onPress={() => {
-                  navigation.navigate('DoctorHome');
-                }}></CustomButton>
-              <CustomButton
                 text="Submit"
                 textstyle={{
                   color: 'white',
@@ -3710,7 +3879,7 @@ const DoctorRegistration2 = ({navigation}) => {
                   fontWeight: 'bold',
                 }}
                 style={{
-                  flex: 0.475,
+                  flex: 1,
                   marginBottom: 50,
                   marginVertical: 10,
                   padding: 10,
@@ -3785,7 +3954,7 @@ const styles = StyleSheet.create({
     // backgroundColor: '#2B8ADA',
   },
   textInput: {
-    flex: 0.45,
+    //flex: 0.45,
     padding: 5,
     color: 'black',
     backgroundColor: '#E8F0FE',

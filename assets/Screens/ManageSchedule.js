@@ -114,6 +114,12 @@ const ManageSchedule = () => {
     };
     onLoadSetData();
   }, []);
+  useEffect(() => {
+    if (manageSlotsLabel == true) {
+      setViewEConsultations(true);
+      setViewPConsultations(false);
+    }
+  }, [manageSlotsLabel]);
 
   //dynamic loading
   useEffect(() => {
@@ -145,7 +151,8 @@ const ManageSchedule = () => {
       axios
         .get(apiConfig.baseUrl + '/doctor/clinic/details?doctorId=' + doctorId)
         .then(function (response) {
-          //console.log(response.data);
+          console.log(response.data);
+          setManageClinic(response.data);
           setClinicDet(clinicMaker(response.data));
         })
         .catch(function (error) {
@@ -153,9 +160,13 @@ const ManageSchedule = () => {
           console.log(error);
         });
     };
-    if (ViewPConsultations == true || CreatePConsultations == true)
+    if (
+      ViewPConsultations == true ||
+      CreatePConsultations == true ||
+      manageClinicsLabel == true
+    )
       getClinicDet();
-  }, [ViewPConsultations]);
+  }, [ViewPConsultations, CreatePConsultations, manageClinicsLabel]);
 
   const getEDates = async () => {
     let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
@@ -219,25 +230,25 @@ const ManageSchedule = () => {
     getDate();
   }, [PCclinicId]);
 
-  useEffect(() => {
-    const getClinics = async () => {
-      let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
-      let doctorId = Number(x.doctorId);
+  // useEffect(() => {
+  //   const getClinics = async () => {
+  //     let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
+  //     let doctorId = Number(x.doctorId);
 
-      setviewPSlots('');
-      setPCclinicAddress('');
+  //     setviewPSlots('');
+  //     setPCclinicAddress('');
 
-      axios
-        .get(apiConfig.baseUrl + '/doctor/clinic/details?doctorId=' + doctorId)
-        .then(function (response) {
-          setManageClinic(response.data);
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
-    };
-    if (manageClinicsLabel == true) getClinics();
-  }, [manageClinicsLabel]);
+  //     axios
+  //       .get(apiConfig.baseUrl + '/doctor/clinic/details?doctorId=' + doctorId)
+  //       .then(function (response) {
+  //         setManageClinic(response.data);
+  //       })
+  //       .catch(function (error) {
+  //         console.log(error);
+  //       });
+  //   };
+  //   if (manageClinicsLabel == true) getClinics();
+  // }, [manageClinicsLabel]);
 
   //get data of slots and dates
   const getEViewSlots = async date => {
@@ -738,8 +749,28 @@ const ManageSchedule = () => {
               <TouchableOpacity
                 style={{flexDirection: 'column', flex: 0.45}}
                 onPress={() => {
-                  deleteClinic(Number(ManageClinic.clinicId));
-                  setmanageClinicsLabel(false);
+                  Alert.alert(
+                    'Delete Clinic',
+                    'Are you sure you want to delete this clinic?',
+                    [
+                      {
+                        text: 'Ok',
+                        onPress: () => {
+                          deleteClinic(Number(ManageClinic.clinicId));
+                          setmanageClinicsLabel(false);
+                        },
+                        style: {color: 'pink'},
+                      },
+                      {
+                        text: 'Cancel',
+                        onPress: () => {},
+                        style: 'Cancel',
+                      },
+                    ],
+                    {
+                      cancelable: true,
+                    },
+                  );
                 }}>
                 <FAIcon
                   name="trash"
