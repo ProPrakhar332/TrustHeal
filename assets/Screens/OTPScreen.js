@@ -1113,7 +1113,9 @@ const FirstScreen = ({route, navigation}) => {
             if (x.doctorConfigurationDTO != null) {
               x.isLastStepComplete = true;
             }
+
             await AsyncStorage.setItem('UserDoctorProfile', JSON.stringify(x));
+
             if (x.profileCompleted && x.verified)
               navigation.navigate('DoctorHome', {doctorObj: x});
             else navigation.navigate('DoctorRegistrationStep2');

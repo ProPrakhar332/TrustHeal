@@ -98,6 +98,12 @@ const DoctorRegistration2 = ({navigation}) => {
   const [city, setCity] = useState('');
   const [PinCode, setPinCode] = useState('');
   const [doctorId, setdoctorId] = useState(0);
+  const [profileCompleted, setprofileCompleted] = useState(false);
+  const [verified, setverified] = useState(false);
+  const [mobileNumber, setmobileNumber] = useState('');
+  const [pfpPath, setpfpPath] = useState('');
+  const [DigitalSign, setDigitalSign] = useState('');
+
   //Medical Registration Feild
   const [showMedReg, setShowMedReg] = useState(false);
   const [dataSavedMedReg, setdataSavedMedReg] = useState(false);
@@ -106,6 +112,8 @@ const DoctorRegistration2 = ({navigation}) => {
   const [RegCouncil, setRegCouncil] = useState('');
   const [RegCert, setRegCert] = useState('');
   const [RegYear, setRegYear] = useState('');
+  const [certificatePath, setcertificatePath] = useState('');
+
   //Educational Details Field
   const [showEduDet, setShowEduDet] = useState(false);
   const [addMoreEduDet, setaddMoreEduDet] = useState(false);
@@ -117,6 +125,7 @@ const DoctorRegistration2 = ({navigation}) => {
   const [DegreePassingYear, setDegreePassingYear] = useState('');
   const [Specialization, setSpecialization] = useState('');
   const [University, setUniversity] = useState('');
+  const [degreePath, setdegreePath] = useState('');
   //Experience Details Field
   const [showExpDet, setShowExpDet] = useState(false);
   const [addMoreExpDet, setaddMoreExpDet] = useState(false);
@@ -137,6 +146,7 @@ const DoctorRegistration2 = ({navigation}) => {
   const [IdentificationDocs, setIdentificationDocs] = useState([]);
   const [identificationNumber, setidentificationNumber] = useState('');
   const [identificationType, setidentificationType] = useState('');
+  const [identificationPath, setidentificationPath] = useState('');
   //Additional Information
   const [showAddInfo, setShowAddInfo] = useState(false);
   const [addMoreAddInfo, setaddMoreAddInfo] = useState(false);
@@ -206,7 +216,6 @@ const DoctorRegistration2 = ({navigation}) => {
   const [physicalConsulationFees, setphysicalConsulationFees] = useState(0);
   const [eConsulationFees, seteConsulationFees] = useState(0);
   const [followUpFees, setfollowUpFees] = useState(0);
-  const [DigitalSign, setDigitalSign] = useState('');
   const [isLoading, setisLoading] = useState(false);
 
   const dataFollowUp = [
@@ -262,7 +271,7 @@ const DoctorRegistration2 = ({navigation}) => {
       let startDt = dayjs(startExpDate);
       let endDt = dayjs(endExpDate);
       if (endDt.isBefore(startDt)) {
-        Alert.alert('Please enter valid date range');
+        Alert.alert('Invalid Date', 'Please enter valid date range.');
         setStartExpDate('');
         setEndExpDate('');
       } else {
@@ -498,7 +507,7 @@ const DoctorRegistration2 = ({navigation}) => {
             doctorId,
         )
         .then(function (response) {
-          if (response.data != '') {
+          if (response.data == '') {
             setdataSavedPreConsultationQuestionaire(true);
           } else setdataSavedPreConsultationQuestionaire(false);
         })
@@ -522,17 +531,27 @@ const DoctorRegistration2 = ({navigation}) => {
           console.log(error);
         });
     };
-    checkMedical();
-    checkEducation();
-    checkExp();
-    checkIden();
-    checkAddInfo();
-    checkPreConsult();
-    checkFees();
+    if (profileCompleted == false) {
+      checkMedical();
+      checkEducation();
+      checkExp();
+      checkIden();
+      checkAddInfo();
+      checkPreConsult();
+      checkFees();
+    } else {
+      setdataSavedMedReg(true);
+      setdataSavedEduDet(true);
+      setdataSavedExpDet(true);
+      setdataSavedIdenDet(true);
+      setdataSavedAddInfo(true);
+      setdataSavedPreConsultationQuestionaire(true);
+      setdataSavedConsultFees(true);
+    }
   }, []);
 
   useEffect(() => {
-    const progressBar = () => {
+    const progressBar = async () => {
       var c = 1;
       if (dataSavedMedReg) ++c;
       if (dataSavedEduDet) ++c;
@@ -543,6 +562,32 @@ const DoctorRegistration2 = ({navigation}) => {
       if (dataSavedConsultFees) ++c;
 
       setCompletePercentage(parseInt((c / 6) * 100).toString() + '%');
+
+      if (c == 6 && profileCompleted == false) {
+        axios
+          .post(apiConfig.baseUrl + '/doctor/profile/verify', {
+            city: city,
+            doctorId: doctorId,
+            doctorName: name,
+            email: email,
+            mobileNumber: mobileNumber,
+          })
+          .then(function (response) {
+            if (response.status == 200) {
+              Alert.alert(
+                'Completed',
+                'Your details have been sent for validation',
+              );
+              setprofileCompleted(true);
+            }
+          })
+          .catch(function (error) {
+            console.log(
+              '=====Error Occured in Profile complete validation request=====',
+            );
+            console.log(error);
+          });
+      }
     };
     progressBar();
 
@@ -556,6 +601,7 @@ const DoctorRegistration2 = ({navigation}) => {
     dataSavedConsultFees,
   ]);
 
+  //on screen load data setter
   useEffect(() => {
     const onLoadSetData = async () => {
       let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
@@ -572,6 +618,9 @@ const DoctorRegistration2 = ({navigation}) => {
       setdob(x.dob);
       setAge(x.age + '');
       setPinCode(x.pincode);
+      setprofileCompleted(x.profileCompleted);
+      setverified(x.verified);
+      setmobileNumber(x.mobileNumber);
       var temp = JSON.parse(
         await AsyncStorage.getItem(x.doctorId + 'speciality'),
       );
@@ -583,15 +632,6 @@ const DoctorRegistration2 = ({navigation}) => {
             dataSpecialization.push({key: temp[i], value: temp[i]});
         }
         //console.log(dataSpecialization);
-
-        var d = new Date().getFullYear();
-        //console.log(dob.substring(0, 4));
-        var i = Number(dob.substring(0, 4));
-        if (i == 0) i = 1940;
-        else i += 17;
-        for (; i <= d; ++i) {
-          dataYear.push({key: i + '', value: i + ''});
-        }
       } else {
         const data = [
           {key: 'Dermatologist', value: 'Dermatologist'},
@@ -611,6 +651,15 @@ const DoctorRegistration2 = ({navigation}) => {
           },
         ];
         setdataSpecialization(data);
+
+        var d = new Date().getFullYear();
+        //console.log(dob.substring(0, 4));
+        var i = Number(x.dob.substring(0, 4));
+        if (i == 0) i = 1940;
+        else i += 17;
+        for (; i <= d; ++i) {
+          dataYear.push({key: i + '', value: i + ''});
+        }
       }
     };
     const onLoadSetDay = async () => {
@@ -1082,6 +1131,72 @@ const DoctorRegistration2 = ({navigation}) => {
     //console.log(medReg);
   };
 
+  //upload doctor pfp
+
+  const uploadDoctorPfp = async () => {
+    axios
+      .post(
+        apiConfig.baseUrl + '/file/system/upload?directoryNames=DOCTOR_PHOTO',
+      )
+      .then(function (response) {
+        if (response.status == 200) setpfpPath(response.data.path);
+        else
+          Alert.alert(
+            'Oops',
+            'Can not select document. Please try again later.',
+          );
+      })
+      .catch(function (error) {
+        console.log('===== Error occured in uploading doctor photo =====');
+        console.log(error);
+      });
+  };
+
+  //upload doctor digital signature
+
+  const uploadDoctorDigitalSignature = async () => {
+    axios
+      .post(
+        apiConfig.baseUrl +
+          '/file/system/upload?directoryNames=DOCTOR_SIGNATURE',
+      )
+      .then(function (response) {
+        if (response.status == 200) setDigitalSign(response.data.path);
+        else
+          Alert.alert(
+            'Oops',
+            'Can not select document. Please try again later.',
+          );
+      })
+      .catch(function (error) {
+        console.log(
+          '===== Error occured in uploading doctor digital sign =====',
+        );
+        console.log(error);
+      });
+  };
+
+  //upload med reg docs
+
+  const uploadMedicalReg = async () => {
+    axios
+      .post(
+        apiConfig.baseUrl +
+          '/file/system/upload?directoryNames=DOCTOR_MEDICAL_REGISTRATION',
+      )
+      .then(function (response) {
+        if (response.status == 200) setcertificatePath(response.data.path);
+        else
+          Alert.alert(
+            'Oops',
+            'Can not select document. Please try again later.',
+          );
+      })
+      .catch(function (error) {
+        console.log('===== Error occured in uploading file med reg =====');
+        console.log(error);
+      });
+  };
   //post medical registration
 
   const postMedReg = async () => {
@@ -1102,7 +1217,10 @@ const DoctorRegistration2 = ({navigation}) => {
       .post(apiConfig.baseUrl + '/doctor/medicalregi/save/or/update', medArry)
       .then(function (response) {
         if (response.status == 201 || response.status == 200) {
-          Alert.alert('Medical Record Saved Successfully');
+          Alert.alert(
+            'Details Uploaded',
+            'Medical Registration details have been saved successfully.',
+          );
           setShowMedReg(false);
           setdataSavedMedReg(true);
           setShowEduDet(true);
@@ -1110,6 +1228,28 @@ const DoctorRegistration2 = ({navigation}) => {
       })
       .catch(function (error) {
         console.log('=================Medical Error Occured=================');
+        console.log(error);
+      });
+  };
+
+  //upload education docs
+
+  const uploadEducationDocs = async () => {
+    axios
+      .post(
+        apiConfig.baseUrl +
+          '/file/system/upload?directoryNames=DOCTOR_EDUCATION',
+      )
+      .then(function (response) {
+        if (response.status == 200) setdegreePath(response.data.path);
+        else
+          Alert.alert(
+            'Oops',
+            'Can not select document. Please try again later.',
+          );
+      })
+      .catch(function (error) {
+        console.log('===== Error occured in uploading file education =====');
         console.log(error);
       });
   };
@@ -1130,7 +1270,10 @@ const DoctorRegistration2 = ({navigation}) => {
       .post(apiConfig.baseUrl + '/doctor/education/save/or/update', Education)
       .then(function (response) {
         if (response.status == 201 || response.status == 200) {
-          Alert.alert('Educational Record Inserted Successfully');
+          Alert.alert(
+            'Details Uploaded',
+            'Education Qualification & Certificates details have been saved successfully.',
+          );
           setShowEduDet(false);
           setdataSavedEduDet(true);
           setShowExpDet(true);
@@ -1160,7 +1303,10 @@ const DoctorRegistration2 = ({navigation}) => {
       .post(apiConfig.baseUrl + '/doctor/experience/save/or/update', Experience)
       .then(function (response) {
         if (response.status == 201 || response.status == 200) {
-          Alert.alert('Experience Record Inserted Successfully');
+          Alert.alert(
+            'Details Uploaded',
+            'Experience details have been saved successfully.',
+          );
           setShowExpDet(false);
           setdataSavedExpDet(true);
           setShowIdenDet(true);
@@ -1174,6 +1320,29 @@ const DoctorRegistration2 = ({navigation}) => {
       });
   };
 
+  //upload education docs
+
+  const uploadIdenDoc = async () => {
+    axios
+      .post(
+        apiConfig.baseUrl +
+          '/file/system/upload?directoryNames=DOCTOR_IDENTIFICATION',
+      )
+      .then(function (response) {
+        if (response.status == 200) setidentificationPath(response.data.path);
+        else
+          Alert.alert(
+            'Oops',
+            'Can not select document. Please try again later.',
+          );
+      })
+      .catch(function (error) {
+        console.log(
+          '===== Error occured in uploading file identification =====',
+        );
+        console.log(error);
+      });
+  };
   //post Identification
 
   const postIdenDet = async () => {
@@ -1193,7 +1362,10 @@ const DoctorRegistration2 = ({navigation}) => {
       )
       .then(function (response) {
         if (response.status == 201 || response.status == 200) {
-          Alert.alert('Identification Record Inserted Successfully');
+          Alert.alert(
+            'Details Uploaded',
+            'Identification details have been saved successfully.',
+          );
           setShowIdenDet(false);
           setdataSavedIdenDet(true);
           setShowAddInfo(true);
@@ -1223,7 +1395,10 @@ const DoctorRegistration2 = ({navigation}) => {
       .post(apiConfig.baseUrl + '/doctor/clinic/save/or/update', ClinicDet)
       .then(function (response) {
         if (response.status == 201 || response.status == 200) {
-          Alert.alert('Clinic Record Inserted Successfully');
+          Alert.alert(
+            'Details Uploaded',
+            'Clinic details have been saved successfully.',
+          );
           setShowAddInfo(false);
           setdataSavedAddInfo(true);
           setShowPreConsultationQuestionaire(true);
@@ -1273,29 +1448,21 @@ const DoctorRegistration2 = ({navigation}) => {
     let p = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
     let doctorId = Number(p.doctorId);
     let amp = {
-      age: age,
-      city: city,
-      countryName: p.countryName,
-      dob: dob,
-      doctorFeesDTO: {
-        econsulationFees: eConsulationFees,
-        followUpDuration: showFollowUp,
-        followUpFees: followUpFees,
-        physicalConsulationFees: physicalConsulationFees,
-      },
       doctorId: doctorId,
-      doctorName: p.doctorName != undefined ? p.doctorName : p.fullName,
-      email: email,
-      gender: gender,
-      mobileNumber: p.mobileNumber,
-      pinCode: PinCode,
+      econsulationFees: eConsulationFees,
+      followUpDuration: showFollowUp,
+      followUpFees: followUpFees,
+      physicalConsulationFees: physicalConsulationFees,
     };
 
     axios
-      .post(apiConfig.baseUrl + '/doctor/generalinfo/fees/save', amp)
+      .post(apiConfig.baseUrl + '/doctor/fees/save', amp)
       .then(function (response) {
         if (response.status == 201 || response.status == 200) {
-          Alert.alert('Fees Record Inserted Successfully');
+          Alert.alert(
+            'Details Uploaded',
+            'Fees details have been saved successfully.',
+          );
           setShowConsultFees(false);
           setdataSavedConsultFees(true);
         }
@@ -1424,6 +1591,42 @@ const DoctorRegistration2 = ({navigation}) => {
                 source={doctor}></Image>
             </View>
           </View>
+
+          {/* Profile Messages */}
+          {profileCompleted == true ? (
+            <View
+              style={{
+                backgroundColor: '#21c47f',
+                padding: 10,
+                borderColor: '#21c47f',
+                borderWidth: 1,
+                width: '95%',
+                alignSelf: 'center',
+                justifyContent: 'center',
+                flexDirection: 'row',
+                borderRadius: 10,
+                marginBottom: 10,
+              }}>
+              <FAIcon
+                name={'info-circle'}
+                color={'white'}
+                size={20}
+                style={{
+                  justifyContent: 'center',
+                  alignSelf: 'center',
+                  marginRight: 10,
+                }}
+              />
+              <Text
+                style={{
+                  justifyContent: 'center',
+                  alignSelf: 'center',
+                  color: 'white',
+                }}>
+                Your Profile {verified ? 'verification is under process' : null}
+              </Text>
+            </View>
+          ) : null}
 
           <View style={{width: '95%', alignSelf: 'center'}}>
             {/* General Info Label*/}
@@ -1846,7 +2049,23 @@ const DoctorRegistration2 = ({navigation}) => {
                               backgroundColor: '#E8F0FE',
                             }}
                             onPress={() => {
-                              setRegCert(name + '.pdf');
+                              if (RegNo == '')
+                                Alert.alert(
+                                  'Warning!',
+                                  'Please Fill Registration Number',
+                                );
+                              else if (RegCouncil == '')
+                                Alert.alert(
+                                  'Warning!',
+                                  'Please Fill Registration Council',
+                                );
+                              else if (RegYear == '')
+                                Alert.alert(
+                                  'Warning!',
+                                  'Please Select Registration',
+                                );
+                              //  else
+                              //  uploadMedicalReg();
                             }}
                           />
                         </View>
@@ -1870,16 +2089,16 @@ const DoctorRegistration2 = ({navigation}) => {
                     </View>
                     <View
                       style={{
-                        marginTop: 10,
-                        flexDirection: 'row',
+                        marginTop: 15,
+                        flexDirection: 'row-reverse',
                         alignSelf: 'center',
+                        justifyContent: 'center',
                       }}>
                       <CustomButton
                         text={'Skip For Now'}
                         textstyle={{fontSize: 12, color: '#2b8ada'}}
                         style={{
-                          marginRight: '5%',
-                          flex: 0.45,
+                          flex: 0.5,
                           borderColor: '#2b8ada',
                           borderWidth: 1,
                           padding: 5,
@@ -1895,18 +2114,30 @@ const DoctorRegistration2 = ({navigation}) => {
                         text={'Upload'}
                         textstyle={{fontSize: 12, color: 'white'}}
                         style={{
-                          flex: 0.45,
+                          marginRight: '5%',
+                          flex: 0.5,
                           backgroundColor: '#2b8ada',
                           padding: 5,
                           borderRadius: 10,
                         }}
                         onPress={() => {
                           if (RegNo == '')
-                            Alert.alert('Please Fill Registration Number');
+                            Alert.alert(
+                              'Warning!',
+                              'Please Fill Registration Number',
+                            );
                           else if (RegCouncil == '')
-                            Alert.alert('Please Fill Registration Council');
+                            Alert.alert(
+                              'Warning!',
+                              'Please Fill Registration Council',
+                            );
                           else if (RegYear == '')
-                            Alert.alert('Please Select Registration');
+                            Alert.alert(
+                              'Warning!',
+                              'Please Select Registration',
+                            );
+                          else if (certificatePath == '')
+                            Alert.alert('Warning!', 'Please Select Document');
                           else postMedReg();
                         }}
                       />
@@ -2127,6 +2358,20 @@ const DoctorRegistration2 = ({navigation}) => {
                             borderWidth: 2,
                             borderColor: '#2b8ada',
                           }}
+                          onPress={() => {
+                            if (
+                              Degree == '' ||
+                              DegreePassingYear == '' ||
+                              Specialization == '' ||
+                              University == ''
+                            )
+                              Alert.alert(
+                                'Warning',
+                                'Before Uploading Document(s) please fill in details',
+                              );
+                            // else
+                            // uploadEducationDocs();
+                          }}
                         />
                         <CustomButton
                           text="Save"
@@ -2141,13 +2386,25 @@ const DoctorRegistration2 = ({navigation}) => {
                           }}
                           onPress={() => {
                             if (Degree == '')
-                              Alert.alert('Please fill Degree Name');
+                              Alert.alert(
+                                'Warning!',
+                                'Please fill Degree Name',
+                              );
                             else if (DegreePassingYear == '')
-                              Alert.alert('Please fill Degree Passing Year');
+                              Alert.alert(
+                                'Warning!',
+                                'Please fill Degree Passing Year',
+                              );
                             else if (Specialization == '')
-                              Alert.alert('Please Select Specialization');
+                              Alert.alert(
+                                'Warning!',
+                                'Please Select Specialization',
+                              );
                             else if (University == '')
-                              Alert.alert('Please fill University Name');
+                              Alert.alert(
+                                'Warning!',
+                                'Please fill University Name',
+                              );
                             else {
                               let totalexp =
                                 parseInt(TotalYear) * 12 +
@@ -2161,7 +2418,7 @@ const DoctorRegistration2 = ({navigation}) => {
 
                               let p = {
                                 degree: Degree,
-                                degreePath: Degree + '.pdf',
+                                degreePath: degreePath,
                                 passingYear: Number(DegreePassingYear),
                                 specialization: Specialization,
                                 // totalExperiencedInMonths: Number(totalexp),
@@ -2176,6 +2433,7 @@ const DoctorRegistration2 = ({navigation}) => {
                               setDegree('');
                               setDegreePassingYear('');
                               setSpecialization('');
+                              setdegreePath('');
                               setUniversity('');
                               setaddMoreEduDet(false);
                             }
@@ -2187,12 +2445,11 @@ const DoctorRegistration2 = ({navigation}) => {
                     <View style={{flex: 1}}>
                       <CustomButton
                         text={'+ Add More'}
-                        textstyle={{color: '#2b8ada', fontSize: 10}}
+                        textstyle={{color: 'white', fontSize: 10}}
                         style={{
                           alignSelf: 'flex-end',
                           width: 80,
-                          borderColor: '#2b8ada',
-                          borderWidth: 1,
+                          backgroundColor: '#2b8ada',
                           borderRadius: 5,
                           padding: 3,
                           paddingHorizontal: 10,
@@ -2204,9 +2461,10 @@ const DoctorRegistration2 = ({navigation}) => {
                   )}
                   <View
                     style={{
-                      flexDirection: 'row',
-                      marginTop: 10,
+                      flexDirection: 'row-reverse',
+                      marginTop: 15,
                       alignSelf: 'center',
+                      justifyContent: 'center',
                       width: '95%',
                     }}>
                     <CustomButton
@@ -2214,8 +2472,7 @@ const DoctorRegistration2 = ({navigation}) => {
                       textstyle={{fontSize: 12, color: '#2b8ada'}}
                       style={[
                         {
-                          marginRight: '5%',
-                          flex: 0.45,
+                          flex: 0.5,
                           borderColor: '#2b8ada',
                           borderWidth: 1,
                           padding: 5,
@@ -2236,14 +2493,18 @@ const DoctorRegistration2 = ({navigation}) => {
                         text={'Upload'}
                         textstyle={{color: 'white', fontSize: 12}}
                         style={{
-                          flex: 0.45,
+                          marginRight: '5%',
+                          flex: 0.5,
                           backgroundColor: '#2b8ada',
                           padding: 5,
                           borderRadius: 10,
                         }}
                         onPress={() => {
                           if (Education.length == 0)
-                            Alert.alert('Please Fill Education Details ');
+                            Alert.alert(
+                              'Warning!',
+                              'Please Fill Education details before uploasding.',
+                            );
                           else postEduDet();
                         }}
                       />
@@ -2526,12 +2787,19 @@ const DoctorRegistration2 = ({navigation}) => {
                           onPress={() => {
                             if (practiceAt == '')
                               Alert.alert(
+                                'Warning!',
                                 'Please add Clinic/Hospital Practise Name',
                               );
                             else if (startExpDate == '')
-                              Alert.alert('Please Select Practise Start Date');
+                              Alert.alert(
+                                'Warning!',
+                                'Please Select Practise Start Date',
+                              );
                             else if (endExpDate == '')
-                              Alert.alert('Please Select Practise End Date');
+                              Alert.alert(
+                                'Warning!',
+                                'Please Select Practise End Date',
+                              );
                             else {
                               let p = {
                                 practiceAt: practiceAt,
@@ -2584,12 +2852,11 @@ const DoctorRegistration2 = ({navigation}) => {
                     <View style={{flex: 1}}>
                       <CustomButton
                         text={'+ Add More'}
-                        textstyle={{color: '#2b8ada', fontSize: 10}}
+                        textstyle={{color: 'white', fontSize: 10}}
                         style={{
                           alignSelf: 'flex-end',
                           width: 80,
-                          borderColor: '#2b8ada',
-                          borderWidth: 1,
+                          backgroundColor: '#2b8ada',
                           borderRadius: 5,
                           padding: 3,
                           paddingHorizontal: 10,
@@ -2602,9 +2869,10 @@ const DoctorRegistration2 = ({navigation}) => {
 
                   <View
                     style={{
-                      flexDirection: 'row',
-                      marginTop: 10,
+                      flexDirection: 'row-reverse',
+                      marginTop: 15,
                       alignSelf: 'center',
+                      justifyContent: 'center',
                       width: '95%',
                     }}>
                     <CustomButton
@@ -2612,8 +2880,7 @@ const DoctorRegistration2 = ({navigation}) => {
                       textstyle={{fontSize: 12, color: '#2b8ada'}}
                       style={[
                         {
-                          marginRight: '5%',
-                          flex: 0.45,
+                          flex: 0.5,
                           borderColor: '#2b8ada',
                           borderWidth: 1,
                           padding: 5,
@@ -2634,14 +2901,18 @@ const DoctorRegistration2 = ({navigation}) => {
                         text={'Upload'}
                         textstyle={{fontSize: 12, color: 'white'}}
                         style={{
+                          marginRight: '5%',
                           backgroundColor: '#2b8ada',
                           padding: 5,
                           borderRadius: 10,
-                          flex: 0.45,
+                          flex: 0.5,
                         }}
                         onPress={() => {
                           if (Experience.length == 0)
-                            Alert.alert('Please Fill Education Details ');
+                            Alert.alert(
+                              'Warning!',
+                              'Please Fill Education details before uploading ',
+                            );
                           else postExpDet();
                         }}
                       />
@@ -2844,11 +3115,14 @@ const DoctorRegistration2 = ({navigation}) => {
                                 }
                                 if (flag == 0) {
                                   Alert.alert(
-                                    'You can not add duplicate documents',
+                                    'Duplicate Identification Found',
+                                    'This identification type has already been saved',
                                   );
                                   setidentificationNumber('');
                                   setidentificationType('');
                                 }
+                                // else
+                                // uploadIdenDoc();
                               }
 
                               if (flag == 1) {
@@ -2856,10 +3130,7 @@ const DoctorRegistration2 = ({navigation}) => {
                                   identificationNumber: identificationNumber,
 
                                   identificationType: identificationType,
-                                  identificationPath:
-                                    'aws/s3/Docs/' +
-                                    identificationNumber +
-                                    '.pdf',
+                                  identificationPath: identificationPath,
                                 };
                                 // IdentificationDocs.push(p);
                                 let arr = [...IdentificationDocs];
@@ -2868,13 +3139,20 @@ const DoctorRegistration2 = ({navigation}) => {
                                 setIdentificationDocs(arr);
                                 setidentificationNumber('');
                                 setidentificationType('');
+                                setidentificationPath('');
                                 //console.log(IdentificationDocs);
                                 setaddMoreIdenDet(false);
                               }
                             } else if (identificationNumber == '')
-                              Alert.alert('Please fill Identification Number');
+                              Alert.alert(
+                                'Warning!',
+                                'Please fill Identification Number',
+                              );
                             else if (identificationType == '')
-                              Alert.alert('Please Select Document Name');
+                              Alert.alert(
+                                'Warning!',
+                                'Please Select Document Name',
+                              );
                           }}
                         />
                       </View>
@@ -2883,12 +3161,11 @@ const DoctorRegistration2 = ({navigation}) => {
                     <View style={{flex: 1}}>
                       <CustomButton
                         text={'+ Add More'}
-                        textstyle={{color: '#2b8ada', fontSize: 10}}
+                        textstyle={{color: 'white', fontSize: 10}}
                         style={{
                           alignSelf: 'flex-end',
                           width: 80,
-                          borderColor: '#2b8ada',
-                          borderWidth: 1,
+                          backgroundColor: '#2b8ada',
                           borderRadius: 5,
                           padding: 3,
                           paddingHorizontal: 10,
@@ -2900,9 +3177,10 @@ const DoctorRegistration2 = ({navigation}) => {
                   )}
                   <View
                     style={{
-                      flexDirection: 'row',
-                      marginTop: 10,
+                      flexDirection: 'row-reverse',
+                      marginTop: 15,
                       alignSelf: 'center',
+                      justifyContent: 'center',
                       width: '95%',
                     }}>
                     <CustomButton
@@ -2910,8 +3188,7 @@ const DoctorRegistration2 = ({navigation}) => {
                       textstyle={{fontSize: 12, color: '#2b8ada'}}
                       style={[
                         {
-                          marginRight: '5%',
-                          flex: 0.45,
+                          flex: 0.5,
                           borderColor: '#2b8ada',
                           borderWidth: 1,
                           padding: 5,
@@ -2932,14 +3209,18 @@ const DoctorRegistration2 = ({navigation}) => {
                         text={'Upload'}
                         textstyle={{color: 'white', fontSize: 12}}
                         style={{
+                          marginRight: '5%',
                           backgroundColor: '#2b8ada',
                           padding: 5,
                           borderRadius: 10,
-                          flex: 0.45,
+                          flex: 0.5,
                         }}
                         onPress={() => {
                           if (IdentificationDocs.length == 0)
-                            Alert.alert('Please Fill Identification Details ');
+                            Alert.alert(
+                              'Warning!',
+                              'Please Fill Identification details before uploading ',
+                            );
                           else postIdenDet();
                         }}
                       />
@@ -3094,9 +3375,15 @@ const DoctorRegistration2 = ({navigation}) => {
                           }}
                           onPress={() => {
                             if (clinicAddress == '')
-                              Alert.alert('Please fill Clinic Name ');
+                              Alert.alert(
+                                'Warning!',
+                                'Please fill Clinic Name before saving',
+                              );
                             else if (clinicName == '')
-                              Alert.alert('Please fill Clinic Address');
+                              Alert.alert(
+                                'Warning!',
+                                'Please fill Clinic Address before saving',
+                              );
                             else {
                               let p = [
                                 {
@@ -3131,7 +3418,10 @@ const DoctorRegistration2 = ({navigation}) => {
                                 // console.log("ClinicDet--------");
                                 // console.log(ClinicDet);
                               } else {
-                                Alert.alert('Duplicate clinic details found.');
+                                Alert.alert(
+                                  'Duplicate Clinic Details',
+                                  'This Clinic has already been saved.',
+                                );
                               }
                             }
                           }}
@@ -3141,12 +3431,11 @@ const DoctorRegistration2 = ({navigation}) => {
                       <View style={{flex: 1}}>
                         <CustomButton
                           text={'+ Add More'}
-                          textstyle={{color: '#2b8ada', fontSize: 10}}
+                          textstyle={{color: 'white', fontSize: 10}}
                           style={{
                             alignSelf: 'flex-end',
                             width: 80,
-                            borderColor: '#2b8ada',
-                            borderWidth: 1,
+                            backgroundColor: '#2b8ada',
                             borderRadius: 5,
                             padding: 3,
                             paddingHorizontal: 10,
@@ -3158,9 +3447,10 @@ const DoctorRegistration2 = ({navigation}) => {
                     )}
                     <View
                       style={{
-                        flexDirection: 'row',
-                        marginTop: 10,
+                        flexDirection: 'row-reverse',
+                        marginTop: 15,
                         alignSelf: 'center',
+                        justifyContent: 'center',
                         width: '95%',
                       }}>
                       <CustomButton
@@ -3168,8 +3458,7 @@ const DoctorRegistration2 = ({navigation}) => {
                         textstyle={{fontSize: 12, color: '#2b8ada'}}
                         style={[
                           {
-                            marginRight: '5%',
-                            flex: 0.45,
+                            flex: 0.5,
                             borderColor: '#2b8ada',
                             borderWidth: 1,
                             padding: 5,
@@ -3190,14 +3479,18 @@ const DoctorRegistration2 = ({navigation}) => {
                           text={'Upload'}
                           textstyle={{color: 'white', fontSize: 12}}
                           style={{
+                            marginRight: '5%',
                             backgroundColor: '#2b8ada',
                             padding: 5,
                             borderRadius: 10,
-                            flex: 0.45,
+                            flex: 0.5,
                           }}
                           onPress={() => {
                             if (ClinicDet.length == 0)
-                              Alert.alert('Please Fill ClinicDet Details ');
+                              Alert.alert(
+                                'Warning!',
+                                'Please Fill ClinicDet details before continuing ',
+                              );
                             else postClinicDet();
                           }}
                         />
@@ -3390,9 +3683,10 @@ const DoctorRegistration2 = ({navigation}) => {
                     ) : null}
                     <View
                       style={{
-                        flexDirection: 'row',
+                        flexDirection: 'row-reverse',
                         marginTop: 10,
                         alignSelf: 'center',
+                        justifyContent: 'center',
                         width: '95%',
                       }}>
                       <CustomButton
@@ -3400,8 +3694,7 @@ const DoctorRegistration2 = ({navigation}) => {
                         textstyle={{fontSize: 12, color: '#2b8ada'}}
                         style={[
                           {
-                            marginRight: '5%',
-                            flex: 0.45,
+                            flex: 0.5,
                             borderColor: '#2b8ada',
                             borderWidth: 1,
                             padding: 5,
@@ -3418,14 +3711,18 @@ const DoctorRegistration2 = ({navigation}) => {
                         text={'Upload'}
                         textstyle={{color: 'white', fontSize: 12}}
                         style={{
-                          flex: 0.45,
+                          marginRight: '5%',
+                          flex: 0.5,
                           backgroundColor: '#2b8ada',
                           padding: 5,
                           borderRadius: 10,
                         }}
                         onPress={() => {
                           if (questionareList.length == 0 && showQuestions)
-                            Alert.alert('Please Add Questions ');
+                            Alert.alert(
+                              'Warning!',
+                              'Please add question(s) before uploading',
+                            );
                           else if (showQuestions == false) {
                             setShowPreConsultationQuestionaire(false);
                             setShowConsultFees(true);
@@ -3575,7 +3872,7 @@ const DoctorRegistration2 = ({navigation}) => {
                             }}>
                             <Text
                               style={[styles.inputLabel, {marginBottom: 5}]}>
-                              Write Question
+                              Question
                             </Text>
 
                             <View
@@ -3587,16 +3884,19 @@ const DoctorRegistration2 = ({navigation}) => {
                                 borderColor: 'gray',
                                 borderRadius: 5,
                                 alignSelf: 'center',
+                                justifyContent: 'center',
                               }}>
                               <TextInput
-                                placeholder="Write your Question Here"
+                                placeholder="Write your Question Here..."
                                 style={{
                                   textAlign: 'left',
                                   alignSelf: 'center',
-                                  width: '80%',
-                                  fontSize: 13,
+                                  width: '90%',
+                                  fontSize: 11,
+                                  height: 60,
                                 }}
                                 maxLength={50}
+                                multiline={true}
                                 value={consultationQuestion}
                                 onChangeText={text =>
                                   setConsultationQuestion(text)
@@ -3604,8 +3904,10 @@ const DoctorRegistration2 = ({navigation}) => {
                               />
                             </View>
                           </View>
-                          <Text>
-                            {50 - consultationQuestion.length} words left
+                          <Text style={{fontSize: 10, color: '#2b8ada'}}>
+                            {' Note:- Max limit is 50 characters. '}
+                            {50 - consultationQuestion.length}{' '}
+                            {'characters left'}
                           </Text>
                           <CustomButton
                             text="Save"
@@ -3620,7 +3922,17 @@ const DoctorRegistration2 = ({navigation}) => {
                               borderRadius: 5,
                             }}
                             onPress={() => {
-                              if (consultationQuestion !== '') {
+                              if (questionSpl == '')
+                                Alert.alert(
+                                  'Warning!',
+                                  'Please select speciality before saving.',
+                                );
+                              else if (consultationQuestion == '')
+                                Alert.alert(
+                                  'Warning!',
+                                  'Please fill question before saving.',
+                                );
+                              else {
                                 // questionareList.push({
                                 //   questions: consultationQuestion,
                                 //   speciality: questionSpl,
@@ -3734,7 +4046,7 @@ const DoctorRegistration2 = ({navigation}) => {
             </View>
             {/* Consultation Fees Body*/}
             {showConsultFees ? (
-              <View style={styles.whiteBodyView}>
+              <View style={[styles.whiteBodyView, {marginBottom: 100}]}>
                 <View
                   style={{
                     width: '95%',
@@ -3819,19 +4131,21 @@ const DoctorRegistration2 = ({navigation}) => {
                   </View>
 
                   <View
-                    style={{
-                      flexDirection: 'row',
-                      marginTop: 10,
-                      alignSelf: 'center',
-                      width: '95%',
-                    }}>
+                    style={[
+                      {
+                        flexDirection: 'row-reverse',
+                        marginTop: 15,
+                        alignSelf: 'center',
+                        justifyContent: 'center',
+                        width: '100%',
+                      },
+                    ]}>
                     <CustomButton
                       text={'Skip For Now'}
                       textstyle={{fontSize: 12, color: '#2b8ada'}}
                       style={[
                         {
-                          marginRight: '5%',
-                          flex: 0.45,
+                          flex: 0.5,
                           borderColor: '#2b8ada',
                           borderWidth: 1,
                           padding: 5,
@@ -3847,14 +4161,18 @@ const DoctorRegistration2 = ({navigation}) => {
                       text={'Upload'}
                       textstyle={{color: 'white', fontSize: 12}}
                       style={{
-                        flex: 0.45,
+                        marginRight: '5%',
+                        flex: 0.5,
                         backgroundColor: '#2b8ada',
                         padding: 5,
                         borderRadius: 10,
                       }}
                       onPress={() => {
                         if (showFollowUp == '')
-                          Alert.alert('Please Add Follow-Up Duration');
+                          Alert.alert(
+                            'Warning!',
+                            'Please add Follow-Up duration before uploading',
+                          );
                         else {
                           postConsultFees();
                         }
@@ -3865,7 +4183,7 @@ const DoctorRegistration2 = ({navigation}) => {
               </View>
             ) : null}
             {/* Buttons */}
-            <View
+            {/* <View
               style={{
                 alignSelf: 'center',
                 flexDirection: 'row',
@@ -3890,7 +4208,7 @@ const DoctorRegistration2 = ({navigation}) => {
                   Alert.alert(completePercentage + ' Profile Details Filled');
                   navigation.navigate('DoctorHome');
                 }}></CustomButton>
-            </View>
+            </View> */}
           </View>
         </ScrollView>
 

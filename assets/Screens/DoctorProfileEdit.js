@@ -199,6 +199,7 @@ const EditProfile = ({navigation}) => {
       setGender(x.gender);
       setCity(x.city);
       //console.log(x.age);
+      setshowMobNo(x.contactVisibility);
       setdob(x.dob);
       setAge(x.age + '');
       setPinCode(x.pincode == null ? x.pinCode : x.pincode);
@@ -430,20 +431,22 @@ const EditProfile = ({navigation}) => {
 
   const updateGenInfo = async () => {
     let mainOnj = new Object();
-    mainOnj.dob = dob;
     mainOnj.age = Number(age);
     mainOnj.city = city;
+    mainOnj.contactVisibility = showMobNo;
+    mainOnj.dob = dob;
     mainOnj.doctorId = doctorId;
-    mainOnj.mobileNumber = doctorObj.mobileNumber;
+    mainOnj.doctorName = title + ' ' + name;
     mainOnj.email = email;
-    mainOnj.fullName = title + ' ' + name;
-    mainOnj.gender = gender;
+    mainOnj.mobileNumber = doctorObj.mobileNumber;
+
     mainOnj.pincode = pinCode;
     console.log(
       'General Info Update---------\n' + JSON.stringify(mainOnj, null, 1),
     );
+
     axios
-      .post(apiConfig.baseUrl + '/doctor/generalinfo/save', mainOnj)
+      .post(apiConfig.baseUrl + '/doctor/generalinfo/update', mainOnj)
       .then(function (response) {
         if (response.status == 200) {
           Alert.alert(
@@ -451,6 +454,31 @@ const EditProfile = ({navigation}) => {
           );
           setGenInfoEdit(false);
         } else Alert.alert('Could not Update Details. Please try again later.');
+      });
+  };
+
+  const updateContactVisibility = async () => {
+    axios
+      .post(
+        apiConfig.baseUrl +
+          '/doctor/contact/visibility/update?contactVisibility=' +
+          showMobNo +
+          '&doctorId=' +
+          doctorId +
+          '&email=' +
+          email,
+      )
+      .then(function (response) {
+        if (response.status == 200)
+          Alert.alert(
+            'Contact Visbility',
+            'Your Contact Visibility is now turned ' +
+              (!showMobNo ? 'ON' : 'OFF'),
+          );
+      })
+      .catch(function (error) {
+        console.log('=====Error in updating contact visibility=====');
+        console.log(error);
       });
   };
 
@@ -1202,38 +1230,6 @@ const EditProfile = ({navigation}) => {
                 <View>
                   <View style={styles.whiteBodyView}>
                     <View style={{flexDirection: 'column', marginVertical: 10}}>
-                      {/* <View
-                      style={{
-                        flexDirection: "row",
-                        alignSelf: "center",
-                        backgroundColor: "#E8F0FE",
-                        width: "90%",
-                        height: 52,
-                        borderRadius: 5,
-                      }}
-                    >
-                      <View
-                        style={{
-                          flexDirection: "column",
-                          flex: 1,
-                        }}
-                      >
-                        <View
-                          style={{
-                            flexDirection: "row",
-                            alignSelf: "center",
-                            alignItems: "center",
-                            flex: 1,
-                          }}
-                        >
-                          <Image
-                            source={upload}
-                            style={{ marginRight: "5%" }}
-                          ></Image>
-                          <Text style={{ fontSize: 12 }}>Upload Image</Text>
-                        </View>
-                      </View>
-                    </View> */}
                       <View style={{flexDirection: 'row', alignSelf: 'center'}}>
                         <View style={{flex: 0.45, marginRight: '5%'}}>
                           <Text style={styles.inputLabel}>Title</Text>
@@ -1296,7 +1292,7 @@ const EditProfile = ({navigation}) => {
                         </View>
                         <View style={{flex: 0.45}}>
                           <Text style={styles.inputLabel}>Gender</Text>
-                          {GenInfoEdit ? (
+                          {/* {GenInfoEdit ? (
                             <SelectList
                               labelStyles={{height: 0}}
                               placeholder={gender}
@@ -1325,7 +1321,14 @@ const EditProfile = ({navigation}) => {
                               ]}>
                               {gender}
                             </Text>
-                          )}
+                          )} */}
+                          <Text
+                            style={[
+                              styles.textInput,
+                              {backgroundColor: '#d0e0fc', padding: 10},
+                            ]}>
+                            {gender}
+                          </Text>
                         </View>
                       </View>
                       <View style={{flexDirection: 'row', alignSelf: 'center'}}>
@@ -1406,7 +1409,7 @@ const EditProfile = ({navigation}) => {
                         }}>
                         <View
                           style={{
-                            flexDirection: 'row',
+                            flexDirection: !GenInfoEdit ? 'column' : 'row',
                             flex: 1,
                             alignSelf: 'center',
                             // borderColor: 'gray',
@@ -1415,27 +1418,32 @@ const EditProfile = ({navigation}) => {
 
                             padding: 5,
                           }}>
-                          <Text
-                            style={[
-                              styles.inputLabel,
-                              {marginTop: 0, alignSelf: 'center'},
-                            ]}>
+                          <Text style={[styles.inputLabel, {marginTop: 0}]}>
                             Contact Visibility
                           </Text>
-                          <Switch
-                            trackColor={{false: '#767577', true: '#81b0ff'}}
-                            thumbColor={showMobNo ? '#81b0ff' : '#f4f3f4'}
-                            ios_backgroundColor="#3e3e3e"
-                            onValueChange={() => {
-                              setshowMobNo(!showMobNo);
-                              Alert.alert(
-                                'Contact Visbility',
-                                'Your Contact Visibility is turned ' +
-                                  (showMobNo ? 'ON' : 'OFF'),
-                              );
-                            }}
-                            value={showMobNo}
-                          />
+                          {GenInfoEdit ? (
+                            <Switch
+                              trackColor={{false: '#767577', true: '#81b0ff'}}
+                              thumbColor={showMobNo ? '#81b0ff' : '#f4f3f4'}
+                              ios_backgroundColor="#3e3e3e"
+                              onValueChange={() => {
+                                setshowMobNo(!showMobNo);
+                                updateContactVisibility();
+                              }}
+                              value={showMobNo}
+                            />
+                          ) : (
+                            <Text
+                              style={[
+                                styles.textInput,
+                                {backgroundColor: '#d0e0fc'},
+                                GenInfoEdit
+                                  ? {backgroundColor: '#E8F0FE'}
+                                  : null,
+                              ]}>
+                              {showMobNo ? 'Yes' : 'No'}
+                            </Text>
+                          )}
                         </View>
                       </View>
                       <View
@@ -1493,8 +1501,8 @@ const EditProfile = ({navigation}) => {
                             text="Done"
                             textstyle={styles.ButtonText}
                             onPress={() => {
-                              setGenInfoEdit(false);
-                              //updateGenInfo();
+                              //setGenInfoEdit(false);
+                              updateGenInfo();
                               //clearKeys();
                             }}
                             style={styles.ButtonUpdate}
