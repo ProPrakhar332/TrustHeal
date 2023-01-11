@@ -439,7 +439,6 @@ const EditProfile = ({navigation}) => {
     mainOnj.doctorName = title + ' ' + name;
     mainOnj.email = email;
     mainOnj.mobileNumber = doctorObj.mobileNumber;
-
     mainOnj.pincode = pinCode;
     console.log(
       'General Info Update---------\n' + JSON.stringify(mainOnj, null, 1),
