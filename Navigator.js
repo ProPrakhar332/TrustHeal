@@ -21,11 +21,11 @@ import {
   DrawerItemList,
   DrawerItem,
 } from '@react-navigation/drawer';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 LogBox.ignoreLogs(['Warning: ...']);
 //Screens
 
-import CallPage from "./assets/Screens/CallPage";
+import CallPage from './assets/Screens/CallPage';
 
 import RoleScreen from './assets/Screens/RoleScreen1';
 import OTPScreen from './assets/Screens/OTPScreen';
@@ -114,6 +114,7 @@ import bell from './assets/DrawerIcons/bell.png';
 import about from './assets/DrawerIcons/about.png';
 import appointment from './assets/DrawerIcons/appointment.png';
 import general from './assets/DrawerIcons/general.png';
+import prescription from './assets/DrawerIcons/prescription.png';
 import help from './assets/DrawerIcons/help.png';
 import logout from './assets/DrawerIcons/logout.png';
 import myearning from './assets/DrawerIcons/myearning.png';
@@ -263,7 +264,7 @@ function DoctorTabNavigator() {
   );
 }
 
-const logoutAction = async (props) => {
+const logoutAction = async props => {
   console.log('Logging out');
   console.log(await AsyncStorage.getAllKeys());
   await AsyncStorage.removeItem('UserDoctorProfile');
@@ -271,10 +272,10 @@ const logoutAction = async (props) => {
   await AsyncStorage.removeItem('countryName');
   await AsyncStorage.removeItem('age');
   console.log(await AsyncStorage.getAllKeys());
-  props.navigation.navigate("RoleScreen");
+  props.navigation.navigate('RoleScreen');
 };
 
-const openURL = async(url) => {
+const openURL = async url => {
   const supported = await Linking.canOpenURL(url);
   if (supported) {
     await Linking.openURL(url);
@@ -284,7 +285,7 @@ const openURL = async(url) => {
 };
 
 const viewTermsConditions = () => {
-  openURL("https://www.google.com");
+  openURL('https://www.google.com');
 };
 
 function CustomDrawerContent(props) {
@@ -421,7 +422,9 @@ function CustomDrawerContent(props) {
         label="Terms & Condition"
         labelStyle={styles.labelStyle}
         style={{marginVertical: 0, paddingVertical: 0}}
-        onPress={() => {viewTermsConditions()}}
+        onPress={() => {
+          viewTermsConditions();
+        }}
         icon={({focused, color, size}) => (
           <Image source={terms} style={{tintColor: '#033158'}} />
         )}
@@ -430,7 +433,7 @@ function CustomDrawerContent(props) {
         <Text style={styles.HeadingText}>Settings</Text>
       </View>
       <DrawerItem
-        label="General Configuration"
+        label="Edit Profile"
         labelStyle={styles.labelStyle}
         style={{marginVertical: 0, paddingVertical: 0}}
         onPress={() => {
@@ -441,10 +444,23 @@ function CustomDrawerContent(props) {
         )}
       />
       <DrawerItem
+        label="Prescription Generator"
+        labelStyle={styles.labelStyle}
+        style={{marginVertical: 0, paddingVertical: 0}}
+        onPress={() => {
+          props.navigation.navigate('CheifComplaints');
+        }}
+        icon={({focused, color, size}) => (
+          <Image source={prescription} style={{tintColor: '#033158'}} />
+        )}
+      />
+      <DrawerItem
         label="Logout"
         labelStyle={styles.labelStyle}
         style={{marginVertical: 0, paddingVertical: 0}}
-        onPress={() => {logoutAction(props)}}
+        onPress={() => {
+          logoutAction(props);
+        }}
         icon={({focused, color, size}) => (
           <Image source={logout} style={{tintColor: '#033158'}} />
         )}
@@ -708,7 +724,7 @@ function App() {
         <Stack.Screen
           name="CallPage"
           component={CallPage}
-          options={{ headerShown: false }}
+          options={{headerShown: false}}
         />
         <Stack.Screen
           name="RoleScreen"

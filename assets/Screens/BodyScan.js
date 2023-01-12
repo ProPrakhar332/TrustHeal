@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { ScrollView } from "react-native";
+import React, {useState, useEffect} from 'react';
+import {ScrollView} from 'react-native';
 import {
   View,
   Alert,
@@ -13,30 +13,30 @@ import {
   TouchableOpacity,
   useWindowDimensions,
   KeyboardAvoidingView,
-} from "react-native";
-import CustomButton from "../Components/CustomButton";
-import Header from "../Components/Header";
-import { StyleSheet } from "react-native";
-import FAIcon from "react-native-vector-icons/FontAwesome5";
-import Slider from "@react-native-community/slider";
+} from 'react-native';
+import CustomButton from '../Components/CustomButton';
+import Header from '../Components/Header';
+import {StyleSheet} from 'react-native';
+import FAIcon from 'react-native-vector-icons/FontAwesome5';
+import Slider from '@react-native-community/slider';
 //Icons
-import cheifComplaints from "../Icons/search.png";
-import bodyScan from "../Icons/body-scan.png";
-import diagnosis from "../Icons/diagnosis.png";
-import medicine from "../Icons/medicine.png";
-import investigation from "../Icons/searching.png";
-import advice from "../Icons/doctor.png";
-import followUp from "../Icons/calendar.png";
-import thermometer from "../Icons/thermometer.png";
-import bloodpressure from "../Icons/blood-pressure.png";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import cheifComplaints from '../Icons/search.png';
+import bodyScan from '../Icons/body-scan.png';
+import diagnosis from '../Icons/diagnosis.png';
+import medicine from '../Icons/medicine.png';
+import investigation from '../Icons/searching.png';
+import advice from '../Icons/doctor.png';
+import followUp from '../Icons/calendar.png';
+import thermometer from '../Icons/thermometer.png';
+import bloodpressure from '../Icons/blood-pressure.png';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-function BodyScan({ navigation }) {
+function BodyScan({navigation}) {
   const [AddVitals, setAddVitals] = useState(false);
-  const [examinNotes, setexaminNotes] = useState("");
+  const [examinNotes, setexaminNotes] = useState('');
   const [TemperatureTab, setTemperatureTab] = useState(false);
-  const [temp, setTemp] = useState("");
-  const [BP, setBP] = useState("");
+  const [temp, setTemp] = useState('');
+  const [BP, setBP] = useState('');
   const [tempTemp, settempTemp] = useState(98.6);
   const [TempModalVisible, setTempModalVisible] = useState(false);
   const [BPModalVisible, setBPModalVisible] = useState(false);
@@ -46,84 +46,78 @@ function BodyScan({ navigation }) {
   const window = useWindowDimensions();
 
   const pressedProceed = async () => {
-    await AsyncStorage.setItem("Temperature", tempTemp + "");
-    await AsyncStorage.setItem("BPDia", tempBPDia + "");
-    await AsyncStorage.setItem("BPSys", tempBPSys + "");
-    await AsyncStorage.setItem("BP", BP);
+    let temp = {
+      BPDiastolic: tempBPDia,
+      BPSystolic: tempBPSys,
+      examinationNotes: examinNotes,
+      temperature: tempTemp,
+    };
 
-    await AsyncStorage.setItem("ExaminationNotes", examinNotes);
-    console.log(await AsyncStorage.getItem("Temperature"));
-    console.log(await AsyncStorage.getItem("BPDia"));
-    console.log(await AsyncStorage.getItem("BPSys"));
-    console.log(await AsyncStorage.getItem("BP"));
-    console.log(await AsyncStorage.getItem("ExaminationNotes"));
-    navigation.push("Medication");
+    await AsyncStorage.setItem('Examination', temp);
+
+    console.log(await AsyncStorage.getItem('Examination'));
+    navigation.push('Medication');
   };
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}
-      enabled={true}
-    >
+      enabled={true}>
       <SafeAreaView
         style={{
-          backgroundColor: "#2B8ADA",
-          width: "100%",
-        }}
-      >
+          backgroundColor: '#2B8ADA',
+          width: '100%',
+        }}>
         <ScrollView
           style={{
-            width: "100%",
-            alignSelf: "center",
-            height: "100%",
-            backgroundColor: "#E8F0FE",
-            marginTop: 30,
+            width: '100%',
+            alignSelf: 'center',
+            height: '100%',
+            backgroundColor: '#E8F0FE',
           }}
-          showsVerticalScrollIndicator={false}
-        >
+          showsVerticalScrollIndicator={false}>
           {/* Header */}
           <Header title="Prescription" showMenu={false} />
-          <View style={{ flexDirection: "row" }}>
+          <View style={{flexDirection: 'row'}}>
             {/* Navigation Bar */}
             <View
               style={{
                 flex: 0.15,
-                flexDirection: "column",
-                justifyContent: "space-around",
+                flexDirection: 'column',
+                justifyContent: 'space-around',
                 borderRightWidth: 1,
                 height: window.height - 80,
                 padding: 1,
-                alignItems: "center",
-                borderRightColor: "gray",
-              }}
-            >
+                alignItems: 'center',
+                borderRightColor: 'gray',
+              }}>
               <TouchableOpacity onPress={() => {}}>
                 <Image
                   source={cheifComplaints}
-                  style={[{ tintColor: "#5d5e61" }]}
+                  style={[{tintColor: '#5d5e61'}]}
                 />
               </TouchableOpacity>
               <TouchableOpacity onPress={() => {}}>
-                <Image source={bodyScan} style={[{ tintColor: "#2B8ADA" }]} />
+                <Image source={bodyScan} style={[{tintColor: '#2B8ADA'}]} />
               </TouchableOpacity>
               <TouchableOpacity onPress={() => {}}>
-                <Image source={diagnosis} style={[{ tintColor: "#5d5e61" }]} />
+                <Image source={diagnosis} style={[{tintColor: '#5d5e61'}]} />
               </TouchableOpacity>
               <TouchableOpacity onPress={() => {}}>
-                <Image source={medicine} style={[{ tintColor: "#5d5e61" }]} />
+                <Image source={medicine} style={[{tintColor: '#5d5e61'}]} />
               </TouchableOpacity>
               <TouchableOpacity onPress={() => {}}>
                 <Image
                   source={investigation}
-                  style={[{ tintColor: "#5d5e61" }]}
+                  style={[{tintColor: '#5d5e61'}]}
                 />
               </TouchableOpacity>
               <TouchableOpacity onPress={() => {}}>
-                <Image source={advice} style={[{ tintColor: "#5d5e61" }]} />
+                <Image source={advice} style={[{tintColor: '#5d5e61'}]} />
               </TouchableOpacity>
               <TouchableOpacity onPress={() => {}}>
-                <Image source={followUp} style={[{ tintColor: "#5d5e61" }]} />
+                <Image source={followUp} style={[{tintColor: '#5d5e61'}]} />
               </TouchableOpacity>
             </View>
             {/* Page View */}
@@ -133,36 +127,31 @@ function BodyScan({ navigation }) {
                 style={styles.viewHeadingView}
                 onPress={() => {
                   navigation.goBack();
-                }}
-              >
+                }}>
                 <FAIcon
                   name="chevron-left"
-                  color={"#2B8ADA"}
+                  color={'#2B8ADA'}
                   size={15}
-                  style={{ marginRight: 5 }}
+                  style={{marginRight: 5}}
                 />
                 <Text style={styles.viewHeadingText}>Examination</Text>
               </TouchableOpacity>
               {/* Add Vitals */}
               <TouchableOpacity
                 style={styles.WhiteLabel}
-                onPress={() => setAddVitals(!AddVitals)}
-              >
+                onPress={() => setAddVitals(!AddVitals)}>
                 <Text
                   style={[
                     styles.label,
-                    { width: "80%", fontWeight: "bold" },
-                    AddVitals ? { color: "#2B8ADA" } : { color: "black" },
-                  ]}
-                >
+                    {width: '80%', fontWeight: 'bold'},
+                    AddVitals ? {color: '#2B8ADA'} : {color: 'black'},
+                  ]}>
                   Add Vitals
                 </Text>
                 <FAIcon
-                  name={AddVitals ? "chevron-down" : "chevron-right"}
+                  name={AddVitals ? 'chevron-down' : 'chevron-right'}
                   size={20}
-                  style={[
-                    AddVitals ? { color: "#2B8ADA" } : { color: "black" },
-                  ]}
+                  style={[AddVitals ? {color: '#2B8ADA'} : {color: 'black'}]}
                 />
               </TouchableOpacity>
               {AddVitals ? (
@@ -170,101 +159,92 @@ function BodyScan({ navigation }) {
                   <TouchableOpacity
                     style={[
                       styles.WhiteLabel,
-                      { alignItems: "center", padding: 10 },
+                      {alignItems: 'center', padding: 10},
                     ]}
                     onPress={() => {
                       setTemperatureTab(true);
                       setTempModalVisible(true);
-                    }}
-                  >
+                    }}>
                     <View
                       style={{
-                        backgroundColor: "#E8F0FE",
+                        backgroundColor: '#E8F0FE',
                         borderRadius: 5,
 
                         padding: 5,
-                      }}
-                    >
+                      }}>
                       <Image source={thermometer} />
                     </View>
-                    <View style={{ width: "50%", flexDirection: "column" }}>
+                    <View style={{width: '50%', flexDirection: 'column'}}>
                       <Text
                         style={[
                           styles.label,
-                          { fontWeight: "bold", fontSize: 15 },
-                        ]}
-                      >
+                          {fontWeight: 'bold', fontSize: 15},
+                        ]}>
                         Temperature
                       </Text>
-                      <View style={{ flexDirection: "row" }}>
+                      <View style={{flexDirection: 'row'}}>
                         <Text
                           style={[
                             styles.label,
-                            { fontSize: 11, color: "#2B8ADA" },
-                          ]}
-                        >
-                          {temp !== "" ? temp : null}
+                            {fontSize: 11, color: '#2B8ADA'},
+                          ]}>
+                          {temp !== '' ? temp : null}
                         </Text>
                         <Text
                           style={[
                             styles.label,
-                            { fontSize: 11, color: "#2B8ADA" },
-                          ]}
-                        >
+                            {fontSize: 11, color: '#2B8ADA'},
+                          ]}>
                           F
                         </Text>
                       </View>
                     </View>
                     <FAIcon
-                      name={"chevron-right"}
+                      name={'chevron-right'}
                       size={20}
-                      style={[{ color: "black" }]}
+                      style={[{color: 'black'}]}
                     />
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={[
                       styles.WhiteLabel,
-                      { alignItems: "center", padding: 10 },
+                      {alignItems: 'center', padding: 10},
                     ]}
                     onPress={() => {
                       setBPTab(true);
                       setBPModalVisible(true);
-                    }}
-                  >
+                    }}>
                     <View
                       style={{
-                        backgroundColor: "#E8F0FE",
+                        backgroundColor: '#E8F0FE',
                         borderRadius: 5,
 
                         padding: 5,
-                      }}
-                    >
+                      }}>
                       <Image source={bloodpressure} />
                     </View>
-                    <View style={{ width: "50%", flexDirection: "column" }}>
+                    <View style={{width: '50%', flexDirection: 'column'}}>
                       <Text
                         style={[
                           styles.label,
-                          { fontWeight: "bold", fontSize: 15 },
-                        ]}
-                      >
+                          {fontWeight: 'bold', fontSize: 15},
+                        ]}>
                         Blood Pressure
                       </Text>
-                      <View style={{ flexDirection: "row" }}>
+                      <View style={{flexDirection: 'row'}}>
                         <Text
                           style={[
                             styles.label,
-                            { fontSize: 11, color: "#2B8ADA" },
-                          ]}
-                        >
-                          {BP !== "" ? BP : "mmHg"}
+                            {fontSize: 11, color: '#2B8ADA'},
+                          ]}>
+                          {BP !== '' ? BP : 'mmHg'}
                         </Text>
                       </View>
                     </View>
                     <FAIcon
-                      name={"chevron-right"}
+                      name={'chevron-right'}
                       size={20}
-                      style={[{ color: "black" }]}
+                      style={[{color: 'black'}]}
                     />
                   </TouchableOpacity>
                 </View>
@@ -277,80 +257,71 @@ function BodyScan({ navigation }) {
                   visible={TempModalVisible}
                   onRequestClose={() => {
                     setTempModalVisible(!TempModalVisible);
-                  }}
-                >
+                  }}>
                   <View
                     style={{
-                      height: "100%",
-                      backgroundColor: "rgba(0,0,0,0.8)",
-                    }}
-                  >
+                      height: '100%',
+                      backgroundColor: 'rgba(0,0,0,0.8)',
+                    }}>
                     <View
                       style={[
                         styles.modalView,
                         {
-                          flexDirection: "column",
+                          flexDirection: 'column',
                           bottom: 0,
                           borderTopRightRadius: 50,
                           borderTopLeftRadius: 50,
-                          width: "100%",
+                          width: '100%',
                         },
-                      ]}
-                    >
+                      ]}>
                       <View
                         style={{
-                          borderBottomColor: "#2b8ada",
+                          borderBottomColor: '#2b8ada',
                           borderBottomWidth: 1,
-                          width: "100%",
-                        }}
-                      >
+                          width: '100%',
+                        }}>
                         <Text
                           style={{
                             fontSize: 18,
-                            color: "#2b8ada",
-                            fontWeight: "bold",
-                            alignSelf: "center",
+                            color: '#2b8ada',
+                            fontWeight: 'bold',
+                            alignSelf: 'center',
                             marginBottom: 10,
-                          }}
-                        >
+                          }}>
                           Select Temperature (in F)
                         </Text>
                         <FAIcon
                           name="window-close"
                           color="black"
                           size={26}
-                          style={{ position: "absolute", top: 0, right: 0 }}
+                          style={{position: 'absolute', top: 0, right: 0}}
                           onPress={() => setTempModalVisible(false)}
                         />
                       </View>
-                      <View style={{ flexDirection: "column" }}>
-                        <Text
-                          style={{ marginVertical: 14, fontWeight: "bold" }}
-                        >
+                      <View style={{flexDirection: 'column'}}>
+                        <Text style={{marginVertical: 14, fontWeight: 'bold'}}>
                           Scroll to Select Temperature
                         </Text>
                         <View
                           style={{
-                            color: "#2B8ADA",
+                            color: '#2B8ADA',
                             padding: 10,
-                            backgroundColor: "#E8F0FE",
+                            backgroundColor: '#E8F0FE',
                             borderRadius: 10,
                             width: 100,
-                            alignSelf: "center",
-                          }}
-                        >
+                            alignSelf: 'center',
+                          }}>
                           <Text
                             style={{
-                              alignSelf: "center",
-                              color: "#2B8ADA",
-                              fontWeight: "bold",
-                            }}
-                          >
+                              alignSelf: 'center',
+                              color: '#2B8ADA',
+                              fontWeight: 'bold',
+                            }}>
                             {tempTemp}
                           </Text>
                         </View>
                         <Slider
-                          style={{ width: 200, height: 40 }}
+                          style={{width: 200, height: 40}}
                           minimumValue={88}
                           maximumValue={108}
                           thumbTintColor="#E8F0FE"
@@ -358,36 +329,34 @@ function BodyScan({ navigation }) {
                           maximumTrackTintColor="#2B8ADA"
                           value={tempTemp}
                           step={0.1}
-                          onValueChange={(value) => settempTemp(value)}
+                          onValueChange={value => settempTemp(value)}
                         />
                       </View>
 
-                      <View style={{ flexDirection: "row", marginTop: 10 }}>
+                      <View style={{flexDirection: 'row', marginTop: 10}}>
                         <CustomButton
                           text="Save"
                           style={{
-                            backgroundColor: "#2b8ada",
+                            backgroundColor: '#2b8ada',
                             flex: 0.45,
-                            marginRight: "5%",
+                            marginRight: '5%',
                           }}
-                          textstyle={{ color: "white" }}
+                          textstyle={{color: 'white'}}
                           onPress={() => {
                             setTemp(tempTemp);
                             setTempModalVisible(false);
-                          }}
-                        ></CustomButton>
+                          }}></CustomButton>
                         <CustomButton
                           text="Skip"
                           style={{
-                            borderColor: "#2b8ada",
+                            borderColor: '#2b8ada',
                             borderWidth: 1,
                             flex: 0.45,
                           }}
-                          textstyle={{ color: "#2b8ada" }}
+                          textstyle={{color: '#2b8ada'}}
                           onPress={() => {
                             setTempModalVisible(false);
-                          }}
-                        ></CustomButton>
+                          }}></CustomButton>
                       </View>
                     </View>
                   </View>
@@ -401,80 +370,75 @@ function BodyScan({ navigation }) {
                   visible={BPModalVisible}
                   onRequestClose={() => {
                     setBPModalVisible(!BPModalVisible);
-                  }}
-                >
+                  }}>
                   <View
                     style={{
-                      height: "100%",
-                      backgroundColor: "rgba(0,0,0,0.8)",
-                    }}
-                  >
+                      height: '100%',
+                      backgroundColor: 'rgba(0,0,0,0.8)',
+                    }}>
                     <View
                       style={[
                         styles.modalView,
                         {
-                          flexDirection: "column",
+                          flexDirection: 'column',
                           bottom: 0,
                           borderTopRightRadius: 50,
                           borderTopLeftRadius: 50,
-                          width: "100%",
+                          width: '100%',
                         },
-                      ]}
-                    >
+                      ]}>
                       <View
                         style={{
-                          borderBottomColor: "#2b8ada",
+                          borderBottomColor: '#2b8ada',
                           borderBottomWidth: 1,
-                          width: "100%",
-                        }}
-                      >
+                          width: '100%',
+                        }}>
                         <Text
                           style={{
                             fontSize: 18,
-                            color: "#2b8ada",
-                            fontWeight: "bold",
-                            alignSelf: "center",
+                            color: '#2b8ada',
+                            fontWeight: 'bold',
                             marginBottom: 10,
-                          }}
-                        >
-                          Blood Pressure (in mmHg)
+                          }}>
+                          Blood Pressure
                         </Text>
                         <FAIcon
                           name="window-close"
                           color="black"
                           size={26}
-                          style={{ position: "absolute", top: 0, right: 0 }}
+                          style={{position: 'absolute', top: 0, right: 0}}
                           onPress={() => setBPModalVisible(false)}
                         />
                       </View>
-                      <View style={{ flexDirection: "column" }}>
-                        <Text
-                          style={{ marginVertical: 14, fontWeight: "bold" }}
-                        >
-                          Systolic
-                        </Text>
-                        <View
-                          style={{
-                            color: "#2B8ADA",
-                            padding: 10,
-                            backgroundColor: "#E8F0FE",
-                            borderRadius: 10,
-                            width: 100,
-                            alignSelf: "center",
-                          }}
-                        >
+                      <View style={{flexDirection: 'row', flex: 1}}>
+                        <View style={{flexDirection: 'column', flex: 1}}>
                           <Text
-                            style={{
-                              alignSelf: "center",
-                              color: "#2B8ADA",
-                              fontWeight: "bold",
-                            }}
-                          >
-                            {tempBPSys} mmHg
+                            style={{marginVertical: 14, fontWeight: 'bold'}}>
+                            Systolic (in mmHg)
                           </Text>
-                        </View>
-                        <Slider
-                          style={{ width: 200, height: 40 }}
+                          <View
+                            style={{
+                              flex: 1,
+
+                              color: '#2B8ADA',
+                              backgroundColor: '#E8F0FE',
+                              borderRadius: 10,
+                            }}>
+                            <TextInput
+                              style={{
+                                alignSelf: 'center',
+                                color: '#2B8ADA',
+                                fontWeight: 'bold',
+                              }}
+                              onChangeText={text => settempBPSys(text)}
+                              value={tempBPSys}
+                              //placeholder={tempBPSys + 'mmHg'}
+                            >
+                              {/* {tempBPSys} mmHg */}
+                            </TextInput>
+                          </View>
+                          {/* <Slider
+                          style={{width: 200, height: 40}}
                           minimumValue={80}
                           maximumValue={200}
                           thumbTintColor="#E8F0FE"
@@ -482,37 +446,35 @@ function BodyScan({ navigation }) {
                           maximumTrackTintColor="#2B8ADA"
                           value={tempBPSys}
                           step={1}
-                          onValueChange={(value) => settempBPSys(value)}
-                        />
-                      </View>
-                      <View style={{ flexDirection: "column" }}>
-                        <Text
-                          style={{ marginVertical: 14, fontWeight: "bold" }}
-                        >
-                          Diastolic
-                        </Text>
-                        <View
-                          style={{
-                            color: "#2B8ADA",
-                            padding: 10,
-                            backgroundColor: "#E8F0FE",
-                            borderRadius: 10,
-                            width: 100,
-                            alignSelf: "center",
-                          }}
-                        >
-                          <Text
-                            style={{
-                              alignSelf: "center",
-                              color: "#2B8ADA",
-                              fontWeight: "bold",
-                            }}
-                          >
-                            {tempBPDia} mmHg
-                          </Text>
+                          onValueChange={value => settempBPSys(value)}
+                        /> */}
                         </View>
-                        <Slider
-                          style={{ width: 200, height: 40 }}
+                      </View>
+                      <View style={{flexDirection: 'row', flex: 1}}>
+                        <View style={{flexDirection: 'column', flex: 1}}>
+                          <Text
+                            style={{marginVertical: 14, fontWeight: 'bold'}}>
+                            Diastolic (in mmHg)
+                          </Text>
+                          <View
+                            style={{
+                              flex: 1,
+                              color: '#2B8ADA',
+                              backgroundColor: '#E8F0FE',
+                              borderRadius: 10,
+                              alignSelf: 'center',
+                            }}>
+                            <TextInput
+                              style={{
+                                alignSelf: 'center',
+                                color: '#2B8ADA',
+                                fontWeight: 'bold',
+                              }}
+                              onChangeText={text => settempBPDia(text)}
+                              value={tempBPDia}></TextInput>
+                          </View>
+                          {/* <Slider
+                          style={{width: 200, height: 40}}
                           minimumValue={50}
                           maximumValue={120}
                           thumbTintColor="#E8F0FE"
@@ -520,37 +482,36 @@ function BodyScan({ navigation }) {
                           maximumTrackTintColor="#2B8ADA"
                           value={tempBPDia}
                           step={1}
-                          onValueChange={(value) => settempBPDia(value)}
-                        />
+                          onValueChange={value => settempBPDia(value)}
+                        /> */}
+                        </View>
                       </View>
 
-                      <View style={{ flexDirection: "row", marginTop: 10 }}>
+                      <View style={{flexDirection: 'row', marginTop: 10}}>
                         <CustomButton
                           text="Save"
                           style={{
-                            backgroundColor: "#2b8ada",
+                            backgroundColor: '#2b8ada',
                             flex: 0.45,
-                            marginRight: "5%",
+                            marginRight: '5%',
                           }}
-                          textstyle={{ color: "white" }}
+                          textstyle={{color: 'white'}}
                           onPress={() => {
-                            setBP(tempBPDia + "mmHg " + tempBPSys + "mmHg");
+                            setBP(tempBPDia + 'mmHg ' + tempBPSys + 'mmHg');
 
                             setBPModalVisible(false);
-                          }}
-                        ></CustomButton>
+                          }}></CustomButton>
                         <CustomButton
                           text="Skip"
                           style={{
-                            borderColor: "#2b8ada",
+                            borderColor: '#2b8ada',
                             borderWidth: 1,
                             flex: 0.45,
                           }}
-                          textstyle={{ color: "#2b8ada" }}
+                          textstyle={{color: '#2b8ada'}}
                           onPress={() => {
                             setBPModalVisible(false);
-                          }}
-                        ></CustomButton>
+                          }}></CustomButton>
                       </View>
                     </View>
                   </View>
@@ -560,39 +521,36 @@ function BodyScan({ navigation }) {
               <View
                 style={{
                   marginVertical: 10,
-                  width: "95%",
-                  alignSelf: "center",
-                }}
-              >
+                  width: '95%',
+                  alignSelf: 'center',
+                }}>
                 <View
                   style={{
                     padding: 5,
-                    backgroundColor: "#2B8ADA",
+                    backgroundColor: '#2B8ADA',
                     borderTopRightRadius: 10,
                     borderTopLeftRadius: 10,
-                  }}
-                >
-                  <Text style={[styles.label, { color: "white" }]}>
+                  }}>
+                  <Text style={[styles.label, {color: 'white'}]}>
                     On-Examination Notes
                   </Text>
                 </View>
                 <View
                   style={{
                     padding: 5,
-                    backgroundColor: "white",
+                    backgroundColor: 'white',
                     borderBottomRightRadius: 10,
                     borderBottomLeftRadius: 10,
                     height: 100,
-                  }}
-                >
+                  }}>
                   <TextInput
                     placeholder="Enter examination notes here..."
-                    placeholderTextColor={"black"}
-                    onChangeText={(text) => setexaminNotes(text)}
+                    placeholderTextColor={'black'}
+                    onChangeText={text => setexaminNotes(text)}
                     value={examinNotes}
                     multiline={true}
                     style={{
-                      textAlign: "left",
+                      textAlign: 'left',
                     }}
                   />
                 </View>
@@ -600,36 +558,35 @@ function BodyScan({ navigation }) {
               {/* Bottom Buttons */}
               <View
                 style={{
-                  alignSelf: "center",
-                  flexDirection: "row",
+                  alignSelf: 'center',
+                  flexDirection: 'row',
                   bottom: 0,
-                  position: "absolute",
+                  position: 'absolute',
                   marginVertical: 10,
-                  justifyContent: "space-evenly",
-                }}
-              >
+                  justifyContent: 'space-evenly',
+                }}>
                 <CustomButton
                   text="Proceed"
-                  textstyle={{ color: "white", fontSize: 12 }}
+                  textstyle={{color: 'white', fontSize: 12}}
                   style={{
                     borderRadius: 10,
-                    backgroundColor: "#2B8ADA",
+                    backgroundColor: '#2B8ADA',
                     flex: 0.45,
                   }}
                   onPress={pressedProceed}
                 />
                 <CustomButton
                   text="Save"
-                  textstyle={{ color: "#2B8ADA", fontSize: 12 }}
+                  textstyle={{color: '#2B8ADA', fontSize: 12}}
                   style={{
                     borderRadius: 10,
                     borderWidth: 1,
-                    borderColor: "#2B8ADA",
+                    borderColor: '#2B8ADA',
                     flex: 0.45,
                   }}
                   onPress={() => {
                     Alert.alert(
-                      "All the details on this page are saved successfully"
+                      'All the details on this page are saved successfully',
                     );
                   }}
                 />
@@ -644,24 +601,24 @@ function BodyScan({ navigation }) {
 
 const styles = StyleSheet.create({
   WhiteLabel: {
-    flexDirection: "row",
-    width: "95%",
+    flexDirection: 'row',
+    width: '95%',
     marginVertical: 5,
-    alignSelf: "center",
-    backgroundColor: "white",
+    alignSelf: 'center',
+    backgroundColor: 'white',
     marginBottom: 5,
     padding: 10,
-    justifyContent: "space-between",
+    justifyContent: 'space-between',
     borderRadius: 10,
   },
   modalView: {
-    position: "absolute",
-    width: "90%",
-    alignSelf: "center",
-    backgroundColor: "white",
+    position: 'absolute',
+    width: '90%',
+    alignSelf: 'center',
+    backgroundColor: 'white',
     padding: 35,
-    alignItems: "center",
-    shadowColor: "#000",
+    alignItems: 'center',
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2,
@@ -669,36 +626,36 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#e8f0fe",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#e8f0fe',
   },
   pageView: {
     flex: 0.8,
-    flexDirection: "column",
+    flexDirection: 'column',
     padding: 10,
   },
   viewHeadingView: {
-    width: "100%",
-    flexDirection: "row",
-    alignItems: "center",
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
     marginVertical: 10,
   },
   viewHeadingText: {
-    color: "#2B8ADA",
+    color: '#2B8ADA',
     fontSize: 15,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
   searchBar: {
-    width: "95%",
-    flexDirection: "row",
+    width: '95%',
+    flexDirection: 'row',
     padding: 5,
     borderWidth: 1,
-    borderColor: "#2B8ADA",
-    backgroundColor: "white",
+    borderColor: '#2B8ADA',
+    backgroundColor: 'white',
     borderRadius: 25,
-    alignSelf: "center",
+    alignSelf: 'center',
     marginVertical: 10,
   },
   label: {
@@ -706,22 +663,22 @@ const styles = StyleSheet.create({
     marginLeft: 5,
   },
   searchBarText: {
-    width: "100%",
+    width: '100%',
   },
   searchIcon: {
-    position: "absolute",
+    position: 'absolute',
     right: 0,
     paddingTop: 10,
     paddingHorizontal: 5,
   },
   bubble: {
-    flexDirection: "row",
+    flexDirection: 'row',
     marginVertical: 5,
     padding: 10,
     borderRadius: 5,
     flex: 0.45,
   },
-  bubbleText: { fontSize: 14, fontWeight: "bold" },
+  bubbleText: {fontSize: 14, fontWeight: 'bold'},
 });
 
 export default BodyScan;

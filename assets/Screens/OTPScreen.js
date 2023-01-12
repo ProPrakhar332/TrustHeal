@@ -1048,7 +1048,7 @@ const FirstScreen = ({route, navigation}) => {
 
   const onContinuePressed = async () => {
     if (mob.length < minLength || mob.length > maxLength)
-      Alert.alert('Enter Valid Mobile Number!');
+      Alert.alert('Invalid Mobile Number', 'Please enter valid mobile number!');
     else {
       //let countryCodeCache = await AsyncStorage.getItem("countryCode");
       //let no = countryCodeCache + "" + mob;
@@ -1056,6 +1056,7 @@ const FirstScreen = ({route, navigation}) => {
       setwrongOTPMessage(false);
       if (privatePolicy == false)
         Alert.alert(
+          'Terms and Condition',
           'Please accept privacy policy with terms & condition before continuing',
         );
       else {
@@ -1086,7 +1087,7 @@ const FirstScreen = ({route, navigation}) => {
 
   const onSubmitPressed = async () => {
     if (pin1 == '' || pin2 == '' || pin3 == '' || pin4 == '')
-      Alert.alert('Please feed in 4 digit OTP!');
+      Alert.alert('Invalid OTP', 'Please feed in 4 digit OTP!');
     else {
       setisLoading(true);
 
@@ -1110,15 +1111,16 @@ const FirstScreen = ({route, navigation}) => {
             reset();
             //console.log(response.data);
             let x = response.data;
-            if (x.doctorConfigurationDTO != null) {
-              x.isLastStepComplete = true;
-            }
+            // if (x.doctorConfigurationDTO != null) {
+            //   x.isLastStepComplete = true;
+            // }
 
             await AsyncStorage.setItem('UserDoctorProfile', JSON.stringify(x));
 
-            if (x.profileCompleted && x.verified)
+            if (x.profileCompleted == true && x.verified == true)
               navigation.navigate('DoctorHome', {doctorObj: x});
-            else navigation.navigate('DoctorRegistrationStep2');
+            else if (x.profileCompleted == false)
+              navigation.navigate('DoctorRegistrationStep2');
           }
         })
         .catch(function (error) {

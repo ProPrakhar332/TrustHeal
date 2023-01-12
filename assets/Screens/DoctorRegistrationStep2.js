@@ -28,11 +28,18 @@ import waiting from '../Animations/waiting1.gif';
 import {useEffect} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import DocumentPicker, {
+  DirectoryPickerResponse,
+  DocumentPickerResponse,
+  isInProgress,
+  types,
+} from 'react-native-document-picker';
 import dayjs from 'dayjs';
 import axios from 'axios';
 
 import dateformatter from '../API/dateformatter';
 import DaysCreator from '../API/slotscreate';
+import {fileUpload} from '../API/apiConfig';
 import apiConfig from '../API/apiConfig';
 
 const dataTitle = [
@@ -113,6 +120,7 @@ const DoctorRegistration2 = ({navigation}) => {
   const [RegCert, setRegCert] = useState('');
   const [RegYear, setRegYear] = useState('');
   const [certificatePath, setcertificatePath] = useState('');
+  const [MedRegDoc, setMedRegDoc] = React.useState(null);
 
   //Educational Details Field
   const [showEduDet, setShowEduDet] = useState(false);
@@ -142,7 +150,6 @@ const DoctorRegistration2 = ({navigation}) => {
   const [showIdenDet, setShowIdenDet] = useState(false);
   const [addMoreIdenDet, setaddMoreIdenDet] = useState(false);
   const [dataSavedIdenDet, setdataSavedIdenDet] = useState(false);
-  const [Aadhar, setAadhar] = useState('');
   const [IdentificationDocs, setIdentificationDocs] = useState([]);
   const [identificationNumber, setidentificationNumber] = useState('');
   const [identificationType, setidentificationType] = useState('');
@@ -155,41 +162,6 @@ const DoctorRegistration2 = ({navigation}) => {
   const [clinicName, setClinicName] = useState('');
   const [clinicAddress, setClinicAddress] = useState('');
   const [specialInstruction, setSpecialInstruction] = useState('');
-  const [DaysSlot, setDaysSlot] = useState([]);
-  const [DaysSlotRefresh, setDaysSlotRefresh] = useState(false);
-  const [selectedDate, setselectedDate] = useState('');
-  const [Days, setDays] = useState(null);
-  //p-create
-  const [consultView, setconsultView] = useState(false);
-  const [pmodal, setpmodal] = useState(false);
-  const [PCCreateClinicName, setPCCreateClinicName] = useState('');
-  const [PCCreateClinicAddress, setPCCreateClinicAddress] = useState('');
-
-  const [PCoutDate, setPCoutDate] = useState('');
-  const [PCinTimeHH, setPCinTimeHH] = useState('');
-  const [PCinTimeMM, setPCinTimeMM] = useState('');
-  const [PCoutTimeHH, setPCoutTimeHH] = useState('');
-  const [PCoutTimeMM, setPCoutTimeMM] = useState('');
-  const [PCduration, setPCduration] = useState(0);
-  const [PCclinicName, setPCclinicName] = useState('');
-  const [PCclinicAddress, setPCclinicAddress] = useState('');
-  const [PCspecialInstruction, setPCspecialInstruction] = useState('');
-  const [PCData, setPCData] = useState([]);
-  //E-create
-  const [EconsultMode, setEconsultMode] = useState('');
-  const [ECinTimeHH, setECinTimeHH] = useState('');
-  const [ECinTimeMM, setECinTimeMM] = useState('');
-  const [ECoutTimeHH, setECoutTimeHH] = useState('');
-  const [ECoutTimeMM, setECoutTimeMM] = useState('');
-  const [ECduration, setECduration] = useState('');
-  const [ECGap, setECGap] = useState('');
-  const [ECData, setECData] = useState([]);
-
-  const [emodal, setemodal] = useState(false);
-  //General Configuration
-  const [showGenConfig, setShowGenConfig] = useState(false);
-  const [showMobNo, setshowMobNo] = useState('');
-  const [showFollowUp, setshowFollowUp] = useState('');
 
   //PreConsultation Questionnaire
   const [showPreConsultationQuestionaire, setShowPreConsultationQuestionaire] =
@@ -216,7 +188,82 @@ const DoctorRegistration2 = ({navigation}) => {
   const [physicalConsulationFees, setphysicalConsulationFees] = useState(0);
   const [eConsulationFees, seteConsulationFees] = useState(0);
   const [followUpFees, setfollowUpFees] = useState(0);
+  const [showFollowUp, setshowFollowUp] = useState('');
   const [isLoading, setisLoading] = useState(false);
+
+  const handleError = err => {
+    if (DocumentPicker.isCancel(err)) {
+      console.warn('cancelled');
+      // User cancelled the picker, exit any dialogs or menus and move on
+    } else if (isInProgress(err)) {
+      console.warn(
+        'multiple pickers were opened, only the last will be considered',
+      );
+    } else {
+      throw err;
+    }
+  };
+
+  const selectDocs = async () => {
+    try {
+      console.log('==============Inside selectDocs==========');
+
+      const pickerResult = await DocumentPicker.pickSingle({
+        presentationStyle: 'fullScreen',
+        copyTo: 'cachesDirectory',
+      });
+      let ext = '.' + pickerResult.name.split('.').pop();
+
+      pickerResult.name = doctorId + '_MedicalRegistration' + ext;
+      console.log(pickerResult.name);
+      setMedRegDoc([pickerResult]);
+
+      let formData = new FormData();
+      formData.append('directoryNames', '  DOCTOR_MEDICAL_REGISTRATION');
+      formData.append('file', pickerResult);
+      const {error, response} = await fileUpload(formData);
+
+      console.log('======error======');
+      console.log(error);
+      console.log('======response======');
+
+      console.log(response.path);
+      setcertificatePath(response.path);
+      setRegCert(error == null ? pickerResult.name : '');
+    } catch (e) {
+      handleError(e);
+    }
+  };
+
+  const selectDocsEdu = async () => {
+    try {
+      console.log('==============Inside selectDocs Education==========');
+
+      const pickerResult = await DocumentPicker.pickSingle({
+        presentationStyle: 'fullScreen',
+        copyTo: 'cachesDirectory',
+      });
+      let ext = '.' + pickerResult.name.split('.').pop();
+
+      pickerResult.name = doctorId + '_DoctorEducation' + ext;
+      console.log(pickerResult.name);
+
+      let formData = new FormData();
+      formData.append('directoryNames', 'DOCTOR_EDUCATION');
+      formData.append('file', pickerResult);
+      const {error, response} = await fileUpload(formData);
+
+      console.log('======error======');
+      console.log(error);
+      console.log('======response======');
+
+      console.log(response.path);
+      setdegreePath(response.path);
+      setRegCert(error == null ? pickerResult.name : '');
+    } catch (e) {
+      handleError(e);
+    }
+  };
 
   const dataFollowUp = [
     {key: '1', value: '1'},
@@ -231,10 +278,6 @@ const DoctorRegistration2 = ({navigation}) => {
   const dataShowQues = [
     {key: 'Yes', value: 'Yes'},
     {key: 'No', value: 'No'},
-  ];
-  const dataMode = [
-    {key: 'VIDEO_CALL', value: 'Video'},
-    {key: 'PHONE_CALL', value: 'Phone'},
   ];
 
   const showDatePicker = () => {
@@ -311,33 +354,6 @@ const DoctorRegistration2 = ({navigation}) => {
     Display();
   }, [Experience]);
 
-  //Validations
-  // useEffect(() => {
-  //   const Check = () => {
-  //     if (
-  //       new Date().getFullYear() < Number(RegYear) ||
-  //       Number(RegYear) < 1900
-  //     ) {
-  //       Alert.alert('Enter Valid Registration Year');
-  //       setRegYear('');
-  //     }
-  //   };
-  //   if (RegYear.length == 4) Check();
-  // }, [RegYear]);
-
-  // useEffect(() => {
-  //   const Check = () => {
-  //     if (
-  //       new Date().getFullYear() < Number(DegreePassingYear) ||
-  //       Number(DegreePassingYear) < 1900
-  //     ) {
-  //       Alert.alert('Enter Valid Degree Passing Year');
-  //       setDegreePassingYear('');
-  //     }
-  //   };
-  //   if (DegreePassingYear.length == 4) Check();
-  // }, [DegreePassingYear]);
-
   useEffect(() => {
     const setDate = async () => {
       setdob(await AsyncStorage.getItem('dob'));
@@ -351,49 +367,6 @@ const DoctorRegistration2 = ({navigation}) => {
     };
     settingAge();
   }, [age]);
-
-  // useEffect(() => {
-  //   const progressBar = () => {
-  //     var c = 0;
-  //     if (RegNo != '' && RegCouncil != '' && RegYear != '') ++c;
-  //     if (Education != null && Education.length > 0) ++c;
-  //     if (Experience != null && Experience.length > 0) ++c;
-  //     if (IdentificationDocs != null && IdentificationDocs.length > 0) ++c;
-  //     if (ClinicDet != null && ClinicDet.length > 0) ++c;
-  //     if (showQuestions == false) ++c;
-  //     else if (
-  //       showQuestions == true &&
-  //       questionareList != null &&
-  //       questionareList.length > 0
-  //     )
-  //       ++c;
-  //     if (
-  //       physicalConsulationFees != '' &&
-  //       eConsulationFees != '' &&
-  //       followUpFees != '' &&
-  //       showFollowUp != ''
-  //     )
-  //       ++c;
-  //     setCompletePercentage((50 + parseInt((c / 7) * 50)).toString() + '%');
-  //   };
-  //   progressBar();
-
-  //   //console.log('Use Effect ClinicDet-----------');
-  //   // console.log(ClinicDet);
-  // }, [
-  //   RegNo,
-  //   RegCouncil,
-  //   RegYear,
-  //   Education,
-  //   IdentificationDocs,
-  //   ClinicDet,
-  //   showMobNo,
-  //   showFollowUp,
-  //   questionareList,
-  //   physicalConsulationFees,
-  //   eConsulationFees,
-  //   followUpFees,
-  // ]);
 
   useEffect(() => {
     const getspl = async () => {
@@ -429,6 +402,7 @@ const DoctorRegistration2 = ({navigation}) => {
     if (showPreConsultationQuestionaire == true) getspl();
   }, [showPreConsultationQuestionaire]);
 
+  //check data uploaded
   useEffect(() => {
     const checkMedical = async () => {
       axios
@@ -507,7 +481,7 @@ const DoctorRegistration2 = ({navigation}) => {
             doctorId,
         )
         .then(function (response) {
-          if (response.data == '') {
+          if (response.data != '') {
             setdataSavedPreConsultationQuestionaire(true);
           } else setdataSavedPreConsultationQuestionaire(false);
         })
@@ -549,7 +523,7 @@ const DoctorRegistration2 = ({navigation}) => {
       setdataSavedConsultFees(true);
     }
   }, []);
-
+  //progress bar
   useEffect(() => {
     const progressBar = async () => {
       var c = 1;
@@ -608,10 +582,10 @@ const DoctorRegistration2 = ({navigation}) => {
       //console.log(DoctorID);
       let Fn = x.fullName == undefined ? x.doctorName : x.fullName;
       console.log(x);
-      setDaysSlot(DaysCreator);
       setTitle(Fn.substring(0, Fn.indexOf(' ')));
       setName(Fn.substring(Fn.indexOf(' ') + 1));
       setdoctorId(x.doctorId);
+      console.log(doctorId);
       setEmail(x.email);
       setGender(x.gender);
       setCity(x.city);
@@ -651,143 +625,17 @@ const DoctorRegistration2 = ({navigation}) => {
           },
         ];
         setdataSpecialization(data);
-
-        var d = new Date().getFullYear();
-        //console.log(dob.substring(0, 4));
-        var i = Number(x.dob.substring(0, 4));
-        if (i == 0) i = 1940;
-        else i += 17;
-        for (; i <= d; ++i) {
-          dataYear.push({key: i + '', value: i + ''});
-        }
+      }
+      var d = new Date().getFullYear();
+      console.log(dob.substring(0, 4));
+      var i = Number(x.dob.substring(0, 4));
+      if (i == 0) i = 1940;
+      else i += 17;
+      for (; i <= d; ++i) {
+        dataYear.push({key: i + '', value: i + ''});
       }
     };
-    const onLoadSetDay = async () => {
-      setDaysSlot(DaysCreator);
-      //console.log(DaysSlot);
-      setselectedDate('');
-    };
-    onLoadSetData();
-    onLoadSetDay();
   }, []);
-
-  const pushSlot = async () => {
-    let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
-    //let doctorId = Number(x.doctorId);
-
-    let p = {
-      clinicAddress: PCCreateClinicAddress,
-      clinicName: PCCreateClinicName,
-      consultationDate: selectedDate,
-      //doctoId: doctorId,
-      slotDuration: Number(PCduration),
-      consultationEndTime:
-        (PCoutTimeHH.length == 1 ? '0' + PCoutTimeHH : PCoutTimeHH) +
-        ':' +
-        (PCoutTimeMM.length == 1 ? '0' + PCoutTimeMM : PCoutTimeMM),
-      consultationStartTime:
-        (PCinTimeHH.length == 1 ? '0' + PCinTimeHH : PCinTimeHH) +
-        ':' +
-        (PCinTimeMM.length == 1 ? '0' + PCinTimeMM : PCinTimeMM),
-      specialInstruction: PCspecialInstruction,
-    };
-    // console.log(p);
-    if (PCData.length == 0) {
-      PCData.push(p);
-
-      Alert.alert('Slot details submitted successfully');
-    } else {
-      let flag = 0;
-      for (var i = 0; i < PCData.length; ++i) {
-        if (
-          PCData[i].clinicName == PCCreateClinicName &&
-          PCData[i].clinicAddress == PCCreateClinicAddress &&
-          PCData[i].date == selectedDate
-        ) {
-          flag = 1;
-          break;
-        }
-      }
-      if (flag == 1) {
-        Alert.alert('Sorry you cannot insert duplicate records');
-        reset();
-      } else {
-        PCData.push(p);
-        Alert.alert('Slot details submitted successfully');
-      }
-      //console.log(PCData);
-    }
-  };
-  const pushESlot = async () => {
-    let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
-    //let doctorId = Number(x.doctorId);
-
-    let p = {
-      consultationDate: selectedDate,
-      consultationEndTime:
-        (ECoutTimeHH.length == 1 ? '0' + ECoutTimeHH : ECoutTimeHH) +
-        ':' +
-        (ECoutTimeMM.length == 1 ? '0' + ECoutTimeMM : ECoutTimeMM),
-      consultationStartTime:
-        (ECinTimeHH.length == 1 ? '0' + ECinTimeHH : ECinTimeHH) +
-        ':' +
-        (ECoutTimeHH.length == 1 ? '0' + ECoutTimeHH : ECoutTimeHH),
-
-      gap: Number(ECGap),
-      slotDuration: Number(ECduration),
-      typeOfEConsultation: EconsultMode,
-    };
-    if (ECData.length == 0) {
-      //console.log(p);
-      ECData.push(p);
-      Alert.alert('Slot details submitted successfully');
-    } else {
-      let flag = 0;
-      for (var i = 0; i < ECData.length; ++i) {
-        let endTime = ECData[i].consultationEndTime;
-        let startTime = p.consultationStartTime;
-
-        let time1 = endTime.split(':');
-        let time2 = startTime.split(':');
-
-        if (Number(time1[0]) > Number(time2[0])) {
-          flag = 1;
-          break;
-        } else if (Number(time1[0]) == Number(time2[0])) {
-          if (Number(time1[1]) > Number(time2[1])) {
-            flag = 1;
-            break;
-          } else continue;
-        } else continue;
-      }
-      if (flag == 1) {
-        Alert.alert('Sorry you cannot insert overlapping timings');
-        reset();
-      } else {
-        ECData.push(p);
-        Alert.alert('Slot details submitted successfully');
-      }
-    }
-    //console.log(ECData);
-  };
-  const reset = () => {
-    setPCCreateClinicAddress('');
-    setPCCreateClinicName('');
-    setselectedDate('');
-    setPCinTimeHH('');
-    setPCinTimeMM('');
-    setPCoutTimeHH('');
-    setPCoutTimeMM('');
-    setPCduration(0);
-    setPCspecialInstruction('');
-
-    setECinTimeHH('');
-    setECinTimeMM('');
-    setECoutTimeHH('');
-    setECoutTimeMM('');
-    setECduration('');
-    setECGap('');
-  };
 
   //view list of details
 
@@ -876,12 +724,6 @@ const DoctorRegistration2 = ({navigation}) => {
             }}>
             {/* Degree */}
             <View style={styles.cellStyle}>
-              <FAIcon
-                name="file-pdf"
-                size={15}
-                color={'#2b8ada'}
-                style={{marginTop: 3}}
-              />
               <Text style={{textAlign: 'center', fontSize: 10}}>
                 {Education.degree}
               </Text>
@@ -908,12 +750,23 @@ const DoctorRegistration2 = ({navigation}) => {
                 {Education.university}
               </Text>
             </View>
-            <TouchableOpacity
-              style={styles.cellStyle}
-              onPress={() => {
-                removeEduHandler(index);
-              }}>
-              <FAIcon name="trash" color={'red'} size={15} />
+            <TouchableOpacity style={styles.cellStyle}>
+              <FAIcon
+                name="trash"
+                color={'red'}
+                size={15}
+                onPress={() => {
+                  removeEduHandler(index);
+                }}
+              />
+              <FAIcon
+                name="file-pdf"
+                size={15}
+                color={'#2b8ada'}
+                onPress={() => {
+                  console.log(Education.degreePath);
+                }}
+              />
             </TouchableOpacity>
           </View>
         </View>
@@ -1109,94 +962,6 @@ const DoctorRegistration2 = ({navigation}) => {
     setClinicDet(ClinicDet.filter((obj, i) => i !== e));
   };
 
-  const PostData = async () => {
-    //console.log('hiii');
-    setisLoading(true);
-    let p = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
-    let doctorId = Number(p.doctorId);
-
-    //post pre consultation questionnaire
-    if (showQuestions) {
-    }
-
-    // let medtemp = {
-    //   certificatePath: RegCert,
-    //   registrationCouncil: RegCouncil,
-    //   registrationNo: RegNo,
-    //   registrationYear: Number(RegYear),
-    // };
-    // let medArry = [...medReg];
-    // medArry.push(medtemp);
-    // setmedReg(medArry);
-    //console.log(medReg);
-  };
-
-  //upload doctor pfp
-
-  const uploadDoctorPfp = async () => {
-    axios
-      .post(
-        apiConfig.baseUrl + '/file/system/upload?directoryNames=DOCTOR_PHOTO',
-      )
-      .then(function (response) {
-        if (response.status == 200) setpfpPath(response.data.path);
-        else
-          Alert.alert(
-            'Oops',
-            'Can not select document. Please try again later.',
-          );
-      })
-      .catch(function (error) {
-        console.log('===== Error occured in uploading doctor photo =====');
-        console.log(error);
-      });
-  };
-
-  //upload doctor digital signature
-
-  const uploadDoctorDigitalSignature = async () => {
-    axios
-      .post(
-        apiConfig.baseUrl +
-          '/file/system/upload?directoryNames=DOCTOR_SIGNATURE',
-      )
-      .then(function (response) {
-        if (response.status == 200) setDigitalSign(response.data.path);
-        else
-          Alert.alert(
-            'Oops',
-            'Can not select document. Please try again later.',
-          );
-      })
-      .catch(function (error) {
-        console.log(
-          '===== Error occured in uploading doctor digital sign =====',
-        );
-        console.log(error);
-      });
-  };
-
-  //upload med reg docs
-
-  const uploadMedicalReg = async () => {
-    axios
-      .post(
-        apiConfig.baseUrl +
-          '/file/system/upload?directoryNames=DOCTOR_MEDICAL_REGISTRATION',
-      )
-      .then(function (response) {
-        if (response.status == 200) setcertificatePath(response.data.path);
-        else
-          Alert.alert(
-            'Oops',
-            'Can not select document. Please try again later.',
-          );
-      })
-      .catch(function (error) {
-        console.log('===== Error occured in uploading file med reg =====');
-        console.log(error);
-      });
-  };
   //post medical registration
 
   const postMedReg = async () => {
@@ -1205,13 +970,14 @@ const DoctorRegistration2 = ({navigation}) => {
 
     let medArry = [
       {
-        certificatePath: RegCert,
+        certificatePath: certificatePath,
         registrationCouncil: RegCouncil,
         registrationNo: RegNo,
         registrationYear: Number(RegYear),
         doctorId: doctorId,
       },
     ];
+    console.log(medArry);
 
     axios
       .post(apiConfig.baseUrl + '/doctor/medicalregi/save/or/update', medArry)
@@ -1228,28 +994,6 @@ const DoctorRegistration2 = ({navigation}) => {
       })
       .catch(function (error) {
         console.log('=================Medical Error Occured=================');
-        console.log(error);
-      });
-  };
-
-  //upload education docs
-
-  const uploadEducationDocs = async () => {
-    axios
-      .post(
-        apiConfig.baseUrl +
-          '/file/system/upload?directoryNames=DOCTOR_EDUCATION',
-      )
-      .then(function (response) {
-        if (response.status == 200) setdegreePath(response.data.path);
-        else
-          Alert.alert(
-            'Oops',
-            'Can not select document. Please try again later.',
-          );
-      })
-      .catch(function (error) {
-        console.log('===== Error occured in uploading file education =====');
         console.log(error);
       });
   };
@@ -1320,29 +1064,6 @@ const DoctorRegistration2 = ({navigation}) => {
       });
   };
 
-  //upload education docs
-
-  const uploadIdenDoc = async () => {
-    axios
-      .post(
-        apiConfig.baseUrl +
-          '/file/system/upload?directoryNames=DOCTOR_IDENTIFICATION',
-      )
-      .then(function (response) {
-        if (response.status == 200) setidentificationPath(response.data.path);
-        else
-          Alert.alert(
-            'Oops',
-            'Can not select document. Please try again later.',
-          );
-      })
-      .catch(function (error) {
-        console.log(
-          '===== Error occured in uploading file identification =====',
-        );
-        console.log(error);
-      });
-  };
   //post Identification
 
   const postIdenDet = async () => {
@@ -1471,52 +1192,6 @@ const DoctorRegistration2 = ({navigation}) => {
         console.log('=================Fees Error Occured=================');
         console.log(error);
       });
-  };
-
-  const renderDaysSlot = ({item}) => {
-    return item.isActive ? (
-      <TouchableOpacity
-        style={[
-          styles.bubbleActive,
-          {
-            width: 60,
-            justifyContent: 'center',
-            marginRight: 5,
-          },
-        ]}
-        onPress={() => {
-          //console.log(item.date);
-          setselectedDate(item.date);
-          //getSlots();
-        }}>
-        <Text style={styles.bubbleTitleActive}>
-          {item.day + '\n' + new Date(item.date).getDate()}
-        </Text>
-      </TouchableOpacity>
-    ) : (
-      <TouchableOpacity
-        style={[
-          styles.bubble,
-          {
-            width: 60,
-            justifyContent: 'center',
-            marginRight: 5,
-          },
-        ]}
-        onPress={() => {
-          setDaysSlotRefresh(!DaysSlotRefresh);
-          setDays(item);
-          DaysSlot.forEach(x => (x.isActive = false));
-          item.isActive = true;
-          // console.log(item.date);
-          setselectedDate(item.date);
-          //console.log(JSON.stringify(DaysSlot));
-        }}>
-        <Text style={styles.bubbleTitle}>
-          {item.day + '\n' + new Date(item.date).getDate()}
-        </Text>
-      </TouchableOpacity>
-    );
   };
 
   return (
@@ -2044,7 +1719,7 @@ const DoctorRegistration2 = ({navigation}) => {
                               position: 'absolute',
                               right: 0,
                               bottom: 0,
-                              marginRight: '5%',
+                              paddingRight: '5%',
                               marginBottom: '5%',
                               backgroundColor: '#E8F0FE',
                             }}
@@ -2057,15 +1732,16 @@ const DoctorRegistration2 = ({navigation}) => {
                               else if (RegCouncil == '')
                                 Alert.alert(
                                   'Warning!',
-                                  'Please Fill Registration Council',
+                                  'Please Fill Registration Council Name',
                                 );
                               else if (RegYear == '')
                                 Alert.alert(
                                   'Warning!',
-                                  'Please Select Registration',
+                                  'Please Select Registration Year',
                                 );
-                              //  else
-                              //  uploadMedicalReg();
+                              else {
+                                selectDocs();
+                              }
                             }}
                           />
                         </View>
@@ -2094,7 +1770,7 @@ const DoctorRegistration2 = ({navigation}) => {
                         alignSelf: 'center',
                         justifyContent: 'center',
                       }}>
-                      <CustomButton
+                      {/* <CustomButton
                         text={'Skip For Now'}
                         textstyle={{fontSize: 12, color: '#2b8ada'}}
                         style={{
@@ -2109,13 +1785,14 @@ const DoctorRegistration2 = ({navigation}) => {
                           setdataSavedMedReg(false);
                           setShowEduDet(true);
                         }}
-                      />
+                      /> */}
                       <CustomButton
-                        text={'Upload'}
+                        text={'Save'}
                         textstyle={{fontSize: 12, color: 'white'}}
                         style={{
-                          marginRight: '5%',
-                          flex: 0.5,
+                          //marginRight: '5%',
+                          //flex: 0.5,
+                          flex: 1,
                           backgroundColor: '#2b8ada',
                           padding: 5,
                           borderRadius: 10,
@@ -2136,8 +1813,8 @@ const DoctorRegistration2 = ({navigation}) => {
                               'Warning!',
                               'Please Select Registration',
                             );
-                          else if (certificatePath == '')
-                            Alert.alert('Warning!', 'Please Select Document');
+                          // else if (certificatePath == '')
+                          //   Alert.alert('Warning!', 'Please Select Document');
                           else postMedReg();
                         }}
                       />
@@ -2348,7 +2025,7 @@ const DoctorRegistration2 = ({navigation}) => {
                           marginBottom: 10,
                         }}>
                         <CustomButton
-                          text="Upload Document"
+                          text="Select File"
                           textstyle={{color: '#2b8ada', fontSize: 12}}
                           style={{
                             backgroundColor: 'white',
@@ -2369,12 +2046,11 @@ const DoctorRegistration2 = ({navigation}) => {
                                 'Warning',
                                 'Before Uploading Document(s) please fill in details',
                               );
-                            // else
-                            // uploadEducationDocs();
+                            else uploadEducationDocs();
                           }}
                         />
                         <CustomButton
-                          text="Save"
+                          text="Add To List"
                           textstyle={{color: 'white', fontSize: 12}}
                           style={{
                             backgroundColor: '#2b8ada',
@@ -2467,7 +2143,7 @@ const DoctorRegistration2 = ({navigation}) => {
                       justifyContent: 'center',
                       width: '95%',
                     }}>
-                    <CustomButton
+                    {/* <CustomButton
                       text={'Skip For Now'}
                       textstyle={{fontSize: 12, color: '#2b8ada'}}
                       style={[
@@ -2487,14 +2163,15 @@ const DoctorRegistration2 = ({navigation}) => {
                         setShowExpDet(true);
                         setdataSavedEduDet(false);
                       }}
-                    />
+                    /> */}
                     {Education.length > 0 ? (
                       <CustomButton
-                        text={'Upload'}
+                        text={'Save'}
                         textstyle={{color: 'white', fontSize: 12}}
                         style={{
-                          marginRight: '5%',
-                          flex: 0.5,
+                          // marginRight: '5%',
+                          // flex: 0.5,
+                          flex: 1,
                           backgroundColor: '#2b8ada',
                           padding: 5,
                           borderRadius: 10,
@@ -2774,7 +2451,7 @@ const DoctorRegistration2 = ({navigation}) => {
                           marginBottom: 10,
                         }}>
                         <CustomButton
-                          text="Save"
+                          text="Add To List"
                           textstyle={{color: 'white', fontSize: 12}}
                           style={{
                             backgroundColor: '#2b8ada',
@@ -2875,7 +2552,7 @@ const DoctorRegistration2 = ({navigation}) => {
                       justifyContent: 'center',
                       width: '95%',
                     }}>
-                    <CustomButton
+                    {/* <CustomButton
                       text={'Skip For Now'}
                       textstyle={{fontSize: 12, color: '#2b8ada'}}
                       style={[
@@ -2895,17 +2572,18 @@ const DoctorRegistration2 = ({navigation}) => {
                         setShowIdenDet(true);
                         setdataSavedExpDet(false);
                       }}
-                    />
+                    /> */}
                     {Experience.length > 0 ? (
                       <CustomButton
-                        text={'Upload'}
+                        text={'Save'}
                         textstyle={{fontSize: 12, color: 'white'}}
                         style={{
-                          marginRight: '5%',
+                          // marginRight: '5%',
+                          // flex: 0.5,
+                          flex: 1,
                           backgroundColor: '#2b8ada',
                           padding: 5,
                           borderRadius: 10,
-                          flex: 0.5,
                         }}
                         onPress={() => {
                           if (Experience.length == 0)
@@ -3071,7 +2749,7 @@ const DoctorRegistration2 = ({navigation}) => {
                           marginBottom: 15,
                         }}>
                         <CustomButton
-                          text="Upload Document"
+                          text="Select File"
                           textstyle={{color: '#2b8ada', fontSize: 12}}
                           style={{
                             backgroundColor: 'white',
@@ -3083,7 +2761,7 @@ const DoctorRegistration2 = ({navigation}) => {
                           }}
                         />
                         <CustomButton
-                          text="Save"
+                          text="Add To List"
                           textstyle={{color: 'white', fontSize: 12}}
                           style={{
                             backgroundColor: '#2b8ada',
@@ -3183,7 +2861,7 @@ const DoctorRegistration2 = ({navigation}) => {
                       justifyContent: 'center',
                       width: '95%',
                     }}>
-                    <CustomButton
+                    {/* <CustomButton
                       text={'Skip For Now'}
                       textstyle={{fontSize: 12, color: '#2b8ada'}}
                       style={[
@@ -3203,17 +2881,18 @@ const DoctorRegistration2 = ({navigation}) => {
                         setShowAddInfo(true);
                         setdataSavedIdenDet(false);
                       }}
-                    />
+                    /> */}
                     {IdentificationDocs.length > 0 ? (
                       <CustomButton
-                        text={'Upload'}
+                        text={'Save'}
                         textstyle={{color: 'white', fontSize: 12}}
                         style={{
-                          marginRight: '5%',
+                          // marginRight: '5%',
+                          // flex: 0.5,
+                          flex: 1,
                           backgroundColor: '#2b8ada',
                           padding: 5,
                           borderRadius: 10,
-                          flex: 0.5,
                         }}
                         onPress={() => {
                           if (IdentificationDocs.length == 0)
@@ -3363,7 +3042,7 @@ const DoctorRegistration2 = ({navigation}) => {
                           />
                         </View>
                         <CustomButton
-                          text="Save"
+                          text="Add To List"
                           textstyle={{color: 'white', fontSize: 12}}
                           style={{
                             backgroundColor: '#2b8ada',
@@ -3453,7 +3132,7 @@ const DoctorRegistration2 = ({navigation}) => {
                         justifyContent: 'center',
                         width: '95%',
                       }}>
-                      <CustomButton
+                      {/* <CustomButton
                         text={'Skip For Now'}
                         textstyle={{fontSize: 12, color: '#2b8ada'}}
                         style={[
@@ -3473,17 +3152,18 @@ const DoctorRegistration2 = ({navigation}) => {
                           setShowPreConsultationQuestionaire(true);
                           setdataSavedAddInfo(false);
                         }}
-                      />
+                      /> */}
                       {ClinicDet.length > 0 ? (
                         <CustomButton
-                          text={'Upload'}
+                          text={'Save'}
                           textstyle={{color: 'white', fontSize: 12}}
                           style={{
-                            marginRight: '5%',
+                            // marginRight: '5%',
+                            // flex: 0.5,
+                            flex: 1,
                             backgroundColor: '#2b8ada',
                             padding: 5,
                             borderRadius: 10,
-                            flex: 0.5,
                           }}
                           onPress={() => {
                             if (ClinicDet.length == 0)
@@ -3689,7 +3369,7 @@ const DoctorRegistration2 = ({navigation}) => {
                         justifyContent: 'center',
                         width: '95%',
                       }}>
-                      <CustomButton
+                      {/* <CustomButton
                         text={'Skip For Now'}
                         textstyle={{fontSize: 12, color: '#2b8ada'}}
                         style={[
@@ -3706,13 +3386,14 @@ const DoctorRegistration2 = ({navigation}) => {
                           setShowConsultFees(true);
                           setdataSavedAddInfo(false);
                         }}
-                      />
+                      /> */}
                       <CustomButton
-                        text={'Upload'}
+                        text={'Save'}
                         textstyle={{color: 'white', fontSize: 12}}
                         style={{
-                          marginRight: '5%',
-                          flex: 0.5,
+                          // marginRight: '5%',
+                          // flex: 0.5,
+                          flex: 1,
                           backgroundColor: '#2b8ada',
                           padding: 5,
                           borderRadius: 10,
@@ -4140,7 +3821,7 @@ const DoctorRegistration2 = ({navigation}) => {
                         width: '100%',
                       },
                     ]}>
-                    <CustomButton
+                    {/* <CustomButton
                       text={'Skip For Now'}
                       textstyle={{fontSize: 12, color: '#2b8ada'}}
                       style={[
@@ -4156,7 +3837,7 @@ const DoctorRegistration2 = ({navigation}) => {
                         setShowConsultFees(false);
                         setdataSavedConsultFees(false);
                       }}
-                    />
+                    /> */}
                     <CustomButton
                       text={'Upload'}
                       textstyle={{color: 'white', fontSize: 12}}

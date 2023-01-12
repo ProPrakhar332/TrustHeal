@@ -312,7 +312,7 @@ const EditProfile = ({navigation}) => {
               setRegNo(doctorMedicalRegistrations[0].registrationNo);
               setRegCouncil(doctorMedicalRegistrations[0].registrationCouncil);
               setRegYear(doctorMedicalRegistrations[0].registrationYear);
-              //setRegCert(doctorMedicalRegistrations[0].certificatePath);
+              setRegCert(doctorMedicalRegistrations[0].certificatePath);
             }
           } else Alert.alert('Could not get Details. Please try again later.');
         })
@@ -1646,26 +1646,28 @@ const EditProfile = ({navigation}) => {
                               placeholderTextColor={'black'}
                               value={RegCert}
                               editable={false}></TextInput>
-                            <FAIcon
-                              name="upload"
-                              color={'gray'}
-                              size={16}
-                              style={[
-                                {
-                                  position: 'absolute',
-                                  right: 0,
-                                  bottom: 0,
-                                  marginRight: '5%',
-                                  marginBottom: '5%',
-                                  backgroundColor: '#d0e0fc',
-                                },
-                                {backgroundColor: '#d0e0fc'},
-                                MedInfoEdit
-                                  ? {backgroundColor: '#E8F0FE'}
-                                  : null,
-                              ]}
-                              onPress={() => {}}
-                            />
+                            {MedInfoEdit ? (
+                              <FAIcon
+                                name="upload"
+                                color={'gray'}
+                                size={16}
+                                style={[
+                                  {
+                                    position: 'absolute',
+                                    right: 0,
+                                    bottom: 0,
+                                    marginRight: '5%',
+                                    marginBottom: '5%',
+                                    backgroundColor: '#d0e0fc',
+                                  },
+                                  {backgroundColor: '#d0e0fc'},
+                                  MedInfoEdit
+                                    ? {backgroundColor: '#E8F0FE'}
+                                    : null,
+                                ]}
+                                onPress={() => {}}
+                              />
+                            ) : null}
                           </View>
                         </View>
                         <View style={{flex: 0.45}}>
