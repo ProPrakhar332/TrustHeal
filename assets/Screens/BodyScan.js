@@ -53,7 +53,7 @@ function BodyScan({navigation}) {
       temperature: tempTemp,
     };
 
-    await AsyncStorage.setItem('Examination', temp);
+    await AsyncStorage.setItem('Examination', JSON.stringify(temp));
 
     console.log(await AsyncStorage.getItem('Examination'));
     navigation.push('Medication');
@@ -285,10 +285,9 @@ function BodyScan({navigation}) {
                             fontSize: 18,
                             color: '#2b8ada',
                             fontWeight: 'bold',
-                            alignSelf: 'center',
                             marginBottom: 10,
                           }}>
-                          Select Temperature (in F)
+                          Temperature
                         </Text>
                         <FAIcon
                           name="window-close"
@@ -298,29 +297,36 @@ function BodyScan({navigation}) {
                           onPress={() => setTempModalVisible(false)}
                         />
                       </View>
-                      <View style={{flexDirection: 'column'}}>
+                      <View style={{flexDirection: 'row', flex: 1}}></View>
+                      <View
+                        style={{
+                          flexDirection: 'column',
+                          flex: 1,
+                          width: '100%',
+                        }}>
                         <Text style={{marginVertical: 14, fontWeight: 'bold'}}>
-                          Scroll to Select Temperature
+                          Temperature (in °F)
                         </Text>
                         <View
                           style={{
+                            flex: 1,
                             color: '#2B8ADA',
-                            padding: 10,
                             backgroundColor: '#E8F0FE',
                             borderRadius: 10,
-                            width: 100,
-                            alignSelf: 'center',
                           }}>
-                          <Text
+                          <TextInput
                             style={{
-                              alignSelf: 'center',
+                              flex: 1,
                               color: '#2B8ADA',
                               fontWeight: 'bold',
-                            }}>
-                            {tempTemp}
-                          </Text>
+                              paddingHorizontal: 15,
+                            }}
+                            onChangeText={text => settempTemp(text)}
+                            value={tempTemp}
+                            maxLength={6}
+                            keyboardType={'decimal-pad'}></TextInput>
                         </View>
-                        <Slider
+                        {/* <Slider
                           style={{width: 200, height: 40}}
                           minimumValue={88}
                           maximumValue={108}
@@ -330,15 +336,17 @@ function BodyScan({navigation}) {
                           value={tempTemp}
                           step={0.1}
                           onValueChange={value => settempTemp(value)}
-                        />
+                        /> */}
                       </View>
 
-                      <View style={{flexDirection: 'row', marginTop: 10}}>
+                      <View style={{flexDirection: 'row', marginTop: 20}}>
                         <CustomButton
                           text="Save"
                           style={{
                             backgroundColor: '#2b8ada',
                             flex: 0.45,
+                            padding: 3,
+                            borderRadius: 10,
                             marginRight: '5%',
                           }}
                           textstyle={{color: 'white'}}
@@ -352,6 +360,8 @@ function BodyScan({navigation}) {
                             borderColor: '#2b8ada',
                             borderWidth: 1,
                             flex: 0.45,
+                            padding: 3,
+                            borderRadius: 10,
                           }}
                           textstyle={{color: '#2b8ada'}}
                           onPress={() => {
@@ -426,12 +436,15 @@ function BodyScan({navigation}) {
                             }}>
                             <TextInput
                               style={{
-                                alignSelf: 'center',
+                                flex: 1,
                                 color: '#2B8ADA',
                                 fontWeight: 'bold',
+                                paddingHorizontal: 15,
                               }}
                               onChangeText={text => settempBPSys(text)}
                               value={tempBPSys}
+                              keyboardType={'decimal-pad'}
+                              maxLength={3}
                               //placeholder={tempBPSys + 'mmHg'}
                             >
                               {/* {tempBPSys} mmHg */}
@@ -462,16 +475,18 @@ function BodyScan({navigation}) {
                               color: '#2B8ADA',
                               backgroundColor: '#E8F0FE',
                               borderRadius: 10,
-                              alignSelf: 'center',
                             }}>
                             <TextInput
                               style={{
-                                alignSelf: 'center',
+                                flex: 1,
                                 color: '#2B8ADA',
                                 fontWeight: 'bold',
+                                paddingHorizontal: 15,
                               }}
                               onChangeText={text => settempBPDia(text)}
-                              value={tempBPDia}></TextInput>
+                              value={tempBPDia}
+                              keyboardType={'decimal-pad'}
+                              maxLength={3}></TextInput>
                           </View>
                           {/* <Slider
                           style={{width: 200, height: 40}}
@@ -487,13 +502,20 @@ function BodyScan({navigation}) {
                         </View>
                       </View>
 
-                      <View style={{flexDirection: 'row', marginTop: 10}}>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          marginTop: 20,
+                          width: '100%',
+                          justifyContent: 'space-between',
+                        }}>
                         <CustomButton
                           text="Save"
                           style={{
                             backgroundColor: '#2b8ada',
                             flex: 0.45,
-                            marginRight: '5%',
+                            padding: 5,
+                            borderRadius: 10,
                           }}
                           textstyle={{color: 'white'}}
                           onPress={() => {
@@ -507,6 +529,8 @@ function BodyScan({navigation}) {
                             borderColor: '#2b8ada',
                             borderWidth: 1,
                             flex: 0.45,
+                            padding: 5,
+                            borderRadius: 10,
                           }}
                           textstyle={{color: '#2b8ada'}}
                           onPress={() => {
@@ -545,7 +569,7 @@ function BodyScan({navigation}) {
                   }}>
                   <TextInput
                     placeholder="Enter examination notes here..."
-                    placeholderTextColor={'black'}
+                    placeholderTextColor={'gray'}
                     onChangeText={text => setexaminNotes(text)}
                     value={examinNotes}
                     multiline={true}

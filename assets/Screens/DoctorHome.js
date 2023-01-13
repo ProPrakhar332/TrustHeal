@@ -154,7 +154,7 @@ const DoctorHome = navigation => {
               setConsultationQuestionnaire(true);
             }}
           />
-          <CustomButton
+          {/* <CustomButton
             text="Manage Status"
             textstyle={{color: '#2B8ADA', fontSize: 10}}
             style={{
@@ -167,7 +167,7 @@ const DoctorHome = navigation => {
               padding: 4,
             }}
             onPress={() => setManageStatusModal(true)}
-          />
+          /> */}
         </View>
         <View
           style={{
@@ -197,6 +197,34 @@ const DoctorHome = navigation => {
                 ? item.patientsDetails.patientName
                 : item.familyDetails.patientName}
             </Text>
+            {item.consultationType == 'PHYSICAL' ? (
+              <View style={{flexDirection: 'row'}}>
+                <View
+                  style={{
+                    flexDirection: 'column',
+                    width: '20%',
+                    marginRight: '5%',
+                  }}>
+                  {/* <Text style={styles.cardText}>Clinic</Text> */}
+                  <FAIcon
+                    name="hospital"
+                    size={15}
+                    color={'#2b8ada'}
+                    style={{}}
+                  />
+                </View>
+                <View style={{flexDirection: 'column', width: '60%'}}>
+                  <Text
+                    style={[
+                      styles.cardText,
+                      {color: '#2b8ada', fontWeight: 'bold'},
+                    ]}>
+                    {item.clinicName}
+                    {' | '} {item.clinicAddress}
+                  </Text>
+                </View>
+              </View>
+            ) : null}
 
             <View style={{flexDirection: 'row'}}>
               <View
@@ -245,24 +273,7 @@ const DoctorHome = navigation => {
                 <Text style={styles.cardText}>{item.symptoms}</Text>
               </View>
             </View>
-            {item.consultationType == 'PHYSICAL' ? (
-              <View style={{flexDirection: 'row'}}>
-                <View
-                  style={{
-                    flexDirection: 'column',
-                    width: '20%',
-                    marginRight: '5%',
-                  }}>
-                  <Text style={styles.cardText}>Clinic</Text>
-                </View>
-                <View style={{flexDirection: 'column', width: '60%'}}>
-                  <Text style={styles.cardText}>
-                    {item.clinicName}
-                    {' | '} {item.clinicAddress}
-                  </Text>
-                </View>
-              </View>
-            ) : null}
+
             <View style={{flexDirection: 'row'}}>
               <View
                 style={{

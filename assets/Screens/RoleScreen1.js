@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, {useState, useEffect} from 'react';
 import {
   SafeAreaView,
   Text,
@@ -9,28 +9,38 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Alert,
-  StatusBar
-} from "react-native";
+  StatusBar,
+} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import CustomButton from "../Components/CustomButton";
-import { useWindowDimensions, Button } from "react-native";
-import { useNavigation, StackActions } from '@react-navigation/native';
+import CustomButton from '../Components/CustomButton';
+import {useWindowDimensions, Button} from 'react-native';
+import {useNavigation, StackActions} from '@react-navigation/native';
+import axios from 'axios';
+import apiConfig from '../API/apiConfig';
 
-const RoleScreen = ({ navigation }) => {
+const RoleScreen = ({navigation}) => {
   const [check, setChecked] = useState(false);
   const [activeP, setactiveP] = useState(false);
   const [activeD, setactiveD] = useState(true);
 
   useEffect(() => {
     const onLoadSetData = async () => {
-      let x = JSON.parse(await AsyncStorage.getItem("UserDoctorProfile"));
-      console.log("X: ",x);
+      let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
+      console.log('X: ', x);
       if (x != null) {
-        if(x.isLastStepComplete) {
-          navigation.dispatch(StackActions.replace('DoctorHome', {doctorObj: x}));
-        } else {
-          navigation.dispatch(StackActions.replace('DoctorRegistrationStep2'));
-        }
+        if (x.profileCompleted == true && x.verified == true)
+          navigation.navigate('DoctorHome', {doctorObj: x});
+        else if (x.profileCompleted) {
+          x.verified = true;
+          await AsyncStorage.setItem('UserDoctorProfile', JSON.stringify(x));
+          navigation.navigate('DoctorHome', {doctorObj: x});
+        } else navigation.navigate('DoctorRegistrationStep2');
+
+        // if(x.isLastStepComplete) {
+        //   navigation.dispatch(StackActions.replace('DoctorHome', {doctorObj: x}));
+        // } else {
+        //   navigation.dispatch(StackActions.replace('DoctorRegistrationStep2'));
+        // }
       }
     };
     onLoadSetData();
@@ -55,19 +65,22 @@ const RoleScreen = ({ navigation }) => {
   //     })
   // }
 
+  const fkg = async () => {
+    axios.get(apiConfig.baseUrl + '');
+  };
+
   return (
     <SafeAreaView style={styles.container}>
-    <StatusBar animated={true} backgroundColor="#2B8ADA"/>
+      <StatusBar animated={true} backgroundColor="#2B8ADA" />
       <ScrollView showsVerticalScrollIndicator={false}>
         <View
           style={{
             flex: 1,
-            height: "100%",
-            width: "100%",
-            alignItems: "center",
-          }}
-        >
-          <Image source={require("../Resources/Logo.jpg")} />
+            height: '100%',
+            width: '100%',
+            alignItems: 'center',
+          }}>
+          <Image source={require('../Resources/Logo.jpg')} />
           {/* <Text
             style={{
               fontWeight: "bold",
@@ -83,23 +96,21 @@ const RoleScreen = ({ navigation }) => {
 
           <View
             style={{
-              flexDirection: "row",
-              alignSelf: "center",
-              backgroundColor: "white",
+              flexDirection: 'row',
+              alignSelf: 'center',
+              backgroundColor: 'white',
               borderWidth: 2,
-              borderColor: "#2b8ada",
+              borderColor: '#2b8ada',
               borderRadius: 32.5,
-            }}
-          >
+            }}>
             <View style={activeD ? styles.tinyLogoBtnD : styles.tinyLogoBtn}>
               <TouchableOpacity
                 onPress={() => {
                   onDoctor();
-                }}
-              >
+                }}>
                 <Image
                   style={styles.img}
-                  source={require("../Resources/doctor.png")}
+                  source={require('../Resources/doctor.png')}
                   //   resizeMode="contain"
                 ></Image>
                 <Text style={activeD ? styles.txtD : styles.txt}>Doctor</Text>
@@ -107,17 +118,17 @@ const RoleScreen = ({ navigation }) => {
                   text="Select"
                   textstyle={
                     activeD
-                      ? { color: "#2b8ada", fontWeight: "bold" }
-                      : { color: "white", fontWeight: "bold" }
+                      ? {color: '#2b8ada', fontWeight: 'bold'}
+                      : {color: 'white', fontWeight: 'bold'}
                   }
                   style={
                     activeD
-                      ? { backgroundColor: "white", padding: 3 }
-                      : { backgroundColor: "#2b8ada", padding: 3 }
+                      ? {backgroundColor: 'white', padding: 3}
+                      : {backgroundColor: '#2b8ada', padding: 3}
                   }
                   onPress={() =>
-                    navigation.push("OTPScreen", {
-                      nextScreen: "RegisterDoctor",
+                    navigation.push('OTPScreen', {
+                      nextScreen: 'RegisterDoctor',
                     })
                   }
                 />
@@ -127,11 +138,10 @@ const RoleScreen = ({ navigation }) => {
               <TouchableOpacity
                 onPress={() => {
                   onPatient();
-                }}
-              >
+                }}>
                 <Image
                   style={styles.img}
-                  source={require("../Resources/patient.png")}
+                  source={require('../Resources/patient.png')}
                   //   resizeMode="contain"
                 ></Image>
 
@@ -142,13 +152,13 @@ const RoleScreen = ({ navigation }) => {
                   text="Select"
                   textstyle={
                     activeP
-                      ? { color: "#2b8ada", fontWeight: "bold" }
-                      : { color: "white", fontWeight: "bold" }
+                      ? {color: '#2b8ada', fontWeight: 'bold'}
+                      : {color: 'white', fontWeight: 'bold'}
                   }
                   style={
                     activeP
-                      ? { backgroundColor: "white", padding: 3 }
-                      : { backgroundColor: "#2b8ada", padding: 3 }
+                      ? {backgroundColor: 'white', padding: 3}
+                      : {backgroundColor: '#2b8ada', padding: 3}
                   }
                   onPress={() => {
                     // navigation.push("OTPScreen", {
@@ -158,7 +168,7 @@ const RoleScreen = ({ navigation }) => {
                       consultationType: 'VIDEO_CALL',
                       callID: '1',
                       userID: 'Patient',
-                      userName: 'Patient'
+                      userName: 'Patient',
                     });
                     //Alert.alert("Coming in next phase");
                   }}
@@ -177,10 +187,10 @@ const RoleScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#e8f0fe",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#e8f0fe',
   },
   tinyLogo: {
     margin: 20,
@@ -188,74 +198,74 @@ const styles = StyleSheet.create({
     width: 300,
     height: 300,
     borderRadius: 200,
-    height: "30%",
-    alignSelf: "center",
+    height: '30%',
+    alignSelf: 'center',
   },
   tinyLogoBtn: {
     width: 160,
     marginVertical: 0.25,
     borderRadius: 30,
     padding: 15,
-    alignSelf: "center",
-    backgroundColor: "white",
+    alignSelf: 'center',
+    backgroundColor: 'white',
   },
   txt: {
-    fontWeight: "bold",
+    fontWeight: 'bold',
     fontSize: 20,
-    alignSelf: "center",
-    textAlign: "center",
-    color: "#2b8ada",
+    alignSelf: 'center',
+    textAlign: 'center',
+    color: '#2b8ada',
     margin: 5,
   },
   tinyLogoBtnD: {
     width: 160,
     marginVertical: 0.25,
-    backgroundColor: "#2b8ada",
+    backgroundColor: '#2b8ada',
     borderRadius: 30,
     padding: 15,
 
-    alignSelf: "center",
+    alignSelf: 'center',
   },
   txtD: {
-    fontWeight: "bold",
+    fontWeight: 'bold',
     fontSize: 20,
-    alignSelf: "center",
-    textAlign: "center",
-    color: "white",
+    alignSelf: 'center',
+    textAlign: 'center',
+    color: 'white',
     margin: 5,
   },
   tinyLogoBtnP: {
     width: 160,
     marginVertical: 0.25,
-    backgroundColor: "#2b8ada",
+    backgroundColor: '#2b8ada',
     borderRadius: 30,
     padding: 15,
-    alignSelf: "center",
+    alignSelf: 'center',
   },
   tinyLogoBtnPA: {
     width: 160,
     marginVertical: 0.25,
-    backgroundColor: "white",
+    backgroundColor: 'white',
 
     borderRadius: 30,
     padding: 15,
 
-    alignSelf: "center",
+    alignSelf: 'center',
   },
   txtP: {
-    fontWeight: "bold",
+    fontWeight: 'bold',
     fontSize: 20,
-    alignSelf: "center",
-    textAlign: "center",
-    color: "white",
+    alignSelf: 'center',
+    textAlign: 'center',
+    color: 'white',
     margin: 5,
   },
   txtPA: {
-    fontWeight: "bold",
+    fontWeight: 'bold',
     fontSize: 20,
-    alignSelf: "center",
-    textAlign: "center",
-    color: "#2b8ada",
+    alignSelf: 'center',
+    textAlign: 'center',
+    color: '#2b8ada',
     margin: 5,
   },
   logo: {
@@ -265,12 +275,12 @@ const styles = StyleSheet.create({
   iconStyle: {
     fontSize: 40,
     marginTop: 30,
-    color: "black",
+    color: 'black',
   },
   img: {
     width: 80,
     height: 80,
-    alignSelf: "center",
+    alignSelf: 'center',
   },
 });
 

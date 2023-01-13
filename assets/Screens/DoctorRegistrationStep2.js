@@ -104,9 +104,9 @@ const DoctorRegistration2 = ({navigation}) => {
   const [gender, setGender] = useState('');
   const [city, setCity] = useState('');
   const [PinCode, setPinCode] = useState('');
-  const [doctorId, setdoctorId] = useState(0);
-  const [profileCompleted, setprofileCompleted] = useState(false);
-  const [verified, setverified] = useState(false);
+  const [doctorId, setdoctorId] = useState(null);
+  const [profileCompleted, setprofileCompleted] = useState(null);
+  const [verified, setverified] = useState(null);
   const [mobileNumber, setmobileNumber] = useState('');
   const [pfpPath, setpfpPath] = useState('');
   const [DigitalSign, setDigitalSign] = useState('');
@@ -201,67 +201,6 @@ const DoctorRegistration2 = ({navigation}) => {
       );
     } else {
       throw err;
-    }
-  };
-
-  const selectDocs = async () => {
-    try {
-      console.log('==============Inside selectDocs==========');
-
-      const pickerResult = await DocumentPicker.pickSingle({
-        presentationStyle: 'fullScreen',
-        copyTo: 'cachesDirectory',
-      });
-      let ext = '.' + pickerResult.name.split('.').pop();
-
-      pickerResult.name = doctorId + '_MedicalRegistration' + ext;
-      console.log(pickerResult.name);
-      setMedRegDoc([pickerResult]);
-
-      let formData = new FormData();
-      formData.append('directoryNames', '  DOCTOR_MEDICAL_REGISTRATION');
-      formData.append('file', pickerResult);
-      const {error, response} = await fileUpload(formData);
-
-      console.log('======error======');
-      console.log(error);
-      console.log('======response======');
-
-      console.log(response.path);
-      setcertificatePath(response.path);
-      setRegCert(error == null ? pickerResult.name : '');
-    } catch (e) {
-      handleError(e);
-    }
-  };
-
-  const selectDocsEdu = async () => {
-    try {
-      console.log('==============Inside selectDocs Education==========');
-
-      const pickerResult = await DocumentPicker.pickSingle({
-        presentationStyle: 'fullScreen',
-        copyTo: 'cachesDirectory',
-      });
-      let ext = '.' + pickerResult.name.split('.').pop();
-
-      pickerResult.name = doctorId + '_DoctorEducation' + ext;
-      console.log(pickerResult.name);
-
-      let formData = new FormData();
-      formData.append('directoryNames', 'DOCTOR_EDUCATION');
-      formData.append('file', pickerResult);
-      const {error, response} = await fileUpload(formData);
-
-      console.log('======error======');
-      console.log(error);
-      console.log('======response======');
-
-      console.log(response.path);
-      setdegreePath(response.path);
-      setRegCert(error == null ? pickerResult.name : '');
-    } catch (e) {
-      handleError(e);
     }
   };
 
@@ -402,6 +341,69 @@ const DoctorRegistration2 = ({navigation}) => {
     if (showPreConsultationQuestionaire == true) getspl();
   }, [showPreConsultationQuestionaire]);
 
+  //on screen load data setter
+  useEffect(() => {
+    const onLoadSetData = async () => {
+      let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
+      console.log('=============Doctor REgistration page 2==============');
+      console.log(x);
+      let Fn = x.fullName == undefined ? x.doctorName : x.fullName;
+      console.log(x);
+      setTitle(Fn.substring(0, Fn.indexOf(' ')));
+      setName(Fn.substring(Fn.indexOf(' ') + 1));
+      setdoctorId(Number(x.doctorId));
+      // console.log(doctorId);
+      setEmail(x.email);
+      setGender(x.gender);
+      setCity(x.city);
+      setdob(x.dob);
+      setAge(x.age + '');
+      setPinCode(x.pincode);
+      setprofileCompleted(x.profileCompleted);
+      setverified(x.verified);
+      setmobileNumber(x.mobileNumber);
+      var temp = JSON.parse(
+        await AsyncStorage.getItem(x.doctorId + 'speciality'),
+      );
+      // console.log('speciality.....');
+      // console.log(temp);
+      if (temp != null && temp.length > 0) {
+        for (var i = 0; i < temp.length; ++i) {
+          if (temp[i] != 'Other')
+            dataSpecialization.push({key: temp[i], value: temp[i]});
+        }
+        //console.log(dataSpecialization);
+      } else {
+        const data = [
+          {key: 'Dermatologist', value: 'Dermatologist'},
+          {key: 'Dietician & Nutition', value: 'Dietician & Nutition'},
+          {key: 'ENT', value: 'ENT'},
+          {key: 'Endocrinologist', value: 'Endocrinologist'},
+          {key: 'Gastoentrologist', value: 'Gastoentrologist'},
+          {key: 'Gynecologist', value: 'Gynecologist'},
+          {key: 'Lifestyle Diseases', value: 'Lifestyle Diseases'},
+          {key: 'Ophthalmologist', value: 'Ophthalmologist'},
+          {key: 'Pediatrician', value: 'Pediatrician'},
+          {key: 'Physician', value: 'Physician'},
+          {key: 'Psychiatrist', value: 'Psychiatrist'},
+          {
+            key: 'Psychological Counselling',
+            value: 'Psychological Counselling',
+          },
+        ];
+        setdataSpecialization(data);
+      }
+      var d = new Date().getFullYear();
+      //console.log(x.dob.substring(0, 4));
+      var i = Number(x.dob.substring(0, 4));
+      if (i == 0) i = 1940;
+      else i += 17;
+      for (; i <= d; ++i) {
+        dataYear.push({key: i + '', value: i + ''});
+      }
+    };
+    onLoadSetData();
+  }, []);
   //check data uploaded
   useEffect(() => {
     const checkMedical = async () => {
@@ -505,39 +507,42 @@ const DoctorRegistration2 = ({navigation}) => {
           console.log(error);
         });
     };
-    if (profileCompleted == false) {
-      checkMedical();
-      checkEducation();
-      checkExp();
-      checkIden();
-      checkAddInfo();
-      checkPreConsult();
-      checkFees();
-    } else {
-      setdataSavedMedReg(true);
-      setdataSavedEduDet(true);
-      setdataSavedExpDet(true);
-      setdataSavedIdenDet(true);
-      setdataSavedAddInfo(true);
-      setdataSavedPreConsultationQuestionaire(true);
-      setdataSavedConsultFees(true);
+    if (doctorId != null) {
+      if (profileCompleted == false) {
+        console.log('========= profile complete is false===========');
+        checkMedical();
+        checkEducation();
+        checkExp();
+        checkIden();
+        checkAddInfo();
+        checkPreConsult();
+        checkFees();
+      } else if (profileCompleted == true) {
+        setdataSavedMedReg(true);
+        setdataSavedEduDet(true);
+        setdataSavedExpDet(true);
+        setdataSavedIdenDet(true);
+        setdataSavedAddInfo(true);
+        setdataSavedPreConsultationQuestionaire(true);
+        setdataSavedConsultFees(true);
+      }
     }
-  }, []);
+  }, [doctorId, profileCompleted]);
   //progress bar
   useEffect(() => {
     const progressBar = async () => {
       var c = 1;
       if (dataSavedMedReg) ++c;
       if (dataSavedEduDet) ++c;
-      // if (dataSavedExpDet) ++c;
+      if (dataSavedExpDet) ++c;
       if (dataSavedIdenDet) ++c;
-      // if (dataSavedAddInfo) ++c;
+      if (dataSavedAddInfo) ++c;
       if (dataSavedPreConsultationQuestionaire) ++c;
       if (dataSavedConsultFees) ++c;
 
-      setCompletePercentage(parseInt((c / 6) * 100).toString() + '%');
+      setCompletePercentage(parseInt((c / 8) * 100).toString() + '%');
 
-      if (c == 6 && profileCompleted == false) {
+      if (c == 8 && profileCompleted == false) {
         axios
           .post(apiConfig.baseUrl + '/doctor/profile/verify', {
             city: city,
@@ -546,13 +551,21 @@ const DoctorRegistration2 = ({navigation}) => {
             email: email,
             mobileNumber: mobileNumber,
           })
-          .then(function (response) {
+          .then(async function (response) {
             if (response.status == 200) {
               Alert.alert(
                 'Completed',
                 'Your details have been sent for validation',
               );
               setprofileCompleted(true);
+              let x = JSON.parse(
+                await AsyncStorage.getItem('UserDoctorProfile'),
+              );
+              x.profileCompleted = true;
+              await AsyncStorage.setItem(
+                'UserDoctorProfile',
+                JSON.stringify(x),
+              );
             }
           })
           .catch(function (error) {
@@ -570,72 +583,12 @@ const DoctorRegistration2 = ({navigation}) => {
   }, [
     dataSavedMedReg,
     dataSavedEduDet,
+    dataSavedExpDet,
     dataSavedIdenDet,
+    dataSavedAddInfo,
     dataSavedPreConsultationQuestionaire,
     dataSavedConsultFees,
   ]);
-
-  //on screen load data setter
-  useEffect(() => {
-    const onLoadSetData = async () => {
-      let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
-      //console.log(DoctorID);
-      let Fn = x.fullName == undefined ? x.doctorName : x.fullName;
-      console.log(x);
-      setTitle(Fn.substring(0, Fn.indexOf(' ')));
-      setName(Fn.substring(Fn.indexOf(' ') + 1));
-      setdoctorId(x.doctorId);
-      console.log(doctorId);
-      setEmail(x.email);
-      setGender(x.gender);
-      setCity(x.city);
-      setdob(x.dob);
-      setAge(x.age + '');
-      setPinCode(x.pincode);
-      setprofileCompleted(x.profileCompleted);
-      setverified(x.verified);
-      setmobileNumber(x.mobileNumber);
-      var temp = JSON.parse(
-        await AsyncStorage.getItem(x.doctorId + 'speciality'),
-      );
-      // console.log('speciality.....');
-      // console.log(temp);
-      if (temp != null && temp.length > 0) {
-        for (var i = 0; i < temp.length; ++i) {
-          if (temp[i] != 'Other')
-            dataSpecialization.push({key: temp[i], value: temp[i]});
-        }
-        //console.log(dataSpecialization);
-      } else {
-        const data = [
-          {key: 'Dermatologist', value: 'Dermatologist'},
-          {key: 'Dietician & Nutition', value: 'Dietician & Nutition'},
-          {key: 'ENT', value: 'ENT'},
-          {key: 'Endocrinologist', value: 'Endocrinologist'},
-          {key: 'Gastoentrologist', value: 'Gastoentrologist'},
-          {key: 'Gynecologist', value: 'Gynecologist'},
-          {key: 'Lifestyle Diseases', value: 'Lifestyle Diseases'},
-          {key: 'Ophthalmologist', value: 'Ophthalmologist'},
-          {key: 'Pediatrician', value: 'Pediatrician'},
-          {key: 'Physician', value: 'Physician'},
-          {key: 'Psychiatrist', value: 'Psychiatrist'},
-          {
-            key: 'Psychological Counselling',
-            value: 'Psychological Counselling',
-          },
-        ];
-        setdataSpecialization(data);
-      }
-      var d = new Date().getFullYear();
-      console.log(dob.substring(0, 4));
-      var i = Number(x.dob.substring(0, 4));
-      if (i == 0) i = 1940;
-      else i += 17;
-      for (; i <= d; ++i) {
-        dataYear.push({key: i + '', value: i + ''});
-      }
-    };
-  }, []);
 
   //view list of details
 
@@ -685,6 +638,9 @@ const DoctorRegistration2 = ({navigation}) => {
                   size={15}
                   color={'#2b8ada'}
                   style={{marginRight: 7}}
+                  onPress={() =>
+                    console.log(IdentificationDocs.identificationPath)
+                  }
                 />
               </TouchableOpacity>
               <TouchableOpacity
@@ -962,6 +918,114 @@ const DoctorRegistration2 = ({navigation}) => {
     setClinicDet(ClinicDet.filter((obj, i) => i !== e));
   };
 
+  // medical registration document upload
+  const selectDocsMedReg = async () => {
+    try {
+      console.log('==============Inside select Docs==========');
+
+      const pickerResult = await DocumentPicker.pickSingle({
+        presentationStyle: 'fullScreen',
+        copyTo: 'cachesDirectory',
+      });
+      let ext = '.' + pickerResult.name.split('.').pop();
+
+      pickerResult.name = doctorId + '_MedicalRegistration' + ext;
+      console.log(pickerResult.name);
+      setMedRegDoc([pickerResult]);
+
+      let formData = new FormData();
+      formData.append('directoryNames', '  DOCTOR_MEDICAL_REGISTRATION');
+      formData.append('file', pickerResult);
+      const {error, response} = await fileUpload(formData);
+
+      if (error != null) {
+        console.log('======error======');
+        console.log(error);
+        Alert.alert(
+          'Error',
+          'There was a problem in selecting document. Please try again.',
+        );
+      } else {
+        console.log('======response======');
+        console.log(response.path);
+        setcertificatePath(response.path);
+        setRegCert(error == null ? pickerResult.name : '');
+      }
+    } catch (e) {
+      handleError(e);
+    }
+  };
+  // education document upload
+  const selectDocsEdu = async () => {
+    try {
+      console.log('==============Inside select Docs Education==========');
+
+      const pickerResult = await DocumentPicker.pickSingle({
+        presentationStyle: 'fullScreen',
+        copyTo: 'cachesDirectory',
+      });
+      let ext = '.' + pickerResult.name.split('.').pop();
+
+      pickerResult.name =
+        doctorId + '_DoctorEducation_' + Degree + '_' + DegreePassingYear + ext;
+      console.log(pickerResult.name);
+
+      let formData = new FormData();
+      formData.append('directoryNames', 'DOCTOR_EDUCATION');
+      formData.append('file', pickerResult);
+      const {error, response} = await fileUpload(formData);
+      if (error != null) {
+        console.log('======error======');
+        console.log(error);
+        Alert.alert(
+          'Error',
+          'There was a problem in selecting document. Please try again.',
+        );
+      } else {
+        console.log('======response======');
+        console.log(response.path);
+        setdegreePath(response.path);
+      }
+    } catch (e) {
+      handleError(e);
+    }
+  };
+  //identification document upload
+  const selectDocsIden = async () => {
+    try {
+      console.log('==============Inside select Docs Identification==========');
+
+      const pickerResult = await DocumentPicker.pickSingle({
+        presentationStyle: 'fullScreen',
+        copyTo: 'cachesDirectory',
+      });
+      let ext = '.' + pickerResult.name.split('.').pop();
+
+      pickerResult.name =
+        doctorId + '_DoctorIdentification_' + identificationType + ext;
+      console.log(pickerResult.name);
+
+      let formData = new FormData();
+      formData.append('directoryNames', 'DOCTOR_IDENTIFICATION');
+      formData.append('file', pickerResult);
+      const {error, response} = await fileUpload(formData);
+      if (error != null) {
+        console.log('======error======');
+        console.log(error);
+        Alert.alert(
+          'Error',
+          'There was a problem in selecting document. Please try again.',
+        );
+      } else {
+        console.log('======response======');
+        console.log(response.path);
+        setidentificationPath(response.path);
+      }
+    } catch (e) {
+      handleError(e);
+    }
+  };
+
   //post medical registration
 
   const postMedReg = async () => {
@@ -989,7 +1053,7 @@ const DoctorRegistration2 = ({navigation}) => {
           );
           setShowMedReg(false);
           setdataSavedMedReg(true);
-          setShowEduDet(true);
+          //setShowEduDet(true);
         }
       })
       .catch(function (error) {
@@ -1020,7 +1084,7 @@ const DoctorRegistration2 = ({navigation}) => {
           );
           setShowEduDet(false);
           setdataSavedEduDet(true);
-          setShowExpDet(true);
+          //setShowExpDet(true);
         }
       })
       .catch(function (error) {
@@ -1053,7 +1117,7 @@ const DoctorRegistration2 = ({navigation}) => {
           );
           setShowExpDet(false);
           setdataSavedExpDet(true);
-          setShowIdenDet(true);
+          //setShowIdenDet(true);
         }
       })
       .catch(function (error) {
@@ -1089,7 +1153,7 @@ const DoctorRegistration2 = ({navigation}) => {
           );
           setShowIdenDet(false);
           setdataSavedIdenDet(true);
-          setShowAddInfo(true);
+          //setShowAddInfo(true);
         }
       })
       .catch(function (error) {
@@ -1122,7 +1186,7 @@ const DoctorRegistration2 = ({navigation}) => {
           );
           setShowAddInfo(false);
           setdataSavedAddInfo(true);
-          setShowPreConsultationQuestionaire(true);
+          //setShowPreConsultationQuestionaire(true);
         }
       })
       .catch(function (error) {
@@ -1153,6 +1217,8 @@ const DoctorRegistration2 = ({navigation}) => {
           console.log(
             'Pre Consultation Questionnaire Record Inserted Successfully',
           );
+          setdataSavedPreConsultationQuestionaire(true);
+          setShowPreConsultationQuestionaire(false);
         }
       })
       .catch(function (error) {
@@ -1268,7 +1334,7 @@ const DoctorRegistration2 = ({navigation}) => {
           </View>
 
           {/* Profile Messages */}
-          {profileCompleted == true ? (
+          {profileCompleted == true && verified == false ? (
             <View
               style={{
                 backgroundColor: '#21c47f',
@@ -1281,6 +1347,7 @@ const DoctorRegistration2 = ({navigation}) => {
                 flexDirection: 'row',
                 borderRadius: 10,
                 marginBottom: 10,
+                paddingHorizontal: 10,
               }}>
               <FAIcon
                 name={'info-circle'}
@@ -1298,7 +1365,8 @@ const DoctorRegistration2 = ({navigation}) => {
                   alignSelf: 'center',
                   color: 'white',
                 }}>
-                Your Profile {verified ? 'verification is under process' : null}
+                Your account{' '}
+                {!verified ? 'verification is under process' : null}
               </Text>
             </View>
           ) : null}
@@ -1740,7 +1808,7 @@ const DoctorRegistration2 = ({navigation}) => {
                                   'Please Select Registration Year',
                                 );
                               else {
-                                selectDocs();
+                                selectDocsMedReg();
                               }
                             }}
                           />
@@ -2046,7 +2114,7 @@ const DoctorRegistration2 = ({navigation}) => {
                                 'Warning',
                                 'Before Uploading Document(s) please fill in details',
                               );
-                            else uploadEducationDocs();
+                            else selectDocsEdu();
                           }}
                         />
                         <CustomButton
@@ -2081,6 +2149,11 @@ const DoctorRegistration2 = ({navigation}) => {
                                 'Warning!',
                                 'Please fill University Name',
                               );
+                            else if (degreePath == '')
+                              Alert.alert(
+                                'Warning!',
+                                'Please select degree certificate file',
+                              );
                             else {
                               let totalexp =
                                 parseInt(TotalYear) * 12 +
@@ -2097,14 +2170,10 @@ const DoctorRegistration2 = ({navigation}) => {
                                 degreePath: degreePath,
                                 passingYear: Number(DegreePassingYear),
                                 specialization: Specialization,
-                                // totalExperiencedInMonths: Number(totalexp),
                                 university: University,
                               };
-                              // Education.push(p);
-                              // console.log(Education);
                               let arr = [...Education];
                               arr.push(p);
-                              // console.log(arr);
                               setEducation(arr);
                               setDegree('');
                               setDegreePassingYear('');
@@ -2759,6 +2828,19 @@ const DoctorRegistration2 = ({navigation}) => {
                             borderWidth: 2,
                             borderColor: '#2b8ada',
                           }}
+                          onPress={() => {
+                            if (identificationType == '')
+                              Alert.alert(
+                                'Warning!',
+                                'Please select document name',
+                              );
+                            else if (identificationNumber == '')
+                              Alert.alert(
+                                'Warning!',
+                                'Please fill identification number',
+                              );
+                            else selectDocsIden();
+                          }}
                         />
                         <CustomButton
                           text="Add To List"
@@ -2774,7 +2856,8 @@ const DoctorRegistration2 = ({navigation}) => {
                           onPress={() => {
                             if (
                               identificationNumber != '' &&
-                              identificationType != ''
+                              identificationType != '' &&
+                              identificationPath != ''
                             ) {
                               var flag = 1;
                               if (IdentificationDocs.length > 0) {
@@ -2830,6 +2913,11 @@ const DoctorRegistration2 = ({navigation}) => {
                               Alert.alert(
                                 'Warning!',
                                 'Please Select Document Name',
+                              );
+                            else if (identificationPath == '')
+                              Alert.alert(
+                                'Warning!',
+                                'Please Select Document bedore saving',
                               );
                           }}
                         />
@@ -3839,11 +3927,11 @@ const DoctorRegistration2 = ({navigation}) => {
                       }}
                     /> */}
                     <CustomButton
-                      text={'Upload'}
+                      text={'Save'}
                       textstyle={{color: 'white', fontSize: 12}}
                       style={{
-                        marginRight: '5%',
-                        flex: 0.5,
+                        // marginRight: '5%',
+                        flex: 1,
                         backgroundColor: '#2b8ada',
                         padding: 5,
                         borderRadius: 10,
@@ -3853,6 +3941,16 @@ const DoctorRegistration2 = ({navigation}) => {
                           Alert.alert(
                             'Warning!',
                             'Please add Follow-Up duration before uploading',
+                          );
+                        else if (eConsulationFees == '')
+                          Alert.alert(
+                            'Warning!',
+                            'Please fill e-consultation fees before saving',
+                          );
+                        else if (followUpFees == '')
+                          Alert.alert(
+                            'Warning!',
+                            'Please fill follow-up fees before saving',
                           );
                         else {
                           postConsultFees();

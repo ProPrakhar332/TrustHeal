@@ -1119,8 +1119,7 @@ const FirstScreen = ({route, navigation}) => {
 
             if (x.profileCompleted == true && x.verified == true)
               navigation.navigate('DoctorHome', {doctorObj: x});
-            else if (x.profileCompleted == false)
-              navigation.navigate('DoctorRegistrationStep2');
+            else navigation.navigate('DoctorRegistrationStep2');
           }
         })
         .catch(function (error) {

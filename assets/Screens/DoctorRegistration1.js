@@ -3,6 +3,7 @@ import {
   Text,
   ActivityIndicator,
   Alert,
+  Button,
   View,
   SafeAreaView,
   ScrollView,
@@ -26,7 +27,7 @@ import {
 //icons
 import doctor from '../Resources/doctor.png';
 import waiting from '../Animations/waiting1.gif';
-import {CheckBox} from 'react-native-elements';
+import {CheckBox, Icon} from 'react-native-elements';
 import FAIcon from 'react-native-vector-icons/FontAwesome5';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useEffect} from 'react';
@@ -34,7 +35,7 @@ import axios from 'axios';
 import apiConfig from '../API/apiConfig';
 import dateformatter from '../API/dateformatter';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-
+import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 const DoctorRegistrationStep1 = ({navigation}) => {
   const [title, setTitle] = useState('');
   const [name, setName] = useState('');
@@ -59,6 +60,9 @@ const DoctorRegistrationStep1 = ({navigation}) => {
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [isLoading, setisLoading] = useState(false);
   const [complete, setcomplete] = useState(0);
+  const [profilephoto, setprofilephoto] = useState('');
+  const [pfp, setpfp] = useState([]);
+  const [imagePath, setimagePath] = useState(null);
 
   const dataShowMobNo = [
     {key: 'Yes', value: 'Yes'},
@@ -166,6 +170,7 @@ const DoctorRegistrationStep1 = ({navigation}) => {
   const PostData = async () => {
     if (checkTerms == false)
       Alert.alert(
+        'Terms & Condition',
         'Please accept privacy policy with terms & condition before continuing',
       );
     else {
@@ -203,19 +208,21 @@ const DoctorRegistrationStep1 = ({navigation}) => {
       //   termsAndCondition: checkTerms,
       //   title: title,
       // }
-      let flag = 1;
-      axios
+      let flag = 0;
+      await axios
         .post(apiConfig.baseUrl + '/doctor/generalinfo/save', docObj)
         .then(async function (response) {
           //set is loading
           setisLoading(false);
-          if (response.status == 201) {
+          if (response.status == 201 || response.status == 200) {
+            flag = 1;
             let userObj = response.data;
-            userObj.isLastStepComplete = false;
             await AsyncStorage.setItem(
               'UserDoctorProfile',
               JSON.stringify(userObj),
             );
+            console.log('===========Doctor Registration Page 1==============');
+            console.log(userObj);
 
             let d = JSON.parse(
               await AsyncStorage.getItem('UserDoctorProfile'),
@@ -229,7 +236,8 @@ const DoctorRegistrationStep1 = ({navigation}) => {
               langTemp.push({doctorId: d, language: item});
             });
             console.log(langTemp);
-            axios
+
+            await axios
               .post(
                 apiConfig.baseUrl + '/doctor/language/save/or/update',
                 langTemp,
@@ -255,11 +263,12 @@ const DoctorRegistrationStep1 = ({navigation}) => {
           console.log(error);
           setisLoading(false);
           flag = 0;
-          Alert.alert('Please try again later');
+          Alert.alert('Error', 'Please try again later');
         });
       if (flag == 1) {
         Alert.alert(
-          'Welcome to Arogya! Your General Information has been saved.',
+          'Welcome to Arogya! ',
+          'Your General Information has been saved.',
         );
         navigation.push('DoctorRegistrationStep2');
       }
@@ -326,6 +335,96 @@ const DoctorRegistrationStep1 = ({navigation}) => {
     openURL('https://www.google.com');
   };
 
+  //pfp
+  const chooseProfileImage = async () => {
+    launchImageLibrary(
+      {
+        mediaType: 'photo',
+      },
+      response => {
+        if (response.didCancel) {
+          this.error('User cancelled image picker', 'red');
+        } else if (response.error) {
+          this.error(response.error, 'red');
+        } else if (response.customButton) {
+          this.error(
+            'User tapped custom button: ' + response.customButton,
+            'red',
+          );
+        } else {
+          console.log(response);
+          const source = {uri: response.assets[0].uri};
+          console.log(source);
+          const ImgName = source.uri.slice(source.uri.lastIndexOf('/') + 1);
+          const ImgType =
+            'image/' + source.uri.slice(source.uri.lastIndexOf('.') + 1);
+          var file = {
+            uri: source.uri,
+            name: ImgName,
+            type: ImgType,
+          };
+          var formData = new FormData();
+          formData.append('file', file);
+          ImageResizer.createResizedImage(source.uri, 300, 300, 'JPEG', 100)
+            .then(response => {
+              console.log(response);
+              // that.setState({
+              //     img: formData,
+              //     newImageUri: response.uri,
+              // });
+              setimg(formData);
+              setnewImageUri(response.uri);
+              setTimeout(function () {
+                Alert.alert('Confirm', 'Do you like the current picture ?', [
+                  {
+                    text: 'No',
+                    onPress: () => {
+                      setnewImageUri(null);
+                    },
+                    style: 'cancel',
+                  },
+                  {text: 'Looks good', onPress: () => changeProfilePic()},
+                ]);
+              }, 1500);
+            })
+            .catch(err => {
+              // Oops, something went wrong. Check that the filename is correct and
+              // inspect err to get more details.
+            });
+        }
+      },
+    );
+  };
+  const cancel = () => {
+    that.setState({newImageUri: null});
+  };
+  const error = (title, color) => {
+    Snackbar.show({
+      text: title,
+      duration: 3000,
+      backgroundColor: color,
+    });
+  };
+  profileImage = () => {
+    if (imagePath != null) {
+      return (
+        <Image
+          resizeMode="contain"
+          style={{width: '100%', height: '100%', borderRadius: 100}}
+          source={{uri: url.PROFURL + imagePath}}
+        />
+      );
+    } else {
+      return (
+        <Image
+          resizeMode="contain"
+          style={{width: '100%', height: '100%', borderRadius: 100}}
+          source={doctor}
+        />
+      );
+    }
+  };
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -373,24 +472,33 @@ const DoctorRegistrationStep1 = ({navigation}) => {
           <View style={{flex: 1}}>
             <View
               style={{
-                borderWidth: 5,
-                borderColor: 'white',
-                backgroundColor: 'white',
                 width: 100,
                 height: 100,
-                borderRadius: 150,
-                alignSelf: 'center',
+                backgroundColor: '#fff',
+                borderColor: '#efefef',
+                borderWidth: 3,
+                borderRadius: 100,
+                padding: 5,
                 alignItems: 'center',
-                marginVertical: 10,
               }}>
-              <Image
+              {profileImage()}
+              <TouchableOpacity
+                transparent
+                iconLeft
                 style={{
-                  alignSelf: 'center',
-                  width: 75,
-                  height: 75,
-                  marginVertical: 5,
+                  position: 'absolute',
+                  bottom: -18,
+                  right: -4,
+                  zIndex: 5,
                 }}
-                source={doctor}></Image>
+                onPress={() => {
+                  chooseProfileImage();
+                }}>
+                <Icon
+                  style={[styles.textOrange, styles.textSize18]}
+                  name="camera"
+                  type="FontAwesome5"></Icon>
+              </TouchableOpacity>
             </View>
           </View>
 
@@ -710,6 +818,7 @@ const DoctorRegistrationStep1 = ({navigation}) => {
                     dob === ''
                   )
                     Alert.alert(
+                      'Profile Incomplete',
                       'Please fill in all the details before continuing!',
                     );
                   else {
@@ -717,7 +826,11 @@ const DoctorRegistrationStep1 = ({navigation}) => {
                       /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
                     if (email.match(validRegex)) {
                       PostData();
-                    } else Alert.alert('Please Enter Valid Email!');
+                    } else
+                      Alert.alert(
+                        'Invalid Email',
+                        'Please enter valid e-mail ID!',
+                      );
                   }
                 }}></CustomButton>
 

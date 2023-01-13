@@ -291,6 +291,7 @@ function CheifComplaints({navigation}) {
                             justifyContent: 'center',
                             paddingHorizontal: 1,
                             paddingVertical: 1,
+                            backgroundColor: '#2b8ada',
                           }}>
                           <Text style={styles.cellHeadingText}>Actions</Text>
                         </View>
@@ -418,12 +419,14 @@ const styles = StyleSheet.create({
     borderColor: '#d3d3d3',
     paddingHorizontal: 1,
     paddingVertical: 1,
+    backgroundColor: '#2b8ada',
   },
   cellHeadingText: {
     textAlign: 'center',
     fontWeight: 'bold',
     fontSize: 11,
     marginVertical: 5,
+    color: 'white',
   },
   cellText: {textAlign: 'center', fontSize: 11, paddingVertical: 3},
   whiteBodyView: {
