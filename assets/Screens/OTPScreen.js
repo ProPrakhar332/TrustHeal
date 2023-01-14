@@ -1597,21 +1597,19 @@ const FirstScreen = ({route, navigation}) => {
           <View
             style={{
               position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
+              height: '100%',
+              width: '100%',
+              flexDirection: 'row',
               justifyContent: 'center',
-              alignItems: 'center',
               backgroundColor: 'rgba(0,0,0,0.4)',
             }}>
             <View
               style={{
                 backgroundColor: 'white',
                 alignSelf: 'center',
-                borderRadius: 20,
-                width: 150,
-                height: 150,
+                borderRadius: 50,
+                width: 250,
+                height: 250,
                 justifyContent: 'center',
                 flexDirection: 'column',
               }}>
@@ -1619,9 +1617,9 @@ const FirstScreen = ({route, navigation}) => {
                 source={waiting}
                 style={{
                   alignSelf: 'center',
-                  width: 80,
-                  height: 80,
-                  // borderRadius: 150,
+                  width: 100,
+                  height: 100,
+                  borderRadius: 100,
                 }}
               />
               <Text
@@ -1629,10 +1627,10 @@ const FirstScreen = ({route, navigation}) => {
                   alignSelf: 'center',
                   textAlign: 'center',
                   color: '#2B8ADA',
-                  fontSize: 15,
+                  fontSize: 20,
                   fontWeight: 'bold',
                   width: '100%',
-                  // padding: 10,
+                  padding: 10,
                 }}>
                 Please Wait...
               </Text>

@@ -20,6 +20,8 @@ import {
   SelectList,
   MultipleSelectList,
 } from 'react-native-dropdown-select-list';
+import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import {PermissionsAndroid} from 'react-native';
 
 //icons
 import doctor from '../Resources/doctor.png';
@@ -100,6 +102,10 @@ const EditProfile = ({navigation}) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [dob, setdob] = useState('');
+  const [pfp, setpfp] = useState(null);
+  const [pfpuri, setpfpuri] = useState(null);
+  const [newpfp, setnewpfp] = useState(null);
+  const [newpfpuri, setnewpfpuri] = useState(null);
   //Calendar View
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [selectedDateFromModal, setselectedDateFromModal] =
@@ -1111,6 +1117,87 @@ const EditProfile = ({navigation}) => {
   const removeEduHandler = e => {
     setEducation(Education.filter(obj => obj.degree !== e));
   };
+  const chooseProfileImage = async () => {
+    Alert.alert(
+      'Upload Profile Picture',
+      'Select option for uploading profile picture',
+      [
+        {
+          text: 'Open Library',
+          onPress: () => {
+            launchImageLibrary({mediaType: 'photo'}, response => {
+              console.log(response);
+              if (response.didCancel) console.log('Cancel');
+              else if (response.errorCode) {
+                Alert.alert('Error', response.errorMessage);
+              } else {
+                if (response.assets[0].fileSize <= 20484)
+                  setpfpuri(response.assets[0].uri);
+                else
+                  Alert.alert(
+                    'Max Size',
+                    'The file exceeds the maximum limit of 2MB.',
+                  );
+              }
+            });
+          },
+        },
+        {
+          text: 'Open Camera',
+          onPress: () => {
+            requestCameraPermission();
+          },
+        },
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+      ],
+    );
+  };
+
+  const requestCameraPermission = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.CAMERA,
+        {
+          title: 'App Camera Permission',
+          message: 'App needs access to your camera ',
+          buttonNeutral: 'Ask Me Later',
+          buttonNegative: 'Cancel',
+          buttonPositive: 'OK',
+        },
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        await launchcamera();
+      } else {
+        console.log('Camera permission denied');
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+
+  const launchcamera = async () => {
+    launchCamera(
+      {mediaType: 'photo', cameraType: 'front', saveToPhotos: true},
+      response => {
+        console.log(response);
+        if (response.didCancel) console.log('Cancel');
+        else if (response.errorCode) {
+          Alert.alert('Error', response.errorMessage);
+        } else {
+          if (response.assets[0].fileSize <= 20484)
+            setpfpuri(response.assets[0].uri);
+          else
+            Alert.alert(
+              'Max Size',
+              'The file exceeds the maximum limit of 2MB.',
+            );
+        }
+      },
+    );
+  };
 
   return (
     <KeyboardAvoidingView
@@ -1150,8 +1237,26 @@ const EditProfile = ({navigation}) => {
                     width: 75,
                     height: 75,
                     marginVertical: 5,
+                    width: 100,
+                    height: 100,
+                    borderRadius: 100,
                   }}
-                  source={doctor}></Image>
+                  source={pfpuri == null ? doctor : {uri: pfpuri}}></Image>
+                <TouchableOpacity onPress={chooseProfileImage}>
+                  <FAIcon
+                    name="camera"
+                    size={20}
+                    color={'white'}
+                    style={{
+                      top: -25,
+                      right: -30,
+                      padding: 10,
+                      backgroundColor: 'gray',
+                      borderRadius: 100,
+                      alignSelf: 'center',
+                    }}
+                  />
+                </TouchableOpacity>
               </View>
             </View>
 

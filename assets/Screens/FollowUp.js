@@ -33,7 +33,8 @@ import dayjs from 'dayjs';
 function FollowUp({navigation}) {
   const window = useWindowDimensions();
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-  const [date, setdate] = useState('');
+  const [date, setdate] = useState();
+  //const [minDate, setminDate] = useState();
 
   const showDatePicker = () => {
     //console.log("Pressed button");
@@ -46,15 +47,16 @@ function FollowUp({navigation}) {
   };
 
   const handleConfirm = async date => {
-    await AsyncStorage.setItem('dob', JSON.stringify(date).substring(1, 11));
-    setdate(JSON.stringify(date).substring(1, 11));
+    setdate(dayjs(date).format('DD-MM-YYYY'));
     hideDatePicker();
   };
 
   const pressedProceed = async () => {
-    await AsyncStorage.setItem('FollowUpDate', date);
-    console.log(await AsyncStorage.getItem('FollowUpDate'));
-    navigation.push('PrescriptionPreview');
+    if (date != null) {
+      await AsyncStorage.setItem('FollowUpDate', date);
+      console.log(await AsyncStorage.getItem('FollowUpDate'));
+      navigation.push('PrescriptionPreview');
+    } else Alert.alert('Follow- Up Date', 'Please select follow-up date');
   };
 
   return (
@@ -134,29 +136,32 @@ function FollowUp({navigation}) {
                 />
                 <Text style={styles.viewHeadingText}>Follow Up</Text>
               </TouchableOpacity>
-              {/* Search Bar */}
-              <View style={[styles.searchBar, {borderRadius: 5}]}>
-                <TextInput
-                  placeholder="click on calendar icon"
-                  editable={false}
-                  onChangeText={text => setdate(text)}
-                  value={dayjs(date).format('DD-MM-YYYY')}
-                  style={styles.searchBarText}
-                />
-                <FAIcon
-                  name="calendar-alt"
-                  size={20}
-                  color="gray"
-                  style={styles.searchIcon}
-                  onPress={showDatePicker}
-                />
-                <DateTimePickerModal
-                  isVisible={isDatePickerVisible}
-                  mode="date"
-                  display="spinner"
-                  onConfirm={handleConfirm}
-                  onCancel={hideDatePicker}
-                />
+              <View style={styles.whiteBodyView}>
+                <Text style={styles.label}>Select Follow-Up Date</Text>
+                {/* Search Bar */}
+                <View style={[styles.searchBar, {borderRadius: 5}]}>
+                  <TextInput
+                    placeholder="click on calendar icon"
+                    editable={false}
+                    onChangeText={text => setdate(text)}
+                    value={date}
+                    style={styles.searchBarText}
+                  />
+                  <FAIcon
+                    name="calendar-alt"
+                    size={20}
+                    color="gray"
+                    style={styles.searchIcon}
+                    onPress={showDatePicker}
+                  />
+                  <DateTimePickerModal
+                    isVisible={isDatePickerVisible}
+                    mode="date"
+                    onConfirm={handleConfirm}
+                    onCancel={hideDatePicker}
+                    // minimumDate={minDate}
+                  />
+                </View>
               </View>
               {/*Bottom Buttons*/}
               <View
@@ -169,7 +174,7 @@ function FollowUp({navigation}) {
                   justifyContent: 'space-evenly',
                 }}>
                 <CustomButton
-                  text="Proceed"
+                  text="Done"
                   textstyle={{color: 'white', fontSize: 12}}
                   style={{
                     borderRadius: 10,
@@ -238,8 +243,14 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   label: {
-    fontSize: 14,
+    fontSize: 13,
     marginLeft: 5,
+    color: '#2b8ada',
+    borderBottomWidth: 1,
+    borderBottomColor: '#2b8ada',
+    fontWeight: 'bold',
+    width: '95%',
+    alignSelf: 'center',
   },
   searchBarText: {
     width: '100%',
@@ -259,6 +270,12 @@ const styles = StyleSheet.create({
     flex: 0.45,
   },
   bubbleText: {fontSize: 14, fontWeight: 'bold'},
+  whiteBodyView: {
+    backgroundColor: 'white',
+    padding: 10,
+    borderRadius: 10,
+    marginVertical: 10,
+  },
 });
 
 export default FollowUp;

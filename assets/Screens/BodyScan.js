@@ -56,7 +56,7 @@ function BodyScan({navigation}) {
     await AsyncStorage.setItem('Examination', JSON.stringify(temp));
 
     console.log(await AsyncStorage.getItem('Examination'));
-    navigation.push('Medication');
+    navigation.push('Diagnosis');
   };
 
   return (

@@ -26,6 +26,8 @@ import pfp1 from '../Resources/patient.png';
 // import pfp3 from "../Resources/pfp3.jpg";
 // import pfp4 from "../Resources/pfp4.jpg";
 import chatting from '../Resources/chattingMedium.png';
+import payonclinic from '../Icons/payonclinic.png';
+import prepaid from '../Icons/prepaid.png';
 import Header from '../Components/Header';
 import {
   SelectList,
@@ -127,6 +129,15 @@ const DoctorHome = navigation => {
           borderRadius: 10,
           marginVertical: 5,
         }}>
+        {/* <View
+          style={{
+            flexDirection: 'row',
+            alignSelf: 'flex-start',
+            marginTop: 10,
+          }}>
+          <Image source={payonclinic} style={{width: 20, height: 20}} />
+          <Text style={{color: '#2b8ada'}}>Pay on site</Text>
+        </View> */}
         <View
           style={{
             flexDirection: 'row',
@@ -137,7 +148,7 @@ const DoctorHome = navigation => {
             name="prescription"
             size={20}
             style={{marginHorizontal: 5}}
-            onPress={() => navigation.push('CheifComplaints')}
+            onPress={() => navigation.navigate('CheifComplaints')}
           />
           <CustomButton
             text="Pre Consultation"

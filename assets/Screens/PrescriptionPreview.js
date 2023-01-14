@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { ScrollView } from "react-native";
+import React, {useState, useEffect} from 'react';
+import {Dimensions, ScrollView} from 'react-native';
 import {
   Alert,
   useWindowDimensions,
@@ -11,272 +11,514 @@ import {
   FlatList,
   TouchableOpacity,
   KeyboardAvoidingView,
-} from "react-native";
-import CustomButton from "../Components/CustomButton";
-import Header from "../Components/Header";
-import { StyleSheet } from "react-native";
-import axios from "axios";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+} from 'react-native';
+import CustomButton from '../Components/CustomButton';
+import Header from '../Components/Header';
+import {StyleSheet} from 'react-native';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Pdf from 'react-native-pdf';
+
 // import { printToFileAsync } from "expo-print";
 // import { shareAsync } from "expo-sharing";
-import { WebView } from "react-native-webview";
+import {WebView} from 'react-native-webview';
+import RNHTMLtoPDF from 'react-native-html-to-pdf';
 
-function PrescriptionPreview({ navigation }) {
-  const [Bp, setBp] = useState("");
+//icons
+import waiting from '../Animations/waiting1.gif';
+import logo from '../PrescriptionTemplate/logo.png';
+import bg from '../PrescriptionTemplate/bg.png';
+import apiConfig from '../API/apiConfig';
+import dayjs from 'dayjs';
+
+function PrescriptionPreview({navigation}) {
+  const [Bp, setBp] = useState('');
   const [showPdf, setshowPdf] = useState(false);
+  const [filePdf, setfilePdf] = useState(null);
+  const [isLoading, setisLoading] = useState(false);
+  const [cheifComplaints, setcheifComplaints] = useState(null);
+  const [cheifComplaintsDisplay, setcheifComplaintsDisplay] = useState(null);
+  const [Examination, setExamination] = useState(null);
+  const [Diagnosis, setDiagnosis] = useState(null);
+  const [Prescription, setPrescription] = useState(null);
+  const [Investigation, setInvestigation] = useState(null);
+  const [Advice, setAdvice] = useState(null);
+  const [FollowUpDate, setFollowUpDate] = useState(null);
+  const [doctorId, setdoctorId] = useState(null);
+  const [doctorName, setdoctorName] = useState(null);
+  const [doctorEducationRaw, setdoctorEducationRaw] = useState([]);
+  const [doctorEducationDisp, setdoctorEducationDisp] = useState(null);
 
-  const getValues = async () => {
-    let p = await AsyncStorage.getItem("BP");
-    setBp(p);
-    console.log(Bp);
-  };
+  useEffect(() => {
+    const loadData = async () => {
+      let a = JSON.parse(await AsyncStorage.getItem('CheifComplaint'));
+      let b = JSON.parse(await AsyncStorage.getItem('Examination'));
+      let c = JSON.parse(await AsyncStorage.getItem('Prescription'));
+      let d = JSON.parse(await AsyncStorage.getItem('Investigation'));
+      let e = JSON.parse(await AsyncStorage.getItem('Advice'));
+      let f = await AsyncStorage.getItem('FollowUpDate');
+      let g = await AsyncStorage.getItem('Diagnosis');
+      let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
+
+      //setting cheifcomplaint
+      if (a != null) {
+        setcheifComplaints(a);
+        var y = '';
+        for (var i = 0; i < a.length; ++i) y += a[i].comp + ',';
+        y = y.substring(0, y.length - 1);
+        setcheifComplaintsDisplay(y);
+      }
+
+      //setting examination details
+      if (b != null) {
+        let tempb =
+          ` <div class="row align-items-center temp-bp mx-2">
+                    <div class="col-md-6 col-sm-6">
+                        <p class="mb-0">Body Temperature - ` +
+          b.temperature +
+          ` F</p>
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                        <p class="mb-0">BP - ` +
+          b.BPDiastolic +
+          `/` +
+          b.BPSystolic +
+          ` mmHg</p>
+                    </div>
+                </div>
+                <p class="examin mb-0" style="padding: 0 1.2rem;">Examination notes - ` +
+          b.examinationNotes +
+          `</p>`;
+        setExamination(tempb);
+      }
+
+      //setting prescription
+      if (c != null) {
+        let z = ``;
+        for (var i = 0; i < c.length; ++i) {
+          z +=
+            ` <tr>
+                                    <td>` +
+            (i + 1) +
+            `</td>
+                                    <td><p class="mb-0">` +
+            c[i].medicineName +
+            `</p>
+                                        <span>` +
+            c[i].medicineType +
+            `</span>
+                                    </td>
+                                    <td><p class="mb-0">` +
+            c[i].instruction +
+            ` for ` +
+            c[i].days +
+            ` days</p></td>
+                                </tr>`;
+        }
+        setPrescription(z);
+      }
+
+      //setting investigation
+      if (d != null) {
+        let tempd = '';
+        for (var i = 0; i < d.length; ++i) tempd += d[i].inv + ',';
+        tempd = tempd.substring(0, tempd.length - 1);
+        setInvestigation(tempd);
+      }
+
+      //setting Advice
+
+      setAdvice(e != null ? e : null);
+      setFollowUpDate(f != null ? f : null);
+
+      setDiagnosis(g != null ? g : null);
+      setdoctorId(x.doctorId);
+      setdoctorName(x.doctorName != null ? x.doctorName : x.fullName);
+      console.log(doctorName);
+    };
+    loadData();
+  }, []);
+
+  useEffect(() => {
+    const getEdu = async () => {
+      axios
+        .get(apiConfig.baseUrl + '/doctor/educations?doctorId=' + doctorId)
+        .then(function (response) {
+          if (response.status == 200) {
+            console.log(response.data);
+            setdoctorEducationRaw(response.data);
+          } else {
+            console.log(response.status);
+          }
+        })
+        .catch(function (error) {
+          console.log(
+            '===============Error in fetching doctor education=================================',
+          );
+          console.log(error);
+        });
+    };
+
+    if (doctorId != null) {
+      getEdu();
+    }
+  }, [doctorId]);
+
+  useEffect(() => {
+    if (doctorEducationRaw != null) {
+      var x = ``;
+      for (var i = 0; i < doctorEducationRaw.length; ++i) {
+        x =
+          x +
+          `<p class="dr-designation">` +
+          doctorEducationRaw[i].degree +
+          ` ` +
+          doctorEducationRaw[i].specialization +
+          `</p>`;
+      }
+      //console.log('==========Doctor education display===============');
+      setdoctorEducationDisp(x);
+      //console.log(x);
+    }
+  }, [doctorEducationRaw]);
 
   const show = async () => {
     const value = await AsyncStorage.getAllKeys();
     console.log(value);
   };
 
-  const html = `
-    <html >
-        <head>
-            <meta charset="UTF-8">
-            <meta http-equiv="X-UA-Compatible" content="IE=edge">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Report</title>
-            <link rel="stylesheet" href="styles.css">
-            <link rel="preconnect" href="https://fonts.googleapis.com">
-            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-            <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;700&display=swap" rel="stylesheet">
-        </head>
+  const html =
+    `<!DOCTYPE html>
+<html lang="en">
 
-        <body>
-            <img src="https://www.w3schools.com/images/lamp.jpg" alt="">
-            <div class="flex-container">
-                <div class="doct-deets">
-                    <br>
-                    <h1>Dr. Arunima Singh</h1>
-                    <h4>MBBS Bachelor of Medicine and Bachelor of Surgery</h4>
-                </div>
-                <div class="doct-addr">
-                    <h3 class="addr">Rajpur Road</h3>
-                    <h3 class="addr">Dehradun-248001, Uttarakhand</h3>
-                    <h1 class="number">M:123456789</h1>
-                </div>
+<head>
+    <title>Prescription Modify</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    
+</head>
+<style>
+img{
+    object-fit: cover;
+}
+.px-logo{
+    width: auto;
+    height: 70px;
+}
+.prescription{
+    background: ` +
+    bg +
+    `;
+    background-attachment: scroll;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100% 100%;
+    padding: 0.5rem;
+    width: 410px;
+    background-color: #fff;
+    padding-bottom: 3.5rem;
+}
+.dr-nme{
+    line-height: 28px;
+    font-family: Scandia;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 14px;
+    color: rgba(0,0,0,1);
+}
+.dr-designation{
+    line-height: 12px;
+    margin-top: -2px;
+    font-family: Scandia;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 9px;
+    color: rgba(0,0,0,0.5);
+}
+.dr-address, .dr-mobile, .p-id, .date{
+    line-height: 14px;
+    font-family: Scandia;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 9px;
+    color: rgba(0,0,0,0.75);
+    text-align: right;
+    margin-bottom: 0;
+}
+.p-nme, .p-ag{
+    line-height: 14px;
+    font-family: Scandia;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 9px;
+    color: rgba(0,0,0,0.75);
+    margin-bottom: 0;
+}
+.complaints{
+    line-height: 15px;
+    font-family: Scandia;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 11px;
+    color: rgba(0,0,0,0.75);
+    padding: 0.75rem 1.2rem 0;
+}
+.temp-bp, .examin{
+    line-height: 18px;
+    font-family: Scandia;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 10px;
+    justify-content: space-evenly;
+    color: rgba(0,0,0,0.5);
+}
+.rx{
+    width: 18px;
+    height: 13px;
+    position: relative;
+    left: 200px;
+}
+table, th, td {
+    border: 1px solid rgba(182,182,182,1);
+    border-collapse: collapse;
+    line-height: 18px;
+    font-size: 10px;
+    background: #fff;
+    padding: 0 10px 0;
+}
+th{
+    background: rgba(43,144,220,1);
+    color: #fff;
+    font-weight: 400;
+    text-align: center;
+}
+@media only screen and (min-width: 320px) and (max-width: 480px){
+    .col-sm-6{
+        width: 50%;
+    }
+    .rx {
+        left: 140px;
+    }
+}
+</style>
+
+<body>
+
+    <div class="container my-5">
+        <div class="row mx-auto justify-content-center">
+            <div class="col-md-3">
+
             </div>
-            <hr>
-            <br><br>
-            <div class="patient">
+            <div class="col-md-6 prescription">
                 <div>
-                    <h3 class="pat-name">Name: <b>Rohan Kumar</b></h3>
-                    <h3 class="pat-name">Age/Gender: <b>Rohan Kumar</b></h3>
+                    <img src="` +
+    logo +
+    `" alt="logo" class="px-logo mx-2">
                 </div>
-                <div class="date">
-                    <h3 style="margin-top: 10px; margin-bottom: 10px;">23 November 2022</h3>
-                    <h3 class="pat-name">Patient ID: <b>R21DY768F2</b></h3>
+                <div class="row align-items-baseline mx-2">
+                    <div class="col-md-6 col-sm-6">
+                        <h2 class="dr-nme mb-0">` +
+    doctorName +
+    `</h2>
+                        ` +
+    doctorEducationDisp +
+    `
+                    </div>
+                    
                 </div>
+                <hr class="my-0 mx-2" style="height: 2px; border: none; background: black;">
+                <img src="/PrescriptionTemplate/rx.png" alt="rx" class="rx">
+                <div class="row align-items-baseline mx-2 py-2" style="background-color: rgba(240,250,255,1);">
+                    <div class="col-md-6 col-sm-6">
+                        <p class="p-nme mb-0">Name: Rohan Kumar</p>
+                        <p class="p-ag">Age/Gender: M/40</p>
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                        <p class="date">` +
+    dayjs(JSON.stringify(new Date().getDate()).substring(0, 11)).format(
+      'DD-MM-YYYY',
+    ) +
+    `</p>
+                        <p class="p-id">Patient ID: R21DY768F2</p>
+                    </div>
+                </div>
+                <p class="mb-0 complaints">Chief Complaints - ` +
+    cheifComplaintsDisplay +
+    `</p>
+               ` +
+    Examination +
+    `
+                <p class="mb-1 complaints">Diagnosis -` +
+    Diagnosis +
+    `</p>
+                <div class="row align-items-center mx-2">
+                    <div class="col-md-12">
+                        <table style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th width="10%">S.No</th>
+                                    <th width="50%">Medicine Name</th>
+                                    <th width="40%">Special Instructions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ` +
+    Prescription +
+    `
+                            </tbody>                            
+                        </table>
+                    </div>
+                </div>
+                <p class="examin my-2" style="padding: 0 1.2rem;">Investigation -` +
+    Investigation +
+    `</p>
+             
+<p class="mb-1 complaints pt-0" align='right'>- ` +
+    doctorName +
+    `</p>   
+                
             </div>
-            <br>
-            <div class="diagnosis">
-                <h3 class="pat-name">Chief Complaints: <b>Fever, Cold</b></h3>
-                <h4>Body Temperature: <b>100.4 F</b>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; BP: <b>135/90 mmHg</b></h4>
-                <h4>Examination Notes: Undocumented fever since 3 days and general weakness</h4>
-                <h3 class="pat-name">Diagnosis: <b>Viral Fever</b></h3>
-                <br>
-                <table class="table">
-                    <thread>
-                        <tr>
-                            <th scope="col">S.No</th>
-                            <th scope="col" style="width: 70% ;">Medicine Name</th>
-                            <th scope="col">Regime & Instructions</th>
-                        </tr>
-                    </thread>
-                    <tbody>
-                        <tr>
-                            <th scope="row">1</th>
-                            <td>DOLO 650MG TAB <br> Prescription....</td>
-                            <td>1-1-1 after food for 3 days</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">2</th>
-                            <td>PAN D CAP <br> Prescription......</td>
-                            <td>1-0-0 before food for 3 days</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <h4>Investigation - Complete blood count, dengue virus antigen assay</h4>
-                <img src="https://www.signwell.com/assets/vip-signatures/muhammad-ali-signature-6a40cd5a6c27559411db066f62d64886c42bbeb03b347237ffae98b0b15e0005.svg" style="width:100" alt="">
-                <h3>-Dr. Arunima Singh</h3>
+            <div class="col-md-3">
+
             </div>
+        </div>
+    </div>
 
-        </body>
 
-    </html>`;
+    <!-- <script src="js/bootstrap.min.js"></script> -->
+</body>
+
+</html>`;
 
   let generatePdf = async () => {
-    // const file = await printToFileAsync({
-    //   html: html,
-    //   base64: true,
-    // });
-    // console.log(file.uri);
-    // setshowPdf(true);
+    let options = {
+      html: html,
+      fileName: 'prescription',
+      directory: 'Documents',
+    };
 
-    //await shareAsync(file.uri);
+    let file = await RNHTMLtoPDF.convert(options);
+    console.log(file.filePath);
+    console.log(file);
+    setfilePdf(file);
+    setshowPdf(true);
+    //alert(file.filePath);
   };
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}
-      enabled={true}
-    >
+      enabled={true}>
       <SafeAreaView
         style={{
-          backgroundColor: "#2B8ADA",
-          width: "100%",
-        }}
-      >
+          backgroundColor: '#2B8ADA',
+          width: '100%',
+        }}>
         <ScrollView
           style={{
-            width: "100%",
-            alignSelf: "center",
-            marginTop: 30,
-            backgroundColor: "#e8f0fe",
+            width: '100%',
+            alignSelf: 'center',
+            backgroundColor: '#e8f0fe',
           }}
-          showsVerticalScrollIndicator={false}
-        >
+          showsVerticalScrollIndicator={false}>
           <Text
             style={{
-              alignSelf: "center",
+              alignSelf: 'center',
               fontSize: 20,
               marginVertical: 10,
-              color: "#2B8ADA",
-            }}
-          >
+              color: '#2B8ADA',
+            }}>
             PRESCRIPTION PREVIEW
           </Text>
 
           <CustomButton text="Show Cache Keys" onPress={show} />
-          <Button title="Generate PDF" onPress={generatePdf} />
 
           {showPdf ? (
-            <WebView
-              style={{
-                borderWidth: 2,
-                height: 500,
-                width: 300,
-                alignSelf: "center",
-                flex: 1,
-                justifyContent: "center",
+            <Pdf
+              source={{uri: filePdf.filePath}}
+              onLoadComplete={(numberOfPages, filePath) => {
+                console.log(`Number of pages: ${numberOfPages}`);
               }}
-              originWhitelist={["*"]}
-              source={{
-                html: html,
+              onPageChanged={(page, numberOfPages) => {
+                console.log(`Current page: ${page}`);
+              }}
+              onError={error => {
+                console.log(error);
+              }}
+              onPressLink={uri => {
+                console.log(`Link pressed: ${uri}`);
+              }}
+              style={{
+                flex: 1,
+                width: Dimensions.get('window').width,
+                height: Dimensions.get('window').height,
               }}
             />
           ) : null}
-
-          {/* <CustomButton
-            text="Submit"
-            style={{ backgroundColor: "pink" }}
+          <Button title="Generate PDF" onPress={generatePdf} />
+          <Button
+            title="cheif complain array"
             onPress={() => {
-              axios
-                .post(`http://10.0.2.2:8080/doctor/savedoctor`, {
-                  age: 0,
-                  allowWhatsAppNotification: true,
-                  city: "string",
-                  countryCode: "string",
-                  countryName: "string",
-                  createdOn: "2022-11-13",
-                  digialSignature: "string",
-                  dob: "2022-11-13",
-                  doctorClinicDetailsDTOs: [
-                    {
-                      clinicAddress: "string",
-                      clinicName: "string",
-                      consultationDate: "2022-11-13",
-                      consultationEndTime: "10:00",
-                      consultationStartTime: "10:00",
-                      slotDuration: 0,
-                      specialInstruction: "string",
-                    },
-                  ],
-                  doctorConfigurationDTO: {
-                    contactVisibility: true,
-                    followUpDuration: 0,
-                  },
-                  doctorConsultationFeesDTO: {
-                    eConsulationFees: 0,
-                    followUpFees: 0,
-                    physicalConsulationFees: 0,
-                  },
-                  doctorEConsultationDTOs: [
-                    {
-                      consultationDate: "2022-11-13",
-                      consultationEndTime: "11:00",
-                      consultationStartTime: "02:00",
-                      gap: 5,
-                      slotDuration: 20,
-                      typeOfEConsultation: "phonecall",
-                    },
-                  ],
-                  doctorEducationsDTOs: [
-                    {
-                      degree: "string",
-                      degreePath: "string",
-                      doctorEducationPkId: 0,
-                      passingYear: "2022-10-25",
-                      specialization: "string",
-                      totalExperiencedInMonths: 0,
-                      university: "string",
-                    },
-                  ],
-                  doctorIdentificationDTOs: [
-                    {
-                      identificationNumber: "string",
-                      identificationPath: "string",
-                      identificationType: "string",
-                    },
-                  ],
-                  doctorLanguageDTOs: [
-                    {
-                      language: "string",
-                    },
-                  ],
-                  doctorMedicalRegistrationDTOs: [
-                    {
-                      certificatePath: "string",
-                      registrationCouncil: "string",
-                      registrationNo: "string",
-                      registrationYear: "2022-11-13",
-                    },
-                  ],
-                  email: "string",
-                  fullName: "John",
-                  gender: "Male",
-                  mobileNumber: "string",
-                  phoneIp: "string",
-                  photoPath: "string",
-                  pinCode: "string",
-                  preConsultationQuestionDTOs: [
-                    {
-                      questions: "string",
-                      speciality: "string",
-                    },
-                  ],
-                  roles: "ROLE_DOCTOR",
-                  title: "string",
-                  whatsAppNumber: "string",
-                })
-                .then((response) => {
-                  console.log("Dr. created successfully");
-                  //return response.data.token;
-                })
-                .catch((error) => {
-                  console.log(error);
-                });
+              //setcheifComplaintsDisplay(cheifComplaintsDisplay.substring(0,cheifComplaintsDisplay.length));
             }}
-          /> */}
+          />
+          <CustomButton
+            text={'Submit'}
+            textstyle={{color: 'white'}}
+            style={{
+              backgroundColor: '#2b8ada',
+              borderRadius: 10,
+              flex: 1,
+              marginTop: 10,
+            }}
+          />
         </ScrollView>
+        {isLoading && (
+          <View
+            style={{
+              position: 'absolute',
+              height: '100%',
+              width: '100%',
+              flexDirection: 'row',
+              justifyContent: 'center',
+              backgroundColor: 'rgba(0,0,0,0.4)',
+            }}>
+            <View
+              style={{
+                backgroundColor: 'white',
+                alignSelf: 'center',
+                borderRadius: 50,
+                width: 250,
+                height: 250,
+                justifyContent: 'center',
+                flexDirection: 'column',
+              }}>
+              <Image
+                source={waiting}
+                style={{
+                  alignSelf: 'center',
+                  width: 100,
+                  height: 100,
+                  borderRadius: 100,
+                }}
+              />
+              <Text
+                style={{
+                  alignSelf: 'center',
+                  textAlign: 'center',
+                  color: '#2B8ADA',
+                  fontSize: 20,
+                  fontWeight: 'bold',
+                  width: '100%',
+                  padding: 10,
+                }}>
+                Creating Prescription...
+              </Text>
+            </View>
+          </View>
+        )}
       </SafeAreaView>
     </KeyboardAvoidingView>
   );
@@ -285,10 +527,10 @@ function PrescriptionPreview({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#e8f0fe",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#e8f0fe',
   },
 });
 

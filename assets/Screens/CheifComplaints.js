@@ -201,26 +201,6 @@ function CheifComplaints({navigation}) {
                   style={styles.searchIcon}
                 />
               </View>
-              {/* <CustomButton
-                text="+ Add More"
-                textstyle={{color: 'white', fontSize: 12}}
-                style={{
-                  position: 'relative',
-                  backgroundColor: '#2B8ADA',
-                  alignSelf: 'flex-end',
-                  marginVertical: 10,
-                  padding: 5,
-                  paddingHorizontal: 10,
-                  borderRadius: 5,
-                }}
-                onPress={() => {
-                  let a = {
-                    comp: complaintText,
-                  };
-                  Complaint.push(a);
-                  setcomplaintText('');
-                }}
-              /> */}
               {/* Suggestions */}
               {/* <View>
                 <Text style={{ fontSize: 15, fontWeight: "bold" }}>
