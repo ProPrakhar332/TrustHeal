@@ -33,6 +33,8 @@ import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import dayjs from 'dayjs';
 import axios from 'axios';
 import apiConfig from '../API/apiConfig';
+import {fileUpload} from '../API/apiConfig';
+
 import Header from '../Components/Header';
 import {Switch} from 'react-native-elements';
 
@@ -102,10 +104,8 @@ const EditProfile = ({navigation}) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [dob, setdob] = useState('');
-  const [pfp, setpfp] = useState(null);
   const [pfpuri, setpfpuri] = useState(null);
-  const [newpfp, setnewpfp] = useState(null);
-  const [newpfpuri, setnewpfpuri] = useState(null);
+  const [profilePhotoPath, setprofilePhotoPath] = useState('');
   //Calendar View
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [selectedDateFromModal, setselectedDateFromModal] =
@@ -209,6 +209,7 @@ const EditProfile = ({navigation}) => {
       setdob(x.dob);
       setAge(x.age + '');
       setPinCode(x.pincode == null ? x.pinCode : x.pincode);
+      setprofilePhotoPath(x.profilePhotoPath);
       setDoctorConfiguration(
         x.doctorConfigurationDTO != null ? x.doctorConfigurationDTO : '',
       );
@@ -436,16 +437,20 @@ const EditProfile = ({navigation}) => {
   //api calls on press update button
 
   const updateGenInfo = async () => {
+    let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
     let mainOnj = new Object();
     mainOnj.age = Number(age);
+
     mainOnj.city = city;
+
     mainOnj.contactVisibility = showMobNo;
     mainOnj.dob = dob;
     mainOnj.doctorId = doctorId;
     mainOnj.doctorName = title + ' ' + name;
     mainOnj.email = email;
     mainOnj.mobileNumber = doctorObj.mobileNumber;
-    mainOnj.pincode = pinCode;
+    mainOnj.profilePhotoPath = profilePhotoPath;
+    mainOnj.pinCode = pinCode;
     console.log(
       'General Info Update---------\n' + JSON.stringify(mainOnj, null, 1),
     );
@@ -454,6 +459,15 @@ const EditProfile = ({navigation}) => {
       .post(apiConfig.baseUrl + '/doctor/generalinfo/update', mainOnj)
       .then(function (response) {
         if (response.status == 200) {
+          //store the changes made in details to UserDoctorProfile
+          x.age = Number(age);
+          x.city = city;
+          x.contactVisibility = showMobNo;
+          x.dob = dob;
+          x.doctorName = title + ' ' + name;
+          x.email = email;
+          x.profilePhotoPath = profilePhotoPath;
+          x.pinCode = pinCode;
           Alert.alert(
             'All changes made in Genreal Information have been updated.',
           );
@@ -462,30 +476,30 @@ const EditProfile = ({navigation}) => {
       });
   };
 
-  const updateContactVisibility = async () => {
-    axios
-      .post(
-        apiConfig.baseUrl +
-          '/doctor/contact/visibility/update?contactVisibility=' +
-          showMobNo +
-          '&doctorId=' +
-          doctorId +
-          '&email=' +
-          email,
-      )
-      .then(function (response) {
-        if (response.status == 200)
-          Alert.alert(
-            'Contact Visbility',
-            'Your Contact Visibility is now turned ' +
-              (!showMobNo ? 'ON' : 'OFF'),
-          );
-      })
-      .catch(function (error) {
-        console.log('=====Error in updating contact visibility=====');
-        console.log(error);
-      });
-  };
+  // const updateContactVisibility = async () => {
+  //   axios
+  //     .post(
+  //       apiConfig.baseUrl +
+  //         '/doctor/contact/visibility/update?contactVisibility=' +
+  //         showMobNo +
+  //         '&doctorId=' +
+  //         doctorId +
+  //         '&email=' +
+  //         email,
+  //     )
+  //     .then(function (response) {
+  //       if (response.status == 200)
+  //         Alert.alert(
+  //           'Contact Visbility',
+  //           'Your Contact Visibility is now turned ' +
+  //             (!showMobNo ? 'ON' : 'OFF'),
+  //         );
+  //     })
+  //     .catch(function (error) {
+  //       console.log('=====Error in updating contact visibility=====');
+  //       console.log(error);
+  //     });
+  // };
 
   const updateMedReg = async () => {
     let p = {
@@ -1125,15 +1139,19 @@ const EditProfile = ({navigation}) => {
         {
           text: 'Open Library',
           onPress: () => {
-            launchImageLibrary({mediaType: 'photo'}, response => {
+            launchImageLibrary({mediaType: 'photo'}, async response => {
               console.log(response);
               if (response.didCancel) console.log('Cancel');
               else if (response.errorCode) {
                 Alert.alert('Error', response.errorMessage);
               } else {
-                if (response.assets[0].fileSize <= 20484)
+                if (response.assets[0].fileSize <= 2097152) {
+                  await postpfp(response.assets[0]);
                   setpfpuri(response.assets[0].uri);
-                else
+                  let x = await AsyncStorage.getItem('UserDoctorProfile');
+                  x.profileUri = response.assets[0].uri;
+                  await AsyncStorage.setItem('UserDoctorProfile', x);
+                } else
                   Alert.alert(
                     'Max Size',
                     'The file exceeds the maximum limit of 2MB.',
@@ -1181,15 +1199,19 @@ const EditProfile = ({navigation}) => {
   const launchcamera = async () => {
     launchCamera(
       {mediaType: 'photo', cameraType: 'front', saveToPhotos: true},
-      response => {
+      async response => {
         console.log(response);
         if (response.didCancel) console.log('Cancel');
         else if (response.errorCode) {
           Alert.alert('Error', response.errorMessage);
         } else {
-          if (response.assets[0].fileSize <= 20484)
+          if (response.assets[0].fileSize <= 2097152) {
+            await postpfp(response.assets[0]);
             setpfpuri(response.assets[0].uri);
-          else
+            let x = await AsyncStorage.getItem('UserDoctorProfile');
+            x.profileUri = response.assets[0].uri;
+            await AsyncStorage.setItem('UserDoctorProfile', x);
+          } else
             Alert.alert(
               'Max Size',
               'The file exceeds the maximum limit of 2MB.',
@@ -1197,6 +1219,41 @@ const EditProfile = ({navigation}) => {
         }
       },
     );
+  };
+  const postpfp = async pickerResult => {
+    try {
+      console.log('==============Inside post pfp==========');
+
+      let ext = '.' + pickerResult.fileName.split('.').pop();
+
+      pickerResult.fileName =
+        doctorId + '_ProfilePhoto_' + JSON.stringify(new Date()) + ext;
+      console.log(pickerResult.fileName);
+      // setMedRegDoc([pickerResult]);
+
+      let formData = new FormData();
+      formData.append('directoryNames', '  DOCTOR_PHOTO');
+      formData.append('file', pickerResult);
+      const {error, response} = await fileUpload(formData);
+
+      if (error != null) {
+        console.log('======error======');
+        console.log(error);
+        Alert.alert(
+          'Error',
+          'There was a problem in uploading profile picture. Please try again.',
+        );
+      } else {
+        console.log('======response======');
+        console.log(response.path);
+        setprofilePhotoPath(response.path);
+        let x = await AsyncStorage.getItem('UserDoctorProfile');
+        x.profilePhotoPath = response.path;
+        await AsyncStorage.setItem('UserDoctorProfile', x);
+      }
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   return (
@@ -1242,21 +1299,23 @@ const EditProfile = ({navigation}) => {
                     borderRadius: 100,
                   }}
                   source={pfpuri == null ? doctor : {uri: pfpuri}}></Image>
-                <TouchableOpacity onPress={chooseProfileImage}>
-                  <FAIcon
-                    name="camera"
-                    size={20}
-                    color={'white'}
-                    style={{
-                      top: -25,
-                      right: -30,
-                      padding: 10,
-                      backgroundColor: 'gray',
-                      borderRadius: 100,
-                      alignSelf: 'center',
-                    }}
-                  />
-                </TouchableOpacity>
+                {GenInfoEdit ? (
+                  <TouchableOpacity onPress={chooseProfileImage}>
+                    <FAIcon
+                      name="camera"
+                      size={20}
+                      color={'white'}
+                      style={{
+                        top: -25,
+                        right: -30,
+                        padding: 10,
+                        backgroundColor: 'gray',
+                        borderRadius: 100,
+                        alignSelf: 'center',
+                      }}
+                    />
+                  </TouchableOpacity>
+                ) : null}
               </View>
             </View>
 
@@ -1532,7 +1591,7 @@ const EditProfile = ({navigation}) => {
                               ios_backgroundColor="#3e3e3e"
                               onValueChange={() => {
                                 setshowMobNo(!showMobNo);
-                                updateContactVisibility();
+                                // updateContactVisibility();
                               }}
                               value={showMobNo}
                             />

@@ -43,7 +43,7 @@ const dataStatus = [
   {key: 'No', value: 'No'},
 ];
 
-const DoctorHome = navigation => {
+const DoctorHome = ({navigation}) => {
   // console.log("Doctor Home", route.params);
   const [doctorObj, setDoctorObj] = useState(null);
   //upcoming tab
@@ -61,6 +61,8 @@ const DoctorHome = navigation => {
   const [HistoryModal, setHistoryModal] = useState(false);
   const [historyData, sethistoryData] = useState([]);
   const [patientId, setpatientId] = useState(0);
+  const [historyId, sethistoryId] = useState(0);
+  const [todayId, settodayId] = useState(0);
   const [upcomingConsultationId, setupcomingConsultationId] = useState(0);
   const [TodaysModal, setTodaysModal] = useState(false);
   const [TodaysDocs, setTodaysDocs] = useState([]);
@@ -95,6 +97,14 @@ const DoctorHome = navigation => {
     });
   };
 
+  const onPressPrescription = async () => {
+    let p = {
+      patientId: p,
+    };
+    await AsyncStorage.setItem('PrescriptionFor', JSON.stringify(p));
+    navigation.navigate('CheifComplaints');
+  };
+
   // const fomatDate = (date) => {
   //   var dateArr = date.split("-");
   //   //console.log(dateArr);
@@ -121,14 +131,15 @@ const DoctorHome = navigation => {
 
   const renderCard = ({item}) => {
     return (
-      <View
+      <TouchableOpacity
         style={{
           backgroundColor: 'white',
           width: '95%',
           alignSelf: 'center',
           borderRadius: 10,
           marginVertical: 5,
-        }}>
+        }}
+        onPress={() => console.log(item.consultationId)}>
         {/* <View
           style={{
             flexDirection: 'row',
@@ -148,7 +159,12 @@ const DoctorHome = navigation => {
             name="prescription"
             size={20}
             style={{marginHorizontal: 5}}
-            onPress={() => navigation.navigate('CheifComplaints')}
+            onPress={() => {
+              if (item.familyDetails != null)
+                onPressPrescription(item.consultationId, item.familyDetails);
+              else
+                onPressPrescription(item.consultationId, item.patientsDetails);
+            }}
           />
           <CustomButton
             text="Pre Consultation"
@@ -341,17 +357,25 @@ const DoctorHome = navigation => {
               </Text>
             </TouchableOpacity>
           ) : (
-            <CustomButton
-              text="P-Consultation"
-              textstyle={{fontSize: 13, color: 'white'}}
+            <TouchableOpacity
               style={{
-                backgroundColor: '#2B8ADA',
+                flexDirection: 'row',
                 padding: 3,
-                alignSelf: 'center',
-                borderRadius: 5,
                 paddingHorizontal: 5,
-              }}
-            />
+                alignSelf: 'center',
+                backgroundColor: '#2B8ADA',
+                borderWidth: 1,
+                borderColor: '#2B8ADA',
+                borderRadius: 5,
+              }}>
+              <FAIcon
+                name="hospital"
+                size={15}
+                color={'white'}
+                style={{marginRight: 5}}
+              />
+              <Text style={{fontSize: 13, color: 'white'}}>P-Consultation</Text>
+            </TouchableOpacity>
           )}
           <TouchableOpacity
             style={{
@@ -364,7 +388,7 @@ const DoctorHome = navigation => {
               borderRadius: 5,
             }}
             onPress={() => {
-              setpatientId(item.patientsDetails.patientId);
+              sethistoryId(item.patientsDetails.patientId);
               setHistoryModal(true);
             }}>
             <FAIcon
@@ -398,13 +422,13 @@ const DoctorHome = navigation => {
             <Text style={{fontSize: 13}}>Today's Doc</Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </TouchableOpacity>
     );
   };
 
   const renderCardCompleted = ({item}) => {
     return (
-      <View
+      <TouchableOpacity
         style={{
           backgroundColor: 'white',
           width: '95%',
@@ -412,7 +436,8 @@ const DoctorHome = navigation => {
           borderRadius: 10,
           marginVertical: 5,
           padding: 10,
-        }}>
+        }}
+        onPress={() => console.log(item.consultationId)}>
         <View
           style={{
             flexDirection: 'row',
@@ -617,12 +642,12 @@ const DoctorHome = navigation => {
             />
           </TouchableOpacity>
         </View>
-      </View>
+      </TouchableOpacity>
     );
   };
   const renderCardRecent = ({item}) => {
     return (
-      <View
+      <TouchableOpacity
         style={{
           backgroundColor: 'white',
           width: '95%',
@@ -630,7 +655,8 @@ const DoctorHome = navigation => {
           borderRadius: 10,
           marginVertical: 5,
           padding: 10,
-        }}>
+        }}
+        onPress={() => console.log(item.consultationId)}>
         <View
           style={{
             flexDirection: 'row',
@@ -835,7 +861,7 @@ const DoctorHome = navigation => {
             />
           </TouchableOpacity>
         </View>
-      </View>
+      </TouchableOpacity>
     );
   };
 
@@ -931,6 +957,7 @@ const DoctorHome = navigation => {
                 style={{
                   marginHorizontal: 5,
                 }}
+                onPress={() => console.log(item.documentPath)}
               />
               <Text style={styles.HistoryModalText}>{item.documentName}</Text>
             </View>
@@ -964,6 +991,7 @@ const DoctorHome = navigation => {
             style={{
               marginHorizontal: 5,
             }}
+            onPress={() => console.log(item.documentPath)}
           />
         </View>
       </TouchableOpacity>
@@ -1041,7 +1069,7 @@ const DoctorHome = navigation => {
       axios
         .get(
           apiConfig.baseUrl +
-            '/docs/questionanswer?upcomingConsultationId=' +
+            '/docs/question/answers?consultationId =' +
             UpcomingId,
         )
         .then(function (response) {
@@ -1056,7 +1084,7 @@ const DoctorHome = navigation => {
     const getHistoryDocs = async () => {
       console.log(patientId);
       axios
-        .get(apiConfig.baseUrl + '/docs/previous?patientId=' + patientId)
+        .get(apiConfig.baseUrl + '/docs/current?consultationId=' + patientId)
         .then(function (response) {
           sethistoryData(response.data);
           //console.log(historyData);
@@ -1074,7 +1102,7 @@ const DoctorHome = navigation => {
       axios
         .get(
           apiConfig.baseUrl +
-            '/docs/current?upcomingConsultationId=' +
+            '/docs/current?consultationId=' +
             upcomingConsultationId,
         )
         .then(function (response) {

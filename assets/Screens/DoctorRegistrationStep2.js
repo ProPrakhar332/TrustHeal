@@ -25,6 +25,7 @@ import {
 import doctor from '../Resources/doctor.png';
 import upload from '../Resources/upload.png';
 import waiting from '../Animations/waiting1.gif';
+import uploading from '../Animations/uploading.gif';
 import {useEffect} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
@@ -190,6 +191,7 @@ const DoctorRegistration2 = ({navigation}) => {
   const [followUpFees, setfollowUpFees] = useState(0);
   const [showFollowUp, setshowFollowUp] = useState('');
   const [isLoading, setisLoading] = useState(false);
+  const [isSentForValidation, setisSentForValidation] = useState(false);
 
   const handleError = err => {
     if (DocumentPicker.isCancel(err)) {
@@ -543,6 +545,8 @@ const DoctorRegistration2 = ({navigation}) => {
       setCompletePercentage(parseInt((c / 8) * 100).toString() + '%');
 
       if (c == 8 && profileCompleted == false) {
+        setisSentForValidation(true);
+        // Please wait we are processing your profile for verification
         axios
           .post(apiConfig.baseUrl + '/doctor/profile/verify', {
             city: city,
@@ -553,9 +557,10 @@ const DoctorRegistration2 = ({navigation}) => {
           })
           .then(async function (response) {
             if (response.status == 200) {
+              setisSentForValidation(false);
               Alert.alert(
                 'Completed',
-                'Your details have been sent for validation',
+                'Your profile has been sent for verification',
               );
               setprofileCompleted(true);
               let x = JSON.parse(
@@ -569,6 +574,11 @@ const DoctorRegistration2 = ({navigation}) => {
             }
           })
           .catch(function (error) {
+            setisSentForValidation(false);
+            Alert.alert(
+              'Error',
+              'Sorry unable to send your profile for verification.',
+            );
             console.log(
               '=====Error Occured in Profile complete validation request=====',
             );
@@ -4033,6 +4043,64 @@ const DoctorRegistration2 = ({navigation}) => {
                   // padding: 10,
                 }}>
                 Please Wait...
+              </Text>
+            </View>
+          </View>
+        )}
+        {isSentForValidation && (
+          <View
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: 'rgba(0,0,0,0.4)',
+            }}>
+            <View
+              style={{
+                backgroundColor: 'white',
+                alignSelf: 'center',
+                borderRadius: 20,
+                width: 200,
+                height: 200,
+                justifyContent: 'center',
+                flexDirection: 'column',
+              }}>
+              <Image
+                source={uploading}
+                style={{
+                  alignSelf: 'center',
+                  width: 80,
+                  height: 80,
+                  // borderRadius: 150,
+                }}
+              />
+              <Text
+                style={{
+                  alignSelf: 'center',
+                  textAlign: 'center',
+                  color: '#2B8ADA',
+                  fontSize: 18,
+                  fontWeight: 'bold',
+                  width: '100%',
+                  marginVertical: 5,
+                  // padding: 10,
+                }}>
+                {'Please wait '}
+              </Text>
+              <Text
+                style={{
+                  alignSelf: 'center',
+                  textAlign: 'center',
+                  color: 'black',
+                  fontSize: 12,
+                  width: '100%',
+                  paddingHorizontal: 15,
+                }}>
+                {'We are processing your profile for verification '}
               </Text>
             </View>
           </View>

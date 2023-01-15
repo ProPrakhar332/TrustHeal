@@ -33,9 +33,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useEffect} from 'react';
 import axios from 'axios';
 import apiConfig from '../API/apiConfig';
+import {fileUpload} from '../API/apiConfig';
 import dateformatter from '../API/dateformatter';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import {PermissionsAndroid} from 'react-native';
 const DoctorRegistrationStep1 = ({navigation}) => {
   const [title, setTitle] = useState('');
   const [name, setName] = useState('');
@@ -60,9 +62,8 @@ const DoctorRegistrationStep1 = ({navigation}) => {
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [isLoading, setisLoading] = useState(false);
   const [complete, setcomplete] = useState(0);
-  const [profilephoto, setprofilephoto] = useState('');
-  const [pfp, setpfp] = useState([]);
-  const [imagePath, setimagePath] = useState(null);
+  const [pfpuri, setpfpuri] = useState(null);
+  const [profilePhotoPath, setprofilePhotoPath] = useState('');
 
   const dataShowMobNo = [
     {key: 'Yes', value: 'Yes'},
@@ -337,94 +338,129 @@ const DoctorRegistrationStep1 = ({navigation}) => {
 
   //pfp
   const chooseProfileImage = async () => {
-    launchImageLibrary(
-      {
-        mediaType: 'photo',
-      },
-      response => {
-        if (response.didCancel) {
-          this.error('User cancelled image picker', 'red');
-        } else if (response.error) {
-          this.error(response.error, 'red');
-        } else if (response.customButton) {
-          this.error(
-            'User tapped custom button: ' + response.customButton,
-            'red',
-          );
-        } else {
-          console.log(response);
-          const source = {uri: response.assets[0].uri};
-          console.log(source);
-          const ImgName = source.uri.slice(source.uri.lastIndexOf('/') + 1);
-          const ImgType =
-            'image/' + source.uri.slice(source.uri.lastIndexOf('.') + 1);
-          var file = {
-            uri: source.uri,
-            name: ImgName,
-            type: ImgType,
-          };
-          var formData = new FormData();
-          formData.append('file', file);
-          ImageResizer.createResizedImage(source.uri, 300, 300, 'JPEG', 100)
-            .then(response => {
+    Alert.alert(
+      'Upload Profile Picture',
+      'Select option for uploading profile picture',
+      [
+        {
+          text: 'Open Library',
+          onPress: () => {
+            launchImageLibrary({mediaType: 'photo'}, async response => {
               console.log(response);
-              // that.setState({
-              //     img: formData,
-              //     newImageUri: response.uri,
-              // });
-              setimg(formData);
-              setnewImageUri(response.uri);
-              setTimeout(function () {
-                Alert.alert('Confirm', 'Do you like the current picture ?', [
-                  {
-                    text: 'No',
-                    onPress: () => {
-                      setnewImageUri(null);
-                    },
-                    style: 'cancel',
-                  },
-                  {text: 'Looks good', onPress: () => changeProfilePic()},
-                ]);
-              }, 1500);
-            })
-            .catch(err => {
-              // Oops, something went wrong. Check that the filename is correct and
-              // inspect err to get more details.
+              if (response.didCancel) console.log('Cancel');
+              else if (response.errorCode) {
+                Alert.alert('Error', response.errorMessage);
+              } else {
+                if (response.assets[0].fileSize <= 2097152) {
+                  await postpfp(response.assets[0]);
+                  setpfpuri(response.assets[0].uri);
+                  let x = await AsyncStorage.getItem('UserDoctorProfile');
+                  x.profileUri = response.assets[0].uri;
+                  await AsyncStorage.setItem('UserDoctorProfile', x);
+                } else
+                  Alert.alert(
+                    'Max Size',
+                    'The file exceeds the maximum limit of 2MB.',
+                  );
+              }
             });
+          },
+        },
+        {
+          text: 'Open Camera',
+          onPress: () => {
+            requestCameraPermission();
+          },
+        },
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+      ],
+    );
+  };
+
+  const requestCameraPermission = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.CAMERA,
+        {
+          title: 'App Camera Permission',
+          message: 'App needs access to your camera ',
+          buttonNeutral: 'Ask Me Later',
+          buttonNegative: 'Cancel',
+          buttonPositive: 'OK',
+        },
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        await launchcamera();
+      } else {
+        console.log('Camera permission denied');
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+
+  const launchcamera = async () => {
+    launchCamera(
+      {mediaType: 'photo', cameraType: 'front', saveToPhotos: true},
+      async response => {
+        console.log(response);
+        if (response.didCancel) console.log('Cancel');
+        else if (response.errorCode) {
+          Alert.alert('Error', response.errorMessage);
+        } else {
+          if (response.assets[0].fileSize <= 2097152) {
+            await postpfp(response.assets[0]);
+            setpfpuri(response.assets[0].uri);
+            let x = await AsyncStorage.getItem('UserDoctorProfile');
+            x.profileUri = response.assets[0].uri;
+            await AsyncStorage.setItem('UserDoctorProfile', x);
+          } else
+            Alert.alert(
+              'Max Size',
+              'The file exceeds the maximum limit of 2MB.',
+            );
         }
       },
     );
   };
-  const cancel = () => {
-    that.setState({newImageUri: null});
-  };
-  const error = (title, color) => {
-    Snackbar.show({
-      text: title,
-      duration: 3000,
-      backgroundColor: color,
-    });
-  };
-  profileImage = () => {
-    if (imagePath != null) {
-      return (
-        <Image
-          resizeMode="contain"
-          style={{width: '100%', height: '100%', borderRadius: 100}}
-          source={{uri: url.PROFURL + imagePath}}
-        />
-      );
-    } else {
-      return (
-        <Image
-          resizeMode="contain"
-          style={{width: '100%', height: '100%', borderRadius: 100}}
-          source={doctor}
-        />
-      );
+  const postpfp = async pickerResult => {
+    try {
+      console.log('==============Inside post pfp==========');
+
+      let ext = '.' + pickerResult.fileName.split('.').pop();
+
+      pickerResult.fileName =
+        doctorId + '_ProfilePhoto_' + JSON.stringify(new Date()) + ext;
+      console.log(pickerResult.fileName);
+      // setMedRegDoc([pickerResult]);
+
+      let formData = new FormData();
+      formData.append('directoryNames', '  DOCTOR_PHOTO');
+      formData.append('file', pickerResult);
+      const {error, response} = await fileUpload(formData);
+
+      if (error != null) {
+        console.log('======error======');
+        console.log(error);
+        Alert.alert(
+          'Error',
+          'There was a problem in uploading profile picture. Please try again.',
+        );
+      } else {
+        console.log('======response======');
+        console.log(response.path);
+        setprofilePhotoPath(response.path);
+        let x = await AsyncStorage.getItem('UserDoctorProfile');
+        x.profilePhotoPath = response.path;
+        await AsyncStorage.setItem('UserDoctorProfile', x);
+      }
+    } catch (e) {
+      console.log(e);
     }
   };
-
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -472,32 +508,38 @@ const DoctorRegistrationStep1 = ({navigation}) => {
           <View style={{flex: 1}}>
             <View
               style={{
+                backgroundColor: 'white',
                 width: 100,
                 height: 100,
-                backgroundColor: '#fff',
-                borderColor: '#efefef',
-                borderWidth: 3,
-                borderRadius: 100,
-                padding: 5,
-                alignItems: 'center',
+                borderRadius: 150,
+                alignSelf: 'center',
+                marginVertical: 20,
               }}>
-              {profileImage()}
-              <TouchableOpacity
-                transparent
-                iconLeft
+              <Image
                 style={{
-                  position: 'absolute',
-                  bottom: -18,
-                  right: -4,
-                  zIndex: 5,
+                  alignSelf: 'center',
+                  width: 75,
+                  height: 75,
+                  marginVertical: 5,
+                  width: 100,
+                  height: 100,
+                  borderRadius: 100,
                 }}
-                onPress={() => {
-                  chooseProfileImage();
-                }}>
-                <Icon
-                  style={[styles.textOrange, styles.textSize18]}
+                source={pfpuri == null ? doctor : {uri: pfpuri}}></Image>
+              <TouchableOpacity onPress={chooseProfileImage}>
+                <FAIcon
                   name="camera"
-                  type="FontAwesome5"></Icon>
+                  size={20}
+                  color={'white'}
+                  style={{
+                    top: -25,
+                    right: -30,
+                    padding: 10,
+                    backgroundColor: 'gray',
+                    borderRadius: 100,
+                    alignSelf: 'center',
+                  }}
+                />
               </TouchableOpacity>
             </View>
           </View>

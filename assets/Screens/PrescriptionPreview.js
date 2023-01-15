@@ -48,6 +48,7 @@ function PrescriptionPreview({navigation}) {
   const [doctorName, setdoctorName] = useState(null);
   const [doctorEducationRaw, setdoctorEducationRaw] = useState([]);
   const [doctorEducationDisp, setdoctorEducationDisp] = useState(null);
+  const imageURL = 'https://jsplquality.jindalsteel.com/arogyaImage/';
 
   useEffect(() => {
     const loadData = async () => {
@@ -72,21 +73,21 @@ function PrescriptionPreview({navigation}) {
       //setting examination details
       if (b != null) {
         let tempb =
-          ` <div class="row align-items-center temp-bp mx-2">
-                    <div class="col-md-6 col-sm-6">
-                        <p class="mb-0">Body Temperature - ` +
+          ` <div class="row align-items-center temp-bp mx-2" style="width:350px">
+                    <div class="col-md-6 col-sm-6"  style="width:auto;">
+                        <p class="mb-0"><b>Body Temperature - </b>` +
           b.temperature +
           ` F</p>
                     </div>
-                    <div class="col-md-6 col-sm-6">
-                        <p class="mb-0">BP - ` +
+                    <div class="col-md-6 col-sm-6"  style="width:auto;">
+                        <p class="mb-0"  style="width:auto"><b>Blood Pressure - </b>` +
           b.BPDiastolic +
           `/` +
           b.BPSystolic +
           ` mmHg</p>
                     </div>
                 </div>
-                <p class="examin mb-0" style="padding: 0 1.2rem;">Examination notes - ` +
+                <p class="examin mb-0 mx-1" style="padding: 0 1.2rem;"><b>Examination notes - </b>` +
           b.examinationNotes +
           `</p>`;
         setExamination(tempb);
@@ -101,12 +102,11 @@ function PrescriptionPreview({navigation}) {
                                     <td>` +
             (i + 1) +
             `</td>
-                                    <td><p class="mb-0">` +
+                                    <td><p class="mb-0"><b>` +
             c[i].medicineName +
-            `</p>
-                                        <span>` +
+            ` (<i>` +
             c[i].medicineType +
-            `</span>
+            `)</i></b></p>
                                     </td>
                                     <td><p class="mb-0">` +
             c[i].instruction +
@@ -199,6 +199,20 @@ function PrescriptionPreview({navigation}) {
     
 </head>
 <style>
+.entire-webpage{
+        zoom: 2;
+        transform: scale(2); /* Standard Property */
+        transform-origin: 0 0;  /* Standard Property */
+    }
+body {
+  justify-content:center;
+   // add prefixed versions too.
+}
+
+.container{
+  margin: 0 auto;
+}
+
 img{
     object-fit: cover;
 }
@@ -207,15 +221,15 @@ img{
     height: 70px;
 }
 .prescription{
-    background: ` +
-    bg +
-    `;
+    //background:url( "` +
+    imageURL +
+    'bg.png' +
+    `");
     background-attachment: scroll;
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 100% 100%;
+    //background-repeat: no-repeat;
+    background-position: auto;
+    //background-size: auto;
     padding: 0.5rem;
-    width: 410px;
     background-color: #fff;
     padding-bottom: 3.5rem;
 }
@@ -259,7 +273,6 @@ img{
     line-height: 15px;
     font-family: Scandia;
     font-style: normal;
-    font-weight: 500;
     font-size: 11px;
     color: rgba(0,0,0,0.75);
     padding: 0.75rem 1.2rem 0;
@@ -268,16 +281,23 @@ img{
     line-height: 18px;
     font-family: Scandia;
     font-style: normal;
-    font-weight: 500;
     font-size: 10px;
     justify-content: space-evenly;
     color: rgba(0,0,0,0.5);
 }
+ .center {
+  height: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width:350px;
+
+}
 .rx{
     width: 18px;
     height: 13px;
-    position: relative;
-    left: 200px;
+   
+    
 }
 table, th, td {
     border: 1px solid rgba(182,182,182,1);
@@ -295,71 +315,75 @@ th{
 }
 @media only screen and (min-width: 320px) and (max-width: 480px){
     .col-sm-6{
-        width: 50%;
+        
+        justify-content:center;
     }
-    .rx {
-        left: 140px;
-    }
+    
 }
 </style>
 
-<body>
+<body class="entire-webpage"  >
 
-    <div class="container my-5">
-        <div class="row mx-auto justify-content-center">
-            <div class="col-md-3">
-
-            </div>
-            <div class="col-md-6 prescription">
+    <div class="container my-5" >
+        <div class="row" >
+            <div class="col-md-12 prescription" >
                 <div>
                     <img src="` +
-    logo +
+    imageURL +
+    'logo@2x.png' +
     `" alt="logo" class="px-logo mx-2">
                 </div>
-                <div class="row align-items-baseline mx-2">
-                    <div class="col-md-6 col-sm-6">
-                        <h2 class="dr-nme mb-0">` +
+                <div class="row align-items-baseline mx-2" style="width:350px">
+                    <div class="col-md-6 col-sm-6" style="">
+                        <h2 class="dr-nme mb-0"><b>` +
     doctorName +
-    `</h2>
+    `</b></h2>
                         ` +
     doctorEducationDisp +
     `
                     </div>
-                    
-                </div>
-                <hr class="my-0 mx-2" style="height: 2px; border: none; background: black;">
-                <img src="/PrescriptionTemplate/rx.png" alt="rx" class="rx">
-                <div class="row align-items-baseline mx-2 py-2" style="background-color: rgba(240,250,255,1);">
-                    <div class="col-md-6 col-sm-6">
-                        <p class="p-nme mb-0">Name: Rohan Kumar</p>
-                        <p class="p-ag">Age/Gender: M/40</p>
+                    <div class="col-md-6 col-sm-6" style="">
+                        <p class="dr-address">Add: D-113 Near Phase 1<br>Metro Gurgaon, Haryana-121001</p>
+                        
                     </div>
-                    <div class="col-md-6 col-sm-6">
-                        <p class="date">` +
+                </div>
+                <div class="center">
+                <img src="` +
+    imageURL +
+    'rx.png' +
+    `" alt="rx" class="rx">
+    </div>
+                <div class="row align-items-baseline mx-2 py-2" style="background-color: rgba(240,250,255,1);width:350px";>
+                    <div class="col-md-6 col-sm-6" style="width:350px">
+                        <p class="p-nme mb-0"><b>Name:</b> Rohan Kumar</p>
+                        <p class="p-ag"><b>Age/Gender:</b> M/40</p>
+                    </div>
+                    <div class="col-md-6 col-sm-6" style="width:350px">
+                        <p class="date"><b>Date :</b>` +
     dayjs(JSON.stringify(new Date().getDate()).substring(0, 11)).format(
       'DD-MM-YYYY',
     ) +
     `</p>
-                        <p class="p-id">Patient ID: R21DY768F2</p>
+                        <p class="p-id"><b>Patient ID:</b> R21DY768F2</p>
                     </div>
                 </div>
-                <p class="mb-0 complaints">Chief Complaints - ` +
+                <p class="mb-0 complaints"><b><u>Chief Complaints :  </u></b>` +
     cheifComplaintsDisplay +
     `</p>
                ` +
     Examination +
     `
-                <p class="mb-1 complaints">Diagnosis -` +
+                <p class="mb-1 complaints"><b><u>Diagnosis : </u></b>` +
     Diagnosis +
     `</p>
                 <div class="row align-items-center mx-2">
                     <div class="col-md-12">
-                        <table style="width: 100%;">
+                        <table style="">
                             <thead>
                                 <tr>
-                                    <th width="10%">S.No</th>
-                                    <th width="50%">Medicine Name</th>
-                                    <th width="40%">Special Instructions</th>
+                                    <th width="30px">S.No</th>
+                                    <th width="150px">Medicine Name</th>
+                                    <th width="140px">Instructions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -370,31 +394,29 @@ th{
                         </table>
                     </div>
                 </div>
-                <p class="examin my-2" style="padding: 0 1.2rem;">Investigation -` +
+                <p class="complaints " ><b><u>Investigation :</u></b><br>` +
     Investigation +
     `</p>
-             
-<p class="mb-1 complaints pt-0" align='right'>- ` +
+              <p class="complaints" ><b><u>Follow-Up Date : </u></b>` +
+    FollowUpDate +
+    `
+<p class="mb-1 complaints pt-0" style="margin-left:250px" >- ` +
     doctorName +
     `</p>   
                 
             </div>
-            <div class="col-md-3">
-
-            </div>
         </div>
     </div>
-
-
-    <!-- <script src="js/bootstrap.min.js"></script> -->
+    
 </body>
 
 </html>`;
 
   let generatePdf = async () => {
+    setshowPdf(false);
     let options = {
       html: html,
-      fileName: 'prescription',
+      fileName: 'prescription' + JSON.stringify(new Date().getDate()),
       directory: 'Documents',
     };
 
@@ -426,9 +448,12 @@ th{
           <Text
             style={{
               alignSelf: 'center',
-              fontSize: 20,
-              marginVertical: 10,
-              color: '#2B8ADA',
+              textAlign: 'center',
+              fontSize: 18,
+              color: 'white',
+              padding: 10,
+              backgroundColor: 'black',
+              width: '100%',
             }}>
             PRESCRIPTION PREVIEW
           </Text>
@@ -451,29 +476,13 @@ th{
                 console.log(`Link pressed: ${uri}`);
               }}
               style={{
-                flex: 1,
+                backgroundColor: '#e8f0fe',
                 width: Dimensions.get('window').width,
-                height: Dimensions.get('window').height,
+                height: Dimensions.get('window').height - 300,
               }}
             />
           ) : null}
           <Button title="Generate PDF" onPress={generatePdf} />
-          <Button
-            title="cheif complain array"
-            onPress={() => {
-              //setcheifComplaintsDisplay(cheifComplaintsDisplay.substring(0,cheifComplaintsDisplay.length));
-            }}
-          />
-          <CustomButton
-            text={'Submit'}
-            textstyle={{color: 'white'}}
-            style={{
-              backgroundColor: '#2b8ada',
-              borderRadius: 10,
-              flex: 1,
-              marginTop: 10,
-            }}
-          />
         </ScrollView>
         {isLoading && (
           <View

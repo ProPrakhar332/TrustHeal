@@ -65,9 +65,22 @@ const RoleScreen = ({navigation}) => {
   //     })
   // }
 
-  const fkg = async () => {
-    axios.get(apiConfig.baseUrl + '');
-  };
+  // const fkg = async mob => {
+
+  //   let x = JSON.parse(AsyncStorage.getItem('UserDoctorProfile'));
+  //   let mob =x.mobileNumber;
+
+  //   axios
+  //     .get(apiConfig.baseUrl + '/doctor/by/mobilenumber?mobilenumber='+mob)
+  //     .then(function (response) {
+  //       if(response.status == 200)
+  //       {
+
+  //       }
+  //     }).catch(function(error){
+
+  //     });
+  // };
 
   return (
     <SafeAreaView style={styles.container}>
