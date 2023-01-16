@@ -64,6 +64,7 @@ const DoctorRegistrationStep1 = ({navigation}) => {
   const [complete, setcomplete] = useState(0);
   const [pfpuri, setpfpuri] = useState(null);
   const [profilePhotoPath, setprofilePhotoPath] = useState('');
+  const [pfpFile, setpfpFile] = useState(null);
 
   const dataShowMobNo = [
     {key: 'Yes', value: 'Yes'},
@@ -189,26 +190,12 @@ const DoctorRegistrationStep1 = ({navigation}) => {
       docObj.mobileNumber = mobile;
       docObj.pincode = PIN;
       docObj.phoneIp = 'phoneIP';
-      docObj.profilephoto = '/aws/s3/pfp';
+      docObj.profilephoto = profilePhotoPath;
       docObj.termsAndCondition = checkTerms;
       console.log(JSON.stringify(docObj));
 
       if (Otherspeciality != '') speciality.push(Otherspeciality);
 
-      // {
-      //   age: await AsyncStorage.getItem('age'),
-      //   city: city,
-      //   countryName: await AsyncStorage.getItem('countryName'),
-      //   dob: dob,
-      //   email: email,
-      //   fullName: name,
-      //   gender: gender,
-      //   mobileNumber: mobile,
-      //   pincode: PIN,
-      //   profilephoto: '/aws/s3/pfp',
-      //   termsAndCondition: checkTerms,
-      //   title: title,
-      // }
       let flag = 0;
       await axios
         .post(apiConfig.baseUrl + '/doctor/generalinfo/save', docObj)
@@ -218,19 +205,18 @@ const DoctorRegistrationStep1 = ({navigation}) => {
           if (response.status == 201 || response.status == 200) {
             flag = 1;
             let userObj = response.data;
-            await AsyncStorage.setItem(
-              'UserDoctorProfile',
-              JSON.stringify(userObj),
-            );
             console.log('===========Doctor Registration Page 1==============');
             console.log(userObj);
 
-            let d = JSON.parse(
-              await AsyncStorage.getItem('UserDoctorProfile'),
-            ).doctorId;
+            let d = userObj.doctorId;
             await AsyncStorage.setItem(
               d + 'speciality',
               JSON.stringify(speciality),
+            );
+            userObj.pfpuri = pfpuri;
+            await AsyncStorage.setItem(
+              'UserDoctorProfile',
+              JSON.stringify(userObj),
             );
             let langTemp = [];
             Language.forEach(item => {
@@ -266,6 +252,7 @@ const DoctorRegistrationStep1 = ({navigation}) => {
           flag = 0;
           Alert.alert('Error', 'Please try again later');
         });
+
       if (flag == 1) {
         Alert.alert(
           'Welcome to Arogya! ',
@@ -336,6 +323,15 @@ const DoctorRegistrationStep1 = ({navigation}) => {
     openURL('https://www.google.com');
   };
 
+  const checkpfp = useCallback(async url => {
+    const supported = await Linking.canOpenURL(url);
+    if (supported) {
+      setpfpuri(url);
+    } else {
+      console.log('Error in pfp');
+    }
+  }, []);
+
   //pfp
   const chooseProfileImage = async () => {
     Alert.alert(
@@ -352,11 +348,9 @@ const DoctorRegistrationStep1 = ({navigation}) => {
                 Alert.alert('Error', response.errorMessage);
               } else {
                 if (response.assets[0].fileSize <= 2097152) {
-                  await postpfp(response.assets[0]);
+                  //await postpfp(response.assets[0]);
+                  setpfpFile(response.assets[0]);
                   setpfpuri(response.assets[0].uri);
-                  let x = await AsyncStorage.getItem('UserDoctorProfile');
-                  x.profileUri = response.assets[0].uri;
-                  await AsyncStorage.setItem('UserDoctorProfile', x);
                 } else
                   Alert.alert(
                     'Max Size',
@@ -412,11 +406,9 @@ const DoctorRegistrationStep1 = ({navigation}) => {
           Alert.alert('Error', response.errorMessage);
         } else {
           if (response.assets[0].fileSize <= 2097152) {
-            await postpfp(response.assets[0]);
+            //await postpfp(response.assets[0]);
+            setpfpFile(response.assets[0]);
             setpfpuri(response.assets[0].uri);
-            let x = await AsyncStorage.getItem('UserDoctorProfile');
-            x.profileUri = response.assets[0].uri;
-            await AsyncStorage.setItem('UserDoctorProfile', x);
           } else
             Alert.alert(
               'Max Size',
@@ -433,7 +425,10 @@ const DoctorRegistrationStep1 = ({navigation}) => {
       let ext = '.' + pickerResult.fileName.split('.').pop();
 
       pickerResult.fileName =
-        doctorId + '_ProfilePhoto_' + JSON.stringify(new Date()) + ext;
+        JSON.stringify(new Date().getTime) +
+        '_ProfilePhoto_' +
+        JSON.stringify(new Date()) +
+        ext;
       console.log(pickerResult.fileName);
       // setMedRegDoc([pickerResult]);
 
@@ -453,9 +448,6 @@ const DoctorRegistrationStep1 = ({navigation}) => {
         console.log('======response======');
         console.log(response.path);
         setprofilePhotoPath(response.path);
-        let x = await AsyncStorage.getItem('UserDoctorProfile');
-        x.profilePhotoPath = response.path;
-        await AsyncStorage.setItem('UserDoctorProfile', x);
       }
     } catch (e) {
       console.log(e);
@@ -867,6 +859,7 @@ const DoctorRegistrationStep1 = ({navigation}) => {
                     var validRegex =
                       /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
                     if (email.match(validRegex)) {
+                      await postpfp(pfpFile);
                       PostData();
                     } else
                       Alert.alert(
@@ -968,7 +961,7 @@ const DoctorRegistrationStep1 = ({navigation}) => {
                             padding: 5,
                           }}
                           onPress={() => {
-                            PostData();
+                            //  PostData();
 
                             setTermsView(false);
                           }}

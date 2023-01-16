@@ -227,7 +227,7 @@ const ManageSchedule = () => {
           console.log(error);
         });
     };
-    getDate();
+    if (PCclinicId != '') getDate();
   }, [PCclinicId]);
 
   // useEffect(() => {
@@ -333,14 +333,17 @@ const ManageSchedule = () => {
         .then(function (response) {
           console.log(response.status);
           if (response.status == 201 || response.status == 200) {
-            Alert.alert('Slot details submitted successfully');
+            Alert.alert('Slot Added', 'Slot details submitted successfully');
             setPCData([]);
             getPDates();
-          } else Alert.alert('There was some problem please try again');
+          } else Alert.alert('Error', 'There was some problem please try again');
         })
         .catch(function (error) {
-          Alert.alert('There was some problem please try again');
           console.log('=====Get Create PSlots=====');
+          Alert.alert(
+            'Error',
+            `There was some problem please try again.\n ${error}`,
+          );
 
           console.log(error);
           setPCData([]);
@@ -371,9 +374,12 @@ const ManageSchedule = () => {
         }
       }
       if (flag == 1) {
-        Alert.alert('Sorry you cannot insert duplicate records');
+        Alert.alert(
+          'Duplicate Data',
+          'Sorry you cannot insert duplicate records',
+        );
         setPCData([]);
-        reset();
+        await reset();
       } else {
         PCData.push(p);
         axios
@@ -381,13 +387,16 @@ const ManageSchedule = () => {
           .then(function (response) {
             console.log(response.status);
             if (response.status == 201 || response.status == 200) {
-              Alert.alert('Slot details submitted successfully');
+              Alert.alert('Slot Added', 'Slot details submitted successfully');
               setPCData([]);
               getPDates();
-            } else Alert.alert('There was some problem please try again');
+            } else Alert.alert('Error', 'There was some problem please try again');
           })
           .catch(function (error) {
-            Alert.alert('There was some problem please try again');
+            Alert.alert(
+              'Error',
+              `There was some problem please try again.\n ${error}`,
+            );
             console.log('=====Create p slots=====');
 
             console.log(error);
@@ -425,10 +434,10 @@ const ManageSchedule = () => {
         .then(function (response) {
           console.log(response.status);
           if (response.status == 201 || response.status == 200) {
-            Alert.alert('Slot details submitted successfully');
+            Alert.alert('Slot Added', 'Slot details submitted successfully');
             setECData([]);
             getEDates();
-          } else Alert.alert('There was some problem please try again');
+          } else Alert.alert('Error', 'There was some problem please try again');
         })
         .catch(function (error) {
           console.log('=====Create Eslots Detail=====');
@@ -455,8 +464,11 @@ const ManageSchedule = () => {
         } else continue;
       }
       if (flag == 1) {
-        Alert.alert('Sorry you cannot insert overlapping timings');
-        reset();
+        Alert.alert(
+          'Overlapping Slot',
+          'Sorry you cannot insert overlapping timings',
+        );
+        await reset();
       } else {
         ECData.push(p);
         axios
@@ -464,25 +476,26 @@ const ManageSchedule = () => {
           .then(function (response) {
             console.log(response.status);
             if (response.status == 201) {
-              Alert.alert('Slot details submitted successfully');
+              Alert.alert('Slot Added', 'Slot details submitted successfully');
               setECData([]);
               getEDates();
-            } else Alert.alert('There was some problem please try again');
+            } else Alert.alert('Error', 'There was some problem please try again');
           })
           .catch(function (error) {
             console.log('=====Create eslots=====');
 
             console.log(error);
           });
-        Alert.alert('Slot details submitted successfully');
+        Alert.alert('Slot Added', 'Slot details submitted successfully');
       }
     }
     console.log(ECData);
   };
 
-  const reset = () => {
+  const reset = async () => {
     setPCCreateClinicAddress('');
     setPCCreateClinicName('');
+    setPCclinicId('');
     setselectedDate('');
     setPCinTimeHH('');
     setPCinTimeMM('');
@@ -506,13 +519,16 @@ const ManageSchedule = () => {
       .post(apiConfig.baseUrl + '/doctor/clinic/save/or/update', amp)
       .then(function (response) {
         if (response.status == 200 || response.status == 201) {
-          Alert.alert('Clinic Details has been updated successfully!');
+          Alert.alert(
+            'Updated',
+            'Clinic Details has been updated successfully!',
+          );
           setClinicModal(false);
         }
       })
       .catch(function (error) {
-        console.log('Error in Clinic Update');
-        Alert.alert('Pls try again later!');
+        console.log('Error in Clinic Update', `${error}`);
+        Alert.alert('Error in Clinic Update', `${error}`);
       });
   };
   const deleteClinic = async id => {
@@ -520,13 +536,13 @@ const ManageSchedule = () => {
       .delete(apiConfig.baseUrl + '/doctor/clinic/disable?clinicId=' + id)
       .then(function (response) {
         if (response.status == 200 || response.status == 201) {
-          Alert.alert('Clinic has been deleted successfully!');
+          Alert.alert('Deleted', 'Clinic has been deleted successfully!');
           setmanageClinicsLabel(false);
         }
       })
       .catch(function (error) {
-        console.log('Error in Clinic Deletion');
-        Alert.alert('Pls try again later!');
+        console.log('Error in Clinic Deletion', error);
+        Alert.alert('Error in Clinic Deletion', `${error}`);
       });
   };
 
@@ -1060,7 +1076,7 @@ const ManageSchedule = () => {
                             borderRadius: 10,
                             marginTop: 20,
                           }}
-                          onPress={() => {
+                          onPress={async () => {
                             let p = {
                               clinicAddress: PCCreateClinicAddress,
                               clinicName: PCCreateClinicName,
@@ -1088,10 +1104,14 @@ const ManageSchedule = () => {
 
                             if (PCCreateClinicID == '')
                               Alert.alert(
+                                'Incomplete Details',
                                 'Please select a hospital from the list',
                               );
                             else if (selectedDate == '')
-                              Alert.alert('Please select date');
+                              Alert.alert(
+                                'Incomplete Details',
+                                'Please select date',
+                              );
                             else if (
                               PCinTimeHH == '' ||
                               PCinTimeMM == '' ||
@@ -1100,6 +1120,7 @@ const ManageSchedule = () => {
                               PCduration == ''
                             )
                               Alert.alert(
+                                'Incomplete Details',
                                 'Please fill all time details before submiting',
                               );
                             else {
@@ -1125,11 +1146,14 @@ const ManageSchedule = () => {
                                   Number(PCinTimeMM) > Number(PCoutTimeMM)) ||
                                 Number(PCinTimeHH) > Number(PCoutTimeHH)
                               )
-                                Alert.alert('Enter Valid time');
+                                Alert.alert(
+                                  'Invalid Time',
+                                  'Please enter valid time',
+                                );
                               else {
                                 console.log(PCData);
                                 pushSlot();
-                                reset();
+                                await reset();
                               }
                             }
                           }}
@@ -1319,7 +1343,7 @@ const ManageSchedule = () => {
                             borderRadius: 10,
                             marginVertical: 10,
                           }}
-                          onPress={() => {
+                          onPress={async () => {
                             //setemodal(false);
                             if (
                               selectedDate == '' ||
@@ -1330,6 +1354,7 @@ const ManageSchedule = () => {
                               ECduration == ''
                             )
                               Alert.alert(
+                                'Incomplete Details',
                                 'Please fill all details before submiting',
                               );
                             else {
@@ -1346,7 +1371,10 @@ const ManageSchedule = () => {
                                   Number(ECinTimeMM) > Number(ECoutTimeMM)) ||
                                 Number(ECinTimeHH) > Number(ECoutTimeHH)
                               )
-                                Alert.alert('Enter Valid time');
+                                Alert.alert(
+                                  'Invalid Time',
+                                  'Please enter valid time',
+                                );
                               else {
                                 pushESlot();
                                 reset();
@@ -1459,9 +1487,15 @@ const ManageSchedule = () => {
                       }}
                       onPress={() => {
                         if (clinicName == '')
-                          Alert.alert('Please fill Clinic Name ');
+                          Alert.alert(
+                            'Incomplete Details',
+                            'Please fill Clinic Name ',
+                          );
                         else if (clinicAddress == '')
-                          Alert.alert('Please fill Clinic Address');
+                          Alert.alert(
+                            'Incomplete Details',
+                            'Please fill Clinic Address',
+                          );
                         else {
                           let p = {
                             clinicAddress: clinicAddress,
@@ -1484,7 +1518,10 @@ const ManageSchedule = () => {
                             setspecialInstruction('');
                             setmanageClinicsLabel(false);
                           } else {
-                            Alert.alert('Duplicate clinic details found.');
+                            Alert.alert(
+                              'Duplicate Data',
+                              'Duplicate clinic details found.',
+                            );
                           }
                         }
                       }}
@@ -1750,14 +1787,25 @@ const ManageSchedule = () => {
                             </View>
                           ) : (
                             <View>
-                              <Text
-                                style={{
-                                  marginVertical: 10,
-                                  alignSelf: 'center',
-                                  fontSize: 12,
-                                }}>
-                                No Dates Available
-                              </Text>
+                              {PCclinicId == '' ? (
+                                <Text
+                                  style={{
+                                    marginVertical: 10,
+                                    alignSelf: 'center',
+                                    fontSize: 12,
+                                  }}>
+                                  Please Select a Clinic
+                                </Text>
+                              ) : (
+                                <Text
+                                  style={{
+                                    marginVertical: 10,
+                                    alignSelf: 'center',
+                                    fontSize: 12,
+                                  }}>
+                                  No Dates Available
+                                </Text>
+                              )}
                             </View>
                           )}
                         </View>

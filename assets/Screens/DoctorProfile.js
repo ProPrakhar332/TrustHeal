@@ -15,7 +15,10 @@ import {
   StatusBar,
   ScrollView,
   StyleSheet,
+  Linking,
+  LogBox,
 } from 'react-native';
+import {useCallback} from 'react';
 import CustomButton from '../Components/CustomButton';
 import Header from '../Components/Header';
 import FAIcon from 'react-native-vector-icons/FontAwesome5';
@@ -48,6 +51,8 @@ function BasicDesign({navigation}) {
   const [EarningModal, setEarningModal] = useState(false);
   const [EarningsData, setEarningsData] = useState([]);
   const [HelpModal, setHelpModal] = useState(false);
+  const [profilePhotoPath, setprofilePhotoPath] = useState('');
+  const [pfpuri, setpfpuri] = useState(null);
 
   const logout = async () => {
     console.log('Logging out');
@@ -59,6 +64,15 @@ function BasicDesign({navigation}) {
     console.log(await AsyncStorage.getAllKeys());
     navigation.navigate('RoleScreen');
   };
+
+  const checkpfp = useCallback(async url => {
+    const supported = await Linking.canOpenURL(url);
+    if (supported) {
+      setpfpuri(url);
+    } else {
+      console.log('Error in pfp');
+    }
+  }, []);
 
   useEffect(() => {
     const onLoadSetData = async () => {
@@ -74,6 +88,8 @@ function BasicDesign({navigation}) {
       setGender(x.gender);
       setdoctorId(x.doctorId);
       //console.log("doctor id" + x.doctorId);
+      checkpfp(x.profilePhotoPath);
+      setprofilePhotoPath(x.profilePhotoPath);
     };
     onLoadSetData();
   }, []);
@@ -135,7 +151,7 @@ function BasicDesign({navigation}) {
                   justifyContent: 'center',
                 }}>
                 <Image
-                  source={doctor}
+                  source={pfpuri == null ? doctor : {uri: pfpuri}}
                   style={{
                     backgroundColor: '#2B8ADA',
                     borderRadius: 70,

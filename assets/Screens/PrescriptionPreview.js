@@ -221,7 +221,7 @@ img{
     height: 70px;
 }
 .prescription{
-    //background:url( "` +
+    background:url( "` +
     imageURL +
     'bg.png' +
     `");
@@ -234,7 +234,7 @@ img{
     padding-bottom: 3.5rem;
 }
 .dr-nme{
-    line-height: 28px;
+    line-height: 20px;
     font-family: Scandia;
     font-style: normal;
     font-weight: bold;

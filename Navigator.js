@@ -340,7 +340,7 @@ function CustomDrawerContent(props) {
                 fontWeight: 'bold',
               }}>
               {props.doctorObj != null
-                ? props.doctorObj.doctorName
+                ? props.doctorObj.fullName
                 : 'Doctor Name'}
             </Text>
             <Text style={{color: 'white', fontSize: 10, marginBottom: 10}}>

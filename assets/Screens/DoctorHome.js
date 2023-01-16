@@ -14,9 +14,12 @@ import {
   TouchableOpacity,
   StatusBar,
   Alert,
+  Linking,
   TextInput,
   FlatList,
 } from 'react-native';
+import {useCallback} from 'react';
+
 import {CheckBox} from 'react-native-elements';
 import FAIcon from 'react-native-vector-icons/FontAwesome5';
 import CustomButton from '../Components/CustomButton';
@@ -28,6 +31,9 @@ import pfp1 from '../Resources/patient.png';
 import chatting from '../Resources/chattingMedium.png';
 import payonclinic from '../Icons/payonclinic.png';
 import prepaid from '../Icons/prepaid.png';
+import waiting from '../Animations/waiting1.gif';
+import downloading from '../Animations/downloading.gif';
+
 import Header from '../Components/Header';
 import {
   SelectList,
@@ -77,6 +83,7 @@ const DoctorHome = ({navigation}) => {
   const [ManageStatusModal, setManageStatusModal] = useState(false);
   const [ManageStatus, setManageStatus] = useState('');
   const [PrescriptionMade, setPrescriptionMade] = useState('');
+  const [isFetching, setisFetching] = useState(false);
 
   const layout = useWindowDimensions();
 
@@ -113,6 +120,14 @@ const DoctorHome = ({navigation}) => {
 
   //   return out.substring(0, out.length - 1);
   // };
+  const openURL = useCallback(async url => {
+    const supported = await Linking.canOpenURL(url);
+    if (supported) {
+      await Linking.openURL(url);
+    } else {
+      Alert.alert('Error', `Don't know how to open this URL: ${url}`);
+    }
+  }, []);
 
   const timeformatter = time => {
     let text = time;
@@ -181,7 +196,7 @@ const DoctorHome = ({navigation}) => {
               setConsultationQuestionnaire(true);
             }}
           />
-          {/* <CustomButton
+          <CustomButton
             text="Manage Status"
             textstyle={{color: '#2B8ADA', fontSize: 10}}
             style={{
@@ -194,7 +209,7 @@ const DoctorHome = ({navigation}) => {
               padding: 4,
             }}
             onPress={() => setManageStatusModal(true)}
-          /> */}
+          />
         </View>
         <View
           style={{
@@ -410,7 +425,7 @@ const DoctorHome = ({navigation}) => {
               borderRadius: 5,
             }}
             onPress={() => {
-              setupcomingConsultationId(item.consultationId);
+              settodayId(item.consultationId);
               setTodaysModal(true);
             }}>
             <FAIcon
@@ -612,7 +627,7 @@ const DoctorHome = ({navigation}) => {
               borderRadius: 5,
             }}
             onPress={() => {
-              setpatientId(item.patientsDetails.patientId);
+              settodayId(item.consultationId);
               setHistoryModal(true);
             }}>
             <FAIcon
@@ -623,7 +638,7 @@ const DoctorHome = ({navigation}) => {
             />
             <Text style={{fontSize: 13}}>History</Text>
           </TouchableOpacity>
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={{
               flexDirection: 'row',
               padding: 3,
@@ -640,7 +655,7 @@ const DoctorHome = ({navigation}) => {
               size={15}
               style={{marginHorizontal: 5}}
             />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       </TouchableOpacity>
     );
@@ -831,8 +846,8 @@ const DoctorHome = ({navigation}) => {
               borderRadius: 5,
             }}
             onPress={() => {
-              setpatientId(item.patientsDetails.patientId);
-              setHistoryModal(true);
+              settodayId(item.consultationId);
+              setTodaysModal(true);
             }}>
             <FAIcon
               name="file-pdf"
@@ -842,7 +857,7 @@ const DoctorHome = ({navigation}) => {
             />
             <Text style={{fontSize: 13}}>History</Text>
           </TouchableOpacity>
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={{
               flexDirection: 'row',
               padding: 3,
@@ -859,7 +874,7 @@ const DoctorHome = ({navigation}) => {
               size={15}
               style={{marginHorizontal: 5}}
             />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       </TouchableOpacity>
     );
@@ -957,7 +972,10 @@ const DoctorHome = ({navigation}) => {
                 style={{
                   marginHorizontal: 5,
                 }}
-                onPress={() => console.log(item.documentPath)}
+                onPress={() => {
+                  console.log(item.documentPath);
+                  openURL(item.documentPath);
+                }}
               />
               <Text style={styles.HistoryModalText}>{item.documentName}</Text>
             </View>
@@ -991,7 +1009,10 @@ const DoctorHome = ({navigation}) => {
             style={{
               marginHorizontal: 5,
             }}
-            onPress={() => console.log(item.documentPath)}
+            onPress={() => {
+              console.log(item.documentPath);
+              openURL(item.documentPath);
+            }}
           />
         </View>
       </TouchableOpacity>
@@ -1004,7 +1025,7 @@ const DoctorHome = ({navigation}) => {
       setDoctorObj(x);
       let doctorId = x.doctorId;
       //console.log(doctorId);
-
+      setisFetching(true);
       axios
         .get(
           apiConfig.baseUrl +
@@ -1012,8 +1033,22 @@ const DoctorHome = ({navigation}) => {
             doctorId,
         )
         .then(function (response) {
-          setUpcomingData(response.data);
+          setisFetching(false);
+          if (response.status == 200) {
+            setUpcomingData(response.data);
+          }
           //console.log(UpcomingData);
+        })
+        .catch(function (error) {
+          setisFetching(false);
+          Alert.alert(
+            'Error',
+            'An error occured while fetching upcoming details. Please try again later.',
+          );
+          console.log(
+            '=====Error in fetching upcoming consultation details=====',
+          );
+          console.log(error);
         });
     };
     if (Upcoming == true) getData();
@@ -1024,7 +1059,7 @@ const DoctorHome = ({navigation}) => {
       let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
       let doctorId = x.doctorId;
       //console.log("Completed");
-
+      setisFetching(true);
       axios
         .get(
           apiConfig.baseUrl +
@@ -1036,8 +1071,20 @@ const DoctorHome = ({navigation}) => {
             5,
         )
         .then(function (response) {
-          setCompleteData(response.data);
+          setisFetching(false);
+          if (response.status == 200) setCompleteData(response.data);
           //console.log(CompleteData);
+        })
+        .catch(function (error) {
+          setisFetching(false);
+          Alert.alert(
+            'Error',
+            'An error occured while fetching completed consultation details. Please try again later.',
+          );
+          console.log(
+            '=====Error in fetching completed consultation details=====',
+          );
+          console.log(error);
         });
     };
     if (Complete == true) getData();
@@ -1048,7 +1095,7 @@ const DoctorHome = ({navigation}) => {
       let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
       let doctorId = x.doctorId;
       //console.log("Recent");
-
+      setisFetching(true);
       axios
         .get(
           apiConfig.baseUrl +
@@ -1056,8 +1103,20 @@ const DoctorHome = ({navigation}) => {
             doctorId,
         )
         .then(function (response) {
-          setStatusData(response.data);
+          setisFetching(false);
+          if (response.status == 200) setStatusData(response.data);
           //console.log(StatusData);
+        })
+        .catch(function (error) {
+          setisFetching(false);
+          Alert.alert(
+            'Error',
+            'An error occured while fetching recent consultation details. Please try again later.',
+          );
+          console.log(
+            '=====Error in fetching recent consultation details=====',
+          );
+          console.log(error);
         });
     };
     if (Status == true) getData();
@@ -1073,8 +1132,17 @@ const DoctorHome = ({navigation}) => {
             UpcomingId,
         )
         .then(function (response) {
-          setPreconsultaionQuestionData(response.data);
+          if (response.status == 200)
+            setPreconsultaionQuestionData(response.data);
           // console.log(PreconsultaionQuestionData);
+        })
+        .catch(function (error) {
+          Alert.alert(
+            'Error',
+            'An error occured while fetching preconsultation questions. Please try again later.',
+          );
+          console.log('=====Error in fetching preconsultation questions=====');
+          console.log(error);
         });
     };
     if (ConsultationQuestionnaire == true) getPreconsultationQuestions();
@@ -1082,14 +1150,21 @@ const DoctorHome = ({navigation}) => {
 
   useEffect(() => {
     const getHistoryDocs = async () => {
-      console.log(patientId);
+      console.log(historyId);
       axios
-        .get(apiConfig.baseUrl + '/docs/current?consultationId=' + patientId)
+        .get(
+          apiConfig.baseUrl + '/docs/upcoming/history?patientId=' + historyId,
+        )
         .then(function (response) {
-          sethistoryData(response.data);
+          if (response.status == 200) sethistoryData(response.data);
           //console.log(historyData);
         })
         .catch(function (error) {
+          Alert.alert(
+            'Error',
+            'An error occured while fetching documents. Please try again later.',
+          );
+          console.log('=====Error in fetching documents=====');
           console.log(error);
         });
     };
@@ -1098,18 +1173,21 @@ const DoctorHome = ({navigation}) => {
 
   useEffect(() => {
     const getTodaysDocs = async () => {
-      console.log(upcomingConsultationId);
+      console.log(todayId);
       axios
-        .get(
-          apiConfig.baseUrl +
-            '/docs/current?consultationId=' +
-            upcomingConsultationId,
-        )
+        .get(apiConfig.baseUrl + '/docs/current?consultationId=' + todayId)
         .then(function (response) {
-          setTodaysDocs(response.data);
+          if (response.status == 200) setTodaysDocs(response.data);
           //console.log(TodaysDocs);
         })
         .catch(function (error) {
+          Alert.alert(
+            'Error',
+            'An error occured while fetching previous documents of patient. Please try again later.',
+          );
+          console.log(
+            '=====Error in fetching previous documents of patient=====',
+          );
           console.log(error);
         });
     };
@@ -1302,19 +1380,32 @@ const DoctorHome = ({navigation}) => {
                         onPress={() => setHistoryModal(false)}
                       />
                     </View>
-                    {historyData != '' ? (
-                      <View style={{height: 270, width: '100%'}}>
-                        <FlatList
-                          data={historyData}
-                          keyExtractor={item => item.uploadedDate}
-                          renderItem={renderHistory}
-                        />
+                    <View style={{minHeight: 150, width: '100%'}}>
+                      <View
+                        style={{
+                          padding: 10,
+                          width: '100%',
+                          alignSelf: 'center',
+                          borderRadius: 7,
+                          marginVertical: 10,
+                        }}>
+                        {historyData != '' ? (
+                          <View style={{minHeight: 270, width: '100%'}}>
+                            <FlatList
+                              data={historyData}
+                              keyExtractor={item => item.uploadedDate}
+                              renderItem={renderHistory}
+                            />
+                          </View>
+                        ) : (
+                          <View>
+                            <Text style={{textAlign: 'center'}}>
+                              No previous record has been found
+                            </Text>
+                          </View>
+                        )}
                       </View>
-                    ) : (
-                      <View>
-                        <Text>No data found of the Patient</Text>
-                      </View>
-                    )}
+                    </View>
                   </View>
                 </View>
               </Modal>
@@ -1370,7 +1461,7 @@ const DoctorHome = ({navigation}) => {
                         onPress={() => setTodaysModal(false)}
                       />
                     </View>
-                    <View style={{height: 150, width: '100%'}}>
+                    <View style={{minHeight: 150, width: '100%'}}>
                       <View
                         style={{
                           padding: 10,
@@ -1530,9 +1621,10 @@ const DoctorHome = ({navigation}) => {
                         setManageStatusModal(false);
                         if (PrescriptionMade == 'No') {
                           Alert.alert(
+                            'Prescription Missing',
                             'Please make Prescription for the patient',
                           );
-                          navigation.navigate('CheifComplaints');
+                          onPressPrescription();
                         }
                       }}
                     />
@@ -1726,6 +1818,64 @@ const DoctorHome = ({navigation}) => {
             ) : null}
           </View>
         </ScrollView>
+        {isFetching == true && (
+          <View
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: 'rgba(0,0,0,0.4)',
+            }}>
+            <View
+              style={{
+                backgroundColor: 'white',
+                alignSelf: 'center',
+                borderRadius: 20,
+                width: 200,
+                height: 200,
+                justifyContent: 'center',
+                flexDirection: 'column',
+              }}>
+              <Image
+                source={downloading}
+                style={{
+                  alignSelf: 'center',
+                  width: 80,
+                  height: 80,
+                  // borderRadius: 150,
+                }}
+              />
+              <Text
+                style={{
+                  alignSelf: 'center',
+                  textAlign: 'center',
+                  color: '#2B8ADA',
+                  fontSize: 18,
+                  fontWeight: 'bold',
+                  width: '100%',
+                  marginVertical: 5,
+                  // padding: 10,
+                }}>
+                {'Please wait '}
+              </Text>
+              <Text
+                style={{
+                  alignSelf: 'center',
+                  textAlign: 'center',
+                  color: 'black',
+                  fontSize: 12,
+                  width: '100%',
+                  paddingHorizontal: 15,
+                }}>
+                {'We are fetching details'}
+              </Text>
+            </View>
+          </View>
+        )}
       </SafeAreaView>
     </KeyboardAvoidingView>
   );
@@ -1743,11 +1893,11 @@ const styles = StyleSheet.create({
     height: 50,
     width: '95%',
     flexDirection: 'row',
-    padding: 5,
+    paddingHorizontal: 15,
     borderWidth: 1,
     borderColor: '#2B8ADA',
     backgroundColor: 'white',
-    borderRadius: 25,
+    borderRadius: 15,
     alignSelf: 'center',
     marginVertical: 10,
   },

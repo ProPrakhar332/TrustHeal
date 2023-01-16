@@ -111,6 +111,7 @@ const DoctorRegistration2 = ({navigation}) => {
   const [mobileNumber, setmobileNumber] = useState('');
   const [pfpPath, setpfpPath] = useState('');
   const [DigitalSign, setDigitalSign] = useState('');
+  const [pfpuri, setpfpuri] = useState(null);
 
   //Medical Registration Feild
   const [showMedReg, setShowMedReg] = useState(false);
@@ -348,13 +349,16 @@ const DoctorRegistration2 = ({navigation}) => {
     const onLoadSetData = async () => {
       let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
       console.log('=============Doctor REgistration page 2==============');
-      console.log(x);
+      //console.log(x);
       let Fn = x.fullName == undefined ? x.doctorName : x.fullName;
+
+      console.log('====Profile=====');
       console.log(x);
+
       setTitle(Fn.substring(0, Fn.indexOf(' ')));
       setName(Fn.substring(Fn.indexOf(' ') + 1));
       setdoctorId(Number(x.doctorId));
-      // console.log(doctorId);
+      //console.log(doctorId);
       setEmail(x.email);
       setGender(x.gender);
       setCity(x.city);
@@ -364,6 +368,9 @@ const DoctorRegistration2 = ({navigation}) => {
       setprofileCompleted(x.profileCompleted);
       setverified(x.verified);
       setmobileNumber(x.mobileNumber);
+
+      if (x.pfpuri != null) setpfpuri(x.pfpuri);
+
       var temp = JSON.parse(
         await AsyncStorage.getItem(x.doctorId + 'speciality'),
       );
@@ -396,10 +403,9 @@ const DoctorRegistration2 = ({navigation}) => {
         setdataSpecialization(data);
       }
       var d = new Date().getFullYear();
-      //console.log(x.dob.substring(0, 4));
-      var i = Number(x.dob.substring(0, 4));
-      if (i == 0) i = 1940;
-      else i += 17;
+      console.log(x.dob);
+      var i = x.dob != undefined ? Number(x.dob.substring(0, 4)) + 16 : 1940;
+      // var i = 1940;
       for (; i <= d; ++i) {
         dataYear.push({key: i + '', value: i + ''});
       }
@@ -634,32 +640,31 @@ const DoctorRegistration2 = ({navigation}) => {
               </Text>
             </View>
             {/*Actions */}
-            <View
+            <TouchableOpacity
               style={[
                 styles.cellStyle,
                 {
                   flexDirection: 'row',
-                  alignContent: 'center',
+                  justifyContent: 'space-around',
                 },
               ]}>
-              <TouchableOpacity>
-                <FAIcon
-                  name="file-pdf"
-                  size={15}
-                  color={'#2b8ada'}
-                  style={{marginRight: 7}}
-                  onPress={() =>
-                    console.log(IdentificationDocs.identificationPath)
-                  }
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
+              <FAIcon
+                name="file-pdf"
+                size={15}
+                color={'#2b8ada'}
+                onPress={() =>
+                  console.log(IdentificationDocs.identificationPath)
+                }
+              />
+              <FAIcon
+                name="trash"
+                color={'red'}
+                size={15}
                 onPress={() => {
                   removeIdenHandler(index);
-                }}>
-                <FAIcon name="trash" color={'red'} size={15} />
-              </TouchableOpacity>
-            </View>
+                }}
+              />
+            </TouchableOpacity>
           </View>
         </View>
       );
@@ -716,21 +721,25 @@ const DoctorRegistration2 = ({navigation}) => {
                 {Education.university}
               </Text>
             </View>
-            <TouchableOpacity style={styles.cellStyle}>
-              <FAIcon
-                name="trash"
-                color={'red'}
-                size={15}
-                onPress={() => {
-                  removeEduHandler(index);
-                }}
-              />
+            <TouchableOpacity
+              style={[
+                styles.cellStyle,
+                {flexDirection: 'row', justifyContent: 'space-around'},
+              ]}>
               <FAIcon
                 name="file-pdf"
                 size={15}
                 color={'#2b8ada'}
                 onPress={() => {
                   console.log(Education.degreePath);
+                }}
+              />
+              <FAIcon
+                name="trash"
+                color={'red'}
+                size={15}
+                onPress={() => {
+                  removeEduHandler(index);
                 }}
               />
             </TouchableOpacity>
@@ -1338,8 +1347,11 @@ const DoctorRegistration2 = ({navigation}) => {
                   width: 75,
                   height: 75,
                   marginVertical: 5,
+                  width: 100,
+                  height: 100,
+                  borderRadius: 100,
                 }}
-                source={doctor}></Image>
+                source={pfpuri == null ? doctor : {uri: pfpuri}}></Image>
             </View>
           </View>
 
@@ -1804,17 +1816,17 @@ const DoctorRegistration2 = ({navigation}) => {
                             onPress={() => {
                               if (RegNo == '')
                                 Alert.alert(
-                                  'Warning!',
+                                  'Incomplete Details!',
                                   'Please Fill Registration Number',
                                 );
                               else if (RegCouncil == '')
                                 Alert.alert(
-                                  'Warning!',
+                                  'Incomplete Details!',
                                   'Please Fill Registration Council Name',
                                 );
                               else if (RegYear == '')
                                 Alert.alert(
-                                  'Warning!',
+                                  'Incomplete Details!',
                                   'Please Select Registration Year',
                                 );
                               else {
@@ -1878,21 +1890,21 @@ const DoctorRegistration2 = ({navigation}) => {
                         onPress={() => {
                           if (RegNo == '')
                             Alert.alert(
-                              'Warning!',
+                              'Incomplete Details!',
                               'Please Fill Registration Number',
                             );
                           else if (RegCouncil == '')
                             Alert.alert(
-                              'Warning!',
+                              'Incomplete Details!',
                               'Please Fill Registration Council',
                             );
                           else if (RegYear == '')
                             Alert.alert(
-                              'Warning!',
+                              'Incomplete Details!',
                               'Please Select Registration',
                             );
                           // else if (certificatePath == '')
-                          //   Alert.alert('Warning!', 'Please Select Document');
+                          //   Alert.alert('Incomplete Details!', 'Please Select Document');
                           else postMedReg();
                         }}
                       />
@@ -2103,15 +2115,24 @@ const DoctorRegistration2 = ({navigation}) => {
                           marginBottom: 10,
                         }}>
                         <CustomButton
-                          text="Select File"
-                          textstyle={{color: '#2b8ada', fontSize: 12}}
+                          text={
+                            degreePath == ''
+                              ? 'Select File'
+                              : ' ✓ File Selected'
+                          }
+                          textstyle={{
+                            color: degreePath == '' ? '#2b8ada' : '#21c47f',
+                            fontSize: 12,
+                            fontWeight: 'bold',
+                          }}
                           style={{
                             backgroundColor: 'white',
                             borderRadius: 12,
                             padding: 6,
                             paddingHorizontal: 10,
                             borderWidth: 2,
-                            borderColor: '#2b8ada',
+                            borderColor:
+                              degreePath == '' ? '#2b8ada' : '#21c47f',
                           }}
                           onPress={() => {
                             if (
@@ -2121,7 +2142,7 @@ const DoctorRegistration2 = ({navigation}) => {
                               University == ''
                             )
                               Alert.alert(
-                                'Warning',
+                                'Incomplete Details',
                                 'Before Uploading Document(s) please fill in details',
                               );
                             else selectDocsEdu();
@@ -2141,27 +2162,27 @@ const DoctorRegistration2 = ({navigation}) => {
                           onPress={() => {
                             if (Degree == '')
                               Alert.alert(
-                                'Warning!',
+                                'Incomplete Details!',
                                 'Please fill Degree Name',
                               );
                             else if (DegreePassingYear == '')
                               Alert.alert(
-                                'Warning!',
+                                'Incomplete Details!',
                                 'Please fill Degree Passing Year',
                               );
                             else if (Specialization == '')
                               Alert.alert(
-                                'Warning!',
+                                'Incomplete Details!',
                                 'Please Select Specialization',
                               );
                             else if (University == '')
                               Alert.alert(
-                                'Warning!',
+                                'Incomplete Details!',
                                 'Please fill University Name',
                               );
                             else if (degreePath == '')
                               Alert.alert(
-                                'Warning!',
+                                'Incomplete Details!',
                                 'Please select degree certificate file',
                               );
                             else {
@@ -2258,7 +2279,7 @@ const DoctorRegistration2 = ({navigation}) => {
                         onPress={() => {
                           if (Education.length == 0)
                             Alert.alert(
-                              'Warning!',
+                              'Incomplete Details!',
                               'Please Fill Education details before uploasding.',
                             );
                           else postEduDet();
@@ -2543,17 +2564,17 @@ const DoctorRegistration2 = ({navigation}) => {
                           onPress={() => {
                             if (practiceAt == '')
                               Alert.alert(
-                                'Warning!',
+                                'Incomplete Details!',
                                 'Please add Clinic/Hospital Practise Name',
                               );
                             else if (startExpDate == '')
                               Alert.alert(
-                                'Warning!',
+                                'Incomplete Details!',
                                 'Please Select Practise Start Date',
                               );
                             else if (endExpDate == '')
                               Alert.alert(
-                                'Warning!',
+                                'Incomplete Details!',
                                 'Please Select Practise End Date',
                               );
                             else {
@@ -2667,7 +2688,7 @@ const DoctorRegistration2 = ({navigation}) => {
                         onPress={() => {
                           if (Experience.length == 0)
                             Alert.alert(
-                              'Warning!',
+                              'Incomplete Details!',
                               'Please Fill Education details before uploading ',
                             );
                           else postExpDet();
@@ -2828,25 +2849,35 @@ const DoctorRegistration2 = ({navigation}) => {
                           marginBottom: 15,
                         }}>
                         <CustomButton
-                          text="Select File"
-                          textstyle={{color: '#2b8ada', fontSize: 12}}
+                          text={
+                            identificationPath == ''
+                              ? 'Select File'
+                              : ' ✓ File Selected'
+                          }
+                          textstyle={{
+                            color:
+                              identificationPath == '' ? '#2b8ada' : '#21c47f',
+                            fontSize: 12,
+                            fontWeight: 'bold',
+                          }}
                           style={{
                             backgroundColor: 'white',
                             borderRadius: 12,
                             padding: 6,
                             paddingHorizontal: 10,
                             borderWidth: 2,
-                            borderColor: '#2b8ada',
+                            borderColor:
+                              identificationPath == '' ? '#2b8ada' : '#21c47f',
                           }}
                           onPress={() => {
                             if (identificationType == '')
                               Alert.alert(
-                                'Warning!',
+                                'Incomplete Details!',
                                 'Please select document name',
                               );
                             else if (identificationNumber == '')
                               Alert.alert(
-                                'Warning!',
+                                'Incomplete Details!',
                                 'Please fill identification number',
                               );
                             else selectDocsIden();
@@ -2916,17 +2947,17 @@ const DoctorRegistration2 = ({navigation}) => {
                               }
                             } else if (identificationNumber == '')
                               Alert.alert(
-                                'Warning!',
+                                'Incomplete Details!',
                                 'Please fill Identification Number',
                               );
                             else if (identificationType == '')
                               Alert.alert(
-                                'Warning!',
+                                'Incomplete Details!',
                                 'Please Select Document Name',
                               );
                             else if (identificationPath == '')
                               Alert.alert(
-                                'Warning!',
+                                'Incomplete Details!',
                                 'Please Select Document bedore saving',
                               );
                           }}
@@ -2995,7 +3026,7 @@ const DoctorRegistration2 = ({navigation}) => {
                         onPress={() => {
                           if (IdentificationDocs.length == 0)
                             Alert.alert(
-                              'Warning!',
+                              'Incomplete Details!',
                               'Please Fill Identification details before uploading ',
                             );
                           else postIdenDet();
@@ -3153,12 +3184,12 @@ const DoctorRegistration2 = ({navigation}) => {
                           onPress={() => {
                             if (clinicAddress == '')
                               Alert.alert(
-                                'Warning!',
+                                'Incomplete Details!',
                                 'Please fill Clinic Name before saving',
                               );
                             else if (clinicName == '')
                               Alert.alert(
-                                'Warning!',
+                                'Incomplete Details!',
                                 'Please fill Clinic Address before saving',
                               );
                             else {
@@ -3266,7 +3297,7 @@ const DoctorRegistration2 = ({navigation}) => {
                           onPress={() => {
                             if (ClinicDet.length == 0)
                               Alert.alert(
-                                'Warning!',
+                                'Incomplete Details!',
                                 'Please Fill ClinicDet details before continuing ',
                               );
                             else postClinicDet();
@@ -3499,12 +3530,12 @@ const DoctorRegistration2 = ({navigation}) => {
                         onPress={() => {
                           if (questionareList.length == 0 && showQuestions)
                             Alert.alert(
-                              'Warning!',
+                              'Incomplete Details!',
                               'Please add question(s) before uploading',
                             );
                           else if (showQuestions == false) {
                             setShowPreConsultationQuestionaire(false);
-                            setShowConsultFees(true);
+
                             setdataSavedPreConsultationQuestionaire(true);
                           } else {
                             postPreConsultQues();
@@ -3703,12 +3734,12 @@ const DoctorRegistration2 = ({navigation}) => {
                             onPress={() => {
                               if (questionSpl == '')
                                 Alert.alert(
-                                  'Warning!',
+                                  'Incomplete Details!',
                                   'Please select speciality before saving.',
                                 );
                               else if (consultationQuestion == '')
                                 Alert.alert(
-                                  'Warning!',
+                                  'Incomplete Details!',
                                   'Please fill question before saving.',
                                 );
                               else {
@@ -3949,17 +3980,17 @@ const DoctorRegistration2 = ({navigation}) => {
                       onPress={() => {
                         if (showFollowUp == '')
                           Alert.alert(
-                            'Warning!',
+                            'Incomplete Details!',
                             'Please add Follow-Up duration before uploading',
                           );
                         else if (eConsulationFees == '')
                           Alert.alert(
-                            'Warning!',
+                            'Incomplete Details!',
                             'Please fill e-consultation fees before saving',
                           );
                         else if (followUpFees == '')
                           Alert.alert(
-                            'Warning!',
+                            'Incomplete Details!',
                             'Please fill follow-up fees before saving',
                           );
                         else {

@@ -1,6 +1,7 @@
 import React, {useState, useRef} from 'react';
 import {
   Text,
+  Linking,
   Alert,
   View,
   FlatList,
@@ -22,10 +23,11 @@ import {
 } from 'react-native-dropdown-select-list';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import {PermissionsAndroid} from 'react-native';
-
+import {useCallback} from 'react';
 //icons
 import doctor from '../Resources/doctor.png';
-import upload from '../Resources/upload.png';
+import downloading from '../Animations/downloading.gif';
+import upload from '../Animations/upload.gif';
 import waiting from '../Animations/waiting1.gif';
 import {useEffect} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -183,6 +185,8 @@ const EditProfile = ({navigation}) => {
   const [followUpFees, setfollowUpFees] = useState(0);
   const [doctorConsulationFeesPkId, setdoctorConsulationFeesPkId] = useState(0);
   const [isLoading, setisLoading] = useState(false);
+  const [isFetching, setisFetching] = useState(false);
+  const [isUploading, setisUploading] = useState(false);
 
   useEffect(() => {
     const onLoadSetData = async () => {
@@ -209,7 +213,10 @@ const EditProfile = ({navigation}) => {
       setdob(x.dob);
       setAge(x.age + '');
       setPinCode(x.pincode == null ? x.pinCode : x.pincode);
+
+      checkpfp(x.profilePhotoPath);
       setprofilePhotoPath(x.profilePhotoPath);
+
       setDoctorConfiguration(
         x.doctorConfigurationDTO != null ? x.doctorConfigurationDTO : '',
       );
@@ -265,6 +272,24 @@ const EditProfile = ({navigation}) => {
     }
   };
 
+  const openURL = useCallback(async url => {
+    const supported = await Linking.canOpenURL(url);
+    if (supported) {
+      await Linking.openURL(url);
+    } else {
+      Alert.alert('Error', `Don't know how to open this URL: ${url}`);
+    }
+  }, []);
+
+  const checkpfp = useCallback(async url => {
+    const supported = await Linking.canOpenURL(url);
+    if (supported) {
+      setpfpuri(url);
+    } else {
+      console.log('Error in pfp');
+    }
+  }, []);
+
   // useEffect(() => {
   //   const setDate = async () => {
   //     setdob(await AsyncStorage.getItem('dob'));
@@ -302,6 +327,7 @@ const EditProfile = ({navigation}) => {
   //get Medical Registration
   useEffect(() => {
     const getMedReg = async () => {
+      setisFetching(true);
       axios
         .get(
           apiConfig.baseUrl +
@@ -309,6 +335,7 @@ const EditProfile = ({navigation}) => {
             doctorId,
         )
         .then(function (response) {
+          setisFetching(false);
           if (response.status == 200 || response.status == 201) {
             let doctorMedicalRegistrations = response.data;
             if (
@@ -321,9 +348,10 @@ const EditProfile = ({navigation}) => {
               setRegYear(doctorMedicalRegistrations[0].registrationYear);
               setRegCert(doctorMedicalRegistrations[0].certificatePath);
             }
-          } else Alert.alert('Could not get Details. Please try again later.');
+          } else Alert.alert('Error', 'Could not get Details. Please try again later.');
         })
         .catch(function (error) {
+          setisFetching(false);
           console.log(error);
         });
     };
@@ -333,16 +361,22 @@ const EditProfile = ({navigation}) => {
   //get Educational Qualifications
   useEffect(() => {
     const getEduDet = async () => {
+      setisFetching(true);
+
       axios
         .get(apiConfig.baseUrl + '/doctor/educations?doctorId=' + doctorId)
         .then(function (response) {
+          setisFetching(false);
+
           if (response.status == 200) {
             if (response.data != null) {
               setEducation(response.data);
             }
-          } else Alert.alert('Could not get Details. Please try again later.');
+          } else Alert.alert('Error', 'Could not get Details. Please try again later.');
         })
         .catch(function (error) {
+          setisFetching(false);
+
           console.log(error);
         });
     };
@@ -352,16 +386,22 @@ const EditProfile = ({navigation}) => {
   //get Experience
   useEffect(() => {
     const getExpDet = async () => {
+      setisFetching(true);
+
       axios
         .get(apiConfig.baseUrl + '/doctor/experience?doctorId=' + doctorId)
         .then(function (response) {
+          setisFetching(false);
+
           if (response.status == 200) {
             if (response.data != null) {
               setExperience(response.data);
             }
-          } else Alert.alert('Could not get Details. Please try again later.');
+          } else Alert.alert('Error', 'Could not get Details. Please try again later.');
         })
         .catch(function (error) {
+          setisFetching(false);
+
           console.log(error);
         });
     };
@@ -371,15 +411,21 @@ const EditProfile = ({navigation}) => {
   //get Identification
   useEffect(() => {
     const getIdenDocs = async () => {
+      setisFetching(true);
+
       axios
         .get(apiConfig.baseUrl + '/doctor/identifications?doctorId=' + doctorId)
         .then(function (response) {
+          setisFetching(false);
+
           if (response.data != '') {
             setIdentificationDocs(response.data);
             //console.log(response.data);
           }
         })
         .catch(function (error) {
+          setisFetching(false);
+
           console.log(error);
         });
     };
@@ -387,35 +433,41 @@ const EditProfile = ({navigation}) => {
   }, [showIdenDet]);
 
   //get General Configuration
-  useEffect(() => {
-    const getGenConfig = async () => {
-      let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
-      //console.log(x.doctorConfigurationDTO);
-      setDoctorConfiguration(
-        x.doctorConfigurationDTO != null ? x.doctorConfigurationDTO : '',
-      );
-      setshowMobNo(
-        DoctorConfiguration.contactVisibility != null
-          ? DoctorConfiguration.contactVisibility
-            ? 'Yes'
-            : 'No'
-          : '',
-      );
-      setshowFollowUp(
-        DoctorConfiguration.followUpDuration != null
-          ? DoctorConfiguration.followUpDuration
-          : '',
-      );
-    };
-    if (showGenConfig == true) getGenConfig();
-  }, [showGenConfig]);
+  // useEffect(() => {
+  //   const getGenConfig = async () => {
+  //                     //setisFetching(false);
+
+  //     let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
+  //     //console.log(x.doctorConfigurationDTO);
+  //     setDoctorConfiguration(
+  //       x.doctorConfigurationDTO != null ? x.doctorConfigurationDTO : '',
+  //     );
+  //     setshowMobNo(
+  //       DoctorConfiguration.contactVisibility != null
+  //         ? DoctorConfiguration.contactVisibility
+  //           ? 'Yes'
+  //           : 'No'
+  //         : '',
+  //     );
+  //     setshowFollowUp(
+  //       DoctorConfiguration.followUpDuration != null
+  //         ? DoctorConfiguration.followUpDuration
+  //         : '',
+  //     );
+  //   };
+  //   if (showGenConfig == true) getGenConfig();
+  // }, [showGenConfig]);
 
   //get Consultation Fees
   useEffect(() => {
     const getFeesDet = async () => {
+      setisFetching(true);
+
       axios
         .get(apiConfig.baseUrl + '/doctor/fees?doctorId=' + doctorId)
         .then(function (response) {
+          setisFetching(false);
+
           if (response.data != '') {
             setDoctorFees(response.data);
             setphysicalConsulationFees(response.data.physicalConsulationFees);
@@ -428,6 +480,8 @@ const EditProfile = ({navigation}) => {
           }
         })
         .catch(function (error) {
+          setisFetching(false);
+
           console.log(error);
         });
     };
@@ -437,6 +491,8 @@ const EditProfile = ({navigation}) => {
   //api calls on press update button
 
   const updateGenInfo = async () => {
+    setisUploading(true);
+
     let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
     let mainOnj = new Object();
     mainOnj.age = Number(age);
@@ -458,6 +514,7 @@ const EditProfile = ({navigation}) => {
     axios
       .post(apiConfig.baseUrl + '/doctor/generalinfo/update', mainOnj)
       .then(function (response) {
+        setisUploading(false);
         if (response.status == 200) {
           //store the changes made in details to UserDoctorProfile
           x.age = Number(age);
@@ -469,10 +526,15 @@ const EditProfile = ({navigation}) => {
           x.profilePhotoPath = profilePhotoPath;
           x.pinCode = pinCode;
           Alert.alert(
+            'Updated',
             'All changes made in Genreal Information have been updated.',
           );
           setGenInfoEdit(false);
-        } else Alert.alert('Could not Update Details. Please try again later.');
+        } else Alert.alert('Updation Error', 'Could not Update Details. Please try again later.');
+      })
+      .catch(function (error) {
+        setisUploading(false);
+        Alert.alert('Error', `An error has occured please try again. ${error}`);
       });
   };
 
@@ -502,6 +564,7 @@ const EditProfile = ({navigation}) => {
   // };
 
   const updateMedReg = async () => {
+    setisUploading(true);
     let p = {
       certificatePath: 'aws/s3/' + doctorId + '/cerificates',
       doctorId: doctorId,
@@ -518,64 +581,101 @@ const EditProfile = ({navigation}) => {
     axios
       .post(apiConfig.baseUrl + '/doctor/medicalregi/save/or/update', mj)
       .then(function (response) {
+        setisUploading(false);
         if (response.status == 200) {
           Alert.alert(
+            'Updated',
             'Medical Registration details have been updated successfully!',
           );
           setMedInfoEdit(false);
-        } else Alert.alert('Could not update details. Please try again later.');
+        } else Alert.alert('Updation Error', 'Could not update details. Please try again later.');
+      })
+      .catch(function (error) {
+        setisUploading(false);
+        Alert.alert('Error', `An error has occured please try again. ${error}`);
       });
   };
 
   const updateEduDet = async item => {
+    setisUploading(true);
     let amp = [];
     amp.push(item);
     axios
       .post(apiConfig.baseUrl + '/doctor/education/save/or/update', amp)
       .then(function (response) {
+        setisUploading(false);
         if (response.status == 200) {
           setisLoading(false);
           Alert.alert(
+            'Updated',
             'Educational Qualifications Details Updated Successfully!',
           );
           setShowEduDet(false);
         } else {
           setisLoading(false);
-          Alert.alert('Could not Update Details. Please try again later.');
+          Alert.alert(
+            'Updation Error',
+            'Could not Update Details. Please try again later.',
+          );
         }
+      })
+      .catch(function (error) {
+        setisUploading(false);
+        Alert.alert('Error', `An error has occured please try again. ${error}`);
       });
   };
 
   const updateExpDet = async item => {
+    setisUploading(true);
     let amp = [];
     amp.push(item);
     axios
       .post(apiConfig.baseUrl + '/doctor/experience/save/or/update', amp)
       .then(function (response) {
+        setisUploading(false);
         if (response.status == 200) {
           setisLoading(false);
-          Alert.alert('Experience Details Updated Successfully!');
+          Alert.alert('Updated', 'Experience Details Updated Successfully!');
         } else {
           setisLoading(false);
-          Alert.alert('Could not Update Details. Please try again later.');
+          Alert.alert(
+            'Updation Error',
+            'Could not Update Details. Please try again later.',
+          );
         }
+      })
+      .catch(function (error) {
+        setisUploading(false);
+        Alert.alert('Error', `An error has occured please try again. ${error}`);
       });
   };
 
   const updateIden = async item => {
+    setisUploading(true);
     let amp = [];
     amp.push(item);
     axios
       .post(apiConfig.baseUrl + '/doctor/identity/save/or/update', amp)
       .then(function (response) {
+        setisUploading(false);
         if (response.status == 200) {
           setisLoading(false);
           setIdenDetEdit(false);
-          Alert.alert('Identification Details Updated Successfully!');
+          Alert.alert(
+            'Updated',
+            'Identification Details Updated Successfully!',
+          );
         } else {
           setisLoading(false);
-          Alert.alert('Could not Update Details. Please try again later.');
+          Alert.alert(
+            'Updation Error',
+            'Could not Update Details. Please try again later.',
+          );
         }
+      })
+      .catch(function (error) {
+        setisUploading(false);
+        Alert.alert('Error', `An error has occured please try again. ${error}`);
       });
   };
 
@@ -618,6 +718,7 @@ const EditProfile = ({navigation}) => {
 
   //updating Consultation Fees Details(completed)
   const updatefees = async () => {
+    setisUploading(true);
     let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
     let doctorFees = new Object();
     doctorFees.feesId = DoctorFees.doctorConsulationFeesPkId;
@@ -631,14 +732,25 @@ const EditProfile = ({navigation}) => {
     axios
       .post(apiConfig.baseUrl + '/doctor/fees/update', doctorFees)
       .then(function (response) {
+        setisUploading(false);
         if (response.status == 200) {
           setisLoading(false);
-          Alert.alert('All changes made in Fees Config have been updated');
+          Alert.alert(
+            'Updated',
+            'All changes made in Fees Config have been updated',
+          );
           setConsultFeesEdit(false);
         } else {
           setisLoading(false);
-          Alert.alert('Could not Update Details. Please try again later.');
+          Alert.alert(
+            'Updation Error',
+            'Could not Update Details. Please try again later.',
+          );
         }
+      })
+      .catch(function (error) {
+        setisUploading(false);
+        Alert.alert('Error', `An error has occured please try again. ${error}`);
       });
   };
 
@@ -659,7 +771,7 @@ const EditProfile = ({navigation}) => {
       let startDt = dayjs(startExpDate);
       let endDt = dayjs(endExpDate);
       if (endDt.isBefore(startDt)) {
-        Alert.alert('Please enter valid date range');
+        Alert.alert('Invalid Date', 'Please enter valid date range');
         setStartExpDate('');
         setEndExpDate('');
       } else {
@@ -755,14 +867,19 @@ const EditProfile = ({navigation}) => {
               </Text>
             </View>
             {/* End Date */}
-            <View style={styles.cellStyle}>
+            <TouchableOpacity
+              style={styles.cellStyle}
+              onPress={() => {
+                console.log(IdentificationDocs.identificationPath);
+                openURL(IdentificationDocs.identificationPath);
+              }}>
               <FAIcon
                 name="file-pdf"
                 size={15}
                 color={'#2b8ada'}
                 style={{marginVertical: 3}}
               />
-            </View>
+            </TouchableOpacity>
             {IdenDetEdit ? (
               <View
                 style={[
@@ -830,6 +947,16 @@ const EditProfile = ({navigation}) => {
             }}>
             {/* Degree */}
             <View style={styles.cellStyle}>
+              <FAIcon
+                name="file-pdf"
+                size={15}
+                color={'#2b8ada'}
+                style={{marginVertical: 3}}
+                onPress={() => {
+                  console.log(Education.degreePath);
+                  openURL(Education.degreePath);
+                }}
+              />
               <Text style={styles.cellText}>{Education.degree}</Text>
             </View>
             {/* Passing Year */}
@@ -844,6 +971,7 @@ const EditProfile = ({navigation}) => {
             <View style={styles.cellStyle}>
               <Text style={styles.cellText}>{Education.university}</Text>
             </View>
+
             {EduDetEdit ? (
               <View
                 style={[
@@ -1148,9 +1276,14 @@ const EditProfile = ({navigation}) => {
                 if (response.assets[0].fileSize <= 2097152) {
                   await postpfp(response.assets[0]);
                   setpfpuri(response.assets[0].uri);
-                  let x = await AsyncStorage.getItem('UserDoctorProfile');
+                  let x = JSON.parse(
+                    await AsyncStorage.getItem('UserDoctorProfile'),
+                  );
                   x.profileUri = response.assets[0].uri;
-                  await AsyncStorage.setItem('UserDoctorProfile', x);
+                  await AsyncStorage.setItem(
+                    'UserDoctorProfile',
+                    JSON.stringify(x),
+                  );
                 } else
                   Alert.alert(
                     'Max Size',
@@ -1373,6 +1506,7 @@ const EditProfile = ({navigation}) => {
                         onPress={() => {
                           if (GenInfoEdit == false) {
                             Alert.alert(
+                              'Edit General Information',
                               'You can now edit General Information Field',
                             );
                             setGenInfoEdit(true);
@@ -1738,6 +1872,7 @@ const EditProfile = ({navigation}) => {
                         onPress={() => {
                           if (MedInfoEdit == false) {
                             Alert.alert(
+                              'Edit Medical Registration',
                               'You can now edit Medical Registration Details',
                             );
                             setMedInfoEdit(true);
@@ -1925,7 +2060,10 @@ const EditProfile = ({navigation}) => {
                         ]}
                         onPress={() => {
                           if (EduDetEdit == false) {
-                            Alert.alert('You can now edit Education Details');
+                            Alert.alert(
+                              'Edit Education',
+                              'You can now edit Education Details',
+                            );
                             setEduDetEdit(true);
                           }
                         }}>
@@ -2098,7 +2236,10 @@ const EditProfile = ({navigation}) => {
                         ]}
                         onPress={() => {
                           if (ExpDetEdit == false) {
-                            Alert.alert('You can now edit Experience Details');
+                            Alert.alert(
+                              'Edit Experience',
+                              'You can now edit Experience Details',
+                            );
                             setExpDetEdit(true);
                           }
                         }}>
@@ -2273,6 +2414,7 @@ const EditProfile = ({navigation}) => {
                         onPress={() => {
                           if (showIdenDet == true) {
                             Alert.alert(
+                              'Edit Identification',
                               'You can now edit Identification Details',
                             );
                             setIdenDetEdit(true);
@@ -2442,7 +2584,10 @@ const EditProfile = ({navigation}) => {
                         ]}
                         onPress={() => {
                           if (ConsultFeesEdit == false) {
-                            Alert.alert('You can now edit Fees Details');
+                            Alert.alert(
+                              'Edit Fees ',
+                              'You can now edit Fees Details',
+                            );
                             setConsultFeesEdit(true);
                           }
                         }}>
@@ -2783,13 +2928,25 @@ const EditProfile = ({navigation}) => {
                       }}
                       onPress={() => {
                         if (Degree == '')
-                          Alert.alert('Please fill Degree Name');
+                          Alert.alert(
+                            'Incomplete Details!',
+                            'Please fill Degree Name',
+                          );
                         else if (DegreePassingYear == '')
-                          Alert.alert('Please fill Degree Passing Year');
+                          Alert.alert(
+                            'Incomplete Details!',
+                            'Please fill Degree Passing Year',
+                          );
                         else if (Specialization == '')
-                          Alert.alert('Please Select Specialization');
+                          Alert.alert(
+                            'Incomplete Details!',
+                            'Please Select Specialization',
+                          );
                         else if (University == '')
-                          Alert.alert('Please fill University Name');
+                          Alert.alert(
+                            'Incomplete Details!',
+                            'Please fill University Name',
+                          );
                         else {
                           let totalexp =
                             parseInt(TotalYear) * 12 + parseInt(TotalMonths);
@@ -3013,12 +3170,19 @@ const EditProfile = ({navigation}) => {
                       onPress={() => {
                         if (practiceAt == '')
                           Alert.alert(
+                            'Incomplete Details!',
                             'Please add Clinic/Hospital Practise Name',
                           );
                         else if (startExpDate == '')
-                          Alert.alert('Please Select Practise Start Date');
+                          Alert.alert(
+                            'Incomplete Details!',
+                            'Please Select Practise Start Date',
+                          );
                         else if (endExpDate == '')
-                          Alert.alert('Please Select Practise End Date');
+                          Alert.alert(
+                            'Incomplete Details!',
+                            'Please Select Practise End Date',
+                          );
                         else {
                           let p = {
                             doctorId: Number(doctorId),
@@ -3031,7 +3195,7 @@ const EditProfile = ({navigation}) => {
 
                           if (editExp) p.experienceId = Number(experienceId);
 
-                          setisLoading(true);
+                          // setisLoading(true);
                           updateExpDet(p);
                           setPracticeAt('');
                           setStartExpDate('');
@@ -3179,6 +3343,7 @@ const EditProfile = ({navigation}) => {
                             }
                             if (flag == 0) {
                               Alert.alert(
+                                'Duplicate Records',
                                 'You can not add duplicate documents',
                               );
                               setidentificationNumber('');
@@ -3207,9 +3372,15 @@ const EditProfile = ({navigation}) => {
                             setShowIdenDet(false);
                           }
                         } else if (identificationNumber == '')
-                          Alert.alert('Please fill Identification Number');
+                          Alert.alert(
+                            'Incomplete Details!',
+                            'Please fill Identification Number',
+                          );
                         else if (identificationType == '')
-                          Alert.alert('Please Select Document Name');
+                          Alert.alert(
+                            'Incomplete Details!',
+                            'Please Select Document Name',
+                          );
                       }}
                     />
                   </View>
@@ -3259,6 +3430,122 @@ const EditProfile = ({navigation}) => {
                   padding: 10,
                 }}>
                 Updating Please Wait...
+              </Text>
+            </View>
+          </View>
+        )}
+        {isFetching == true && (
+          <View
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: 'rgba(0,0,0,0.4)',
+            }}>
+            <View
+              style={{
+                backgroundColor: 'white',
+                alignSelf: 'center',
+                borderRadius: 20,
+                width: 200,
+                height: 200,
+                justifyContent: 'center',
+                flexDirection: 'column',
+              }}>
+              <Image
+                source={downloading}
+                style={{
+                  alignSelf: 'center',
+                  width: 80,
+                  height: 80,
+                  // borderRadius: 150,
+                }}
+              />
+              <Text
+                style={{
+                  alignSelf: 'center',
+                  textAlign: 'center',
+                  color: '#2B8ADA',
+                  fontSize: 18,
+                  fontWeight: 'bold',
+                  width: '100%',
+                  marginVertical: 5,
+                  // padding: 10,
+                }}>
+                {'Please wait '}
+              </Text>
+              <Text
+                style={{
+                  alignSelf: 'center',
+                  textAlign: 'center',
+                  color: 'black',
+                  fontSize: 12,
+                  width: '100%',
+                  paddingHorizontal: 15,
+                }}>
+                {'We are fetching details'}
+              </Text>
+            </View>
+          </View>
+        )}
+        {isUploading == true && (
+          <View
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: 'rgba(0,0,0,0.4)',
+            }}>
+            <View
+              style={{
+                backgroundColor: 'white',
+                alignSelf: 'center',
+                borderRadius: 20,
+                width: 200,
+                height: 200,
+                justifyContent: 'center',
+                flexDirection: 'column',
+              }}>
+              <Image
+                source={upload}
+                style={{
+                  alignSelf: 'center',
+                  width: 80,
+                  height: 80,
+                  // borderRadius: 150,
+                }}
+              />
+              <Text
+                style={{
+                  alignSelf: 'center',
+                  textAlign: 'center',
+                  color: '#2B8ADA',
+                  fontSize: 18,
+                  fontWeight: 'bold',
+                  width: '100%',
+                  marginVertical: 5,
+                  // padding: 10,
+                }}>
+                {'Uploading '}
+              </Text>
+              <Text
+                style={{
+                  alignSelf: 'center',
+                  textAlign: 'center',
+                  color: 'black',
+                  fontSize: 12,
+                  width: '100%',
+                  paddingHorizontal: 15,
+                }}>
+                {'We are upating your details'}
               </Text>
             </View>
           </View>

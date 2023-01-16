@@ -84,6 +84,7 @@ const Header = ({title, showMenu}) => {
   const [mode, setMode] = useState('');
   const [date, setdate] = useState('');
   const [selectedDate, setselectedDate] = useState('');
+  const [eslotsId, seteslotsId] = useState(null);
   const [viewESlots, setviewESlots] = useState([]);
   const [fees, setfees] = useState(0);
   const [slotTime, setslotTime] = useState('');
@@ -271,6 +272,7 @@ const Header = ({title, showMenu}) => {
         .post(apiConfig.baseUrl + '/share/patient', {
           consultationType: mode,
           doctorId: doctorId,
+          eslotsId: eslotsId,
           fees: fees,
           patientMobileNumber: mob,
           patientName: name,
@@ -295,13 +297,17 @@ const Header = ({title, showMenu}) => {
           console.log(error);
         });
 
-      reset();
+      await reset();
     } else {
-      Alert.alert('Fill all details before continuing!!');
+      Alert.alert(
+        'Incomplete Details',
+        'Please fill all details before continuing!!',
+      );
     }
   };
 
-  const reset = () => {
+  const reset = async () => {
+    seteslotsId('');
     setdate('');
     setMode('');
     setslotTime('');
@@ -435,7 +441,7 @@ const Header = ({title, showMenu}) => {
           transparent={true}
           visible={shareModal}
           onRequestClose={() => {
-            setModalVisible(!shareModal);
+            setShareModal(!shareModal);
           }}>
           <View
             style={{
@@ -480,8 +486,8 @@ const Header = ({title, showMenu}) => {
                   color="black"
                   size={20}
                   style={{position: 'absolute', right: 0}}
-                  onPress={() => {
-                    reset();
+                  onPress={async () => {
+                    await reset();
                   }}
                 />
               </View>
@@ -496,6 +502,7 @@ const Header = ({title, showMenu}) => {
                     style={[
                       styles.inputField,
                       {
+                        flex: 0.475,
                         flexDirection: 'row',
                         padding: 0,
                         justifyContent: 'center',
@@ -530,7 +537,7 @@ const Header = ({title, showMenu}) => {
                       // maximumDate={dayjs().add(7, 'day')}
                     />
                   </View>
-                  <View style={[styles.inputField, {padding: 0}]}>
+                  <View style={[styles.inputField, {flex: 0.475, padding: 0}]}>
                     <SelectList
                       placeholder={'Select Mode'}
                       labelStyles={{height: 0}}
@@ -546,7 +553,6 @@ const Header = ({title, showMenu}) => {
                         color: '#2b8ada',
                         fontWeight: 'bold',
                       }}
-                      badgeStyles={{backgroundColor: '#2b8ada'}}
                     />
                   </View>
                 </View>
@@ -578,12 +584,16 @@ const Header = ({title, showMenu}) => {
                       />
                     </View>
                   ) : (
-                    <Text
+                    <View
                       style={{
                         marginVertical: 10,
                       }}>
-                      No slots available.
-                    </Text>
+                      {date == '' ? (
+                        <Text>Please Select Date</Text>
+                      ) : (
+                        <Text>No slots available.</Text>
+                      )}
+                    </View>
                   )}
                 </View>
                 <View
@@ -856,7 +866,6 @@ const styles = StyleSheet.create({
   inputField: {
     backgroundColor: '#E8F0FE',
     borderRadius: 10,
-    flex: 0.45,
     padding: 5,
   },
 
