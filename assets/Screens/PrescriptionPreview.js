@@ -73,14 +73,14 @@ function PrescriptionPreview({navigation}) {
       //setting examination details
       if (b != null) {
         let tempb =
-          ` <div class="row align-items-center temp-bp mx-2" style="width:350px">
-                    <div class="col-md-6 col-sm-6"  style="width:auto;">
+          ` <div class="row align-items-center temp-bp mx-2" >
+                    <div class="col-md-6 col-sm-6"  >
                         <p class="mb-0"><b>Body Temperature - </b>` +
           b.temperature +
           ` F</p>
                     </div>
-                    <div class="col-md-6 col-sm-6"  style="width:auto;">
-                        <p class="mb-0"  style="width:auto"><b>Blood Pressure - </b>` +
+                    <div class="col-md-6 col-sm-6"  >
+                        <p class="mb-0"  ><b>Blood Pressure - </b>` +
           b.BPDiastolic +
           `/` +
           b.BPSystolic +
@@ -195,14 +195,13 @@ function PrescriptionPreview({navigation}) {
     <title>Prescription Modify</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
 </head>
 <style>
 .entire-webpage{
-        zoom: 2;
-        transform: scale(2); /* Standard Property */
-        transform-origin: 0 0;  /* Standard Property */
+        zoom: 1.5;
+       // transform: scale(2); /* Standard Property */
+        //transform-origin: 0 0;  /* Standard Property */
     }
 body {
   justify-content:center;
@@ -226,9 +225,9 @@ img{
     'bg.png' +
     `");
     background-attachment: scroll;
-    //background-repeat: no-repeat;
-    background-position: auto;
-    //background-size: auto;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100% 100%;
     padding: 0.5rem;
     background-color: #fff;
     padding-bottom: 3.5rem;
@@ -238,7 +237,7 @@ img{
     font-family: Scandia;
     font-style: normal;
     font-weight: bold;
-    font-size: 14px;
+    font-size: 20px;
     color: rgba(0,0,0,1);
 }
 .dr-designation{
@@ -290,7 +289,6 @@ img{
   display: flex;
   align-items: center;
   justify-content: center;
-  width:350px;
 
 }
 .rx{
@@ -313,19 +311,19 @@ th{
     font-weight: 400;
     text-align: center;
 }
-@media only screen and (min-width: 320px) and (max-width: 480px){
-    .col-sm-6{
+// @media only screen and (min-width: 320px) and (max-width: 480px){
+//     .col-sm-6{
         
-        justify-content:center;
-    }
+//         justify-content:center;
+//     }
     
-}
+// }
 </style>
 
 <body class="entire-webpage"  >
 
-    <div class="container my-5" >
-        <div class="row" >
+    <div class="container" >
+        <div class="row mx-auto justify-content-center" >
             <div class="col-md-12 prescription" >
                 <div>
                     <img src="` +
@@ -333,8 +331,8 @@ th{
     'logo@2x.png' +
     `" alt="logo" class="px-logo mx-2">
                 </div>
-                <div class="row align-items-baseline mx-2" style="width:350px">
-                    <div class="col-md-6 col-sm-6" style="">
+                <div style="display: flex;margin-left:5%;width:90%">
+                    <div  style="flex:50%;">
                         <h2 class="dr-nme mb-0"><b>` +
     doctorName +
     `</b></h2>
@@ -342,27 +340,20 @@ th{
     doctorEducationDisp +
     `
                     </div>
-                    <div class="col-md-6 col-sm-6" style="">
+                    <div   style="flex:50%;">
                         <p class="dr-address">Add: D-113 Near Phase 1<br>Metro Gurgaon, Haryana-121001</p>
                         
                     </div>
                 </div>
-                <div class="center">
-                <img src="` +
-    imageURL +
-    'rx.png' +
-    `" alt="rx" class="rx">
-    </div>
-                <div class="row align-items-baseline mx-2 py-2" style="background-color: rgba(240,250,255,1);width:350px";>
-                    <div class="col-md-6 col-sm-6" style="width:350px">
+                
+                <div style="display: flex;background-color: rgba(240,250,255,1);margin-left:5%;width:90%">
+                    <div style="display:block; flex:50%">
                         <p class="p-nme mb-0"><b>Name:</b> Rohan Kumar</p>
                         <p class="p-ag"><b>Age/Gender:</b> M/40</p>
                     </div>
-                    <div class="col-md-6 col-sm-6" style="width:350px">
+                    <div style="display:block; flex:50%">
                         <p class="date"><b>Date :</b>` +
-    dayjs(JSON.stringify(new Date().getDate()).substring(0, 11)).format(
-      'DD-MM-YYYY',
-    ) +
+    dayjs(new Date()).format('DD-MM-YYYY') +
     `</p>
                         <p class="p-id"><b>Patient ID:</b> R21DY768F2</p>
                     </div>
@@ -376,14 +367,20 @@ th{
                 <p class="mb-1 complaints"><b><u>Diagnosis : </u></b>` +
     Diagnosis +
     `</p>
+    <div class="center">
+                <img src="` +
+    imageURL +
+    'rx.png' +
+    `" alt="rx" class="rx">
+    </div>
                 <div class="row align-items-center mx-2">
                     <div class="col-md-12">
-                        <table style="">
+                        <table style="width: 100%;">
                             <thead>
                                 <tr>
-                                    <th width="30px">S.No</th>
-                                    <th width="150px">Medicine Name</th>
-                                    <th width="140px">Instructions</th>
+                                    <th width="10%">S.No</th>
+                                    <th width="40%">Medicine Name</th>
+                                    <th width="50%">Instructions</th>
                                 </tr>
                             </thead>
                             <tbody>

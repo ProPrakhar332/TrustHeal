@@ -67,7 +67,7 @@ function Medication({navigation}) {
 
   const window = useWindowDimensions();
 
-  const clearAll = () => {
+  const clearAll = async () => {
     setmedicineName('');
     setmedicineType('');
     setmedicineInstruction('');
@@ -309,7 +309,7 @@ function Medication({navigation}) {
                       paddingHorizontal: 10,
                       borderRadius: 5,
                     }}
-                    onPress={() => {
+                    onPress={async () => {
                       if (medicineName == '')
                         Alert.alert(
                           'Incomplete Details',
@@ -339,7 +339,7 @@ function Medication({navigation}) {
                         };
                         Medication.push(as);
                         console.log(Medication);
-                        clearAll();
+                        await clearAll();
                         Alert.alert(
                           'Success',
                           'Medication details have been added successfully!',

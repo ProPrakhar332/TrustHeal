@@ -1027,7 +1027,7 @@ const FirstScreen = ({route, navigation}) => {
     setPin4('');
     setShow(true);
     setResend(true);
-    setVal(30);
+    setVal(240);
     sendOTP();
   };
 

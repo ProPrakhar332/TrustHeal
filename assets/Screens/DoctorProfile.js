@@ -225,14 +225,14 @@ function BasicDesign({navigation}) {
                   <Text style={styles.whiteBoxRowText}>My Earning</Text>
                 </View>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.whiteBoxRow} onPress={() => {}}>
+              {/* <TouchableOpacity style={styles.whiteBoxRow} onPress={() => {}}>
                 <View style={{flex: 0.3}}>
                   <Image source={notification} style={styles.whiteBoxRowIcon} />
                 </View>
                 <View style={{flex: 0.6}}>
                   <Text style={styles.whiteBoxRowText}>My Notifications</Text>
                 </View>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
               <TouchableOpacity
                 style={styles.whiteBoxRow}
                 onPress={() => {

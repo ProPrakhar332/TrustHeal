@@ -21,6 +21,7 @@ import {ScrollView} from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import axios from 'axios';
 import dateformatter from '../API/dateformatter';
+import DayDateMaker from '../API/DayDateMaker';
 import apiConfig from '../API/apiConfig';
 import {
   SelectList,
@@ -82,10 +83,11 @@ const Header = ({title, showMenu}) => {
   const [name, setName] = useState('');
   const [mob, setMob] = useState('');
   const [mode, setMode] = useState('');
-  const [date, setdate] = useState('');
+  const [date, setdate] = useState(null);
   const [selectedDate, setselectedDate] = useState('');
   const [eslotsId, seteslotsId] = useState(null);
   const [viewESlots, setviewESlots] = useState([]);
+  const [viewESlotsDate, setviewESlotsDate] = useState([]);
   const [fees, setfees] = useState(0);
   const [slotTime, setslotTime] = useState('');
   //const [PaymentStatus, setPaymentStatus] = useState("");
@@ -98,6 +100,7 @@ const Header = ({title, showMenu}) => {
   const [whileUsing, setwhileUsing] = useState(false);
   const [onlyUsing, setonlyUsing] = useState(false);
   const [donAllow, setdonAllow] = useState(false);
+  const [DaysSlotRefresh, setDaysSlotRefresh] = useState(false);
 
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
@@ -118,44 +121,50 @@ const Header = ({title, showMenu}) => {
 
     setDatePickerVisibility(false);
   };
-
   useEffect(() => {
-    const getSlots = async () => {
+    const getEDates = async () => {
       let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
-      var doctorId = Number(x.doctorId);
-      var date = await AsyncStorage.getItem('date');
-      setslotTime('');
-      console.log(doctorId);
-      console.log(date);
-      if (date != '') {
-        axios
-          .get(
-            apiConfig.baseUrl +
-              '/slot/all/eslot?date=' +
-              date +
-              '&doctorId=' +
-              doctorId,
-          )
-          .then(function (response) {
-            //console.log(response.data);
-            setviewESlots(response.data);
-          })
-          .catch(function (error) {
-            console.log(error);
-          });
-      } else {
-        Alert.alert('Select a date first');
-      }
-    };
-    if (shareModal == true) getSlots();
-  }, [date]);
 
-  useEffect(() => {
-    const refresh = () => {
-      setdate('');
+      let doctorId = Number(x.doctorId);
+      axios
+        .get(apiConfig.baseUrl + '/slot/dates/eslot?doctorId=' + doctorId)
+        .then(function (response) {
+          setviewESlotsDate(DayDateMaker(response.data));
+        })
+        .catch(function (error) {
+          console.log('=====Get Eslot Dates Detail=====');
+          Alert.alert('Error in fetching E-dates', `${error}`);
+        });
     };
-    refresh();
-  }, []);
+    if (shareModal == true) getEDates();
+  }, [shareModal]);
+
+  const getSlots = async date => {
+    let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
+    var doctorId = Number(x.doctorId);
+    setslotTime('');
+    console.log(doctorId);
+    console.log(date);
+    if (date != '') {
+      axios
+        .get(
+          apiConfig.baseUrl +
+            '/slot/all/eslot?date=' +
+            date +
+            '&doctorId=' +
+            doctorId,
+        )
+        .then(function (response) {
+          //console.log(response.data);
+          setviewESlots(response.data);
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+    } else {
+      Alert.alert('Select a date first');
+    }
+  };
 
   const navigation = useNavigation();
   const removeHandler = e => {
@@ -184,7 +193,7 @@ const Header = ({title, showMenu}) => {
     });
   };
   const renderSlot = ({item}) => {
-    return item.isBooked ? (
+    return item.slotStatus == 'BOOKED' ? (
       <TouchableOpacity
         style={[
           styles.slotBackgroundActive,
@@ -194,7 +203,10 @@ const Header = ({title, showMenu}) => {
           },
         ]}
         onPress={() => {
-          Alert.alert('This slot is already booked!!');
+          Alert.alert(
+            'Already Booked',
+            'This slot is already booked. Please select another slot',
+          );
         }}>
         <Text style={styles.slotTitleActive}>
           {timeformatter(item.startTime)} to {timeformatter(item.endTime)}
@@ -212,9 +224,35 @@ const Header = ({title, showMenu}) => {
         onPress={() => {
           console.log(timeformatter(item.startTime).substring(0, 7));
           setslotTime(timeformatter(item.startTime).substring(0, 7));
+          seteslotsId(item.slotId);
+          setMode(item.typeOfEConsultation);
         }}>
         <Text style={styles.slotTitle}>
           {timeformatter(item.startTime)} to {timeformatter(item.endTime)}
+        </Text>
+      </TouchableOpacity>
+    );
+  };
+  const renderEViewDaysSlot = ({item}) => {
+    return (
+      <TouchableOpacity
+        style={[
+          styles.bubble,
+          {
+            width: 60,
+            justifyContent: 'center',
+            marginLeft: 5,
+          },
+        ]}
+        onPress={async () => {
+          //console.log(item.date)
+          setviewESlots('');
+          setdate(item.date);
+          await getSlots(item.date);
+          //getEViewSlots(item.date);
+        }}>
+        <Text style={styles.bubbleTitle}>
+          {item.day + '\n' + new Date(item.date).getDate()}
         </Text>
       </TouchableOpacity>
     );
@@ -243,67 +281,34 @@ const Header = ({title, showMenu}) => {
   };
 
   const Message = async () => {
-    let p =
-      'Hello! ' +
-      name +
-      ', Your Appointment has been set at ' +
-      slotTime +
-      ' on ' +
-      date +
-      ' in ' +
-      (mode == 'VIDEO_CALL' ? 'Video' : 'Phone') +
-      ' Consultation Mode.\n Amount Received:- ₹' +
-      fees +
-      '. \n Please Download the app and join the meet 10 mins before.\n Use ' +
-      mob +
-      ' number to login.\n Thank You and Take care';
-    if (
-      name !== '' &&
-      mob !== '' &&
-      mode !== '' &&
-      fees !== '' &&
-      slotTime !== '' &&
-      date !== ''
-    ) {
-      console.log(p);
-      let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
-      var doctorId = Number(x.doctorId);
-      axios
-        .post(apiConfig.baseUrl + '/share/patient', {
-          consultationType: mode,
-          doctorId: doctorId,
-          eslotsId: eslotsId,
-          fees: fees,
-          patientMobileNumber: mob,
-          patientName: name,
-          slotDate: await AsyncStorage.getItem('date'),
-          slotTime: slotTime.substring(0, 5),
-        })
-        .then(function (response) {
-          if (response.status == 201)
-            Alert.alert(
-              'Slot successfully booked for ' +
-                name +
-                ' on ' +
-                date +
-                ' at ' +
-                slotTime +
-                ' for ' +
-                (mode == 'VIDEO_CALL' ? 'Video' : 'Phone') +
-                ' Consultaion.',
-            );
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
-
-      await reset();
-    } else {
-      Alert.alert(
-        'Incomplete Details',
-        'Please fill all details before continuing!!',
-      );
-    }
+    let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
+    var doctorId = Number(x.doctorId);
+    let p = {
+      consultationType: mode,
+      doctorId: doctorId,
+      eslotsId: eslotsId,
+      fees: fees,
+      patientMobileNumber: mob,
+      patientName: name,
+      slotDate: date,
+      slotTime: slotTime.substring(0, 5),
+    };
+    console.log(p);
+    axios
+      .post(apiConfig.baseUrl + '/share/patient', p)
+      .then(async function (response) {
+        if (response.status == 200) {
+          Alert.alert(
+            'Slot Booked',
+            `Slot successfully booked for ${p.patientName} on ${p.slotDate} at ${p.slotTime}`,
+          );
+          setShareModal(false);
+          await reset();
+        }
+      })
+      .catch(function (error) {
+        Alert.alert('Error', `${error}`);
+      });
   };
 
   const reset = async () => {
@@ -318,28 +323,28 @@ const Header = ({title, showMenu}) => {
     setShareModal(false);
   };
 
-  const Item = ({id, time}) => (
-    <View
-      style={{
-        backgroundColor: '#E8F0FE',
-        margin: 5,
-        borderRadius: 10,
-        padding: 10,
-      }}>
-      <Text
-        style={{
-          fontSize: 12,
-          textAlign: 'center',
-          color: 'black',
-        }}
-        onPress={() => {
-          setSlot(time);
-        }}>
-        {time}
-      </Text>
-    </View>
-  );
-  const renderItem = ({item}) => <Item id={item.id} time={item.time} />;
+  // const Item = ({id, time}) => (
+  //   <View
+  //     style={{
+  //       backgroundColor: '#E8F0FE',
+  //       margin: 5,
+  //       borderRadius: 10,
+  //       padding: 10,
+  //     }}>
+  //     <Text
+  //       style={{
+  //         fontSize: 12,
+  //         textAlign: 'center',
+  //         color: 'black',
+  //       }}
+  //       onPress={() => {
+  //         setSlot(time);
+  //       }}>
+  //       {time}
+  //     </Text>
+  //   </View>
+  // );
+  // const renderItem = ({item}) => <Item id={item.id} time={item.time} />;
 
   return (
     <View
@@ -460,8 +465,8 @@ const Header = ({title, showMenu}) => {
                   borderTopLeftRadius: 34,
                   padding: 20,
                   bottom: 0,
-                  minHeight: 370,
-                  maxHeight: 600,
+                  minHeight: 500,
+                  maxHeight: 700,
                 },
               ]}>
               <View
@@ -498,7 +503,61 @@ const Header = ({title, showMenu}) => {
                     justifyContent: 'space-between',
                     marginTop: 10,
                   }}>
+                  {/* E-Dates */}
                   <View
+                    style={{
+                      marginTop: 5,
+                      alignSelf: 'center',
+                      width: '95%',
+                      minHeight: 0,
+                      maxHeight: 150,
+                    }}>
+                    <Text
+                      style={{
+                        fontWeight: 'bold',
+                        fontsize: 12,
+                        marginTop: 5,
+                        borderBottomWidth: 1,
+                        borderBottomColor: '#2b8ada',
+                        color: '#2b8ada',
+                      }}>
+                      Select Date :-{' '}
+                      {date != '' ? dayjs(date).format('DD-MM-YYYY') : date}
+                    </Text>
+                    {viewESlotsDate.length > 0 ? (
+                      <View
+                        style={{
+                          width: '100%',
+                          justifyContent: 'center',
+                          paddingLeft: 10,
+                          borderColor: '#2b8ada',
+                          borderWidth: 1,
+                          borderRadius: 15,
+                          marginVertical: 10,
+                        }}>
+                        <FlatList
+                          horizontal={true}
+                          data={viewESlotsDate}
+                          extraData={DaysSlotRefresh}
+                          keyExtractor={item => item.date}
+                          renderItem={renderEViewDaysSlot}
+                        />
+                      </View>
+                    ) : (
+                      <View>
+                        <Text
+                          style={{
+                            marginVertical: 10,
+                            alignSelf: 'center',
+                            fontSize: 12,
+                          }}>
+                          No Dates Available
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+
+                  {/* <View
                     style={[
                       styles.inputField,
                       {
@@ -536,8 +595,8 @@ const Header = ({title, showMenu}) => {
                       //minimumDate={(new Date())}
                       // maximumDate={dayjs().add(7, 'day')}
                     />
-                  </View>
-                  <View style={[styles.inputField, {flex: 0.475, padding: 0}]}>
+                  </View> */}
+                  {/* <View style={[styles.inputField, {flex: 0.475, padding: 0}]}>
                     <SelectList
                       placeholder={'Select Mode'}
                       labelStyles={{height: 0}}
@@ -554,7 +613,7 @@ const Header = ({title, showMenu}) => {
                         fontWeight: 'bold',
                       }}
                     />
-                  </View>
+                  </View> */}
                 </View>
                 {/* Slots */}
                 <View
@@ -566,13 +625,24 @@ const Header = ({title, showMenu}) => {
                     maxHeight: 150,
                   }}>
                   <Text
-                    style={{fontWeight: 'bold', fontsize: 12, marginTop: 5}}>
+                    style={{
+                      fontWeight: 'bold',
+                      fontsize: 12,
+                      marginTop: 5,
+                      borderBottomWidth: 1,
+                      borderBottomColor: '#2b8ada',
+                      color: '#2b8ada',
+                    }}>
                     Select Slots :- {slotTime}
                   </Text>
                   {viewESlots.length > 0 ? (
                     <View
                       style={{
-                        marginBottom: 15,
+                        padding: 3,
+                        borderColor: '#2b8ada',
+                        borderWidth: 1,
+                        marginVertical: 10,
+                        borderRadius: 15,
                       }}>
                       <FlatList
                         horizontal={false}
@@ -591,7 +661,7 @@ const Header = ({title, showMenu}) => {
                       {date == '' ? (
                         <Text>Please Select Date</Text>
                       ) : (
-                        <Text>No slots available.</Text>
+                        <Text>Loading Slots....</Text>
                       )}
                     </View>
                   )}
@@ -603,57 +673,80 @@ const Header = ({title, showMenu}) => {
                     width: '95%',
                     alignSelf: 'center',
                   }}>
-                  <View
+                  <Text
                     style={{
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
+                      fontWeight: 'bold',
+                      fontsize: 12,
+                      marginTop: 5,
+                      borderBottomWidth: 1,
+                      borderBottomColor: '#2b8ada',
+                      color: '#2b8ada',
                       marginBottom: 10,
                     }}>
-                    <View
-                      style={[
-                        styles.inputField,
-                        {paddingVertical: 0},
-                        {flex: 0.49},
-                      ]}>
-                      <TextInput
-                        onChangeText={text => setName(text)}
-                        value={name}
-                        style={{fontSize: 12}}
-                        placeholder="Patient Name"></TextInput>
-                    </View>
-                    <View
-                      style={[
-                        styles.inputField,
-                        {paddingVertical: 0},
-                        {flex: 0.49},
-                      ]}>
-                      <TextInput
-                        onChangeText={text => setMob(text)}
-                        value={mob}
-                        maxLength={10}
-                        style={{fontSize: 12}}
-                        placeholder="Mobile No."
-                        keyboardType={'number-pad'}></TextInput>
-                    </View>
-                  </View>
+                    Patient Details:-
+                  </Text>
+                  {/* Name and Mobile Number */}
                   <View
                     style={{
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
+                      // borderRadius: 15,
+                      // borderColor: '#2b8ada',
+                      padding: 10,
+                      //borderWidth: 1,
                     }}>
                     <View
-                      style={[
-                        styles.inputField,
-                        {paddingVertical: 0},
-                        {flex: 1},
-                      ]}>
-                      <TextInput
-                        onChangeText={text => setfees(text)}
-                        value={fees}
-                        style={{fontSize: 12}}
-                        placeholder="Amount Received"
-                        keyboardType={'number-pad'}
-                        maxLength={4}></TextInput>
+                      style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        marginBottom: 10,
+                      }}>
+                      <View
+                        style={[
+                          styles.inputField,
+                          {paddingVertical: 0},
+                          {flex: 0.49},
+                        ]}>
+                        <TextInput
+                          onChangeText={text => setName(text)}
+                          value={name}
+                          maxLength={30}
+                          style={{fontSize: 12}}
+                          placeholder="Patient Name"></TextInput>
+                      </View>
+                      <View
+                        style={[
+                          styles.inputField,
+                          {paddingVertical: 0},
+                          {flex: 0.49},
+                        ]}>
+                        <TextInput
+                          onChangeText={text => setMob(text)}
+                          value={mob}
+                          maxLength={10}
+                          style={{fontSize: 12}}
+                          placeholder="Mobile No."
+                          keyboardType={'number-pad'}></TextInput>
+                      </View>
+                    </View>
+                    {/* Amount Received */}
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                      }}>
+                      <View
+                        style={[
+                          styles.inputField,
+                          {paddingVertical: 0},
+                          {flex: 1},
+                        ]}>
+                        <TextInput
+                          onChangeText={text => setfees(text)}
+                          value={fees}
+                          style={{fontSize: 12}}
+                          placeholder="Amount Received"
+                          keyboardType={'number-pad'}
+                          maxLength={4}></TextInput>
+                      </View>
                     </View>
                   </View>
                 </View>
@@ -674,7 +767,36 @@ const Header = ({title, showMenu}) => {
                       borderRadius: 10,
                       marginTop: 10,
                     }}
-                    onPress={() => Message()}
+                    onPress={async () => {
+                      if (name == '')
+                        Alert.alert(
+                          'Incomplete Details',
+                          'Please fill in the patient name',
+                        );
+                      else if (mob == '')
+                        Alert.alert(
+                          'Incomplete Details',
+                          'Please fill in the patient mobile number',
+                        );
+                      else if (fees == '')
+                        Alert.alert(
+                          'Incomplete Details',
+                          'Please fill in the fees received from the patient',
+                        );
+                      else if (date == '')
+                        Alert.alert(
+                          'Incomplete Details',
+                          'Please select the date for e-consultation',
+                        );
+                      else if (slotTime == '')
+                        Alert.alert(
+                          'Incomplete Details',
+                          'Please select the time slot for e-consultation',
+                        );
+                      else {
+                        await Message();
+                      }
+                    }}
                   />
                 </View>
               </View>
@@ -878,10 +1000,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignSelf: 'center',
     backgroundColor: '#E8F0FE',
-    padding: 5,
+    padding: 2,
     borderRadius: 15,
     marginVertical: 5,
-    width: '100%',
   },
   bubbleTitle: {
     color: 'black',
@@ -912,13 +1033,13 @@ const styles = StyleSheet.create({
     padding: 2,
     borderRadius: 10,
     margin: 2,
-    width: 100,
+    width: 80,
   },
   slotTitle: {
     fontSize: 12,
     color: 'black',
     textAlign: 'center',
-    width: 100,
+    width: 75,
   },
   slotBackgroundActive: {
     alignSelf: 'center',
@@ -928,13 +1049,13 @@ const styles = StyleSheet.create({
     padding: 2,
     borderRadius: 10,
     margin: 2,
-    width: 100,
+    width: 80,
   },
   slotTitleActive: {
     fontSize: 12,
     color: '#fff',
     textAlign: 'center',
-    width: 100,
+    width: 75,
   },
 });
 

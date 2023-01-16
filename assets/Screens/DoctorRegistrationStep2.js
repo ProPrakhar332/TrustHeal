@@ -26,6 +26,7 @@ import doctor from '../Resources/doctor.png';
 import upload from '../Resources/upload.png';
 import waiting from '../Animations/waiting1.gif';
 import uploading from '../Animations/uploading.gif';
+import upload from '../Animations/upload.gif';
 import {useEffect} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
@@ -193,6 +194,7 @@ const DoctorRegistration2 = ({navigation}) => {
   const [showFollowUp, setshowFollowUp] = useState('');
   const [isLoading, setisLoading] = useState(false);
   const [isSentForValidation, setisSentForValidation] = useState(false);
+  const [isUploading, setisUploading] = useState(false);
 
   const handleError = err => {
     if (DocumentPicker.isCancel(err)) {
@@ -1048,6 +1050,7 @@ const DoctorRegistration2 = ({navigation}) => {
   //post medical registration
 
   const postMedReg = async () => {
+    setisUploading(true);
     let p = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
     let doctorId = Number(p.doctorId);
 
@@ -1065,6 +1068,7 @@ const DoctorRegistration2 = ({navigation}) => {
     axios
       .post(apiConfig.baseUrl + '/doctor/medicalregi/save/or/update', medArry)
       .then(function (response) {
+        setisUploading(false);
         if (response.status == 201 || response.status == 200) {
           Alert.alert(
             'Details Uploaded',
@@ -1076,14 +1080,16 @@ const DoctorRegistration2 = ({navigation}) => {
         }
       })
       .catch(function (error) {
+        setisUploading(false);
         console.log('=================Medical Error Occured=================');
-        console.log(error);
+        Alert.alert('Error', `${error}`);
       });
   };
 
   //post educational qualification
 
   const postEduDet = async () => {
+    setisUploading(true);
     let p = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
     let doctorId = Number(p.doctorId);
 
@@ -1096,6 +1102,7 @@ const DoctorRegistration2 = ({navigation}) => {
     axios
       .post(apiConfig.baseUrl + '/doctor/education/save/or/update', Education)
       .then(function (response) {
+        setisUploading(false);
         if (response.status == 201 || response.status == 200) {
           Alert.alert(
             'Details Uploaded',
@@ -1107,16 +1114,18 @@ const DoctorRegistration2 = ({navigation}) => {
         }
       })
       .catch(function (error) {
+        setisUploading(false);
         console.log(
           '=================Educational Error Occured=================',
         );
-        console.log(error);
+        Alert.alert('Error', `${error}`);
       });
   };
 
   //post experience
 
   const postExpDet = async () => {
+    setisUploading(true);
     let p = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
     let doctorId = Number(p.doctorId);
 
@@ -1129,6 +1138,7 @@ const DoctorRegistration2 = ({navigation}) => {
     axios
       .post(apiConfig.baseUrl + '/doctor/experience/save/or/update', Experience)
       .then(function (response) {
+        setisUploading(false);
         if (response.status == 201 || response.status == 200) {
           Alert.alert(
             'Details Uploaded',
@@ -1140,16 +1150,19 @@ const DoctorRegistration2 = ({navigation}) => {
         }
       })
       .catch(function (error) {
+        setisUploading(false);
         console.log(
           '=================Experience Error Occured=================',
         );
         console.log(error);
+        Alert.alert('Error', `${error}`);
       });
   };
 
   //post Identification
 
   const postIdenDet = async () => {
+    setisUploading(true);
     let p = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
     let doctorId = Number(p.doctorId);
 
@@ -1165,6 +1178,7 @@ const DoctorRegistration2 = ({navigation}) => {
         IdentificationDocs,
       )
       .then(function (response) {
+        setisUploading(false);
         if (response.status == 201 || response.status == 200) {
           Alert.alert(
             'Details Uploaded',
@@ -1176,16 +1190,19 @@ const DoctorRegistration2 = ({navigation}) => {
         }
       })
       .catch(function (error) {
+        setisUploading(false);
         console.log(
           '=================Identification Error Occured=================',
         );
         console.log(error);
+        Alert.alert('Error', `${error}`);
       });
   };
 
   //post Clinic Information
 
   const postClinicDet = async () => {
+    setisUploading(true);
     let p = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
     let doctorId = Number(p.doctorId);
 
@@ -1198,6 +1215,7 @@ const DoctorRegistration2 = ({navigation}) => {
     axios
       .post(apiConfig.baseUrl + '/doctor/clinic/save/or/update', ClinicDet)
       .then(function (response) {
+        setisUploading(false);
         if (response.status == 201 || response.status == 200) {
           Alert.alert(
             'Details Uploaded',
@@ -1209,14 +1227,17 @@ const DoctorRegistration2 = ({navigation}) => {
         }
       })
       .catch(function (error) {
+        setisUploading(false);
         console.log('=================Clinic Error Occured=================');
         console.log(error);
+        Alert.alert('Error', `${error}`);
       });
   };
 
   //post Clinic Information
 
   const postPreConsultQues = async () => {
+    setisUploading(true);
     let p = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
     let doctorId = Number(p.doctorId);
 
@@ -1232,6 +1253,7 @@ const DoctorRegistration2 = ({navigation}) => {
         questionareList,
       )
       .then(function (response) {
+        setisUploading(false);
         if (response.status == 201 || response.status == 200) {
           console.log(
             'Pre Consultation Questionnaire Record Inserted Successfully',
@@ -1241,16 +1263,20 @@ const DoctorRegistration2 = ({navigation}) => {
         }
       })
       .catch(function (error) {
+        setisUploading(false);
         console.log(
           '=================Pre Consultation Questionnaire Error Occured=================',
         );
         console.log(error);
+        Alert.alert('Error', `${error}`);
       });
   };
 
   //post consultation Fees
 
   const postConsultFees = async () => {
+    setisUploading(true);
+
     let p = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
     let doctorId = Number(p.doctorId);
     let amp = {
@@ -1264,6 +1290,8 @@ const DoctorRegistration2 = ({navigation}) => {
     axios
       .post(apiConfig.baseUrl + '/doctor/fees/save', amp)
       .then(function (response) {
+        setisUploading(false);
+
         if (response.status == 201 || response.status == 200) {
           Alert.alert(
             'Details Uploaded',
@@ -1274,8 +1302,10 @@ const DoctorRegistration2 = ({navigation}) => {
         }
       })
       .catch(function (error) {
+        setisUploading(false);
         console.log('=================Fees Error Occured=================');
         console.log(error);
+        Alert.alert('Error', `${error}`);
       });
   };
 
@@ -1776,6 +1806,7 @@ const DoctorRegistration2 = ({navigation}) => {
                           ]}
                           placeholderTextColor={'black'}
                           onChangeText={text => setRegNo(text)}
+                          maxLength={20}
                           value={RegNo}></TextInput>
                       </View>
                     </View>
@@ -1787,11 +1818,14 @@ const DoctorRegistration2 = ({navigation}) => {
                         style={[styles.textInput, {backgroundColor: '#E8F0FE'}]}
                         placeholderTextColor={'black'}
                         onChangeText={text => setRegCouncil(text)}
+                        maxLength={20}
                         value={RegCouncil}></TextInput>
                     </View>
                     <View style={{flexDirection: 'row', alignSelf: 'center'}}>
                       <View style={{flex: 1, marginRight: '5%'}}>
-                        <Text style={styles.inputLabel}>Reg. Certificate</Text>
+                        <Text style={styles.inputLabel}>
+                          Reg. Certificate(only pdf)
+                        </Text>
                         <View>
                           <TextInput
                             style={[
@@ -2046,6 +2080,7 @@ const DoctorRegistration2 = ({navigation}) => {
                                 {backgroundColor: '#E8F0FE'},
                               ]}
                               onChangeText={text => setDegree(text)}
+                              maxLength={50}
                               value={Degree}></TextInput>
                           </View>
                           <View style={{flex: 0.475}}>
@@ -2103,6 +2138,7 @@ const DoctorRegistration2 = ({navigation}) => {
                                 {backgroundColor: '#E8F0FE'},
                               ]}
                               onChangeText={text => setUniversity(text)}
+                              maxLength={100}
                               value={University}></TextInput>
                           </View>
                         </View>
@@ -2117,7 +2153,7 @@ const DoctorRegistration2 = ({navigation}) => {
                         <CustomButton
                           text={
                             degreePath == ''
-                              ? 'Select File'
+                              ? 'Select PDF only'
                               : ' ✓ File Selected'
                           }
                           textstyle={{
@@ -2424,6 +2460,7 @@ const DoctorRegistration2 = ({navigation}) => {
                                 {backgroundColor: '#E8F0FE'},
                               ]}
                               onChangeText={text => setPracticeAt(text)}
+                              maxLength={50}
                               value={practiceAt}></TextInput>
                           </View>
                         </View>
@@ -2835,6 +2872,7 @@ const DoctorRegistration2 = ({navigation}) => {
                                   setidentificationNumber(text)
                                 }
                                 value={identificationNumber}
+                                maxLength={20}
                               />
                             </View>
                           </View>
@@ -2851,7 +2889,7 @@ const DoctorRegistration2 = ({navigation}) => {
                         <CustomButton
                           text={
                             identificationPath == ''
-                              ? 'Select File'
+                              ? 'Select PDF only'
                               : ' ✓ File Selected'
                           }
                           textstyle={{
@@ -2958,7 +2996,7 @@ const DoctorRegistration2 = ({navigation}) => {
                             else if (identificationPath == '')
                               Alert.alert(
                                 'Incomplete Details!',
-                                'Please Select Document bedore saving',
+                                'Please Select Document before saving',
                               );
                           }}
                         />
@@ -3148,6 +3186,7 @@ const DoctorRegistration2 = ({navigation}) => {
                           <TextInput
                             style={styles.textInput}
                             value={clinicName}
+                            maxLength={50}
                             onChangeText={text => setClinicName(text)}
                           />
                         </View>
@@ -3156,6 +3195,7 @@ const DoctorRegistration2 = ({navigation}) => {
                           <TextInput
                             style={styles.textInput}
                             value={clinicAddress}
+                            maxLength={50}
                             onChangeText={text => setClinicAddress(text)}
                           />
                         </View>
@@ -3166,6 +3206,7 @@ const DoctorRegistration2 = ({navigation}) => {
                           <TextInput
                             style={styles.textInput}
                             multiline={true}
+                            maxLength={50}
                             value={specialInstruction}
                             onChangeText={text => setSpecialInstruction(text)}
                           />
@@ -3871,7 +3912,7 @@ const DoctorRegistration2 = ({navigation}) => {
                         width: '100%',
                       }}>
                       <Text style={styles.inputLabel}>
-                        Physical Consultation Fees
+                        Physical Consultation Fees(in ₹)
                       </Text>
                       <TextInput
                         style={[styles.textInput]}
@@ -3888,7 +3929,9 @@ const DoctorRegistration2 = ({navigation}) => {
                         flexDirection: 'column',
                         width: '100%',
                       }}>
-                      <Text style={styles.inputLabel}>E-Consultation Fees</Text>
+                      <Text style={styles.inputLabel}>
+                        E-Consultation Fees(in ₹)
+                      </Text>
                       <TextInput
                         style={[styles.textInput]}
                         maxLength={5}
@@ -3904,7 +3947,9 @@ const DoctorRegistration2 = ({navigation}) => {
                         flexDirection: 'column',
                         width: '100%',
                       }}>
-                      <Text style={styles.inputLabel}>Follow-Up Fees</Text>
+                      <Text style={styles.inputLabel}>
+                        Follow-Up Fees(in ₹)
+                      </Text>
                       <TextInput
                         style={[styles.textInput]}
                         keyboardType={'number-pad'}
@@ -3921,7 +3966,7 @@ const DoctorRegistration2 = ({navigation}) => {
                         width: '100%',
                       }}>
                       <Text style={styles.inputLabel}>
-                        Duration of Follow-Up
+                        Duration of Follow-Up(in days)
                       </Text>
                       <SelectList
                         defaultOption={'4'}
@@ -4132,6 +4177,64 @@ const DoctorRegistration2 = ({navigation}) => {
                   paddingHorizontal: 15,
                 }}>
                 {'We are processing your profile for verification '}
+              </Text>
+            </View>
+          </View>
+        )}
+        {isUploading == true && (
+          <View
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: 'rgba(0,0,0,0.4)',
+            }}>
+            <View
+              style={{
+                backgroundColor: 'white',
+                alignSelf: 'center',
+                borderRadius: 20,
+                width: 200,
+                height: 200,
+                justifyContent: 'center',
+                flexDirection: 'column',
+              }}>
+              <Image
+                source={upload}
+                style={{
+                  alignSelf: 'center',
+                  width: 80,
+                  height: 80,
+                  // borderRadius: 150,
+                }}
+              />
+              <Text
+                style={{
+                  alignSelf: 'center',
+                  textAlign: 'center',
+                  color: '#2B8ADA',
+                  fontSize: 18,
+                  fontWeight: 'bold',
+                  width: '100%',
+                  marginVertical: 5,
+                  // padding: 10,
+                }}>
+                {'Uploading '}
+              </Text>
+              <Text
+                style={{
+                  alignSelf: 'center',
+                  textAlign: 'center',
+                  color: 'black',
+                  fontSize: 12,
+                  width: '100%',
+                  paddingHorizontal: 15,
+                }}>
+                {'We are uploading your details'}
               </Text>
             </View>
           </View>

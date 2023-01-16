@@ -29,8 +29,8 @@ import pfp1 from '../Resources/patient.png';
 // import pfp3 from "../Resources/pfp3.jpg";
 // import pfp4 from "../Resources/pfp4.jpg";
 import chatting from '../Resources/chattingMedium.png';
-import payonclinic from '../Icons/payonclinic.png';
-import prepaid from '../Icons/prepaid.png';
+import payonclinic from '../Icons/payonclinic1.png';
+import prepaid from '../Icons/paid.png';
 import waiting from '../Animations/waiting1.gif';
 import downloading from '../Animations/downloading.gif';
 
@@ -43,6 +43,7 @@ import axios from 'axios';
 import apiConfig from '../API/apiConfig';
 import dateformatter from '../API/dateformatter';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import dayjs from 'dayjs';
 
 const dataStatus = [
   {key: 'Yes', value: 'Yes'},
@@ -155,67 +156,76 @@ const DoctorHome = ({navigation}) => {
           marginVertical: 5,
         }}
         onPress={() => console.log(item.consultationId)}>
-        {/* <View
-          style={{
-            flexDirection: 'row',
-            alignSelf: 'flex-start',
-            marginTop: 10,
-          }}>
-          <Image source={payonclinic} style={{width: 20, height: 20}} />
-          <Text style={{color: '#2b8ada'}}>Pay on site</Text>
-        </View> */}
         <View
           style={{
             flexDirection: 'row',
-            alignSelf: 'flex-end',
             marginTop: 10,
+            paddingHorizontal: 10,
+            justifyContent: 'space-evenly',
           }}>
-          <FAIcon
-            name="prescription"
-            size={20}
-            style={{marginHorizontal: 5}}
-            onPress={() => {
-              if (item.familyDetails != null)
-                onPressPrescription(item.consultationId, item.familyDetails);
-              else
-                onPressPrescription(item.consultationId, item.patientsDetails);
-            }}
-          />
-          <CustomButton
-            text="Pre Consultation"
-            textstyle={{color: 'white', fontSize: 10}}
-            style={{
-              backgroundColor: '#2B8ADA',
-              padding: 3,
-              marginHorizontal: 5,
-              paddingHorizontal: 7,
-              padding: 4,
-            }}
-            onPress={() => {
-              setUpcomingId(item.consultationId);
-              setConsultationQuestionnaire(true);
-            }}
-          />
-          <CustomButton
-            text="Manage Status"
-            textstyle={{color: '#2B8ADA', fontSize: 10}}
-            style={{
-              borderColor: '#2B8ADA',
-              borderWidth: 1,
-              backgroundColor: 'white',
-              padding: 3,
-              marginHorizontal: 5,
-              paddingHorizontal: 7,
-              padding: 4,
-            }}
-            onPress={() => setManageStatusModal(true)}
-          />
+          <View styles={{flex: 0.1}}>
+            <Image
+              source={item.paymentStatus != 'PRE_PAID' ? payonclinic : prepaid}
+              style={{
+                width: 30,
+                height: 30,
+                tintColor:
+                  item.paymentStatus != 'PRE_PAID' ? '#2b8ada' : '#51e80c',
+              }}
+            />
+          </View>
+          <View style={{flex: 0.5, flexDirection: 'row'}}>
+            <FAIcon
+              name="prescription"
+              size={20}
+              style={{marginHorizontal: 5, alignSelf: 'center'}}
+              onPress={() => {
+                if (item.familyDetails != null)
+                  onPressPrescription(item.consultationId, item.familyDetails);
+                else
+                  onPressPrescription(
+                    item.consultationId,
+                    item.patientsDetails,
+                  );
+              }}
+            />
+            <CustomButton
+              text="Pre Consultation"
+              textstyle={{color: 'white', fontSize: 10, alignSelf: 'center'}}
+              style={{
+                backgroundColor: '#2B8ADA',
+                padding: 5,
+                marginHorizontal: 5,
+                paddingHorizontal: 7,
+                padding: 4,
+              }}
+              onPress={() => {
+                setUpcomingId(item.consultationId);
+                setConsultationQuestionnaire(true);
+              }}
+            />
+            <CustomButton
+              text="Manage Status"
+              textstyle={{color: '#2B8ADA', fontSize: 10}}
+              style={{
+                borderColor: '#2B8ADA',
+                borderWidth: 1,
+                backgroundColor: 'white',
+                padding: 5,
+                marginHorizontal: 5,
+                paddingHorizontal: 7,
+                padding: 4,
+              }}
+              onPress={() => setManageStatusModal(true)}
+            />
+          </View>
         </View>
         <View
           style={{
             flexDirection: 'row',
             // borderBottomColor: "gray",
             // borderBottomWidth: 1,
+            // justifyContent: 'space-around',
           }}>
           <Image
             source={pfp1}
@@ -228,7 +238,8 @@ const DoctorHome = ({navigation}) => {
               marginHorizontal: 10,
             }}
           />
-          <View style={{flexDirection: 'column'}}>
+          <View
+            style={{flexDirection: 'column', justifyContent: 'space-around'}}>
             <Text
               style={{
                 flexDirection: 'row',
@@ -268,6 +279,59 @@ const DoctorHome = ({navigation}) => {
               </View>
             ) : null}
 
+            {item.patientsDetails.age != null || item.familyDetails != null ? (
+              <View style={{flexDirection: 'row'}}>
+                <View
+                  style={{
+                    flexDirection: 'column',
+                    width: '20%',
+                    marginRight: '5%',
+                  }}>
+                  <Text style={styles.cardText}>Age</Text>
+                </View>
+                <View style={{flexDirection: 'column', width: '60%'}}>
+                  <Text style={styles.cardText}>
+                    {item.familyDetails == null
+                      ? item.patientsDetails.age
+                      : item.familyDetails.age}
+                  </Text>
+                </View>
+              </View>
+            ) : null}
+            {item.patientsDetails.city != null || item.familyDetails != null ? (
+              <View style={{flexDirection: 'row'}}>
+                <View
+                  style={{
+                    flexDirection: 'column',
+                    width: '20%',
+                    marginRight: '5%',
+                  }}>
+                  <Text style={styles.cardText}>Location</Text>
+                </View>
+                <View style={{flexDirection: 'column', width: '60%'}}>
+                  <Text style={styles.cardText}>
+                    {item.familyDetails == null
+                      ? item.patientsDetails.city
+                      : item.familyDetails.city}
+                  </Text>
+                </View>
+              </View>
+            ) : null}
+            {item.symptoms != null ? (
+              <View style={{flexDirection: 'row'}}>
+                <View
+                  style={{
+                    flexDirection: 'column',
+                    width: '20%',
+                    marginRight: '5%',
+                  }}>
+                  <Text style={styles.cardText}>Symtoms</Text>
+                </View>
+                <View style={{flexDirection: 'column', width: '60%'}}>
+                  <Text style={styles.cardText}>{item.symptoms}</Text>
+                </View>
+              </View>
+            ) : null}
             <View style={{flexDirection: 'row'}}>
               <View
                 style={{
@@ -275,47 +339,14 @@ const DoctorHome = ({navigation}) => {
                   width: '20%',
                   marginRight: '5%',
                 }}>
-                <Text style={styles.cardText}>Age</Text>
+                <Text style={styles.cardText}>Date</Text>
               </View>
               <View style={{flexDirection: 'column', width: '60%'}}>
                 <Text style={styles.cardText}>
-                  {item.familyDetails == null
-                    ? item.patientsDetails.age
-                    : item.familyDetails.age}
+                  {dayjs(item.slotDate).format('DD-MMM-YYYY')}
                 </Text>
               </View>
             </View>
-            <View style={{flexDirection: 'row'}}>
-              <View
-                style={{
-                  flexDirection: 'column',
-                  width: '20%',
-                  marginRight: '5%',
-                }}>
-                <Text style={styles.cardText}>Location</Text>
-              </View>
-              <View style={{flexDirection: 'column', width: '60%'}}>
-                <Text style={styles.cardText}>
-                  {item.familyDetails == null
-                    ? item.patientsDetails.city
-                    : item.familyDetails.city}
-                </Text>
-              </View>
-            </View>
-            <View style={{flexDirection: 'row'}}>
-              <View
-                style={{
-                  flexDirection: 'column',
-                  width: '20%',
-                  marginRight: '5%',
-                }}>
-                <Text style={styles.cardText}>Symtoms</Text>
-              </View>
-              <View style={{flexDirection: 'column', width: '60%'}}>
-                <Text style={styles.cardText}>{item.symptoms}</Text>
-              </View>
-            </View>
-
             <View style={{flexDirection: 'row'}}>
               <View
                 style={{

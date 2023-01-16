@@ -566,6 +566,7 @@ const DoctorRegistrationStep1 = ({navigation}) => {
                 style={styles.textInput}
                 placeholderTextColor={'gray'}
                 onChangeText={text => setName(text)}
+                maxLength={50}
                 value={name}></TextInput>
             </View>
             {/* Email Label */}
@@ -579,6 +580,7 @@ const DoctorRegistrationStep1 = ({navigation}) => {
                 placeholderTextColor={'gray'}
                 onChangeText={text => setEmail(text)}
                 keyboardType={'email-address'}
+                maxLength={50}
                 value={email}></TextInput>
             </View>
             {/* Date of Birth Label */}
@@ -680,6 +682,7 @@ const DoctorRegistrationStep1 = ({navigation}) => {
                   style={styles.textInput}
                   placeholderTextColor={'gray'}
                   onChangeText={text => setOtherSpeciality(text)}
+                  maxLength={50}
                   value={Otherspeciality}></TextInput>
               </View>
             ) : null}
@@ -715,7 +718,7 @@ const DoctorRegistrationStep1 = ({navigation}) => {
               <TextInput
                 style={styles.textInput}
                 placeholderTextColor={'gray'}
-                maxLength={6}
+                maxLength={10}
                 keyboardType={'number-pad'}
                 onChangeText={text => {
                   setPIN(text);
@@ -729,6 +732,7 @@ const DoctorRegistrationStep1 = ({navigation}) => {
               </View>
               <TextInput
                 style={[styles.textInput]}
+                maxLength={50}
                 onChangeText={text => {
                   setCity(text);
                 }}
@@ -736,7 +740,9 @@ const DoctorRegistrationStep1 = ({navigation}) => {
             </View>
             <View style={{marginVertical: 10}}>
               <View style={{flexDirection: 'row'}}>
-                <Text style={styles.inputLabel}>Contact Visibility</Text>
+                <Text style={styles.inputLabel}>
+                  Show Mobile No to Patients
+                </Text>
                 <Text style={{color: 'red'}}>*</Text>
               </View>
               <SelectList
