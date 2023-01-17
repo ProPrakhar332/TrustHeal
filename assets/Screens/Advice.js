@@ -78,10 +78,16 @@ function Advice({navigation}) {
   };
 
   const pressedProceed = async () => {
-    let p = JSON.stringify(AdviceA);
-    await AsyncStorage.setItem('Advice', p);
-    console.log(await AsyncStorage.getItem('Advice'));
-    navigation.push('FollowUp');
+    if (Advice != '') {
+      let p = JSON.stringify(AdviceA);
+      await AsyncStorage.setItem('Advice', p);
+      console.log(await AsyncStorage.getItem('Advice'));
+      navigation.push('FollowUp');
+    } else
+      Alert.alert(
+        'Incomplete Details!',
+        'Please add advice before continuing!',
+      );
   };
 
   return (
@@ -257,7 +263,7 @@ function Advice({navigation}) {
                   onPress={pressedProceed}
                 />
                 <CustomButton
-                  text="Save"
+                  text="Go Back"
                   textstyle={{color: '#2B8ADA', fontSize: 12}}
                   style={{
                     borderRadius: 10,
@@ -266,9 +272,7 @@ function Advice({navigation}) {
                     flex: 0.45,
                   }}
                   onPress={() => {
-                    Alert.alert(
-                      'All the details on this page are saved successfully',
-                    );
+                    navigation.goBack();
                   }}
                 />
               </View>

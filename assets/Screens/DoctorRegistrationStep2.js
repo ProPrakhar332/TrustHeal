@@ -26,7 +26,7 @@ import doctor from '../Resources/doctor.png';
 import upload from '../Resources/upload.png';
 import waiting from '../Animations/waiting1.gif';
 import uploading from '../Animations/uploading.gif';
-import upload from '../Animations/upload.gif';
+import uploadgif from '../Animations/upload.gif';
 import {useEffect} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
@@ -4204,7 +4204,7 @@ const DoctorRegistration2 = ({navigation}) => {
                 flexDirection: 'column',
               }}>
               <Image
-                source={upload}
+                source={uploadgif}
                 style={{
                   alignSelf: 'center',
                   width: 80,

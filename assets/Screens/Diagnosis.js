@@ -32,7 +32,7 @@ function Diagnosis({navigation}) {
   const window = useWindowDimensions();
 
   const pressedProceed = async () => {
-    if (Diagnosis != null) {
+    if (Diagnosis != '') {
       let p = JSON.stringify(Diagnosis);
       await AsyncStorage.setItem('Diagnosis', p);
       console.log(await AsyncStorage.getItem('Diagnosis'));
@@ -190,7 +190,7 @@ function Diagnosis({navigation}) {
                   onPress={pressedProceed}
                 />
                 <CustomButton
-                  text="Save"
+                  text="Go Back"
                   textstyle={{color: '#2B8ADA', fontSize: 12}}
                   style={{
                     borderRadius: 10,
@@ -199,9 +199,7 @@ function Diagnosis({navigation}) {
                     flex: 0.45,
                   }}
                   onPress={() => {
-                    Alert.alert(
-                      'All the details on this page are saved successfully',
-                    );
+                    navigation.goBack();
                   }}
                 />
               </View>

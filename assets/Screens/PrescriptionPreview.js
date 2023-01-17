@@ -23,12 +23,21 @@ import Pdf from 'react-native-pdf';
 // import { shareAsync } from "expo-sharing";
 import {WebView} from 'react-native-webview';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
+import DocumentPicker, {
+  DirectoryPickerResponse,
+  DocumentPickerResponse,
+  isInProgress,
+  types,
+} from 'react-native-document-picker';
 
 //icons
 import waiting from '../Animations/waiting1.gif';
 import logo from '../PrescriptionTemplate/logo.png';
 import bg from '../PrescriptionTemplate/bg.png';
 import apiConfig from '../API/apiConfig';
+import {fileUpload} from '../API/apiConfig';
+import upload from '../Animations/upload.gif';
+
 import dayjs from 'dayjs';
 
 function PrescriptionPreview({navigation}) {
@@ -48,6 +57,16 @@ function PrescriptionPreview({navigation}) {
   const [doctorName, setdoctorName] = useState(null);
   const [doctorEducationRaw, setdoctorEducationRaw] = useState([]);
   const [doctorEducationDisp, setdoctorEducationDisp] = useState(null);
+  const [clinicName, setclinicName] = useState('');
+  const [clinicAddress, setclinicAddress] = useState('');
+  const [patientName, setpatientName] = useState('');
+  const [consultationId, setconsultationId] = useState(null);
+  const [patientID, setpatientID] = useState('');
+  const [prescriptionPath, setprescriptionPath] = useState('');
+  const [patientObj, setpatientObj] = useState([]);
+  const [patientAge, setpatientAge] = useState('');
+  const [isUploading, setisUploading] = useState(false);
+
   const imageURL = 'https://jsplquality.jindalsteel.com/arogyaImage/';
 
   useEffect(() => {
@@ -60,7 +79,19 @@ function PrescriptionPreview({navigation}) {
       let f = await AsyncStorage.getItem('FollowUpDate');
       let g = await AsyncStorage.getItem('Diagnosis');
       let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
+      let h = JSON.parse(await AsyncStorage.getItem('PrescriptionFor'));
+      // console.log('=============Patient obj===============');
 
+      //console.log(h);
+      if (h != null) {
+        setpatientObj(h);
+        setclinicName(h.clinicName);
+        setclinicAddress(h.clinicAddress);
+        setpatientID(h.patientDet.patientId);
+        setconsultationId(h.consultationId);
+        setpatientName(h.patientDet.patientName);
+        setpatientAge(h.patientDet.age);
+      }
       //setting cheifcomplaint
       if (a != null) {
         setcheifComplaints(a);
@@ -73,21 +104,21 @@ function PrescriptionPreview({navigation}) {
       //setting examination details
       if (b != null) {
         let tempb =
-          ` <div class="row align-items-center temp-bp mx-2" >
-                    <div class="col-md-6 col-sm-6"  >
-                        <p class="mb-0"><b>Body Temperature - </b>` +
+          ` <div style="display: flex;margin-left:5%;width:90%;margin-top:5px;margin-bottom:5px" >
+                    <div  style="flex:50%">
+                        <p class="p-nme mb-0"><b>Body Temperature - </b>` +
           b.temperature +
           ` F</p>
                     </div>
-                    <div class="col-md-6 col-sm-6"  >
-                        <p class="mb-0"  ><b>Blood Pressure - </b>` +
+                    <div  style="flex:50%">
+                        <p class="p-nme mb-0"  ><b>Blood Pressure - </b>` +
           b.BPDiastolic +
           `/` +
           b.BPSystolic +
           ` mmHg</p>
                     </div>
                 </div>
-                <p class="examin mb-0 mx-1" style="padding: 0 1.2rem;"><b>Examination notes - </b>` +
+                <p class="p-nme mb-0" style="padding: 0 1.2rem;"><b>Examination notes - </b>` +
           b.examinationNotes +
           `</p>`;
         setExamination(tempb);
@@ -127,11 +158,18 @@ function PrescriptionPreview({navigation}) {
       }
 
       //setting Advice
+      if (e != null) {
+        let tempAd = '';
+        for (var i = 0; i < e.length; ++i) {
+          tempAd += e[i].advice.substring(0, e[i].advice.length) + ',';
+        }
 
-      setAdvice(e != null ? e : null);
+        setAdvice(tempAd.substring(0, tempAd.length - 1));
+      }
+      //setting follow up date
       setFollowUpDate(f != null ? f : null);
-
-      setDiagnosis(g != null ? g : null);
+      //setting diagnosis
+      setDiagnosis(g != null ? g.substring(1, g.length - 1) : null);
       setdoctorId(x.doctorId);
       setdoctorName(x.doctorName != null ? x.doctorName : x.fullName);
       console.log(doctorName);
@@ -170,11 +208,11 @@ function PrescriptionPreview({navigation}) {
       for (var i = 0; i < doctorEducationRaw.length; ++i) {
         x =
           x +
-          `<p class="dr-designation">` +
+          `<h6 class="dr-designation">` +
           doctorEducationRaw[i].degree +
           ` ` +
           doctorEducationRaw[i].specialization +
-          `</p>`;
+          `</h6>`;
       }
       //console.log('==========Doctor education display===============');
       setdoctorEducationDisp(x);
@@ -241,12 +279,10 @@ img{
     color: rgba(0,0,0,1);
 }
 .dr-designation{
-    line-height: 12px;
-    margin-top: -2px;
     font-family: Scandia;
     font-style: normal;
     font-weight: 500;
-    font-size: 9px;
+    font-size: 12px;
     color: rgba(0,0,0,0.5);
 }
 .dr-address, .dr-mobile, .p-id, .date{
@@ -264,15 +300,14 @@ img{
     font-family: Scandia;
     font-style: normal;
     font-weight: 500;
-    font-size: 9px;
+    font-size: 13px;
     color: rgba(0,0,0,0.75);
-    margin-bottom: 0;
 }
 .complaints{
     line-height: 15px;
     font-family: Scandia;
     font-style: normal;
-    font-size: 11px;
+    font-size: 15px;
     color: rgba(0,0,0,0.75);
     padding: 0.75rem 1.2rem 0;
 }
@@ -300,10 +335,10 @@ img{
 table, th, td {
     border: 1px solid rgba(182,182,182,1);
     border-collapse: collapse;
-    line-height: 18px;
-    font-size: 10px;
+    line-height: 20px;
+    font-size: 12px;
     background: #fff;
-    padding: 0 10px 0;
+    padding: 0 15px 0;
 }
 th{
     background: rgba(43,144,220,1);
@@ -331,40 +366,44 @@ th{
     'logo@2x.png' +
     `" alt="logo" class="px-logo mx-2">
                 </div>
-                <div style="display: flex;margin-left:5%;width:90%">
+                <div style="display: flex;margin-left:5%;width:95%">
                     <div  style="flex:50%;">
                         <h2 class="dr-nme mb-0"><b>` +
     doctorName +
     `</b></h2>
-                        ` +
+                   <div style="flex-direction:column">     ` +
     doctorEducationDisp +
-    `
+    `</div>
                     </div>
                     <div   style="flex:50%;">
-                        <p class="dr-address">Add: D-113 Near Phase 1<br>Metro Gurgaon, Haryana-121001</p>
+                        <p class="p-ag"> ${clinicName} <br> ${clinicAddress}</p>
                         
                     </div>
                 </div>
                 
-                <div style="display: flex;background-color: rgba(240,250,255,1);margin-left:5%;width:90%">
+                <div style="display: flex;background-color: rgba(240,250,255,1);margin-left:5%;width:92.5%">
                     <div style="display:block; flex:50%">
-                        <p class="p-nme mb-0"><b>Name:</b> Rohan Kumar</p>
-                        <p class="p-ag"><b>Age/Gender:</b> M/40</p>
+                        <p class="p-nme mb-0"><b>Name:</b>${patientName}</p>` +
+    (patientAge != undefined
+      ? `<p class="p-ag"><b>Age:</b>${patientAge}</p>`
+      : ``) +
+    `
+                        
                     </div>
                     <div style="display:block; flex:50%">
-                        <p class="date"><b>Date :</b>` +
+                        <p class="p-nme mb-0"><b>Date :</b>` +
     dayjs(new Date()).format('DD-MM-YYYY') +
     `</p>
-                        <p class="p-id"><b>Patient ID:</b> R21DY768F2</p>
+                        <p class="p-nme mb-0"><b>Patient ID:</b> ${patientID}</p>
                     </div>
                 </div>
-                <p class="mb-0 complaints"><b><u>Chief Complaints :  </u></b>` +
+                <p class="mb-0 complaints"><b><u>Chief Complaints</u> :-  </b>` +
     cheifComplaintsDisplay +
     `</p>
                ` +
     Examination +
     `
-                <p class="mb-1 complaints"><b><u>Diagnosis : </u></b>` +
+                <p class="mb-1 complaints"><b><u>Diagnosis</u> :-  </b>` +
     Diagnosis +
     `</p>
     <div class="center">
@@ -391,15 +430,16 @@ th{
                         </table>
                     </div>
                 </div>
-                <p class="complaints " ><b><u>Investigation :</u></b><br>` +
+                <h2 class="mb-1 complaints" ><b><u>Investigation</u> :-  </b>` +
     Investigation +
-    `</p>
-              <p class="complaints" ><b><u>Follow-Up Date : </u></b>` +
+    `</h2>
+     <h2 class="mb-1 complaints" ><b><u>Advice</u> :-  </b>` +
+    Advice +
+    `</h2>
+              <p class="mb-1 complaints" ><b><u>Follow-Up Date</u> :-   </b>` +
     FollowUpDate +
     `
-<p class="mb-1 complaints pt-0" style="margin-left:250px" >- ` +
-    doctorName +
-    `</p>   
+ 
                 
             </div>
         </div>
@@ -409,11 +449,36 @@ th{
 
 </html>`;
 
+  useEffect(() => {
+    if (
+      cheifComplaints != null &&
+      Diagnosis != null &&
+      Prescription != null &&
+      Advice != null &&
+      FollowUpDate != null &&
+      doctorName != null &&
+      doctorEducationDisp != null
+    )
+      generatePdf();
+  }, [
+    cheifComplaints,
+    Diagnosis,
+    Prescription,
+    Advice,
+    FollowUpDate,
+    doctorName,
+    doctorEducationDisp,
+  ]);
+
   let generatePdf = async () => {
+    setisLoading(true);
     setshowPdf(false);
     let options = {
       html: html,
-      fileName: 'prescription' + JSON.stringify(new Date().getDate()),
+      fileName:
+        patientName +
+        '_prescription_' +
+        JSON.stringify(dayjs(new Date()).format('DD-MM-YYYY')),
       directory: 'Documents',
     };
 
@@ -422,7 +487,83 @@ th{
     console.log(file);
     setfilePdf(file);
     setshowPdf(true);
+    setisLoading(false);
     //alert(file.filePath);
+  };
+
+  const uploadPres = async () => {
+    try {
+      console.log('==============Inside select Docs==========');
+
+      filePdf.name =
+        patientID +
+        '_' +
+        patientName +
+        '_PATIENT_PRESCRIPTION' +
+        JSON.stringify(dayjs(new Date()).format('DD-MM-YYYY')) +
+        '.pdf';
+      console.log(filePdf.name);
+      //setMedRegDoc([pickerResult]);
+
+      let formData = new FormData();
+      formData.append('directoryNames', 'PATIENT_PRESCRIPTION');
+      formData.append('file', filePdf);
+      const {error, response} = await fileUpload(formData);
+
+      if (error != null) {
+        console.log('======error======');
+        console.log(error);
+        Alert.alert(
+          'Error',
+          'There was a problem in selecting document. Please try again.',
+        );
+      } else {
+        console.log('======response======');
+        console.log(response.path);
+        setprescriptionPath(response.path);
+      }
+    } catch (e) {
+      setisUploading(false);
+      console.log('Uploading error');
+      Alert.alert('Error', `${e}`);
+    }
+  };
+
+  const onPressUpload = async () => {
+    setisUploading(true);
+
+    axios
+      .post(
+        apiConfig.baseUrl +
+          '/doctor/consultation/complete/status/update?consultationid=' +
+          consultationId +
+          '&prescription=' +
+          prescriptionPath,
+      )
+      .then(async function (response) {
+        setisUploading(false);
+        if (response.status == 200) {
+          await AsyncStorage.multiRemove(
+            'CheifComplaint',
+            'Examination',
+            'Prescription',
+            'Investigation',
+            'Advice',
+            'Diagnosis',
+            'FollowUpDate',
+            'PrescriptionFor',
+          );
+          Alert.alert(
+            'Successful',
+            `Prescription Uploaded successfully for ${patientName}`,
+          );
+          navigation.navigate('DoctorHome');
+        }
+      })
+      .catch(function (error) {
+        setisUploading(false);
+        Alert.alert('Error', `${error}`);
+      });
   };
 
   return (
@@ -455,7 +596,7 @@ th{
             PRESCRIPTION PREVIEW
           </Text>
 
-          <CustomButton text="Show Cache Keys" onPress={show} />
+          {/* <CustomButton text="Show Cache Keys" onPress={show} /> */}
 
           {showPdf ? (
             <Pdf
@@ -476,10 +617,58 @@ th{
                 backgroundColor: '#e8f0fe',
                 width: Dimensions.get('window').width,
                 height: Dimensions.get('window').height - 300,
+                marginVertical: 20,
               }}
             />
           ) : null}
-          <Button title="Generate PDF" onPress={generatePdf} />
+
+          <View
+            style={{
+              alignSelf: 'center',
+              flexDirection: 'column',
+              flex: 1,
+              width: '95%',
+            }}>
+            <CustomButton
+              text="Re-Generate PDF"
+              textstyle={{color: 'white', fontSize: 12}}
+              style={{
+                borderRadius: 10,
+                backgroundColor: '#2B8ADA',
+                flex: 1,
+              }}
+              onPress={() => {
+                generatePdf();
+              }}
+            />
+            <CustomButton
+              text="Upload Prescription"
+              textstyle={{color: 'white', fontSize: 12}}
+              style={{
+                borderRadius: 10,
+                backgroundColor: 'limegreen',
+                flex: 1,
+                marginVertical: 10,
+              }}
+              onPress={async () => {
+                await uploadPres();
+                await onPressUpload();
+              }}
+            />
+            <CustomButton
+              text="Go Back"
+              textstyle={{color: '#2B8ADA', fontSize: 12}}
+              style={{
+                borderRadius: 10,
+                borderWidth: 1,
+                borderColor: '#2B8ADA',
+                flex: 0.45,
+              }}
+              onPress={() => {
+                navigation.goBack();
+              }}
+            />
+          </View>
         </ScrollView>
         {isLoading && (
           <View
@@ -521,6 +710,64 @@ th{
                   padding: 10,
                 }}>
                 Creating Prescription...
+              </Text>
+            </View>
+          </View>
+        )}
+        {isUploading == true && (
+          <View
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: 'rgba(0,0,0,0.4)',
+            }}>
+            <View
+              style={{
+                backgroundColor: 'white',
+                alignSelf: 'center',
+                borderRadius: 20,
+                width: 200,
+                height: 200,
+                justifyContent: 'center',
+                flexDirection: 'column',
+              }}>
+              <Image
+                source={upload}
+                style={{
+                  alignSelf: 'center',
+                  width: 80,
+                  height: 80,
+                  // borderRadius: 150,
+                }}
+              />
+              <Text
+                style={{
+                  alignSelf: 'center',
+                  textAlign: 'center',
+                  color: '#2B8ADA',
+                  fontSize: 18,
+                  fontWeight: 'bold',
+                  width: '100%',
+                  marginVertical: 5,
+                  // padding: 10,
+                }}>
+                {'Uploading '}
+              </Text>
+              <Text
+                style={{
+                  alignSelf: 'center',
+                  textAlign: 'center',
+                  color: 'black',
+                  fontSize: 12,
+                  width: '100%',
+                  paddingHorizontal: 15,
+                }}>
+                {'We are upating your details'}
               </Text>
             </View>
           </View>

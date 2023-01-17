@@ -105,9 +105,14 @@ const DoctorHome = ({navigation}) => {
     });
   };
 
-  const onPressPrescription = async () => {
+  const onPressPrescription = async item => {
     let p = {
-      patientId: p,
+      patientDet:
+        item.familyDetails == null ? item.patientsDetails : item.familyDetails,
+      patientId: item.patientsDetails.patientId,
+      consultationId: item.consultationId,
+      clinicName: item.clinicName != null ? item.clinicName : '',
+      clinicAddress: item.clinicAddress != null ? item.clinicAddress : '',
     };
     await AsyncStorage.setItem('PrescriptionFor', JSON.stringify(p));
     navigation.navigate('CheifComplaints');
@@ -155,15 +160,15 @@ const DoctorHome = ({navigation}) => {
           borderRadius: 10,
           marginVertical: 5,
         }}
-        onPress={() => console.log(item.consultationId)}>
+        onPress={() => console.log(item)}>
         <View
           style={{
             flexDirection: 'row',
             marginTop: 10,
             paddingHorizontal: 10,
-            justifyContent: 'space-evenly',
+            justifyContent: 'space-between',
           }}>
-          <View styles={{flex: 0.1}}>
+          <View styles={{flex: 0.5}}>
             <Image
               source={item.paymentStatus != 'PRE_PAID' ? payonclinic : prepaid}
               style={{
@@ -171,22 +176,22 @@ const DoctorHome = ({navigation}) => {
                 height: 30,
                 tintColor:
                   item.paymentStatus != 'PRE_PAID' ? '#2b8ada' : '#51e80c',
+                marginLeft: 10,
               }}
             />
           </View>
-          <View style={{flex: 0.5, flexDirection: 'row'}}>
+          <View
+            style={{
+              flexDirection: 'row',
+              flex: 0.5,
+              alignSelf: 'flex-end',
+            }}>
             <FAIcon
               name="prescription"
               size={20}
               style={{marginHorizontal: 5, alignSelf: 'center'}}
               onPress={() => {
-                if (item.familyDetails != null)
-                  onPressPrescription(item.consultationId, item.familyDetails);
-                else
-                  onPressPrescription(
-                    item.consultationId,
-                    item.patientsDetails,
-                  );
+                onPressPrescription(item);
               }}
             />
             <CustomButton
@@ -204,7 +209,7 @@ const DoctorHome = ({navigation}) => {
                 setConsultationQuestionnaire(true);
               }}
             />
-            <CustomButton
+            {/* <CustomButton
               text="Manage Status"
               textstyle={{color: '#2B8ADA', fontSize: 10}}
               style={{
@@ -217,7 +222,7 @@ const DoctorHome = ({navigation}) => {
                 padding: 4,
               }}
               onPress={() => setManageStatusModal(true)}
-            />
+            /> */}
           </View>
         </View>
         <View
@@ -1655,7 +1660,7 @@ const DoctorHome = ({navigation}) => {
                             'Prescription Missing',
                             'Please make Prescription for the patient',
                           );
-                          onPressPrescription();
+                          //onPressPrescription();
                         }
                       }}
                     />

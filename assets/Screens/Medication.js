@@ -73,11 +73,17 @@ function Medication({navigation}) {
     setmedicineInstruction('');
     setmedicineDays('');
   };
-  const proceedPressed = async () => {
-    let p = JSON.stringify(Medication);
-    await AsyncStorage.setItem('Prescription', p);
-    console.log(await AsyncStorage.getItem('Prescription'));
-    navigation.push('Investigation');
+  const pressedProceed = async () => {
+    if (Medication != '') {
+      let p = JSON.stringify(Medication);
+      await AsyncStorage.setItem('Prescription', p);
+      console.log(await AsyncStorage.getItem('Prescription'));
+      navigation.push('Investigation');
+    } else
+      Alert.alert(
+        'Incomplete Details!',
+        'Please add medications before continuing!',
+      );
   };
 
   const removeHandler = e => {
@@ -340,10 +346,6 @@ function Medication({navigation}) {
                         Medication.push(as);
                         console.log(Medication);
                         await clearAll();
-                        Alert.alert(
-                          'Success',
-                          'Medication details have been added successfully!',
-                        );
                       }
                     }}
                   />
@@ -439,10 +441,10 @@ function Medication({navigation}) {
                     backgroundColor: '#2B8ADA',
                     flex: 0.45,
                   }}
-                  onPress={proceedPressed}
+                  onPress={pressedProceed}
                 />
                 <CustomButton
-                  text="Save"
+                  text="Go Back"
                   textstyle={{color: '#2B8ADA', fontSize: 12}}
                   style={{
                     borderRadius: 10,
@@ -451,9 +453,7 @@ function Medication({navigation}) {
                     flex: 0.45,
                   }}
                   onPress={() => {
-                    Alert.alert(
-                      'All the details on this page are saved successfully',
-                    );
+                    navigation.goBack();
                   }}
                 />
               </View>

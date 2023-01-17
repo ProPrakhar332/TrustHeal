@@ -46,17 +46,23 @@ function BodyScan({navigation}) {
   const window = useWindowDimensions();
 
   const pressedProceed = async () => {
-    let temp = {
-      BPDiastolic: tempBPDia,
-      BPSystolic: tempBPSys,
-      examinationNotes: examinNotes,
-      temperature: tempTemp,
-    };
+    if (examinNotes != '') {
+      let temp = {
+        BPDiastolic: tempBPDia,
+        BPSystolic: tempBPSys,
+        examinationNotes: examinNotes,
+        temperature: tempTemp,
+      };
 
-    await AsyncStorage.setItem('Examination', JSON.stringify(temp));
+      await AsyncStorage.setItem('Examination', JSON.stringify(temp));
 
-    console.log(await AsyncStorage.getItem('Examination'));
-    navigation.push('Diagnosis');
+      console.log(await AsyncStorage.getItem('Examination'));
+      navigation.push('Diagnosis');
+    } else
+      Alert.alert(
+        'Incomplete Details!',
+        'Please add examination notes before continuing!',
+      );
   };
 
   return (
@@ -600,7 +606,7 @@ function BodyScan({navigation}) {
                   onPress={pressedProceed}
                 />
                 <CustomButton
-                  text="Save"
+                  text="Go Back"
                   textstyle={{color: '#2B8ADA', fontSize: 12}}
                   style={{
                     borderRadius: 10,
@@ -609,9 +615,7 @@ function BodyScan({navigation}) {
                     flex: 0.45,
                   }}
                   onPress={() => {
-                    Alert.alert(
-                      'All the details on this page are saved successfully',
-                    );
+                    navigation.goBack();
                   }}
                 />
               </View>

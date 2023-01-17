@@ -104,10 +104,17 @@ function CheifComplaints({navigation}) {
   const window = useWindowDimensions();
 
   const pressedProceed = async () => {
-    let p = JSON.stringify(Complaint);
-    await AsyncStorage.setItem('CheifComplaint', p);
-    console.log(await AsyncStorage.getItem('CheifComplaint'));
-    navigation.push('BodyScan');
+    if (Complaint != null) {
+      let p = JSON.stringify(Complaint);
+      await AsyncStorage.setItem('CheifComplaint', p);
+      console.log(await AsyncStorage.getItem('CheifComplaint'));
+      navigation.push('BodyScan');
+    } else {
+      Alert.alert(
+        'Incomplete Details!',
+        'Please add Cheif Complaint before continuing!',
+      );
+    }
   };
 
   return (
@@ -302,7 +309,7 @@ function CheifComplaints({navigation}) {
                   onPress={pressedProceed}
                 />
                 <CustomButton
-                  text="Save"
+                  text="Go Back"
                   textstyle={{color: '#2B8ADA', fontSize: 12}}
                   style={{
                     borderRadius: 10,
@@ -311,10 +318,7 @@ function CheifComplaints({navigation}) {
                     flex: 0.45,
                   }}
                   onPress={() => {
-                    Alert.alert(
-                      'Saved',
-                      'All the details are successfully saved.',
-                    );
+                    navigation.goBack();
                   }}
                 />
               </View>

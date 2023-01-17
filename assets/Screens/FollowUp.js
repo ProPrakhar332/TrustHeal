@@ -159,7 +159,6 @@ function FollowUp({navigation}) {
                     mode="date"
                     onConfirm={handleConfirm}
                     onCancel={hideDatePicker}
-                    // minimumDate={minDate}
                   />
                 </View>
               </View>
@@ -184,7 +183,7 @@ function FollowUp({navigation}) {
                   onPress={pressedProceed}
                 />
                 <CustomButton
-                  text="Save"
+                  text="Go Back"
                   textstyle={{color: '#2B8ADA', fontSize: 12}}
                   style={{
                     borderRadius: 10,
@@ -193,9 +192,7 @@ function FollowUp({navigation}) {
                     flex: 0.45,
                   }}
                   onPress={() => {
-                    Alert.alert(
-                      'All the details on this page are saved successfully',
-                    );
+                    navigation.goBack();
                   }}
                 />
               </View>

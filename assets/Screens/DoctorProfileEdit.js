@@ -32,6 +32,12 @@ import waiting from '../Animations/waiting1.gif';
 import {useEffect} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import DocumentPicker, {
+  DirectoryPickerResponse,
+  DocumentPickerResponse,
+  isInProgress,
+  types,
+} from 'react-native-document-picker';
 import dayjs from 'dayjs';
 import axios from 'axios';
 import apiConfig from '../API/apiConfig';
@@ -129,6 +135,9 @@ const EditProfile = ({navigation}) => {
   const [RegCouncil, setRegCouncil] = useState('');
   const [RegCert, setRegCert] = useState('');
   const [RegYear, setRegYear] = useState('');
+  const [certificatePath, setcertificatePath] = useState('');
+  const [MedRegDoc, setMedRegDoc] = React.useState(null);
+
   //Educational Details Field
   const [showEduDet, setShowEduDet] = useState(false);
   const [EduElementModal, setEduElementModal] = useState(false);
@@ -139,6 +148,7 @@ const EditProfile = ({navigation}) => {
   const [Education, setEducation] = useState([]);
   const [Degree, setDegree] = useState('');
   const [DegreePassingYear, setDegreePassingYear] = useState('');
+  const [degreePath, setdegreePath] = useState('');
   const [Specialization, setSpecialization] = useState('');
   const [University, setUniversity] = useState('');
   const [doctorEducationPkId, setdoctorEducationPkId] = useState(0);
@@ -168,6 +178,7 @@ const EditProfile = ({navigation}) => {
   const [doctorIdentificationPkId, setdoctorIdentificationPkId] = useState(0);
   const [IdenElementModal, setIdenElementModal] = useState(false);
   const [editIden, seteditIden] = useState(false);
+  const [identificationPath, setidentificationPath] = useState('');
 
   //General Configuration
   const [showGenConfig, setShowGenConfig] = useState(false);
@@ -346,7 +357,7 @@ const EditProfile = ({navigation}) => {
               setRegNo(doctorMedicalRegistrations[0].registrationNo);
               setRegCouncil(doctorMedicalRegistrations[0].registrationCouncil);
               setRegYear(doctorMedicalRegistrations[0].registrationYear);
-              setRegCert(doctorMedicalRegistrations[0].certificatePath);
+              setcertificatePath(doctorMedicalRegistrations[0].certificatePath);
             }
           } else Alert.alert('Error', 'Could not get Details. Please try again later.');
         })
@@ -488,6 +499,116 @@ const EditProfile = ({navigation}) => {
     if (showConsultFees == true) getFeesDet();
   }, [showConsultFees]);
 
+  //uploading documents point
+
+  // medical registration document upload
+  const selectDocsMedReg = async () => {
+    try {
+      console.log('==============Inside select Docs==========');
+
+      const pickerResult = await DocumentPicker.pickSingle({
+        presentationStyle: 'fullScreen',
+        copyTo: 'cachesDirectory',
+      });
+      let ext = '.' + pickerResult.name.split('.').pop();
+
+      pickerResult.name = doctorId + '_MedicalRegistration' + ext;
+      console.log(pickerResult.name);
+      setMedRegDoc([pickerResult]);
+
+      let formData = new FormData();
+      formData.append('directoryNames', '  DOCTOR_MEDICAL_REGISTRATION');
+      formData.append('file', pickerResult);
+      const {error, response} = await fileUpload(formData);
+
+      if (error != null) {
+        console.log('======error======');
+        console.log(error);
+        Alert.alert(
+          'Error',
+          'There was a problem in selecting document. Please try again.',
+        );
+      } else {
+        console.log('======response======');
+        console.log(response.path);
+        setcertificatePath(response.path);
+        //setRegCert(error == null ? pickerResult.name : '');
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  // education document upload
+  const selectDocsEdu = async () => {
+    try {
+      console.log('==============Inside select Docs Education==========');
+
+      const pickerResult = await DocumentPicker.pickSingle({
+        presentationStyle: 'fullScreen',
+        copyTo: 'cachesDirectory',
+      });
+      let ext = '.' + pickerResult.name.split('.').pop();
+
+      pickerResult.name =
+        doctorId + '_DoctorEducation_' + Degree + '_' + DegreePassingYear + ext;
+      console.log(pickerResult.name);
+
+      let formData = new FormData();
+      formData.append('directoryNames', 'DOCTOR_EDUCATION');
+      formData.append('file', pickerResult);
+      const {error, response} = await fileUpload(formData);
+      if (error != null) {
+        console.log('======error======');
+        console.log(error);
+        Alert.alert(
+          'Error',
+          'There was a problem in selecting document. Please try again.',
+        );
+      } else {
+        console.log('======response======');
+        console.log(response.path);
+        setdegreePath(response.path);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  //identification document upload
+  const selectDocsIden = async () => {
+    try {
+      console.log('==============Inside select Docs Identification==========');
+
+      const pickerResult = await DocumentPicker.pickSingle({
+        presentationStyle: 'fullScreen',
+        copyTo: 'cachesDirectory',
+      });
+      let ext = '.' + pickerResult.name.split('.').pop();
+
+      pickerResult.name =
+        doctorId + '_DoctorIdentification_' + identificationType + ext;
+      console.log(pickerResult.name);
+
+      let formData = new FormData();
+      formData.append('directoryNames', 'DOCTOR_IDENTIFICATION');
+      formData.append('file', pickerResult);
+      const {error, response} = await fileUpload(formData);
+      if (error != null) {
+        console.log('======error======');
+        console.log(error);
+        Alert.alert(
+          'Error',
+          'There was a problem in selecting document. Please try again.',
+        );
+      } else {
+        console.log('======response======');
+        console.log(response.path);
+        setidentificationPath(response.path);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   //api calls on press update button
 
   const updateGenInfo = async () => {
@@ -566,7 +687,7 @@ const EditProfile = ({navigation}) => {
   const updateMedReg = async () => {
     setisUploading(true);
     let p = {
-      certificatePath: 'aws/s3/' + doctorId + '/cerificates',
+      certificatePath: certificatePath,
       doctorId: doctorId,
       doctorMedicalRegistrationPkId:
         doctorMedicalRegistration.doctorMedicalRegistrationPkId,
@@ -785,55 +906,6 @@ const EditProfile = ({navigation}) => {
 
   //rendering dynamic components
 
-  const ViewIdentifications = () => {
-    return IdentificationDocs.map((IdentificationDocs, index) => {
-      return (
-        <View
-          style={{
-            flexDirection: 'column',
-            width: '95%',
-            alignSelf: 'center',
-          }}
-          key={index}>
-          <View
-            style={{
-              alignSelf: 'center',
-              flexDirection: 'row',
-              alignSelf: 'center',
-            }}>
-            <View style={{flex: 1}}>
-              <Text style={[styles.inputLabel, {marginTop: 0}]}>
-                {IdentificationDocs.identificationType}
-              </Text>
-              <Text style={[styles.textInput, {backgroundColor: '#d0e0fc'}]}>
-                {IdentificationDocs.identificationNumber}
-              </Text>
-            </View>
-          </View>
-          {/* <View
-            style={{
-              marginTop: 5,
-              flexDirection: 'row',
-              alignSelf: 'flex-end',
-            }}>
-            <CustomButton
-              text="Delete"
-              textstyle={{color: 'white', fontSize: 12}}
-              style={{
-                backgroundColor: 'red',
-                borderRadius: 5,
-                padding: 6,
-                paddingHorizontal: 10,
-              }}
-              onPress={() => {
-                removeIdenHandler(IdentificationDocs.identificationType);
-              }}
-            />
-          </View> */}
-        </View>
-      );
-    });
-  };
   const ViewIdentificationsTabular = () => {
     return IdentificationDocs.map((IdentificationDocs, index) => {
       return (
@@ -1099,151 +1171,6 @@ const EditProfile = ({navigation}) => {
                 </View> */}
               </View>
             ) : null}
-          </View>
-        </View>
-      );
-    });
-  };
-
-  const ViewExperience = () => {
-    return Experience.map((Exp, index) => {
-      return (
-        <View style={{flex: 1}} key={index}>
-          <View style={styles.whiteBodyView}>
-            <View
-              style={{
-                width: '100%',
-                alignSelf: 'center',
-                marginBottom: 10,
-                padding: 5,
-              }}>
-              <View
-                style={{
-                  flexDirection: 'column',
-                  marginBottom: 10,
-                }}>
-                <View
-                  style={{
-                    flexDirection: 'column',
-                    justifyContent: 'space-between',
-                  }}>
-                  <View style={{flex: 1}}>
-                    <Text style={styles.inputLabel}>Practice At</Text>
-                    <Text
-                      style={[styles.textInput, {backgroundColor: '#d0e0fc'}]}>
-                      {Exp.practiceAt}
-                    </Text>
-                  </View>
-                </View>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                  }}>
-                  <View style={{flex: 0.475}}>
-                    <Text style={styles.inputLabel}>Start Date</Text>
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        width: '100%',
-                        alignItems: 'center',
-                        backgroundColor: '#d0e0fc',
-                        borderRadius: 10,
-                      }}>
-                      <Text
-                        style={[
-                          styles.textInput,
-                          {flex: 1, backgroundColor: '#d0e0fc'},
-                        ]}>
-                        {dayjs(Exp.startDate).isValid()
-                          ? dayjs(Exp.startDate).format('DD-MM-YYYY')
-                          : 'DD-MM-YYYY'}
-                      </Text>
-                      <FAIcon
-                        name="calendar-alt"
-                        color={'gray'}
-                        size={20}
-                        style={{
-                          marginHorizontal: 5,
-                          position: 'absolute',
-                          right: 0,
-                        }}
-                        // onPress={() => {setStartExpDatePickerVisible(true)}}
-                      />
-                    </View>
-                    {/* <DateTimePickerModal
-                      isVisible={isStartExpDatePickerVisible}
-                      mode="date"
-                      date={dayjs(startExpDate).isValid() ? dayjs(startExpDate).toDate() : dayjs().toDate()}
-                      maximumDate={dayjs().toDate()}
-                      onConfirm={handleStartExpDate}
-                      onCancel={() => {setStartExpDatePickerVisible(false)}}
-                    /> */}
-                  </View>
-                  <View style={{flex: 0.475}}>
-                    <Text style={styles.inputLabel}>End Date</Text>
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        width: '100%',
-                        alignItems: 'center',
-                        backgroundColor: '#d0e0fc',
-                        borderRadius: 10,
-                      }}>
-                      <Text
-                        style={[
-                          styles.textInput,
-                          {flex: 1, backgroundColor: '#d0e0fc'},
-                        ]}>
-                        {dayjs(Exp.endDate).isValid()
-                          ? dayjs(Exp.endDate).format('DD-MM-YYYY')
-                          : 'DD-MM-YYYY'}
-                      </Text>
-                      <FAIcon
-                        name="calendar-alt"
-                        color={'gray'}
-                        size={20}
-                        style={{
-                          marginHorizontal: 5,
-                          position: 'absolute',
-                          right: 0,
-                        }}
-                        // onPress={() => {setEndExpDatePickerVisible(true)}}
-                      />
-                    </View>
-                    {/* <DateTimePickerModal
-                      isVisible={isEndExpDatePickerVisible}
-                      mode="date"
-                      date={dayjs(endExpDate).isValid() ? dayjs(endExpDate).toDate() : dayjs().toDate()}
-                      maximumDate={dayjs().toDate()}
-                      onConfirm={handleEndExpDate}
-                      onCancel={() => {setEndExpDatePickerVisible(false)}}
-                    /> */}
-                  </View>
-                </View>
-              </View>
-
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                }}>
-                <View style={{flex: 0.475, flexDirection: 'column'}}>
-                  <Text style={styles.inputLabel}>Total Experience(Year)</Text>
-                  <Text
-                    style={[styles.textInput, {backgroundColor: '#d0e0fc'}]}>
-                    {Math.floor(Exp.experienceInMonths / 12)}
-                  </Text>
-                </View>
-                <View style={{flex: 0.475, flexDirection: 'column'}}>
-                  <Text style={styles.inputLabel}>Total Experience(Month)</Text>
-                  <Text
-                    style={[styles.textInput, {backgroundColor: '#d0e0fc'}]}>
-                    {parseInt(Exp.experienceInMonths % 12)}
-                  </Text>
-                </View>
-              </View>
-            </View>
           </View>
         </View>
       );
@@ -1964,7 +1891,9 @@ const EditProfile = ({navigation}) => {
                                     ? {backgroundColor: '#E8F0FE'}
                                     : null,
                                 ]}
-                                onPress={() => {}}
+                                onPress={() => {
+                                  selectDocsMedReg();
+                                }}
                               />
                             ) : null}
                           </View>
@@ -2902,15 +2831,26 @@ const EditProfile = ({navigation}) => {
                           marginBottom: 10,
                         }}>
                         <CustomButton
-                          text="Upload Document"
-                          textstyle={{color: '#2b8ada', fontSize: 12}}
+                          text={
+                            degreePath == ''
+                              ? 'Select Document'
+                              : ' ✓ File Selected'
+                          }
+                          textstyle={{
+                            color: degreePath == '' ? '#2b8ada' : '#21c47f',
+                            fontSize: 12,
+                          }}
                           style={{
                             backgroundColor: 'white',
                             borderRadius: 12,
                             padding: 6,
                             paddingHorizontal: 10,
                             borderWidth: 2,
-                            borderColor: '#2b8ada',
+                            borderColor:
+                              degreePath == '' ? '#2b8ada' : '#21c47f',
+                          }}
+                          onPress={() => {
+                            selectDocsEdu();
                           }}
                         />
                       </View>
@@ -2947,13 +2887,17 @@ const EditProfile = ({navigation}) => {
                             'Incomplete Details!',
                             'Please fill University Name',
                           );
+                        else if (degreePath == '')
+                          Alert.alert(
+                            'Incomplete Details!',
+                            'Please select pdf file',
+                          );
                         else {
                           let totalexp =
                             parseInt(TotalYear) * 12 + parseInt(TotalMonths);
                           let p = {
                             degree: Degree,
-                            degreePath: Degree + '.pdf',
-
+                            degreePath: degreePath,
                             doctorId: doctorId,
                             passingYear: Number(DegreePassingYear),
                             specialization: Specialization,
@@ -2965,6 +2909,7 @@ const EditProfile = ({navigation}) => {
                           setisLoading(true);
                           updateEduDet(p);
                           setDegree('');
+                          setdegreePath('');
                           setDegreePassingYear('');
                           setdoctorEducationPkId(0);
                           setSpecialization('');
@@ -3355,8 +3300,7 @@ const EditProfile = ({navigation}) => {
                               doctorId: doctorId,
 
                               identificationNumber: identificationNumber,
-                              identificationPath:
-                                'aws/s3/Docs/' + identificationNumber + '.pdf',
+                              identificationPath: identificationPath,
                               identificationType: identificationType,
                             };
 
@@ -3367,6 +3311,7 @@ const EditProfile = ({navigation}) => {
                             setisLoading(true);
                             updateIden(p);
                             setidentificationNumber('');
+                            setidentificationPath('');
                             setidentificationType('');
                             setIdenElementModal(false);
                             setShowIdenDet(false);
