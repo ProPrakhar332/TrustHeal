@@ -136,6 +136,7 @@ const EditProfile = ({navigation}) => {
   const [RegCert, setRegCert] = useState('');
   const [RegYear, setRegYear] = useState('');
   const [certificatePath, setcertificatePath] = useState('');
+  const [newcertificatePath, setnewcertificatePath] = useState('');
   const [MedRegDoc, setMedRegDoc] = React.useState(null);
 
   //Educational Details Field
@@ -225,7 +226,7 @@ const EditProfile = ({navigation}) => {
       setAge(x.age + '');
       setPinCode(x.pincode == null ? x.pinCode : x.pincode);
 
-      checkpfp(x.profilePhotoPath);
+      checkpfp(apiConfig.baseUrl + x.profilePhotoPath);
       setprofilePhotoPath(x.profilePhotoPath);
 
       setDoctorConfiguration(
@@ -509,15 +510,17 @@ const EditProfile = ({navigation}) => {
       const pickerResult = await DocumentPicker.pickSingle({
         presentationStyle: 'fullScreen',
         copyTo: 'cachesDirectory',
+        type: types.pdf,
       });
       let ext = '.' + pickerResult.name.split('.').pop();
 
       pickerResult.name = doctorId + '_MedicalRegistration' + ext;
       console.log(pickerResult.name);
+      console.log(pickerResult);
       setMedRegDoc([pickerResult]);
 
       let formData = new FormData();
-      formData.append('directoryNames', '  DOCTOR_MEDICAL_REGISTRATION');
+      formData.append('directoryNames', 'DOCTOR_MEDICAL_REGISTRATION');
       formData.append('file', pickerResult);
       const {error, response} = await fileUpload(formData);
 
@@ -532,6 +535,7 @@ const EditProfile = ({navigation}) => {
         console.log('======response======');
         console.log(response.path);
         setcertificatePath(response.path);
+        setnewcertificatePath(response.path);
         //setRegCert(error == null ? pickerResult.name : '');
       }
     } catch (e) {
@@ -546,6 +550,7 @@ const EditProfile = ({navigation}) => {
       const pickerResult = await DocumentPicker.pickSingle({
         presentationStyle: 'fullScreen',
         copyTo: 'cachesDirectory',
+        type: types.pdf,
       });
       let ext = '.' + pickerResult.name.split('.').pop();
 
@@ -581,6 +586,7 @@ const EditProfile = ({navigation}) => {
       const pickerResult = await DocumentPicker.pickSingle({
         presentationStyle: 'fullScreen',
         copyTo: 'cachesDirectory',
+        type: types.pdf,
       });
       let ext = '.' + pickerResult.name.split('.').pop();
 
@@ -709,6 +715,7 @@ const EditProfile = ({navigation}) => {
             'Medical Registration details have been updated successfully!',
           );
           setMedInfoEdit(false);
+          setnewcertificatePath('');
         } else Alert.alert('Updation Error', 'Could not update details. Please try again later.');
       })
       .catch(function (error) {
@@ -726,14 +733,12 @@ const EditProfile = ({navigation}) => {
       .then(function (response) {
         setisUploading(false);
         if (response.status == 200) {
-          setisLoading(false);
           Alert.alert(
             'Updated',
             'Educational Qualifications Details Updated Successfully!',
           );
           setShowEduDet(false);
         } else {
-          setisLoading(false);
           Alert.alert(
             'Updation Error',
             'Could not Update Details. Please try again later.',
@@ -755,10 +760,8 @@ const EditProfile = ({navigation}) => {
       .then(function (response) {
         setisUploading(false);
         if (response.status == 200) {
-          setisLoading(false);
           Alert.alert('Updated', 'Experience Details Updated Successfully!');
         } else {
-          setisLoading(false);
           Alert.alert(
             'Updation Error',
             'Could not Update Details. Please try again later.',
@@ -780,14 +783,12 @@ const EditProfile = ({navigation}) => {
       .then(function (response) {
         setisUploading(false);
         if (response.status == 200) {
-          setisLoading(false);
           setIdenDetEdit(false);
           Alert.alert(
             'Updated',
             'Identification Details Updated Successfully!',
           );
         } else {
-          setisLoading(false);
           Alert.alert(
             'Updation Error',
             'Could not Update Details. Please try again later.',
@@ -855,14 +856,12 @@ const EditProfile = ({navigation}) => {
       .then(function (response) {
         setisUploading(false);
         if (response.status == 200) {
-          setisLoading(false);
           Alert.alert(
             'Updated',
             'All changes made in Fees Config have been updated',
           );
           setConsultFeesEdit(false);
         } else {
-          setisLoading(false);
           Alert.alert(
             'Updation Error',
             'Could not Update Details. Please try again later.',
@@ -943,7 +942,9 @@ const EditProfile = ({navigation}) => {
               style={styles.cellStyle}
               onPress={() => {
                 console.log(IdentificationDocs.identificationPath);
-                openURL(IdentificationDocs.identificationPath);
+                openURL(
+                  apiConfig.baseUrl + IdentificationDocs.identificationPath,
+                );
               }}>
               <FAIcon
                 name="file-pdf"
@@ -1026,7 +1027,7 @@ const EditProfile = ({navigation}) => {
                 style={{marginVertical: 3}}
                 onPress={() => {
                   console.log(Education.degreePath);
-                  openURL(Education.degreePath);
+                  openURL(apiConfig.baseUrl + Education.degreePath);
                 }}
               />
               <Text style={styles.cellText}>{Education.degree}</Text>
@@ -1286,13 +1287,17 @@ const EditProfile = ({navigation}) => {
 
       let ext = '.' + pickerResult.fileName.split('.').pop();
 
-      pickerResult.fileName =
-        doctorId + '_ProfilePhoto_' + JSON.stringify(new Date()) + ext;
-      console.log(pickerResult.fileName);
+      delete pickerResult.fileName;
+      pickerResult.size = pickerResult.fileSize;
+      delete pickerResult.fileSize;
+
+      pickerResult.name = doctorId + '_ProfilePhoto' + ext;
+      console.log(pickerResult.name);
+      console.log(pickerResult);
       // setMedRegDoc([pickerResult]);
 
       let formData = new FormData();
-      formData.append('directoryNames', '  DOCTOR_PHOTO');
+      formData.append('directoryNames', 'DOCTOR_PHOTO');
       formData.append('file', pickerResult);
       const {error, response} = await fileUpload(formData);
 
@@ -1836,6 +1841,7 @@ const EditProfile = ({navigation}) => {
                             ]}
                             editable={MedInfoEdit}
                             placeholderTextColor={'black'}
+                            maxLength={20}
                             onChangeText={text => setRegNo(text)}
                             value={RegNo}></TextInput>
                         </View>
@@ -1852,6 +1858,7 @@ const EditProfile = ({navigation}) => {
                             editable={MedInfoEdit}
                             placeholderTextColor={'black'}
                             onChangeText={text => setRegCouncil(text)}
+                            maxLength={20}
                             value={RegCouncil}></TextInput>
                         </View>
                       </View>
@@ -1860,8 +1867,17 @@ const EditProfile = ({navigation}) => {
                           <Text style={styles.inputLabel}>
                             Reg. Certificate
                           </Text>
-                          <View>
-                            <TextInput
+                          {MedInfoEdit == false ? (
+                            <TouchableOpacity
+                              style={{
+                                flexDirection: 'row',
+                                marginTop: 5,
+                                borderColor: '#2b8ada',
+                                borderWidth: 1,
+                                padding: 5,
+                                borderRadius: 10,
+                              }}>
+                              {/* <TextInput
                               style={[
                                 styles.textInput,
                                 {backgroundColor: '#d0e0fc'},
@@ -1895,8 +1911,55 @@ const EditProfile = ({navigation}) => {
                                   selectDocsMedReg();
                                 }}
                               />
-                            ) : null}
-                          </View>
+                            ) : null} */}
+                              <FAIcon
+                                name="file-pdf"
+                                size={15}
+                                color={'#2b8ada'}
+                                style={{
+                                  justifyContent: 'center',
+                                }}
+                              />
+                              <Text
+                                style={{
+                                  fontSize: 10,
+                                  justifyContent: 'center',
+                                  paddingHorizontal: 8,
+                                }}>
+                                {certificatePath.substring(34)}
+                              </Text>
+                            </TouchableOpacity>
+                          ) : (
+                            <CustomButton
+                              text={
+                                newcertificatePath == ''
+                                  ? 'Select Document'
+                                  : ' ✓ File Selected'
+                              }
+                              textstyle={{
+                                color:
+                                  newcertificatePath == ''
+                                    ? '#2b8ada'
+                                    : '#21c47f',
+                                fontSize: 12,
+                              }}
+                              style={{
+                                marginTop: 10,
+                                backgroundColor: 'white',
+                                borderRadius: 12,
+                                padding: 6,
+                                paddingHorizontal: 10,
+                                borderWidth: 2,
+                                borderColor:
+                                  newcertificatePath == ''
+                                    ? '#2b8ada'
+                                    : '#21c47f',
+                              }}
+                              onPress={() => {
+                                selectDocsMedReg();
+                              }}
+                            />
+                          )}
                         </View>
                         <View style={{flex: 0.45}}>
                           <Text style={styles.inputLabel}>Reg. Year</Text>
@@ -1929,6 +1992,7 @@ const EditProfile = ({navigation}) => {
                             text="Cancel"
                             textstyle={styles.ButtonTextCancel}
                             onPress={() => {
+                              setnewcertificatePath('');
                               setMedInfoEdit(false);
                             }}
                             style={styles.ButtonCancel}
@@ -2069,47 +2133,49 @@ const EditProfile = ({navigation}) => {
                         </View>
                         <ViewEducation />
                         {EduDetEdit ? (
-                          <View style={{flex: 1}}>
+                          <View
+                            style={{
+                              flex: 1,
+                              flexDirection: 'row',
+                              alignSelf: 'flex-end',
+                            }}>
                             <CustomButton
                               text={'+ Add More'}
                               textstyle={{color: 'white', fontSize: 10}}
                               style={{
                                 alignSelf: 'flex-end',
                                 width: 80,
+                                borderColor: '#2b8ada',
+                                borderWidth: 1,
                                 backgroundColor: '#2b8ada',
                                 borderRadius: 5,
                                 padding: 3,
                                 paddingHorizontal: 10,
                                 marginTop: 10,
+                                marginRight: 5,
                               }}
                               onPress={() => {
                                 setDateData();
                                 setEduElementModal(true);
                               }}
                             />
+                            <CustomButton
+                              text={'Cancel'}
+                              textstyle={{color: '#2b8ada', fontSize: 10}}
+                              style={{
+                                alignSelf: 'flex-end',
+                                width: 80,
+                                borderColor: '#2b8ada',
+                                borderWidth: 1,
+                                borderRadius: 5,
+                                padding: 3,
+                                paddingHorizontal: 10,
+                                marginTop: 10,
+                              }}
+                              onPress={() => seteditEduDet(false)}
+                            />
                           </View>
                         ) : null}
-                      </View>
-                    ) : null}
-
-                    {EduDetEdit ? (
-                      <View style={styles.ButtonView}>
-                        <CustomButton
-                          text={'Done'}
-                          textstyle={styles.ButtonText}
-                          style={styles.ButtonUpdate}
-                          onPress={() => {
-                            updateEduDet();
-
-                            //setEduDetEdit(false);
-                          }}
-                        />
-                        <CustomButton
-                          text={'Cancel'}
-                          textstyle={styles.ButtonTextCancel}
-                          style={styles.ButtonCancel}
-                          onPress={() => setEduDetEdit(false)}
-                        />
                       </View>
                     ) : null}
                   </View>
@@ -2245,48 +2311,49 @@ const EditProfile = ({navigation}) => {
                         </View>
                         <ViewExperienceTabular />
                         {ExpDetEdit ? (
-                          <View style={{flex: 1}}>
+                          <View
+                            style={{
+                              flex: 1,
+                              flexDirection: 'row',
+                              alignSelf: 'flex-end',
+                            }}>
                             <CustomButton
                               text={'+ Add More'}
                               textstyle={{color: 'white', fontSize: 10}}
                               style={{
                                 alignSelf: 'flex-end',
                                 width: 80,
+                                borderColor: '#2b8ada',
+                                borderWidth: 1,
                                 backgroundColor: '#2b8ada',
                                 borderRadius: 5,
                                 padding: 3,
                                 paddingHorizontal: 10,
                                 marginTop: 10,
+                                marginRight: 5,
                               }}
                               onPress={() => {
                                 seteditExp(false);
                                 setExpElementModal(true);
                               }}
                             />
+                            <CustomButton
+                              text={'Cancel'}
+                              textstyle={{color: '#2b8ada', fontSize: 10}}
+                              style={{
+                                alignSelf: 'flex-end',
+                                width: 80,
+                                borderColor: '#2b8ada',
+                                borderWidth: 1,
+                                borderRadius: 5,
+                                padding: 3,
+                                paddingHorizontal: 10,
+                                marginTop: 10,
+                              }}
+                              onPress={() => seteditExp(false)}
+                            />
                           </View>
                         ) : null}
-                      </View>
-                    ) : null}
-                    {ExpDetEdit ? (
-                      <View style={styles.ButtonView}>
-                        <CustomButton
-                          text={'Done'}
-                          textstyle={styles.ButtonText}
-                          style={styles.ButtonUpdate}
-                          onPress={() => {
-                            updateExpDet();
-                            // Alert.alert(
-                            //   'Experience Details Updated Successfully!',
-                            // );
-                            //setExpDetEdit(false);
-                          }}
-                        />
-                        <CustomButton
-                          text={'Cancel'}
-                          textstyle={styles.ButtonTextCancel}
-                          style={styles.ButtonCancel}
-                          onPress={() => setExpDetEdit(false)}
-                        />
                       </View>
                     ) : null}
                   </View>
@@ -2656,7 +2723,6 @@ const EditProfile = ({navigation}) => {
                         textstyle={styles.ButtonText}
                         style={styles.ButtonUpdate}
                         onPress={() => {
-                          // setisLoading(true);
                           updatefees();
                           //Alert.alert('Fees Details Updated Successfully!');
                           //setConsultFeesEdit(false);
@@ -2734,7 +2800,10 @@ const EditProfile = ({navigation}) => {
                           top: 0,
                           right: 0,
                         }}
-                        onPress={() => setEduElementModal(false)}
+                        onPress={() => {
+                          setdegreePath('');
+                          setEduElementModal(false);
+                        }}
                       />
                     </View>
                     <View
@@ -2762,6 +2831,7 @@ const EditProfile = ({navigation}) => {
                                 {backgroundColor: '#E8F0FE'},
                               ]}
                               onChangeText={text => setDegree(text)}
+                              maxLength={50}
                               value={Degree}></TextInput>
                           </View>
                           <View style={{flex: 0.475}}>
@@ -2819,6 +2889,7 @@ const EditProfile = ({navigation}) => {
                                 {backgroundColor: '#E8F0FE'},
                               ]}
                               onChangeText={text => setUniversity(text)}
+                              maxLength={100}
                               value={University}></TextInput>
                           </View>
                         </View>
@@ -2850,7 +2921,12 @@ const EditProfile = ({navigation}) => {
                               degreePath == '' ? '#2b8ada' : '#21c47f',
                           }}
                           onPress={() => {
-                            selectDocsEdu();
+                            if (Degree == '' || DegreePassingYear == '')
+                              Alert.alert(
+                                'Incomplete Details',
+                                'Please Select Degree and Passing Year before selecting document',
+                              );
+                            else selectDocsEdu();
                           }}
                         />
                       </View>
@@ -2906,7 +2982,6 @@ const EditProfile = ({navigation}) => {
                           if (editEduDet)
                             p.doctorEducationPkId = doctorEducationPkId;
 
-                          setisLoading(true);
                           updateEduDet(p);
                           setDegree('');
                           setdegreePath('');
@@ -3000,6 +3075,7 @@ const EditProfile = ({navigation}) => {
                                 {backgroundColor: '#E8F0FE'},
                               ]}
                               onChangeText={text => setPracticeAt(text)}
+                              maxLength={50}
                               value={practiceAt}></TextInput>
                           </View>
                         </View>
@@ -3140,7 +3216,6 @@ const EditProfile = ({navigation}) => {
 
                           if (editExp) p.experienceId = Number(experienceId);
 
-                          // setisLoading(true);
                           updateExpDet(p);
                           setPracticeAt('');
                           setStartExpDate('');
@@ -3194,7 +3269,7 @@ const EditProfile = ({navigation}) => {
                           fontSize: 14,
                           padding: 5,
                         }}>
-                        {editIden ? ' Edit' : 'Add More '} Identification
+                        {editIden ? ' Edit' : 'Add More'} Identification
                       </Text>
                       <FAIcon
                         name="window-close"
@@ -3205,7 +3280,10 @@ const EditProfile = ({navigation}) => {
                           top: 0,
                           right: 0,
                         }}
-                        onPress={() => setIdenElementModal(false)}
+                        onPress={() => {
+                          setidentificationPath('');
+                          setIdenElementModal(false);
+                        }}
                       />
                     </View>
                     <View
@@ -3247,9 +3325,40 @@ const EditProfile = ({navigation}) => {
                                 setidentificationNumber(text)
                               }
                               value={identificationNumber}
+                              maxLength={20}
                             />
                           </View>
                         </View>
+                        <CustomButton
+                          text={
+                            identificationPath == ''
+                              ? 'Select Document'
+                              : ' ✓ File Selected'
+                          }
+                          textstyle={{
+                            color:
+                              identificationPath == '' ? '#2b8ada' : '#21c47f',
+                            fontSize: 12,
+                          }}
+                          style={{
+                            marginTop: 5,
+                            backgroundColor: 'white',
+                            borderRadius: 12,
+                            padding: 6,
+                            paddingHorizontal: 10,
+                            borderWidth: 2,
+                            borderColor:
+                              identificationPath == '' ? '#2b8ada' : '#21c47f',
+                          }}
+                          onPress={() => {
+                            if (identificationType == '')
+                              Alert.alert(
+                                'Incomplete Details',
+                                'Please select Document Name then Select File.',
+                              );
+                            else selectDocsIden();
+                          }}
+                        />
                       </View>
                     </View>
 
@@ -3259,14 +3368,15 @@ const EditProfile = ({navigation}) => {
                       style={{
                         width: '95%',
                         backgroundColor: '#2B8ADA',
-                        marginVertical: 5,
+                        marginVertical: 15,
                         paddingVertical: 5,
                         borderRadius: 10,
                       }}
                       onPress={() => {
                         if (
                           identificationNumber != '' &&
-                          identificationType != ''
+                          identificationType != '' &&
+                          identificationPath != ''
                         ) {
                           var flag = 1;
                           if (
@@ -3298,7 +3408,6 @@ const EditProfile = ({navigation}) => {
                           if (flag == 1) {
                             let p = {
                               doctorId: doctorId,
-
                               identificationNumber: identificationNumber,
                               identificationPath: identificationPath,
                               identificationType: identificationType,
@@ -3308,7 +3417,6 @@ const EditProfile = ({navigation}) => {
                               p.doctorIdentificationPkId =
                                 doctorIdentificationPkId;
 
-                            setisLoading(true);
                             updateIden(p);
                             setidentificationNumber('');
                             setidentificationPath('');
@@ -3326,6 +3434,12 @@ const EditProfile = ({navigation}) => {
                             'Incomplete Details!',
                             'Please Select Document Name',
                           );
+                        else if (identificationPath == '')
+                          Alert.alert(
+                            'Incomplete Details!',
+                            'Please Select Identification Document from your device',
+                          );
+                        else updateIden();
                       }}
                     />
                   </View>

@@ -300,7 +300,9 @@ const Header = ({title, showMenu}) => {
         if (response.status == 200) {
           Alert.alert(
             'Slot Booked',
-            `Slot successfully booked for ${p.patientName} on ${p.slotDate} at ${p.slotTime}`,
+            `Slot successfully booked for ${p.patientName} on ${dayjs(
+              p.slotDate,
+            ).format('DD-MMM-YYYY')} at ${p.slotTime}`,
           );
           setShareModal(false);
           await reset();
@@ -522,7 +524,7 @@ const Header = ({title, showMenu}) => {
                         color: '#2b8ada',
                       }}>
                       Select Date :-{' '}
-                      {date != '' ? dayjs(date).format('DD-MM-YYYY') : date}
+                      {date != null ? dayjs(date).format('DD-MM-YYYY') : ''}
                     </Text>
                     {viewESlotsDate.length > 0 ? (
                       <View
@@ -551,7 +553,7 @@ const Header = ({title, showMenu}) => {
                             alignSelf: 'center',
                             fontSize: 12,
                           }}>
-                          No Dates Available
+                          No Dates Available for E-consultation
                         </Text>
                       </View>
                     )}
@@ -658,10 +660,24 @@ const Header = ({title, showMenu}) => {
                       style={{
                         marginVertical: 10,
                       }}>
-                      {date == '' ? (
-                        <Text>Please Select Date</Text>
+                      {date == null ? (
+                        <Text
+                          style={{
+                            marginVertical: 10,
+                            alignSelf: 'center',
+                            fontSize: 12,
+                          }}>
+                          Please Select E-consulation Date
+                        </Text>
                       ) : (
-                        <Text>Loading Slots....</Text>
+                        <Text
+                          style={{
+                            marginVertical: 10,
+                            alignSelf: 'center',
+                            fontSize: 12,
+                          }}>
+                          Loading Slots....
+                        </Text>
                       )}
                     </View>
                   )}

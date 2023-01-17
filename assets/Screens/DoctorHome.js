@@ -488,7 +488,8 @@ const DoctorHome = ({navigation}) => {
           marginVertical: 5,
           padding: 10,
         }}
-        onPress={() => console.log(item.consultationId)}>
+        onPress={() => console.log(item.consultationId)}
+        key={item.consultationId}>
         <View
           style={{
             flexDirection: 'row',
@@ -707,7 +708,8 @@ const DoctorHome = ({navigation}) => {
           marginVertical: 5,
           padding: 10,
         }}
-        onPress={() => console.log(item.consultationId)}>
+        onPress={() => console.log(item.consultationId)}
+        key={item.consultationId}>
         <View
           style={{
             flexDirection: 'row',
@@ -1773,7 +1775,7 @@ const DoctorHome = ({navigation}) => {
                     {CompleteData != '' ? (
                       <FlatList
                         data={CompleteData}
-                        keyExtractor={item => item.bookingHistoryId}
+                        keyExtractor={item => item.consultationId}
                         renderItem={renderCardCompleted}
                       />
                     ) : (
@@ -1834,7 +1836,7 @@ const DoctorHome = ({navigation}) => {
                     {StatusData != '' ? (
                       <FlatList
                         data={StatusData}
-                        keyExtractor={item => item.bookingHistoryId}
+                        keyExtractor={item => item.consultationId}
                         renderItem={renderCardRecent}
                       />
                     ) : (

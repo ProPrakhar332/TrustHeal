@@ -496,13 +496,10 @@ th{
       console.log('==============Inside select Docs==========');
 
       filePdf.name =
-        patientID +
-        '_' +
-        patientName +
-        '_PATIENT_PRESCRIPTION' +
-        JSON.stringify(dayjs(new Date()).format('DD-MM-YYYY')) +
-        '.pdf';
+        patientID + '_' + patientName + '_PATIENT_PRESCRIPTION' + '.pdf';
+      filePdf.type = 'application/pdf';
       console.log(filePdf.name);
+      console.log(filePdf);
       //setMedRegDoc([pickerResult]);
 
       let formData = new FormData();
