@@ -516,7 +516,8 @@ const DoctorHome = ({navigation}) => {
               marginHorizontal: 10,
             }}
           />
-          <View style={{flexDirection: 'column'}}>
+          <View
+            style={{flexDirection: 'column', justifyContent: 'space-around'}}>
             <Text
               style={{
                 flexDirection: 'row',
@@ -527,54 +528,6 @@ const DoctorHome = ({navigation}) => {
                 ? item.patientsDetails.patientName
                 : item.familyDetails.patientName}
             </Text>
-
-            <View style={{flexDirection: 'row'}}>
-              <View
-                style={{
-                  flexDirection: 'column',
-                  width: '20%',
-                  marginRight: '5%',
-                }}>
-                <Text style={styles.cardText}>Age</Text>
-              </View>
-              <View style={{flexDirection: 'column', width: '60%'}}>
-                <Text style={styles.cardText}>
-                  {item.familyDetails == null
-                    ? item.patientsDetails.age
-                    : item.familyDetails.age}
-                </Text>
-              </View>
-            </View>
-            <View style={{flexDirection: 'row'}}>
-              <View
-                style={{
-                  flexDirection: 'column',
-                  width: '20%',
-                  marginRight: '5%',
-                }}>
-                <Text style={styles.cardText}>Location</Text>
-              </View>
-              <View style={{flexDirection: 'column', width: '60%'}}>
-                <Text style={styles.cardText}>
-                  {item.familyDetails == null
-                    ? item.patientsDetails.city
-                    : item.familyDetails.city}
-                </Text>
-              </View>
-            </View>
-            <View style={{flexDirection: 'row'}}>
-              <View
-                style={{
-                  flexDirection: 'column',
-                  width: '20%',
-                  marginRight: '5%',
-                }}>
-                <Text style={styles.cardText}>Symtoms</Text>
-              </View>
-              <View style={{flexDirection: 'column', width: '60%'}}>
-                <Text style={styles.cardText}>{item.symptoms}</Text>
-              </View>
-            </View>
             {item.consultationType == 'PHYSICAL' ? (
               <View style={{flexDirection: 'row'}}>
                 <View
@@ -583,16 +536,96 @@ const DoctorHome = ({navigation}) => {
                     width: '20%',
                     marginRight: '5%',
                   }}>
-                  <Text style={styles.cardText}>Clinic</Text>
+                  {/* <Text style={styles.cardText}>Clinic</Text> */}
+                  <FAIcon
+                    name="hospital"
+                    size={15}
+                    color={'#2b8ada'}
+                    style={{}}
+                  />
                 </View>
                 <View style={{flexDirection: 'column', width: '60%'}}>
-                  <Text style={styles.cardText}>
+                  <Text
+                    style={[
+                      styles.cardText,
+                      {color: '#2b8ada', fontWeight: 'bold'},
+                    ]}>
                     {item.clinicName}
                     {' | '} {item.clinicAddress}
                   </Text>
                 </View>
               </View>
             ) : null}
+
+            {item.patientsDetails.age != null || item.familyDetails != null ? (
+              <View style={{flexDirection: 'row'}}>
+                <View
+                  style={{
+                    flexDirection: 'column',
+                    width: '20%',
+                    marginRight: '5%',
+                  }}>
+                  <Text style={styles.cardText}>Age</Text>
+                </View>
+                <View style={{flexDirection: 'column', width: '60%'}}>
+                  <Text style={styles.cardText}>
+                    {item.familyDetails == null
+                      ? item.patientsDetails.age
+                      : item.familyDetails.age}
+                  </Text>
+                </View>
+              </View>
+            ) : null}
+            {item.patientsDetails.city != null || item.familyDetails != null ? (
+              <View style={{flexDirection: 'row'}}>
+                <View
+                  style={{
+                    flexDirection: 'column',
+                    width: '20%',
+                    marginRight: '5%',
+                  }}>
+                  <Text style={styles.cardText}>Location</Text>
+                </View>
+                <View style={{flexDirection: 'column', width: '60%'}}>
+                  <Text style={styles.cardText}>
+                    {item.familyDetails == null
+                      ? item.patientsDetails.city
+                      : item.familyDetails.city}
+                  </Text>
+                </View>
+              </View>
+            ) : null}
+            {item.symptoms != null ? (
+              <View style={{flexDirection: 'row'}}>
+                <View
+                  style={{
+                    flexDirection: 'column',
+                    width: '20%',
+                    marginRight: '5%',
+                  }}>
+                  <Text style={styles.cardText}>Symtoms</Text>
+                </View>
+                <View style={{flexDirection: 'column', width: '60%'}}>
+                  <Text style={styles.cardText}>{item.symptoms}</Text>
+                </View>
+              </View>
+            ) : null}
+            <View style={{flexDirection: 'row'}}>
+              <View
+                style={{
+                  flexDirection: 'column',
+                  width: '20%',
+                  marginRight: '5%',
+                }}>
+                <Text style={styles.cardText}>Date</Text>
+              </View>
+              <View style={{flexDirection: 'column', width: '60%'}}>
+                <Text style={styles.cardText}>
+                  {dayjs(item.slotDate).format('DD-MMM-YYYY')}
+                </Text>
+              </View>
+            </View>
+
             <View style={{flexDirection: 'row'}}>
               <View
                 style={{
@@ -675,7 +708,7 @@ const DoctorHome = ({navigation}) => {
             />
             <Text style={{fontSize: 13}}>History</Text>
           </TouchableOpacity>
-          {/* <TouchableOpacity
+          <TouchableOpacity
             style={{
               flexDirection: 'row',
               padding: 3,
@@ -685,14 +718,16 @@ const DoctorHome = ({navigation}) => {
               borderColor: 'gray',
               borderRadius: 5,
             }}
-            //onPress={() => navigation.push("CheifComplaints")}
-          >
+            onPress={() => {
+              console.log(apiConfig.baseUrl + item.prescriptionPath);
+              openURL(apiConfig.baseUrl + item.prescriptionPath);
+            }}>
             <FAIcon
               name="prescription"
               size={15}
               style={{marginHorizontal: 5}}
             />
-          </TouchableOpacity> */}
+          </TouchableOpacity>
         </View>
       </TouchableOpacity>
     );
@@ -736,7 +771,8 @@ const DoctorHome = ({navigation}) => {
               marginHorizontal: 10,
             }}
           />
-          <View style={{flexDirection: 'column'}}>
+          <View
+            style={{flexDirection: 'column', justifyContent: 'space-around'}}>
             <Text
               style={{
                 flexDirection: 'row',
@@ -747,54 +783,6 @@ const DoctorHome = ({navigation}) => {
                 ? item.patientsDetails.patientName
                 : item.familyDetails.patientName}
             </Text>
-
-            <View style={{flexDirection: 'row'}}>
-              <View
-                style={{
-                  flexDirection: 'column',
-                  width: '20%',
-                  marginRight: '5%',
-                }}>
-                <Text style={styles.cardText}>Age</Text>
-              </View>
-              <View style={{flexDirection: 'column', width: '60%'}}>
-                <Text style={styles.cardText}>
-                  {item.familyDetails == null
-                    ? item.patientsDetails.age
-                    : item.familyDetails.age}
-                </Text>
-              </View>
-            </View>
-            <View style={{flexDirection: 'row'}}>
-              <View
-                style={{
-                  flexDirection: 'column',
-                  width: '20%',
-                  marginRight: '5%',
-                }}>
-                <Text style={styles.cardText}>Location</Text>
-              </View>
-              <View style={{flexDirection: 'column', width: '60%'}}>
-                <Text style={styles.cardText}>
-                  {item.familyDetails == null
-                    ? item.patientsDetails.city
-                    : item.familyDetails.city}
-                </Text>
-              </View>
-            </View>
-            <View style={{flexDirection: 'row'}}>
-              <View
-                style={{
-                  flexDirection: 'column',
-                  width: '20%',
-                  marginRight: '5%',
-                }}>
-                <Text style={styles.cardText}>Symtoms</Text>
-              </View>
-              <View style={{flexDirection: 'column', width: '60%'}}>
-                <Text style={styles.cardText}>{item.symptoms}</Text>
-              </View>
-            </View>
             {item.consultationType == 'PHYSICAL' ? (
               <View style={{flexDirection: 'row'}}>
                 <View
@@ -803,16 +791,96 @@ const DoctorHome = ({navigation}) => {
                     width: '20%',
                     marginRight: '5%',
                   }}>
-                  <Text style={styles.cardText}>Clinic</Text>
+                  {/* <Text style={styles.cardText}>Clinic</Text> */}
+                  <FAIcon
+                    name="hospital"
+                    size={15}
+                    color={'#2b8ada'}
+                    style={{}}
+                  />
                 </View>
                 <View style={{flexDirection: 'column', width: '60%'}}>
-                  <Text style={styles.cardText}>
+                  <Text
+                    style={[
+                      styles.cardText,
+                      {color: '#2b8ada', fontWeight: 'bold'},
+                    ]}>
                     {item.clinicName}
                     {' | '} {item.clinicAddress}
                   </Text>
                 </View>
               </View>
             ) : null}
+
+            {item.patientsDetails.age != null || item.familyDetails != null ? (
+              <View style={{flexDirection: 'row'}}>
+                <View
+                  style={{
+                    flexDirection: 'column',
+                    width: '20%',
+                    marginRight: '5%',
+                  }}>
+                  <Text style={styles.cardText}>Age</Text>
+                </View>
+                <View style={{flexDirection: 'column', width: '60%'}}>
+                  <Text style={styles.cardText}>
+                    {item.familyDetails == null
+                      ? item.patientsDetails.age
+                      : item.familyDetails.age}
+                  </Text>
+                </View>
+              </View>
+            ) : null}
+            {item.patientsDetails.city != null || item.familyDetails != null ? (
+              <View style={{flexDirection: 'row'}}>
+                <View
+                  style={{
+                    flexDirection: 'column',
+                    width: '20%',
+                    marginRight: '5%',
+                  }}>
+                  <Text style={styles.cardText}>Location</Text>
+                </View>
+                <View style={{flexDirection: 'column', width: '60%'}}>
+                  <Text style={styles.cardText}>
+                    {item.familyDetails == null
+                      ? item.patientsDetails.city
+                      : item.familyDetails.city}
+                  </Text>
+                </View>
+              </View>
+            ) : null}
+            {item.symptoms != null ? (
+              <View style={{flexDirection: 'row'}}>
+                <View
+                  style={{
+                    flexDirection: 'column',
+                    width: '20%',
+                    marginRight: '5%',
+                  }}>
+                  <Text style={styles.cardText}>Symtoms</Text>
+                </View>
+                <View style={{flexDirection: 'column', width: '60%'}}>
+                  <Text style={styles.cardText}>{item.symptoms}</Text>
+                </View>
+              </View>
+            ) : null}
+            <View style={{flexDirection: 'row'}}>
+              <View
+                style={{
+                  flexDirection: 'column',
+                  width: '20%',
+                  marginRight: '5%',
+                }}>
+                <Text style={styles.cardText}>Date</Text>
+              </View>
+              <View style={{flexDirection: 'column', width: '60%'}}>
+                <Text style={styles.cardText}>
+                  {dayjs(item.slotDate).format('DD-MMM-YYYY')}
+                </Text>
+              </View>
+            </View>
+
             <View style={{flexDirection: 'row'}}>
               <View
                 style={{
@@ -895,7 +963,7 @@ const DoctorHome = ({navigation}) => {
             />
             <Text style={{fontSize: 13}}>History</Text>
           </TouchableOpacity>
-          {/* <TouchableOpacity
+          <TouchableOpacity
             style={{
               flexDirection: 'row',
               padding: 3,
@@ -905,14 +973,16 @@ const DoctorHome = ({navigation}) => {
               borderColor: 'gray',
               borderRadius: 5,
             }}
-            //onPress={() => navigation.push("CheifComplaints")}
-          >
+            onPress={() => {
+              console.log(apiConfig.baseUrl + item.prescriptionPath);
+              openURL(apiConfig.baseUrl + item.prescriptionPath);
+            }}>
             <FAIcon
               name="prescription"
               size={15}
               style={{marginHorizontal: 5}}
             />
-          </TouchableOpacity> */}
+          </TouchableOpacity>
         </View>
       </TouchableOpacity>
     );
@@ -1011,8 +1081,8 @@ const DoctorHome = ({navigation}) => {
                   marginHorizontal: 5,
                 }}
                 onPress={() => {
-                  console.log(item.documentPath);
-                  openURL(item.documentPath);
+                  console.log(apiConfig.baseUrl + item.documentPath);
+                  openURL(apiConfig.baseUrl + item.documentPath);
                 }}
               />
               <Text style={styles.HistoryModalText}>{item.documentName}</Text>
@@ -1048,8 +1118,8 @@ const DoctorHome = ({navigation}) => {
               marginHorizontal: 5,
             }}
             onPress={() => {
-              console.log(item.documentPath);
-              openURL(item.documentPath);
+              console.log(apiConfig.baseUrl + item.documentPath);
+              openURL(apiConfig.baseUrl + item.documentPath);
             }}
           />
         </View>
@@ -1245,6 +1315,7 @@ const DoctorHome = ({navigation}) => {
         <StatusBar animated={true} backgroundColor="#2B8ADA" />
         <ScrollView
           showsVerticalScrollIndicator={false}
+          nestedScrollEnabled={true}
           style={{
             width: '100%',
             backgroundColor: '#E8F0FE',
@@ -1255,7 +1326,7 @@ const DoctorHome = ({navigation}) => {
           <Header showMenu={true} />
           <View style={{width: '95%', alignSelf: 'center'}}>
             {/* Search Bar */}
-            <View style={styles.searchBar}>
+            {/* <View style={styles.searchBar}>
               <TextInput placeholder="Search" style={styles.searchBarText} />
               <FAIcon
                 name="search"
@@ -1263,9 +1334,9 @@ const DoctorHome = ({navigation}) => {
                 color="gray"
                 style={styles.searchIcon}
               />
-            </View>
+            </View> */}
             {/* Filter */}
-            <View
+            {/* <View
               style={{
                 flexDirection: 'row',
                 justifyContent: 'space-evenly',
@@ -1278,10 +1349,10 @@ const DoctorHome = ({navigation}) => {
               }}>
               <Text style={{color: '#2B8ADA'}}>By Date</Text>
               <FAIcon name="caret-down" color={'#2B8ADA'} size={15} />
-            </View>
+            </View> */}
             {/* Upcoming Consultations White Label */}
             <TouchableOpacity
-              style={styles.WhiteLabel}
+              style={[styles.WhiteLabel, {marginTop: 20}]}
               onPress={() => setUpcoming(!Upcoming)}>
               <Text
                 style={[
@@ -1754,7 +1825,7 @@ const DoctorHome = ({navigation}) => {
             {Complete ? (
               <View style={{flexDirection: 'column'}}>
                 <View style={{backgroundColor: '#E8F0FE'}}>
-                  {CompleteData != '' ? (
+                  {/* {CompleteData != '' ? (
                     <View>
                       <Text
                         style={{
@@ -1768,7 +1839,7 @@ const DoctorHome = ({navigation}) => {
                         View More
                       </Text>
                     </View>
-                  ) : null}
+                  ) : null} */}
 
                   <View>
                     {/*Card Design Completed Consultaions */}
@@ -1815,7 +1886,7 @@ const DoctorHome = ({navigation}) => {
             {Status ? (
               <View style={{flexDirection: 'column'}}>
                 <View style={{backgroundColor: '#E8F0FE'}}>
-                  {StatusData != '' ? (
+                  {/* {StatusData != '' ? (
                     <View>
                       <Text
                         style={{
@@ -1829,7 +1900,7 @@ const DoctorHome = ({navigation}) => {
                         View More
                       </Text>
                     </View>
-                  ) : null}
+                  ) : null} */}
 
                   <View>
                     {/*Card Design Completed Consultaions */}

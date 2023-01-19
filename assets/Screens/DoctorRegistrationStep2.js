@@ -439,6 +439,13 @@ const DoctorRegistration2 = ({navigation}) => {
         .then(function (response) {
           if (response.data != '') {
             setdataSavedEduDet(true);
+            //qwerty
+            for (var i = 0; i < response.data.length; ++i) {
+              splArray.push({
+                key: response.data[i].specialization,
+                value: response.data[i].specialization,
+              });
+            }
           } else setdataSavedEduDet(false);
         })
         .catch(function (error) {
@@ -947,6 +954,7 @@ const DoctorRegistration2 = ({navigation}) => {
       const pickerResult = await DocumentPicker.pickSingle({
         presentationStyle: 'fullScreen',
         copyTo: 'cachesDirectory',
+        type: types.pdf,
       });
       let ext = '.' + pickerResult.name.split('.').pop();
 

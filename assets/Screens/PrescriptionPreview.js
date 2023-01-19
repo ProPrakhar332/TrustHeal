@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {Dimensions, ScrollView} from 'react-native';
+import {Dimensions, PermissionsAndroid, ScrollView} from 'react-native';
 import {
   Alert,
   useWindowDimensions,
@@ -29,6 +29,7 @@ import DocumentPicker, {
   isInProgress,
   types,
 } from 'react-native-document-picker';
+import {moveFile, readFile, stat} from 'react-native-fs';
 
 //icons
 import waiting from '../Animations/waiting1.gif';
@@ -39,11 +40,14 @@ import {fileUpload} from '../API/apiConfig';
 import upload from '../Animations/upload.gif';
 
 import dayjs from 'dayjs';
+import {Platform} from 'react-native';
+import RNFetchBlob from 'rn-fetch-blob';
+import RNFS from 'react-native-fs';
 
 function PrescriptionPreview({navigation}) {
   const [Bp, setBp] = useState('');
   const [showPdf, setshowPdf] = useState(false);
-  const [filePdf, setfilePdf] = useState(null);
+  const [filePdf, setfilePdf] = useState();
   const [isLoading, setisLoading] = useState(false);
   const [cheifComplaints, setcheifComplaints] = useState(null);
   const [cheifComplaintsDisplay, setcheifComplaintsDisplay] = useState(null);
@@ -62,10 +66,11 @@ function PrescriptionPreview({navigation}) {
   const [patientName, setpatientName] = useState('');
   const [consultationId, setconsultationId] = useState(null);
   const [patientID, setpatientID] = useState('');
-  const [prescriptionPath, setprescriptionPath] = useState('');
+  const [prescriptionPath, setprescriptionPath] = useState(null);
   const [patientObj, setpatientObj] = useState([]);
   const [patientAge, setpatientAge] = useState('');
   const [isUploading, setisUploading] = useState(false);
+  const [doctorFlag, setDoctorFlag] = useState(false);
 
   const imageURL = 'https://jsplquality.jindalsteel.com/arogyaImage/';
 
@@ -216,6 +221,7 @@ function PrescriptionPreview({navigation}) {
       }
       //console.log('==========Doctor education display===============');
       setdoctorEducationDisp(x);
+      setDoctorFlag(true);
       //console.log(x);
     }
   }, [doctorEducationRaw]);
@@ -457,9 +463,9 @@ th{
       Advice != null &&
       FollowUpDate != null &&
       doctorName != null &&
-      doctorEducationDisp != null
+      doctorFlag == true
     )
-      generatePdf();
+      stackOverflowPDF();
   }, [
     cheifComplaints,
     Diagnosis,
@@ -467,40 +473,188 @@ th{
     Advice,
     FollowUpDate,
     doctorName,
-    doctorEducationDisp,
+    doctorFlag,
   ]);
 
-  let generatePdf = async () => {
+  // const fRequestAndroidPermission = async () => {
+  //   // Refer to https://reactnative.dev/docs/permissionsandroid for further details on permsissions
+  //   try {
+  //     const granted = await PermissionsAndroid.request(
+  //       PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+  //       {
+  //         title: 'App1 Permission Request',
+  //         message:
+  //           'App1 needs access to your storage so you can save files to your device.',
+  //         buttonNeutral: 'Ask Me Later',
+  //         buttonNegative: 'Cancel',
+  //         buttonPositive: 'OK',
+  //       },
+  //     );
+
+  //     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+  //       console.log('permission is granted');
+  //       return true;
+  //     } else {
+  //       console.log('permission denied');
+  //       return false;
+  //     }
+  //   } catch (err) {
+  //     console.error('fRequestAndroidPermission error:', err);
+  //     return false;
+  //   }
+  // };
+
+  // const createPDF = async () => {
+  //   setisLoading(true);
+  //   setshowPdf(false);
+  //   let options = {
+  //     html: html,
+  //     fileName: patientID + '_prescription_' + dayjs().format('YYYYMMDDHmmss'),
+  //     directory: 'Download', // replace 'Documents' with 'Download' - I am not sure if it works on iOS!
+  //   };
+
+  //   if (Platform.OS === 'android') {
+  //     const permissionGranted = await fRequestAndroidPermission();
+  //     if (!permissionGranted) {
+  //       console.log('access was refused');
+  //       return;
+  //     }
+  //   }
+
+  //   let file = await RNHTMLtoPDF.convert(options);
+  //   console.log(file);
+  //   setfilePdf(file);
+  //   //await uploadPres(file);
+  //   setshowPdf(true);
+  //   setisLoading(false);
+  // };
+
+  // const uploadPres = async file => {
+  //   try {
+  //     let statResult = await stat(file.uri);
+
+  //     console.log('==================statResult=================');
+
+  //     console.log(statResult);
+
+  //     file.uri = statResult.path;
+  //     file.size = statResult.size;
+  //     file.type = 'application/pdf';
+
+  //     console.log(
+  //       '\n\n==============File PDF inside upload====================\n\n',
+  //     );
+
+  //     // filePdf.uri =
+  //     //   'content://com.android.providers.downloads.documents/document/raw%3A%2Fstorage%2Femulated%2F0%2FDownload%2F' +
+  //     //   filePdf.name;
+  //     // filePdf.uri = `${RNFS.DownloadDirectoryPath}/Arogya/${fileP}`;
+
+  //     console.log(file);
+
+  //     // let x = {
+  //     //   name: 'testing.pdf',
+  //     //   size: 111384,
+  //     //   type: 'application/pdf',
+  //     //   uri: 'content://com.android.providers.downloads.documents/document/raw%3A%2Fstorage%2Femulated%2F0%2FDownload%2F7_prescription_20230118173248.pdf',
+  //     // };
+
+  //     let formData = new FormData();
+  //     formData.append('directoryNames', 'PATIENT_PRESCRIPTION');
+  //     formData.append('file', file);
+  //     const {error, response} = await fileUpload(formData);
+
+  //     if (error != null) {
+  //       console.log('======error======');
+  //       console.log(error);
+  //       Alert.alert(
+  //         'Error',
+  //         'There was a problem in selecting document. Please try again.',
+  //       );
+  //     } else {
+  //       console.log('======response of prescription preview======');
+  //       console.log(response);
+  //       if (response != undefined) {
+  //         setprescriptionPath(response.path);
+  //         setisLoading(false);
+
+  //       }
+  //     }
+  //   } catch (e) {
+  //     setisUploading(false);
+  //     console.log('Uploading error', e);
+  //     Alert.alert('Error', `${e}`);
+  //   }
+  // };
+
+  //pdf  generator
+  let stackOverflowPDF = async () => {
     setisLoading(true);
-    setshowPdf(false);
     let options = {
       html: html,
-      fileName:
-        patientName +
-        '_prescription_' +
-        JSON.stringify(dayjs(new Date()).format('DD-MM-YYYY')),
-      directory: 'Documents',
+      fileName: patientID + '_prescription_' + dayjs().format('YYYYMMDDHHmmss'),
+      directory: 'docs',
     };
 
     let file = await RNHTMLtoPDF.convert(options);
-    console.log(file.filePath);
-    console.log(file);
+    const destinationPath = RNFS.CachesDirectoryPath;
+    console.log('\n\n++++++   DEstination Path   ++++\n', destinationPath);
+    const FileName = file.filePath.split('/').pop();
+    file.name = FileName;
+    const destinationFile = destinationPath + '/' + FileName;
+    //file.uri = destinationFile;
+    file.uri = 'file://' + destinationFile;
+
+    await RNFS.copyFile(file.filePath, destinationFile)
+      .then(result => {
+        // Delete a file on the project path using RNFS.unlink
+        return (
+          RNFS.unlink(file.filePath)
+            .then(() => {
+              console.log('FILE DELETED');
+            })
+            // `unlink` will throw an error, if the item to unlink does not exist
+            .catch(err => {
+              console.log(err.message);
+            })
+        );
+      })
+      .catch(err => {
+        console.log('err', err);
+      });
+    console.log(
+      '\n\n=============== FILE CREATED ======================\n\n',
+      file,
+    );
     setfilePdf(file);
     setshowPdf(true);
     setisLoading(false);
-    //alert(file.filePath);
+    Alert.alert('File Created', 'Prescription file has been created!');
   };
-
   const uploadPres = async () => {
     try {
-      console.log('==============Inside select Docs==========');
+      setisUploading(true);
+      let statResult = await stat(filePdf.uri);
 
-      filePdf.name =
-        patientID + '_' + patientName + '_PATIENT_PRESCRIPTION' + '.pdf';
+      console.log('==================statResult=================');
+
+      console.log(statResult);
+
+      filePdf.uri = statResult.path;
+      filePdf.size = statResult.size;
       filePdf.type = 'application/pdf';
-      console.log(filePdf.name);
+
+      console.log(
+        '\n\n==============File PDF inside upload====================\n\n',
+      );
       console.log(filePdf);
-      //setMedRegDoc([pickerResult]);
+
+      // let x = {
+      //   name: 'testing.pdf',
+      //   size: 111384,
+      //   type: 'application/pdf',
+      //   uri: 'content://com.android.providers.downloads.documents/document/raw%3A%2Fstorage%2Femulated%2F0%2FDownload%2F7_prescription_20230118173248.pdf',
+      // };
 
       let formData = new FormData();
       formData.append('directoryNames', 'PATIENT_PRESCRIPTION');
@@ -515,51 +669,57 @@ th{
           'There was a problem in selecting document. Please try again.',
         );
       } else {
-        console.log('======response======');
-        console.log(response.path);
-        setprescriptionPath(response.path);
+        console.log('======response of prescription preview======');
+        console.log(response);
+        if (response != undefined) {
+          setprescriptionPath(response.path);
+          completeConsultationStatusUpdate(response.path);
+          // Alert.alert(
+          //   'Success',
+          //   'Prescription has been uploaded successfully!',
+          // );
+        }
       }
     } catch (e) {
       setisUploading(false);
-      console.log('Uploading error');
-      Alert.alert('Error', `${e}`);
+      console.log('Uploading error', e);
+      Alert.alert('Error', `File Uploading Error.\n ${e}`);
     }
   };
 
-  const onPressUpload = async () => {
-    setisUploading(true);
-
+  const completeConsultationStatusUpdate = async path => {
+    console.log(
+      'header call\n\n',
+      apiConfig.baseUrl +
+        '/doctor/consultation/complete/status/update?consultationid=' +
+        consultationId +
+        '&prescription=' +
+        encodeURI(path),
+    );
     axios
       .post(
         apiConfig.baseUrl +
           '/doctor/consultation/complete/status/update?consultationid=' +
           consultationId +
           '&prescription=' +
-          prescriptionPath,
+          encodeURI(path),
       )
-      .then(async function (response) {
+      .then(function (response) {
         setisUploading(false);
         if (response.status == 200) {
-          await AsyncStorage.multiRemove(
-            'CheifComplaint',
-            'Examination',
-            'Prescription',
-            'Investigation',
-            'Advice',
-            'Diagnosis',
-            'FollowUpDate',
-            'PrescriptionFor',
-          );
           Alert.alert(
-            'Successful',
-            `Prescription Uploaded successfully for ${patientName}`,
+            'Success',
+            `Your Consultation with ${patientName} has been completed.`,
           );
           navigation.navigate('DoctorHome');
         }
       })
-      .catch(function (error) {
+      .catch(error => {
         setisUploading(false);
-        Alert.alert('Error', `${error}`);
+        Alert.alert(
+          'Status Update Error',
+          `Error occured in updating status of completion.${error}`,
+        );
       });
   };
 
@@ -596,35 +756,34 @@ th{
           {/* <CustomButton text="Show Cache Keys" onPress={show} /> */}
 
           {showPdf ? (
-            <Pdf
-              source={{uri: filePdf.filePath}}
-              onLoadComplete={(numberOfPages, filePath) => {
-                console.log(`Number of pages: ${numberOfPages}`);
-              }}
-              onPageChanged={(page, numberOfPages) => {
-                console.log(`Current page: ${page}`);
-              }}
-              onError={error => {
-                console.log(error);
-              }}
-              onPressLink={uri => {
-                console.log(`Link pressed: ${uri}`);
-              }}
-              style={{
-                backgroundColor: '#e8f0fe',
-                width: Dimensions.get('window').width,
-                height: Dimensions.get('window').height - 300,
-                marginVertical: 20,
-              }}
-            />
+            <View>
+              <Pdf
+                source={{uri: filePdf.uri}}
+                style={{
+                  backgroundColor: '#e8f0fe',
+                  width: Dimensions.get('window').width,
+                  height: Dimensions.get('window').height - 300,
+                  marginVertical: 20,
+                }}
+              />
+              <Text
+                style={{
+                  flex: 1,
+                  fontWeight: 'bold',
+                  alignSelf: 'center',
+                }}>
+                File Name:- {filePdf.name}
+              </Text>
+            </View>
           ) : null}
 
           <View
             style={{
+              marginTop: 10,
               alignSelf: 'center',
               flexDirection: 'column',
               flex: 1,
-              width: '95%',
+              width: '90%',
             }}>
             <CustomButton
               text="Re-Generate PDF"
@@ -635,9 +794,12 @@ th{
                 flex: 1,
               }}
               onPress={() => {
-                generatePdf();
+                // generatePdf();
+                //createPDF();
+                stackOverflowPDF();
               }}
             />
+
             <CustomButton
               text="Upload Prescription"
               textstyle={{color: 'white', fontSize: 12}}
@@ -648,8 +810,13 @@ th{
                 marginVertical: 10,
               }}
               onPress={async () => {
+                // console.log(
+                //   await stat(filePdf.filePath).then(function (response) {
+                //     console.log(response);
+                //   }),
+                // );
                 await uploadPres();
-                await onPressUpload();
+                //await onPressUpload();
               }}
             />
             <CustomButton

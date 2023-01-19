@@ -9,11 +9,17 @@ export function fileUpload(formData) {
   return fetch(apiConfig.baseUrl + '/file/system/upload', {
     method: 'POST',
     body: formData,
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
   })
     .then(response => {
+      console.log(':::::::::Log 1::::', response);
+
       return response.json();
     })
     .then(response => {
+      console.log(':::::::Log 2::::', response);
       return {error: null, response: response};
     })
     .catch(error => {

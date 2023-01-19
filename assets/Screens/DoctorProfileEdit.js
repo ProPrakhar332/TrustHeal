@@ -556,7 +556,7 @@ const EditProfile = ({navigation}) => {
 
       pickerResult.name =
         doctorId + '_DoctorEducation_' + Degree + '_' + DegreePassingYear + ext;
-      console.log(pickerResult.name);
+      console.log(pickerResult);
 
       let formData = new FormData();
       formData.append('directoryNames', 'DOCTOR_EDUCATION');

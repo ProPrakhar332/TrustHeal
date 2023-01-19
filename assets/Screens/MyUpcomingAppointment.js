@@ -2,6 +2,7 @@ import React, {useEffect} from 'react';
 import {useState} from 'react';
 import {Alert, TextInput} from 'react-native';
 import {FlatList} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
 
 import {
   View,
@@ -11,17 +12,22 @@ import {
   ScrollView,
   StyleSheet,
   Modal,
+  Linking,
   useWindowDimensions,
   KeyboardAvoidingView,
   Button,
   TouchableOpacity,
   StatusBar,
 } from 'react-native';
+
+import {useCallback} from 'react';
 import {CheckBox} from 'react-native-elements';
 import FAIcon from 'react-native-vector-icons/FontAwesome5';
 import CustomButton from '../Components/CustomButton';
 //images
 import pfp1 from '../Resources/patient.png';
+import payonclinic from '../Icons/payonclinic1.png';
+import prepaid from '../Icons/paid.png';
 // import pfp2 from "../Resources/pfp2.jpg";
 // import pfp3 from "../Resources/pfp3.jpg";
 // import pfp4 from "../Resources/pfp4.jpg";
@@ -35,6 +41,8 @@ import {
 import axios from 'axios';
 import apiConfig from '../API/apiConfig';
 import dateformatter from '../API/dateformatter';
+import dayjs from 'dayjs';
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const dataStatus = [
@@ -50,6 +58,7 @@ const MyUpcomingAppointment = ({navigation}) => {
   const [PreconsultaionQuestionData, setPreconsultaionQuestionData] = useState(
     [],
   );
+  const [doctorObj, setDoctorObj] = useState(null);
 
   const [HistoryModal, setHistoryModal] = useState(false);
   const [historyData, sethistoryData] = useState([]);
@@ -70,6 +79,8 @@ const MyUpcomingAppointment = ({navigation}) => {
   const [isFetching, setisFetching] = useState(false);
   const [consultationId, setconsultationId] = useState(null);
   const [patientId, setpatientId] = useState(null);
+  const [historyId, sethistoryId] = useState(0);
+  const [todayId, settodayId] = useState(0);
 
   const layout = useWindowDimensions();
 
@@ -97,61 +108,85 @@ const MyUpcomingAppointment = ({navigation}) => {
 
   const renderCard = ({item}) => {
     return (
-      <View
+      <TouchableOpacity
         style={{
           backgroundColor: 'white',
           width: '95%',
           alignSelf: 'center',
           borderRadius: 10,
           marginVertical: 5,
-        }}>
+        }}
+        onPress={() => console.log(item)}>
         <View
           style={{
             flexDirection: 'row',
-            alignSelf: 'flex-end',
             marginTop: 10,
+            paddingHorizontal: 10,
+            justifyContent: 'space-between',
           }}>
-          <FAIcon
-            name="prescription"
-            size={20}
-            style={{marginHorizontal: 5}}
-            onPress={() => navigation.push('CheifComplaints')}
-          />
-          <CustomButton
-            text="Pre Consultation"
-            textstyle={{color: 'white', fontSize: 10}}
+          <View styles={{flex: 0.5}}>
+            <Image
+              source={item.paymentStatus != 'PRE_PAID' ? payonclinic : prepaid}
+              style={{
+                width: 30,
+                height: 30,
+                tintColor:
+                  item.paymentStatus != 'PRE_PAID' ? '#2b8ada' : '#51e80c',
+                marginLeft: 10,
+              }}
+            />
+          </View>
+          <View
             style={{
-              backgroundColor: '#2B8ADA',
-              padding: 3,
-              marginHorizontal: 5,
-              paddingHorizontal: 7,
-              padding: 4,
-            }}
-            onPress={() => {
-              setconsultationId(item.consultationId);
-              setConsultationQuestionnaire(true);
-            }}
-          />
-          <CustomButton
-            text="Manage Status"
-            textstyle={{color: '#2B8ADA', fontSize: 10}}
-            style={{
-              borderColor: '#2B8ADA',
-              borderWidth: 1,
-              backgroundColor: 'white',
-              padding: 3,
-              marginHorizontal: 5,
-              paddingHorizontal: 7,
-              padding: 4,
-            }}
-            onPress={() => setManageStatusModal(true)}
-          />
+              flexDirection: 'row',
+              flex: 0.5,
+              alignSelf: 'flex-end',
+            }}>
+            <FAIcon
+              name="prescription"
+              size={20}
+              style={{marginHorizontal: 5, alignSelf: 'center'}}
+              onPress={() => {
+                onPressPrescription(item);
+              }}
+            />
+            <CustomButton
+              text="Pre Consultation"
+              textstyle={{color: 'white', fontSize: 10, alignSelf: 'center'}}
+              style={{
+                backgroundColor: '#2B8ADA',
+                padding: 5,
+                marginHorizontal: 5,
+                paddingHorizontal: 7,
+                padding: 4,
+              }}
+              onPress={() => {
+                setUpcomingId(item.consultationId);
+                setConsultationQuestionnaire(true);
+              }}
+            />
+            {/* <CustomButton
+              text="Manage Status"
+              textstyle={{color: '#2B8ADA', fontSize: 10}}
+              style={{
+                borderColor: '#2B8ADA',
+                borderWidth: 1,
+                backgroundColor: 'white',
+                padding: 5,
+                marginHorizontal: 5,
+                paddingHorizontal: 7,
+                padding: 4,
+              }}
+              onPress={() => setManageStatusModal(true)}
+            /> */}
+          </View>
         </View>
         <View
           style={{
             flexDirection: 'row',
             // borderBottomColor: "gray",
             // borderBottomWidth: 1,
+            // justifyContent: 'space-around',
           }}>
           <Image
             source={pfp1}
@@ -164,7 +199,8 @@ const MyUpcomingAppointment = ({navigation}) => {
               marginHorizontal: 10,
             }}
           />
-          <View style={{flexDirection: 'column'}}>
+          <View
+            style={{flexDirection: 'column', justifyContent: 'space-around'}}>
             <Text
               style={{
                 flexDirection: 'row',
@@ -175,7 +211,88 @@ const MyUpcomingAppointment = ({navigation}) => {
                 ? item.patientsDetails.patientName
                 : item.familyDetails.patientName}
             </Text>
+            {item.consultationType == 'PHYSICAL' ? (
+              <View style={{flexDirection: 'row'}}>
+                <View
+                  style={{
+                    flexDirection: 'column',
+                    width: '20%',
+                    marginRight: '5%',
+                  }}>
+                  {/* <Text style={styles.cardText}>Clinic</Text> */}
+                  <FAIcon
+                    name="hospital"
+                    size={15}
+                    color={'#2b8ada'}
+                    style={{}}
+                  />
+                </View>
+                <View style={{flexDirection: 'column', width: '60%'}}>
+                  <Text
+                    style={[
+                      styles.cardText,
+                      {color: '#2b8ada', fontWeight: 'bold'},
+                    ]}>
+                    {item.clinicName}
+                    {' | '} {item.clinicAddress}
+                  </Text>
+                </View>
+              </View>
+            ) : null}
 
+            {item.patientsDetails.age != null || item.familyDetails != null ? (
+              <View style={{flexDirection: 'row'}}>
+                <View
+                  style={{
+                    flexDirection: 'column',
+                    width: '20%',
+                    marginRight: '5%',
+                  }}>
+                  <Text style={styles.cardText}>Age</Text>
+                </View>
+                <View style={{flexDirection: 'column', width: '60%'}}>
+                  <Text style={styles.cardText}>
+                    {item.familyDetails == null
+                      ? item.patientsDetails.age
+                      : item.familyDetails.age}
+                  </Text>
+                </View>
+              </View>
+            ) : null}
+            {item.patientsDetails.city != null || item.familyDetails != null ? (
+              <View style={{flexDirection: 'row'}}>
+                <View
+                  style={{
+                    flexDirection: 'column',
+                    width: '20%',
+                    marginRight: '5%',
+                  }}>
+                  <Text style={styles.cardText}>Location</Text>
+                </View>
+                <View style={{flexDirection: 'column', width: '60%'}}>
+                  <Text style={styles.cardText}>
+                    {item.familyDetails == null
+                      ? item.patientsDetails.city
+                      : item.familyDetails.city}
+                  </Text>
+                </View>
+              </View>
+            ) : null}
+            {item.symptoms != null ? (
+              <View style={{flexDirection: 'row'}}>
+                <View
+                  style={{
+                    flexDirection: 'column',
+                    width: '20%',
+                    marginRight: '5%',
+                  }}>
+                  <Text style={styles.cardText}>Symtoms</Text>
+                </View>
+                <View style={{flexDirection: 'column', width: '60%'}}>
+                  <Text style={styles.cardText}>{item.symptoms}</Text>
+                </View>
+              </View>
+            ) : null}
             <View style={{flexDirection: 'row'}}>
               <View
                 style={{
@@ -183,44 +300,12 @@ const MyUpcomingAppointment = ({navigation}) => {
                   width: '20%',
                   marginRight: '5%',
                 }}>
-                <Text style={styles.cardText}>Age</Text>
+                <Text style={styles.cardText}>Date</Text>
               </View>
               <View style={{flexDirection: 'column', width: '60%'}}>
                 <Text style={styles.cardText}>
-                  {item.familyDetails == null
-                    ? item.patientsDetails.age
-                    : item.familyDetails.age}
+                  {dayjs(item.slotDate).format('DD-MMM-YYYY')}
                 </Text>
-              </View>
-            </View>
-            <View style={{flexDirection: 'row'}}>
-              <View
-                style={{
-                  flexDirection: 'column',
-                  width: '20%',
-                  marginRight: '5%',
-                }}>
-                <Text style={styles.cardText}>Location</Text>
-              </View>
-              <View style={{flexDirection: 'column', width: '60%'}}>
-                <Text style={styles.cardText}>
-                  {item.familyDetails == null
-                    ? item.patientsDetails.city
-                    : item.familyDetails.city}
-                </Text>
-              </View>
-            </View>
-            <View style={{flexDirection: 'row'}}>
-              <View
-                style={{
-                  flexDirection: 'column',
-                  width: '20%',
-                  marginRight: '5%',
-                }}>
-                <Text style={styles.cardText}>Symtoms</Text>
-              </View>
-              <View style={{flexDirection: 'column', width: '60%'}}>
-                <Text style={styles.cardText}>{item.symptoms}</Text>
               </View>
             </View>
             <View style={{flexDirection: 'row'}}>
@@ -257,6 +342,14 @@ const MyUpcomingAppointment = ({navigation}) => {
                 borderWidth: 1,
                 borderColor: '#2B8ADA',
                 borderRadius: 5,
+              }}
+              onPress={() => {
+                onJoinPress(
+                  item.consultationType,
+                  item.consultationId + '',
+                  doctorObj.doctorId + '',
+                  doctorObj.doctorName,
+                );
               }}>
               <FAIcon
                 name={
@@ -271,17 +364,25 @@ const MyUpcomingAppointment = ({navigation}) => {
               </Text>
             </TouchableOpacity>
           ) : (
-            <CustomButton
-              text="P-Consultation"
-              textstyle={{fontSize: 13, color: 'white'}}
+            <TouchableOpacity
               style={{
-                backgroundColor: '#2B8ADA',
+                flexDirection: 'row',
                 padding: 3,
-                alignSelf: 'center',
-                borderRadius: 5,
                 paddingHorizontal: 5,
-              }}
-            />
+                alignSelf: 'center',
+                backgroundColor: '#2B8ADA',
+                borderWidth: 1,
+                borderColor: '#2B8ADA',
+                borderRadius: 5,
+              }}>
+              <FAIcon
+                name="hospital"
+                size={15}
+                color={'white'}
+                style={{marginRight: 5}}
+              />
+              <Text style={{fontSize: 13, color: 'white'}}>P-Consultation</Text>
+            </TouchableOpacity>
           )}
           <TouchableOpacity
             style={{
@@ -294,7 +395,7 @@ const MyUpcomingAppointment = ({navigation}) => {
               borderRadius: 5,
             }}
             onPress={() => {
-              setpatientId(item.patientsDetails.patientId);
+              sethistoryId(item.patientsDetails.patientId);
               setHistoryModal(true);
             }}>
             <FAIcon
@@ -316,7 +417,7 @@ const MyUpcomingAppointment = ({navigation}) => {
               borderRadius: 5,
             }}
             onPress={() => {
-              setconsultationId(item.consultationId);
+              settodayId(item.consultationId);
               setTodaysModal(true);
             }}>
             <FAIcon
@@ -328,10 +429,9 @@ const MyUpcomingAppointment = ({navigation}) => {
             <Text style={{fontSize: 13}}>Today's Doc</Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </TouchableOpacity>
     );
   };
-
   const renderQuestionAnswers = ({item}) => {
     return (
       <View style={{width: '95%', alignSelf: 'center', marginBottom: 10}}>
@@ -424,6 +524,10 @@ const MyUpcomingAppointment = ({navigation}) => {
                 style={{
                   marginHorizontal: 5,
                 }}
+                onPress={() => {
+                  console.log(apiConfig.baseUrl + item.documentPath);
+                  openURL(apiConfig.baseUrl + item.documentPath);
+                }}
               />
               <Text style={styles.HistoryModalText}>{item.documentName}</Text>
             </View>
@@ -457,19 +561,54 @@ const MyUpcomingAppointment = ({navigation}) => {
             style={{
               marginHorizontal: 5,
             }}
+            onPress={() => {
+              console.log(apiConfig.baseUrl + item.documentPath);
+              openURL(apiConfig.baseUrl + item.documentPath);
+            }}
           />
         </View>
       </TouchableOpacity>
     );
   };
 
+  const openURL = useCallback(async url => {
+    const supported = await Linking.canOpenURL(url);
+    if (supported) {
+      await Linking.openURL(url);
+    } else {
+      Alert.alert('Error', `Don't know how to open this URL: ${url}`);
+    }
+  }, []);
+  const nav = useNavigation();
+  const onJoinPress = (consultationType, callID, userID, userName) => {
+    nav.navigate('CallPage', {
+      consultationType: consultationType,
+      callID: callID,
+      userID: userID,
+      userName: userName,
+    });
+  };
+
+  const onPressPrescription = async item => {
+    let p = {
+      patientDet:
+        item.familyDetails == null ? item.patientsDetails : item.familyDetails,
+      patientId: item.patientsDetails.patientId,
+      consultationId: item.consultationId,
+      clinicName: item.clinicName != null ? item.clinicName : '',
+      clinicAddress: item.clinicAddress != null ? item.clinicAddress : '',
+    };
+    await AsyncStorage.setItem('PrescriptionFor', JSON.stringify(p));
+    navigation.navigate('CheifComplaints');
+  };
+
   useEffect(() => {
     const getData = async () => {
-      setisFetching(true);
       let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
+      setDoctorObj(x);
       let doctorId = x.doctorId;
       //console.log(doctorId);
-
+      setisFetching(true);
       axios
         .get(
           apiConfig.baseUrl +
@@ -478,60 +617,67 @@ const MyUpcomingAppointment = ({navigation}) => {
         )
         .then(function (response) {
           setisFetching(false);
-          if (response.status == 200) setUpcomingData(response.data);
+          if (response.status == 200) {
+            setUpcomingData(response.data);
+          }
           //console.log(UpcomingData);
         })
         .catch(function (error) {
           setisFetching(false);
           Alert.alert(
             'Error',
-            `Error in fetching upcoming consultations.\n ${error}`,
+            'An error occured while fetching upcoming details. Please try again later.',
           );
+          console.log(
+            '=====Error in fetching upcoming consultation details=====',
+          );
+          console.log(error);
         });
     };
     if (Upcoming == true) getData();
   }, [Upcoming]);
-
   useEffect(() => {
     const getPreconsultationQuestions = async () => {
-      setisFetching(true);
       console.log(UpcomingId);
       axios
         .get(
           apiConfig.baseUrl +
-            '/docs/questionanswer?upcomingConsultationId=' +
-            consultationId,
+            '/docs/question/answers?consultationId =' +
+            UpcomingId,
         )
         .then(function (response) {
-          setisFetching(false);
           if (response.status == 200)
             setPreconsultaionQuestionData(response.data);
           // console.log(PreconsultaionQuestionData);
         })
         .catch(function (error) {
-          setisFetching(false);
-          Alert.alert('Error', `${error}`);
+          Alert.alert(
+            'Error',
+            'An error occured while fetching preconsultation questions. Please try again later.',
+          );
+          console.log('=====Error in fetching preconsultation questions=====');
+          console.log(error);
         });
     };
     if (ConsultationQuestionnaire == true) getPreconsultationQuestions();
   }, [ConsultationQuestionnaire]);
-
   useEffect(() => {
     const getHistoryDocs = async () => {
-      setisFetching(true);
-      console.log(patientId);
+      console.log(historyId);
       axios
         .get(
-          apiConfig.baseUrl + '/docs/upcoming/history?patientId=' + patientId,
+          apiConfig.baseUrl + '/docs/upcoming/history?patientId=' + historyId,
         )
         .then(function (response) {
-          setisFetching(false);
           if (response.status == 200) sethistoryData(response.data);
           //console.log(historyData);
         })
         .catch(function (error) {
-          setisFetching(false);
-          Alert.alert('Error', `${error}`);
+          Alert.alert(
+            'Error',
+            'An error occured while fetching documents. Please try again later.',
+          );
+          console.log('=====Error in fetching documents=====');
           console.log(error);
         });
     };
@@ -540,19 +686,21 @@ const MyUpcomingAppointment = ({navigation}) => {
 
   useEffect(() => {
     const getTodaysDocs = async () => {
-      setisFetching(true);
-      console.log(upcomingConsultationId);
+      console.log(todayId);
       axios
-        .get(
-          apiConfig.baseUrl + '/docs/current?consultationId=' + consultationId,
-        )
+        .get(apiConfig.baseUrl + '/docs/current?consultationId=' + todayId)
         .then(function (response) {
-          setisFetching(false);
           if (response.status == 200) setTodaysDocs(response.data);
           //console.log(TodaysDocs);
         })
         .catch(function (error) {
-          Alert.alert('Error', `${error}`);
+          Alert.alert(
+            'Error',
+            'An error occured while fetching previous documents of patient. Please try again later.',
+          );
+          console.log(
+            '=====Error in fetching previous documents of patient=====',
+          );
           console.log(error);
         });
     };
@@ -582,7 +730,7 @@ const MyUpcomingAppointment = ({navigation}) => {
           <Header showMenu={false} title={'My Appointments'} />
           <View style={{width: '95%', alignSelf: 'center'}}>
             {/* Search Bar */}
-            <View style={styles.searchBar}>
+            {/* <View style={styles.searchBar}>
               <TextInput placeholder="Search" style={styles.searchBarText} />
               <FAIcon
                 name="search"
@@ -590,9 +738,9 @@ const MyUpcomingAppointment = ({navigation}) => {
                 color="gray"
                 style={styles.searchIcon}
               />
-            </View>
+            </View> */}
             {/* Filter */}
-            <View
+            {/* <View
               style={{
                 flexDirection: 'row',
                 justifyContent: 'space-evenly',
@@ -605,10 +753,10 @@ const MyUpcomingAppointment = ({navigation}) => {
               }}>
               <Text style={{color: '#2B8ADA'}}>By Date</Text>
               <FAIcon name="caret-down" color={'#2B8ADA'} size={15} />
-            </View>
+            </View> */}
             {/* Upcoming Consultations White Label */}
             <TouchableOpacity
-              style={styles.WhiteLabel}
+              style={[styles.WhiteLabel, {marginTop: 20}]}
               onPress={() => setUpcoming(!Upcoming)}>
               <Text
                 style={[

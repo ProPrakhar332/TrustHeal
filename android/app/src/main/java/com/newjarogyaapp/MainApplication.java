@@ -13,6 +13,7 @@ import com.newjarogyaapp.newarchitecture.MainApplicationReactNativeHost;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import com.christopherdro.htmltopdf.RNHTMLtoPDFPackage;
+import com.rnfs.RNFSPackage; // <------- add package
 
 public class MainApplication extends Application implements ReactApplication {
 
@@ -31,6 +32,8 @@ public class MainApplication extends Application implements ReactApplication {
       // packages.add(new MyReactNativePackage());
       // new MainReactPackage();
       new RNHTMLtoPDFPackage();
+
+      new RNFSPackage();
       return packages;
     }
 

@@ -990,7 +990,7 @@ const FirstScreen = ({route, navigation}) => {
   const pin3Ref = useRef(null);
   const pin4Ref = useRef(null);
   const [show, setShow] = useState(false);
-  const [val, setVal] = useState(9000);
+  const [val, setVal] = useState(240);
   const [resend, setResend] = useState(false);
 
   const [pin1, setPin1] = useState('');
@@ -1077,10 +1077,14 @@ const FirstScreen = ({route, navigation}) => {
       .post(apiConfig.baseUrl + '/login/otp/generate?mobilenumber=' + mob)
       .then(function (response) {
         setisLoading(false);
-        if (response.status == 200) setModalVisible(true);
+        if (response.status == 200) {
+          setModalVisible(true);
+          setShow(true);
+          setResend(true);
+        }
       })
       .catch(function (error) {
-        console.log(error);
+        Alert.alert('Error', `${error}`);
         setisLoading(false);
       });
   };
@@ -1574,11 +1578,13 @@ const FirstScreen = ({route, navigation}) => {
                                 marginHorizontal: 2,
                               }}
                               digitTxtStyle={{
+                                paddingTop: 15,
+                                marginTop: 10,
                                 color: '#2b8ada',
-                                marginTop: 25,
                               }}
-                              timeToShow={['S']}
-                              timeLabels={{s: null}}
+                              separatorStyle={{paddingTop: 15, marginTop: 10}}
+                              timeToShow={['M', 'S']}
+                              timeLabels={{m: null, s: null}}
                               showSeparator={true}
                               onFinish={onFinishCount}
                             />

@@ -448,7 +448,7 @@ function CustomDrawerContent(props) {
         labelStyle={styles.labelStyle}
         style={{marginVertical: 0, paddingVertical: 0}}
         onPress={() => {
-          props.navigation.navigate('CheifComplaints');
+          props.navigation.navigate('PrescriptionPreview');
         }}
         icon={({focused, color, size}) => (
           <Image source={prescription} style={{tintColor: '#033158'}} />

@@ -269,6 +269,9 @@ dependencies {
 
     //noinspection GradleDynamicVersion
     implementation "com.facebook.react:react-native:+"  // From node_modules
+    implementation 'com.squareup.okhttp3:okhttp:3.4.1'
+    implementation project(':react-native-fs')
+    
 
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
 
