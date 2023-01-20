@@ -38,6 +38,7 @@ import dateformatter from '../API/dateformatter';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import {PermissionsAndroid} from 'react-native';
+import dayjs from 'dayjs';
 const DoctorRegistrationStep1 = ({navigation}) => {
   const [title, setTitle] = useState('');
   const [name, setName] = useState('');
@@ -182,6 +183,7 @@ const DoctorRegistrationStep1 = ({navigation}) => {
       docObj.age = parseInt(await AsyncStorage.getItem('age'));
       docObj.city = city;
       docObj.contactVisibility = showMobNo == 'Yes' ? true : false;
+      docObj.createdOn = dayjs().format('YYYY-MM-DD');
       docObj.countryName = await AsyncStorage.getItem('countryName');
       docObj.dob = dob;
       docObj.email = email;
@@ -195,6 +197,8 @@ const DoctorRegistrationStep1 = ({navigation}) => {
       console.log(JSON.stringify(docObj));
 
       if (Otherspeciality != '') speciality.push(Otherspeciality);
+
+      console.log('===============Doctor Object====================\n', docObj);
 
       let flag = 0;
       await axios
@@ -348,7 +352,7 @@ const DoctorRegistrationStep1 = ({navigation}) => {
                 Alert.alert('Error', response.errorMessage);
               } else {
                 if (response.assets[0].fileSize <= 2097152) {
-                  //await postpfp(response.assets[0]);
+                  await postpfp(response.assets[0]);
                   setpfpFile(response.assets[0]);
                   setpfpuri(response.assets[0].uri);
                 } else
@@ -406,7 +410,7 @@ const DoctorRegistrationStep1 = ({navigation}) => {
           Alert.alert('Error', response.errorMessage);
         } else {
           if (response.assets[0].fileSize <= 2097152) {
-            //await postpfp(response.assets[0]);
+            await postpfp(response.assets[0]);
             setpfpFile(response.assets[0]);
             setpfpuri(response.assets[0].uri);
           } else
@@ -423,13 +427,11 @@ const DoctorRegistrationStep1 = ({navigation}) => {
       console.log('==============Inside post pfp==========');
 
       let ext = '.' + pickerResult.fileName.split('.').pop();
-
-      pickerResult.fileName =
-        JSON.stringify(new Date().getTime) +
-        '_ProfilePhoto_' +
-        JSON.stringify(new Date()) +
-        ext;
-      console.log(pickerResult.fileName);
+      pickerResult.size = pickerResult.fileSize;
+      delete pickerResult.fileSize;
+      delete pickerResult.fileName;
+      pickerResult.name = dayjs().format('Hmmss') + '_ProfilePhoto_' + ext;
+      console.log(pickerResult.name);
       // setMedRegDoc([pickerResult]);
 
       let formData = new FormData();
@@ -865,7 +867,7 @@ const DoctorRegistrationStep1 = ({navigation}) => {
                     var validRegex =
                       /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
                     if (email.match(validRegex)) {
-                      await postpfp(pfpFile);
+                      //await postpfp(pfpFile);
                       PostData();
                     } else
                       Alert.alert(

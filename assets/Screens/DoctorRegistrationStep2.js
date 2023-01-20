@@ -513,7 +513,7 @@ const DoctorRegistration2 = ({navigation}) => {
       axios
         .get(apiConfig.baseUrl + '/doctor/fees?doctorId=' + doctorId)
         .then(function (response) {
-          if (response.status == 400) {
+          if (response.data == '') {
             setdataSavedConsultFees(false);
           } else setdataSavedConsultFees(true);
         })
@@ -872,16 +872,7 @@ const DoctorRegistration2 = ({navigation}) => {
             <TouchableOpacity
               style={[styles.cellStyle, {flex: 0.4}]}
               onPress={() => removeQuestHandler(index)}>
-              <Text
-                style={{
-                  textAlign: 'center',
-                  fontSize: 11,
-                  fontWeight: 'bold',
-                  color: 'red',
-                  marginVertical: 5,
-                }}>
-                Delete
-              </Text>
+              <FAIcon name="trash" color={'red'} size={15} />
             </TouchableOpacity>
           </View>
         </View>
@@ -977,8 +968,10 @@ const DoctorRegistration2 = ({navigation}) => {
       } else {
         console.log('======response======');
         console.log(response.path);
-        setcertificatePath(response.path);
-        setRegCert(error == null ? pickerResult.name : '');
+        if (response.path != null) {
+          setcertificatePath(response.path);
+          setRegCert(error == null ? pickerResult.name : '');
+        } else Alert.alert('Error', 'Please try again.');
       }
     } catch (e) {
       handleError(e);
@@ -992,6 +985,7 @@ const DoctorRegistration2 = ({navigation}) => {
       const pickerResult = await DocumentPicker.pickSingle({
         presentationStyle: 'fullScreen',
         copyTo: 'cachesDirectory',
+        type: types.pdf,
       });
       let ext = '.' + pickerResult.name.split('.').pop();
 
@@ -1013,7 +1007,8 @@ const DoctorRegistration2 = ({navigation}) => {
       } else {
         console.log('======response======');
         console.log(response.path);
-        setdegreePath(response.path);
+        if (response.path != undefined) setdegreePath(response.path);
+        else Alert.alert('Error', 'Please try again.');
       }
     } catch (e) {
       handleError(e);
@@ -1027,6 +1022,7 @@ const DoctorRegistration2 = ({navigation}) => {
       const pickerResult = await DocumentPicker.pickSingle({
         presentationStyle: 'fullScreen',
         copyTo: 'cachesDirectory',
+        type: types.pdf,
       });
       let ext = '.' + pickerResult.name.split('.').pop();
 
@@ -1048,7 +1044,8 @@ const DoctorRegistration2 = ({navigation}) => {
       } else {
         console.log('======response======');
         console.log(response.path);
-        setidentificationPath(response.path);
+        if (response.path != undefined) setidentificationPath(response.path);
+        else Alert.alert('Error', 'Please try again.');
       }
     } catch (e) {
       handleError(e);
@@ -1944,6 +1941,11 @@ const DoctorRegistration2 = ({navigation}) => {
                             Alert.alert(
                               'Incomplete Details!',
                               'Please Select Registration',
+                            );
+                          else if (certificatePath == '')
+                            Alert.alert(
+                              'Incomplete Details!',
+                              'Please Upload Medical Registration Certificate',
                             );
                           // else if (certificatePath == '')
                           //   Alert.alert('Incomplete Details!', 'Please Select Document');
@@ -4056,7 +4058,7 @@ const DoctorRegistration2 = ({navigation}) => {
               </View>
             ) : null}
             {/* Buttons */}
-            {/* <View
+            <View
               style={{
                 alignSelf: 'center',
                 flexDirection: 'row',
@@ -4078,10 +4080,10 @@ const DoctorRegistration2 = ({navigation}) => {
                   backgroundColor: '#2b8ada',
                 }}
                 onPress={() => {
-                  Alert.alert(completePercentage + ' Profile Details Filled');
+                  // Alert.alert(completePercentage + ' Profile Details Filled');
                   navigation.navigate('DoctorHome');
                 }}></CustomButton>
-            </View> */}
+            </View>
           </View>
         </ScrollView>
 

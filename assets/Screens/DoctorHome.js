@@ -17,6 +17,7 @@ import {
   Linking,
   TextInput,
   FlatList,
+  Pressable,
 } from 'react-native';
 import {useCallback} from 'react';
 
@@ -86,6 +87,10 @@ const DoctorHome = ({navigation}) => {
   const [PrescriptionMade, setPrescriptionMade] = useState('');
   const [isFetching, setisFetching] = useState(false);
 
+  const [strtCC, setstrtCC] = useState(0);
+  const [endCC, setendCC] = useState(4);
+  const [endOfList, setendOfList] = useState(false);
+
   const layout = useWindowDimensions();
 
   const dayextractor = date => {
@@ -118,14 +123,6 @@ const DoctorHome = ({navigation}) => {
     navigation.navigate('CheifComplaints');
   };
 
-  // const fomatDate = (date) => {
-  //   var dateArr = date.split("-");
-  //   //console.log(dateArr);
-  //   var out = "";
-  //   for (var i = dateArr.length - 1; i >= 0; --i) out += dateArr[i] + "-";
-
-  //   return out.substring(0, out.length - 1);
-  // };
   const openURL = useCallback(async url => {
     const supported = await Linking.canOpenURL(url);
     if (supported) {
@@ -1176,7 +1173,7 @@ const DoctorHome = ({navigation}) => {
             '&start=' +
             0 +
             '&max=' +
-            5,
+            4,
         )
         .then(function (response) {
           setisFetching(false);
@@ -1301,6 +1298,57 @@ const DoctorHome = ({navigation}) => {
     };
     if (TodaysModal == true) getTodaysDocs();
   }, [TodaysModal]);
+
+  const onPrev = () => {
+    setendCC(strtCC - 1);
+    setstrtCC(strtCC - 5);
+    console.log('       START       :         ', strtCC);
+    console.log('       END         :         ', endCC);
+    getMoreConsultationQues();
+  };
+
+  const onNext = () => {
+    setstrtCC(endCC + 1);
+    setendCC(endCC + 5);
+    console.log('       START       :         ', strtCC);
+    console.log('       END         :         ', endCC);
+    getMoreConsultationQues();
+  };
+  const getMoreConsultationQues = async () => {
+    let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
+    let doctorId = x.doctorId;
+    //console.log("Completed");
+    setisFetching(true);
+    axios
+      .get(
+        apiConfig.baseUrl +
+          '/doctor/complete/consultation?doctorId=' +
+          doctorId +
+          '&start=' +
+          strtCC +
+          '&max=' +
+          endCC,
+      )
+      .then(function (response) {
+        setisFetching(false);
+        if (response.status == 200) {
+          if (response.data != '') setCompleteData(response.data);
+          else setendOfList(true);
+        }
+        //console.log(CompleteData);
+      })
+      .catch(function (error) {
+        setisFetching(false);
+        Alert.alert(
+          'Error',
+          'An error occured while fetching completed consultation details. Please try again later.',
+        );
+        console.log(
+          '=====Error in fetching completed consultation details=====',
+        );
+        console.log(error);
+      });
+  };
 
   return (
     <KeyboardAvoidingView
@@ -1844,11 +1892,13 @@ const DoctorHome = ({navigation}) => {
                   <View>
                     {/*Card Design Completed Consultaions */}
                     {CompleteData != '' ? (
-                      <FlatList
-                        data={CompleteData}
-                        keyExtractor={item => item.consultationId}
-                        renderItem={renderCardCompleted}
-                      />
+                      <View>
+                        <FlatList
+                          data={CompleteData}
+                          keyExtractor={item => item.consultationId}
+                          renderItem={renderCardCompleted}
+                        />
+                      </View>
                     ) : (
                       <Text
                         style={{
@@ -1860,6 +1910,60 @@ const DoctorHome = ({navigation}) => {
                         No Completed Consultations Data Found
                       </Text>
                     )}
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignSelf: 'center',
+                        marginVertical: 10,
+                      }}>
+                      {strtCC != 0 ? (
+                        <Pressable
+                          style={{flexDirection: 'row', marginRight: 10}}
+                          onPress={() => onPrev()}>
+                          <FAIcon
+                            size={15}
+                            name="chevron-left"
+                            style={{
+                              fontWeight: 'bold',
+                              alignSelf: 'center',
+                            }}
+                            color={strtCC == 0 ? '#E8F0FE' : 'black'}
+                          />
+                          <Text
+                            style={{
+                              fontSize: 12,
+                              alignSelf: 'center',
+                              color: strtCC == 0 ? '#E8F0FE' : 'black',
+                              marginLeft: 3,
+                            }}>
+                            Previous
+                          </Text>
+                        </Pressable>
+                      ) : null}
+                      {!endOfList ? (
+                        <Pressable
+                          style={{flexDirection: 'row'}}
+                          onPress={() => onNext()}>
+                          <Text
+                            style={{
+                              fontSize: 12,
+                              alignSelf: 'center',
+                              marginRight: 3,
+                              color: 'black',
+                            }}>
+                            Next
+                          </Text>
+                          <FAIcon
+                            size={15}
+                            name="chevron-right"
+                            style={{
+                              fontWeight: 'bold',
+                              alignSelf: 'center',
+                            }}
+                          />
+                        </Pressable>
+                      ) : null}
+                    </View>
                   </View>
                 </View>
               </View>

@@ -295,7 +295,7 @@ const Header = ({title, showMenu}) => {
     };
     console.log(p);
     axios
-      .post(apiConfig.baseUrl + '/share/patient', p)
+      .post(apiConfig.baseUrl + '/app/doctor/patient/share', p)
       .then(async function (response) {
         if (response.status == 200) {
           Alert.alert(

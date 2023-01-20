@@ -443,7 +443,7 @@ function CustomDrawerContent(props) {
           <Image source={general} style={{tintColor: '#033158'}} />
         )}
       />
-      <DrawerItem
+      {/* <DrawerItem
         label="Prescription Generator"
         labelStyle={styles.labelStyle}
         style={{marginVertical: 0, paddingVertical: 0}}
@@ -453,7 +453,7 @@ function CustomDrawerContent(props) {
         icon={({focused, color, size}) => (
           <Image source={prescription} style={{tintColor: '#033158'}} />
         )}
-      />
+      /> */}
       <DrawerItem
         label="Logout"
         labelStyle={styles.labelStyle}

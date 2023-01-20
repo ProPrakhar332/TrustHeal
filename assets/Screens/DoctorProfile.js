@@ -88,7 +88,7 @@ function BasicDesign({navigation}) {
       setGender(x.gender);
       setdoctorId(x.doctorId);
       //console.log("doctor id" + x.doctorId);
-      checkpfp(x.profilePhotoPath);
+      checkpfp(apiConfig.baseUrl + x.profilePhotoPath);
       setprofilePhotoPath(x.profilePhotoPath);
     };
     onLoadSetData();
