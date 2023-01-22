@@ -16,6 +16,8 @@ import {
 } from 'react-native';
 import CustomButton from '../Components/CustomButton';
 import FAIcon from 'react-native-vector-icons/FontAwesome5';
+import MIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import RNFS from 'react-native-fs';
 import {
   SelectList,
   MultipleSelectList,
@@ -110,9 +112,6 @@ const DoctorRegistration2 = ({navigation}) => {
   const [profileCompleted, setprofileCompleted] = useState(null);
   const [verified, setverified] = useState(null);
   const [mobileNumber, setmobileNumber] = useState('');
-  const [pfpPath, setpfpPath] = useState('');
-  const [DigitalSign, setDigitalSign] = useState('');
-  const [pfpuri, setpfpuri] = useState(null);
 
   //Medical Registration Feild
   const [showMedReg, setShowMedReg] = useState(false);
@@ -122,7 +121,7 @@ const DoctorRegistration2 = ({navigation}) => {
   const [RegCouncil, setRegCouncil] = useState('');
   const [RegCert, setRegCert] = useState('');
   const [RegYear, setRegYear] = useState('');
-  const [certificatePath, setcertificatePath] = useState('');
+  const [certificatePath, setcertificatePath] = useState(null);
   const [MedRegDoc, setMedRegDoc] = React.useState(null);
 
   //Educational Details Field
@@ -136,7 +135,7 @@ const DoctorRegistration2 = ({navigation}) => {
   const [DegreePassingYear, setDegreePassingYear] = useState('');
   const [Specialization, setSpecialization] = useState('');
   const [University, setUniversity] = useState('');
-  const [degreePath, setdegreePath] = useState('');
+  const [degreePath, setdegreePath] = useState(null);
   //Experience Details Field
   const [showExpDet, setShowExpDet] = useState(false);
   const [addMoreExpDet, setaddMoreExpDet] = useState(false);
@@ -156,7 +155,7 @@ const DoctorRegistration2 = ({navigation}) => {
   const [IdentificationDocs, setIdentificationDocs] = useState([]);
   const [identificationNumber, setidentificationNumber] = useState('');
   const [identificationType, setidentificationType] = useState('');
-  const [identificationPath, setidentificationPath] = useState('');
+  const [identificationPath, setidentificationPath] = useState(null);
   //Additional Information
   const [showAddInfo, setShowAddInfo] = useState(false);
   const [addMoreAddInfo, setaddMoreAddInfo] = useState(false);
@@ -207,6 +206,38 @@ const DoctorRegistration2 = ({navigation}) => {
     } else {
       throw err;
     }
+  };
+  const download = async (fileToken, userId, fileName) => {
+    // let op = {};
+    // if (Platform.OS == 'ios') op = {NSURLIsExcludedFromBackupKey: true};
+    // await RNFS.mkdir(`file://${RNFS.DownloadDirectoryPath}/Arogya`, op);
+    let filePath = `file://${RNFS.DownloadDirectoryPath}/`;
+    let options = {
+      fromUrl:
+        apiConfig.baseUrl +
+        '/file/download?fileToken=' +
+        fileToken +
+        '&userId=' +
+        userId,
+      toFile: filePath + fileName,
+    };
+    await RNFS.downloadFile(options)
+      .promise.then(response => {
+        //console.log(response);
+        if (response.statusCode == 200)
+          Alert.alert(
+            'File Downloaded',
+            `The file is downloaded. File name is ${fileName}.`,
+          );
+        else
+          Alert.alert(
+            'Download Fail',
+            `Unable to download file. ${response.statusCode}`,
+          );
+      })
+      .catch(e => {
+        Alert.alert('Error', `${e}`);
+      });
   };
 
   const dataFollowUp = [
@@ -370,8 +401,7 @@ const DoctorRegistration2 = ({navigation}) => {
       setprofileCompleted(x.profileCompleted);
       setverified(x.verified);
       setmobileNumber(x.mobileNumber);
-
-      if (x.pfpuri != null) setpfpuri(x.pfpuri);
+      // setprofilep
 
       var temp = JSON.parse(
         await AsyncStorage.getItem(x.doctorId + 'speciality'),
@@ -661,9 +691,16 @@ const DoctorRegistration2 = ({navigation}) => {
                 name="file-pdf"
                 size={15}
                 color={'#2b8ada'}
-                onPress={() =>
-                  console.log(IdentificationDocs.identificationPath)
-                }
+                onPress={() => {
+                  download(
+                    IdentificationDocs.identificationPath,
+                    doctorId,
+                    doctorId +
+                      '_DoctorIdentification_' +
+                      IdentificationDocs.identificationType +
+                      '.pdf',
+                  );
+                }}
               />
               <FAIcon
                 name="trash"
@@ -740,7 +777,16 @@ const DoctorRegistration2 = ({navigation}) => {
                 size={15}
                 color={'#2b8ada'}
                 onPress={() => {
-                  console.log(Education.degreePath);
+                  download(
+                    Education.degreePath,
+                    doctorId,
+                    doctorId +
+                      '_DoctorEducation_' +
+                      Education.degree +
+                      '_' +
+                      Education.passingYear +
+                      '.pdf',
+                  );
                 }}
               />
               <FAIcon
@@ -947,31 +993,40 @@ const DoctorRegistration2 = ({navigation}) => {
         copyTo: 'cachesDirectory',
         type: types.pdf,
       });
-      let ext = '.' + pickerResult.name.split('.').pop();
 
-      pickerResult.name = doctorId + '_MedicalRegistration' + ext;
-      console.log(pickerResult.name);
-      setMedRegDoc([pickerResult]);
-
-      let formData = new FormData();
-      formData.append('directoryNames', '  DOCTOR_MEDICAL_REGISTRATION');
-      formData.append('file', pickerResult);
-      const {error, response} = await fileUpload(formData);
-
-      if (error != null) {
-        console.log('======error======');
-        console.log(error);
+      if (pickerResult.size > 2097152)
         Alert.alert(
-          'Error',
-          'There was a problem in selecting document. Please try again.',
+          'Size Error',
+          'The size of the file should be less than 2MB.',
         );
-      } else {
-        console.log('======response======');
-        console.log(response.path);
-        if (response.path != null) {
-          setcertificatePath(response.path);
-          setRegCert(error == null ? pickerResult.name : '');
-        } else Alert.alert('Error', 'Please try again.');
+      else {
+        let ext = '.' + pickerResult.name.split('.').pop();
+
+        pickerResult.name = doctorId + '_MedicalRegistration' + ext;
+        console.log(pickerResult.name);
+        setMedRegDoc([pickerResult]);
+
+        let formData = new FormData();
+        formData.append('directoryNames', '  DOCTOR_MEDICAL_REGISTRATION');
+        formData.append('file', pickerResult);
+        formData.append('userId', doctorId);
+        const {error, response} = await fileUpload(formData);
+
+        if (error != null) {
+          console.log('======error======');
+          console.log(error);
+          Alert.alert(
+            'Error',
+            'There was a problem in selecting document. Please try again.',
+          );
+        } else {
+          console.log('======response======');
+          console.log(response.fileToken);
+          if (response.fileToken != null) {
+            setcertificatePath(response.fileToken);
+            setRegCert(error == null ? pickerResult.name : '');
+          } else Alert.alert('Error', 'Please try again.');
+        }
       }
     } catch (e) {
       handleError(e);
@@ -987,28 +1042,43 @@ const DoctorRegistration2 = ({navigation}) => {
         copyTo: 'cachesDirectory',
         type: types.pdf,
       });
-      let ext = '.' + pickerResult.name.split('.').pop();
 
-      pickerResult.name =
-        doctorId + '_DoctorEducation_' + Degree + '_' + DegreePassingYear + ext;
-      console.log(pickerResult.name);
-
-      let formData = new FormData();
-      formData.append('directoryNames', 'DOCTOR_EDUCATION');
-      formData.append('file', pickerResult);
-      const {error, response} = await fileUpload(formData);
-      if (error != null) {
-        console.log('======error======');
-        console.log(error);
+      if (pickerResult.size > 2097152)
         Alert.alert(
-          'Error',
-          'There was a problem in selecting document. Please try again.',
+          'Size Error',
+          'The size of the file should be less than 2MB.',
         );
-      } else {
-        console.log('======response======');
-        console.log(response.path);
-        if (response.path != undefined) setdegreePath(response.path);
-        else Alert.alert('Error', 'Please try again.');
+      else {
+        let ext = '.' + pickerResult.name.split('.').pop();
+
+        pickerResult.name =
+          doctorId +
+          '_DoctorEducation_' +
+          Degree +
+          '_' +
+          DegreePassingYear +
+          ext;
+        console.log(pickerResult.name);
+
+        let formData = new FormData();
+        formData.append('directoryNames', 'DOCTOR_EDUCATION');
+        formData.append('file', pickerResult);
+        formData.append('userId', doctorId);
+        const {error, response} = await fileUpload(formData);
+        if (error != null) {
+          console.log('======error======');
+          console.log(error);
+          Alert.alert(
+            'Error',
+            'There was a problem in selecting document. Please try again.',
+          );
+        } else {
+          console.log('======response======');
+          console.log(response.fileToken);
+          if (response.fileToken != undefined)
+            setdegreePath(response.fileToken);
+          else Alert.alert('Error', 'Please try again.');
+        }
       }
     } catch (e) {
       handleError(e);
@@ -1024,28 +1094,38 @@ const DoctorRegistration2 = ({navigation}) => {
         copyTo: 'cachesDirectory',
         type: types.pdf,
       });
-      let ext = '.' + pickerResult.name.split('.').pop();
 
-      pickerResult.name =
-        doctorId + '_DoctorIdentification_' + identificationType + ext;
-      console.log(pickerResult.name);
-
-      let formData = new FormData();
-      formData.append('directoryNames', 'DOCTOR_IDENTIFICATION');
-      formData.append('file', pickerResult);
-      const {error, response} = await fileUpload(formData);
-      if (error != null) {
-        console.log('======error======');
-        console.log(error);
+      if (pickerResult.size > 2097152)
         Alert.alert(
-          'Error',
-          'There was a problem in selecting document. Please try again.',
+          'Size Error',
+          'The size of the file should be less than 2MB.',
         );
-      } else {
-        console.log('======response======');
-        console.log(response.path);
-        if (response.path != undefined) setidentificationPath(response.path);
-        else Alert.alert('Error', 'Please try again.');
+      else {
+        let ext = '.' + pickerResult.name.split('.').pop();
+
+        pickerResult.name =
+          doctorId + '_DoctorIdentification_' + identificationType + ext;
+        console.log(pickerResult.name);
+
+        let formData = new FormData();
+        formData.append('directoryNames', 'DOCTOR_IDENTIFICATION');
+        formData.append('file', pickerResult);
+        formData.append('userId', doctorId);
+        const {error, response} = await fileUpload(formData);
+        if (error != null) {
+          console.log('======error======');
+          console.log(error);
+          Alert.alert(
+            'Error',
+            'There was a problem in selecting document. Please try again.',
+          );
+        } else {
+          console.log('======response======');
+          console.log(response.fileToken);
+          if (response.fileToken != undefined)
+            setidentificationPath(response.fileToken);
+          else Alert.alert('Error', 'Please try again.');
+        }
       }
     } catch (e) {
       handleError(e);
@@ -1071,7 +1151,7 @@ const DoctorRegistration2 = ({navigation}) => {
     console.log(medArry);
 
     axios
-      .post(apiConfig.baseUrl + '/doctor/medicalregi/save/or/update', medArry)
+      .post(apiConfig.baseUrl + '/doctor/medicalregistration/save', medArry)
       .then(function (response) {
         setisUploading(false);
         if (response.status == 201 || response.status == 200) {
@@ -1105,7 +1185,7 @@ const DoctorRegistration2 = ({navigation}) => {
     console.log(Education);
 
     axios
-      .post(apiConfig.baseUrl + '/doctor/education/save/or/update', Education)
+      .post(apiConfig.baseUrl + '/doctor/education/save', Education)
       .then(function (response) {
         setisUploading(false);
         if (response.status == 201 || response.status == 200) {
@@ -1141,7 +1221,7 @@ const DoctorRegistration2 = ({navigation}) => {
     console.log(Experience);
 
     axios
-      .post(apiConfig.baseUrl + '/doctor/experience/save/or/update', Experience)
+      .post(apiConfig.baseUrl + '/doctor/experience/save', Experience)
       .then(function (response) {
         setisUploading(false);
         if (response.status == 201 || response.status == 200) {
@@ -1178,10 +1258,7 @@ const DoctorRegistration2 = ({navigation}) => {
     console.log(IdentificationDocs);
 
     axios
-      .post(
-        apiConfig.baseUrl + '/doctor/identity/save/or/update',
-        IdentificationDocs,
-      )
+      .post(apiConfig.baseUrl + '/doctor/identity/save', IdentificationDocs)
       .then(function (response) {
         setisUploading(false);
         if (response.status == 201 || response.status == 200) {
@@ -1218,7 +1295,7 @@ const DoctorRegistration2 = ({navigation}) => {
     console.log(ClinicDet);
 
     axios
-      .post(apiConfig.baseUrl + '/doctor/clinic/save/or/update', ClinicDet)
+      .post(apiConfig.baseUrl + '/doctor/clinic/save', ClinicDet)
       .then(function (response) {
         setisUploading(false);
         if (response.status == 201 || response.status == 200) {
@@ -1254,7 +1331,7 @@ const DoctorRegistration2 = ({navigation}) => {
 
     axios
       .post(
-        apiConfig.baseUrl + '/doctor/preconsultation/questions/save/or/update',
+        apiConfig.baseUrl + '/doctor/preconsultation/questions/save',
         questionareList,
       )
       .then(function (response) {
@@ -1386,7 +1463,7 @@ const DoctorRegistration2 = ({navigation}) => {
                   height: 100,
                   borderRadius: 100,
                 }}
-                source={pfpuri == null ? doctor : {uri: pfpuri}}></Image>
+                source={doctor}></Image>
             </View>
           </View>
 
@@ -1453,11 +1530,19 @@ const DoctorRegistration2 = ({navigation}) => {
                       ? {borderBottomWidth: 0.5, borderBottomColor: '#707070'}
                       : null,
                   ]}>
+                  <FAIcon
+                    name="info-circle"
+                    size={15}
+                    color={dataSavedGenInfo ? '#2b8ada' : 'gray'}
+                    style={{marginHorizontal: 5, alignSelf: 'center'}}
+                  />
                   <Text
                     style={[
                       styles.label,
-                      {width: '90%'},
-                      !showGenInfo ? {color: '#2B8ADA'} : null,
+                      {width: '85%'},
+                      dataSavedGenInfo
+                        ? {color: '#2B8ADA', width: '85%'}
+                        : null,
                     ]}>
                     General Information
                   </Text>
@@ -1764,10 +1849,16 @@ const DoctorRegistration2 = ({navigation}) => {
                     if (dataSavedMedReg) setShowMedReg(false);
                     else setShowMedReg(!showMedReg);
                   }}>
+                  <FAIcon
+                    name="file-medical"
+                    size={15}
+                    color={dataSavedMedReg ? '#2b8ada' : 'gray'}
+                    style={{marginHorizontal: 5, alignSelf: 'center'}}
+                  />
                   <Text
                     style={[
                       styles.label,
-                      {width: '90%'},
+                      {width: '85%'},
                       dataSavedMedReg ? {color: '#2B8ADA'} : null,
                     ]}>
                     Medical Registration
@@ -1942,7 +2033,7 @@ const DoctorRegistration2 = ({navigation}) => {
                               'Incomplete Details!',
                               'Please Select Registration',
                             );
-                          else if (certificatePath == '')
+                          else if (certificatePath == null)
                             Alert.alert(
                               'Incomplete Details!',
                               'Please Upload Medical Registration Certificate',
@@ -1987,10 +2078,16 @@ const DoctorRegistration2 = ({navigation}) => {
                     if (dataSavedEduDet) setShowEduDet(false);
                     else setShowEduDet(!showEduDet);
                   }}>
+                  <MIcons
+                    name="certificate"
+                    size={20}
+                    color={dataSavedEduDet ? '#2b8ada' : 'gray'}
+                    style={{marginHorizontal: 2, alignSelf: 'center'}}
+                  />
                   <Text
                     style={[
                       styles.label,
-                      {width: '90%'},
+                      {width: '85%'},
                       dataSavedEduDet ? {color: '#2B8ADA'} : null,
                     ]}>
                     Educational Qualifications & Certificates
@@ -2162,12 +2259,12 @@ const DoctorRegistration2 = ({navigation}) => {
                         }}>
                         <CustomButton
                           text={
-                            degreePath == ''
+                            degreePath == null
                               ? 'Select PDF only'
                               : ' ✓ File Selected'
                           }
                           textstyle={{
-                            color: degreePath == '' ? '#2b8ada' : '#21c47f',
+                            color: degreePath == null ? '#2b8ada' : '#21c47f',
                             fontSize: 12,
                             fontWeight: 'bold',
                           }}
@@ -2178,7 +2275,7 @@ const DoctorRegistration2 = ({navigation}) => {
                             paddingHorizontal: 10,
                             borderWidth: 2,
                             borderColor:
-                              degreePath == '' ? '#2b8ada' : '#21c47f',
+                              degreePath == null ? '#2b8ada' : '#21c47f',
                           }}
                           onPress={() => {
                             if (
@@ -2194,6 +2291,7 @@ const DoctorRegistration2 = ({navigation}) => {
                             else selectDocsEdu();
                           }}
                         />
+
                         <CustomButton
                           text="Add To List"
                           textstyle={{color: 'white', fontSize: 12}}
@@ -2226,7 +2324,7 @@ const DoctorRegistration2 = ({navigation}) => {
                                 'Incomplete Details!',
                                 'Please fill University Name',
                               );
-                            else if (degreePath == '')
+                            else if (degreePath == null)
                               Alert.alert(
                                 'Incomplete Details!',
                                 'Please select degree certificate file',
@@ -2255,13 +2353,22 @@ const DoctorRegistration2 = ({navigation}) => {
                               setDegree('');
                               setDegreePassingYear('');
                               setSpecialization('');
-                              setdegreePath('');
+                              setdegreePath(null);
                               setUniversity('');
                               setaddMoreEduDet(false);
                             }
                           }}
                         />
                       </View>
+                      <Text
+                        style={{
+                          alignSelf: 'flex-start',
+                          fontSize: 9,
+                          marginTop: 2,
+                          color: 'red',
+                        }}>
+                        Note: Click on the button above to upload other file
+                      </Text>
                     </View>
                   ) : (
                     <View style={{flex: 1}}>
@@ -2365,10 +2472,16 @@ const DoctorRegistration2 = ({navigation}) => {
                     if (dataSavedExpDet) setShowExpDet(false);
                     else setShowExpDet(!showExpDet);
                   }}>
+                  <FAIcon
+                    name="calendar-plus"
+                    size={15}
+                    color={dataSavedExpDet ? '#2b8ada' : 'gray'}
+                    style={{marginHorizontal: 5, alignSelf: 'center'}}
+                  />
                   <Text
                     style={[
                       styles.label,
-                      {width: '90%'},
+                      {width: '85%'},
                       dataSavedExpDet ? {color: '#2B8ADA'} : null,
                     ]}>
                     Experience
@@ -2571,7 +2684,7 @@ const DoctorRegistration2 = ({navigation}) => {
                           </View>
                         </View>
                       </View>
-                      {/* Display Total Experience */}
+                      {/* Display  Experience */}
                       <View
                         style={{
                           flexDirection: 'row',
@@ -2655,7 +2768,7 @@ const DoctorRegistration2 = ({navigation}) => {
                           }}>
                           <View style={{flex: 0.45, flexDirection: 'column'}}>
                             <Text style={styles.inputLabel}>
-                              Experience (in Years)
+                              Total Experience (in Years)
                             </Text>
                             <Text style={styles.textInput}>
                               {Math.floor(FinalTotalMonths / 12)}
@@ -2663,7 +2776,7 @@ const DoctorRegistration2 = ({navigation}) => {
                           </View>
                           <View style={{flex: 0.45, flexDirection: 'column'}}>
                             <Text style={styles.inputLabel}>
-                              Experience (in Months)
+                              Total Experience (in Months)
                             </Text>
                             <Text style={styles.textInput}>
                               {FinalTotalMonths % 12}
@@ -2774,10 +2887,16 @@ const DoctorRegistration2 = ({navigation}) => {
                     if (dataSavedIdenDet) setShowIdenDet(false);
                     else setShowIdenDet(!showIdenDet);
                   }}>
+                  <FAIcon
+                    name="address-card"
+                    size={15}
+                    color={dataSavedIdenDet ? '#2b8ada' : 'gray'}
+                    style={{marginHorizontal: 5, alignSelf: 'center'}}
+                  />
                   <Text
                     style={[
                       styles.label,
-                      {width: '90%'},
+                      {width: '85%'},
                       dataSavedIdenDet ? {color: '#2B8ADA'} : null,
                     ]}>
                     Identification
@@ -2898,13 +3017,15 @@ const DoctorRegistration2 = ({navigation}) => {
                         }}>
                         <CustomButton
                           text={
-                            identificationPath == ''
+                            identificationPath == null
                               ? 'Select PDF only'
                               : ' ✓ File Selected'
                           }
                           textstyle={{
                             color:
-                              identificationPath == '' ? '#2b8ada' : '#21c47f',
+                              identificationPath == null
+                                ? '#2b8ada'
+                                : '#21c47f',
                             fontSize: 12,
                             fontWeight: 'bold',
                           }}
@@ -2915,7 +3036,9 @@ const DoctorRegistration2 = ({navigation}) => {
                             paddingHorizontal: 10,
                             borderWidth: 2,
                             borderColor:
-                              identificationPath == '' ? '#2b8ada' : '#21c47f',
+                              identificationPath == null
+                                ? '#2b8ada'
+                                : '#21c47f',
                           }}
                           onPress={() => {
                             if (identificationType == '')
@@ -2946,7 +3069,7 @@ const DoctorRegistration2 = ({navigation}) => {
                             if (
                               identificationNumber != '' &&
                               identificationType != '' &&
-                              identificationPath != ''
+                              identificationPath != null
                             ) {
                               var flag = 1;
                               if (IdentificationDocs.length > 0) {
@@ -2989,7 +3112,7 @@ const DoctorRegistration2 = ({navigation}) => {
                                 setIdentificationDocs(arr);
                                 setidentificationNumber('');
                                 setidentificationType('');
-                                setidentificationPath('');
+                                setidentificationPath(null);
                                 //console.log(IdentificationDocs);
                                 setaddMoreIdenDet(false);
                               }
@@ -3003,7 +3126,7 @@ const DoctorRegistration2 = ({navigation}) => {
                                 'Incomplete Details!',
                                 'Please Select Document Name',
                               );
-                            else if (identificationPath == '')
+                            else if (identificationPath == null)
                               Alert.alert(
                                 'Incomplete Details!',
                                 'Please Select Document before saving',
@@ -3011,6 +3134,16 @@ const DoctorRegistration2 = ({navigation}) => {
                           }}
                         />
                       </View>
+                      <Text
+                        style={{
+                          alignSelf: 'flex-start',
+                          fontSize: 9,
+                          marginTop: 2,
+                          marginLeft: 10,
+                          color: 'red',
+                        }}>
+                        Note: Click on the button above to upload other file
+                      </Text>
                     </View>
                   ) : (
                     <View style={{flex: 1}}>
@@ -3113,10 +3246,16 @@ const DoctorRegistration2 = ({navigation}) => {
                     if (dataSavedAddInfo) setShowAddInfo(false);
                     else setShowAddInfo(!showAddInfo);
                   }}>
+                  <FAIcon
+                    name="clinic-medical"
+                    size={15}
+                    color={dataSavedAddInfo ? '#2b8ada' : 'gray'}
+                    style={{marginHorizontal: 5, alignSelf: 'center'}}
+                  />
                   <Text
                     style={[
                       styles.label,
-                      {width: '90%'},
+                      {width: '85%'},
                       dataSavedAddInfo ? {color: '#2B8ADA'} : null,
                     ]}>
                     Clinic Information
@@ -3396,10 +3535,18 @@ const DoctorRegistration2 = ({navigation}) => {
                         !showPreConsultationQuestionaire,
                       );
                   }}>
+                  <FAIcon
+                    name="comment-medical"
+                    size={15}
+                    color={
+                      dataSavedPreConsultationQuestionaire ? '#2b8ada' : 'gray'
+                    }
+                    style={{marginHorizontal: 5, alignSelf: 'center'}}
+                  />
                   <Text
                     style={[
                       styles.label,
-                      {width: '90%'},
+                      {width: '85%'},
                       dataSavedPreConsultationQuestionaire
                         ? {color: '#2B8ADA'}
                         : null,
@@ -3881,10 +4028,16 @@ const DoctorRegistration2 = ({navigation}) => {
                     if (dataSavedConsultFees) setShowConsultFees(false);
                     else setShowConsultFees(!showConsultFees);
                   }}>
+                  <FAIcon
+                    name="money-check"
+                    size={15}
+                    color={dataSavedConsultFees ? '#2b8ada' : 'gray'}
+                    style={{marginHorizontal: 5, alignSelf: 'center'}}
+                  />
                   <Text
                     style={[
                       styles.label,
-                      {width: '90%'},
+                      {width: '85%'},
                       dataSavedConsultFees ? {color: '#2B8ADA'} : null,
                     ]}>
                     Consultation Fees
@@ -4058,7 +4211,7 @@ const DoctorRegistration2 = ({navigation}) => {
               </View>
             ) : null}
             {/* Buttons */}
-            <View
+            {/* <View
               style={{
                 alignSelf: 'center',
                 flexDirection: 'row',
@@ -4083,7 +4236,7 @@ const DoctorRegistration2 = ({navigation}) => {
                   // Alert.alert(completePercentage + ' Profile Details Filled');
                   navigation.navigate('DoctorHome');
                 }}></CustomButton>
-            </View>
+            </View> */}
           </View>
         </ScrollView>
 

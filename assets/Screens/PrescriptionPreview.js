@@ -659,6 +659,7 @@ th{
       let formData = new FormData();
       formData.append('directoryNames', 'PATIENT_PRESCRIPTION');
       formData.append('file', filePdf);
+      formData.append('userId', doctorId);
       const {error, response} = await fileUpload(formData);
 
       if (error != null) {
@@ -672,8 +673,8 @@ th{
         console.log('======response of prescription preview======');
         console.log(response);
         if (response != undefined) {
-          setprescriptionPath(response.path);
-          completeConsultationStatusUpdate(response.path);
+          setprescriptionPath(response.fileToken);
+          completeConsultationStatusUpdate(response.fileToken);
           // Alert.alert(
           //   'Success',
           //   'Prescription has been uploaded successfully!',

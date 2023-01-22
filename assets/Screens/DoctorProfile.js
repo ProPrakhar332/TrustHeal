@@ -65,14 +65,14 @@ function BasicDesign({navigation}) {
     navigation.navigate('RoleScreen');
   };
 
-  const checkpfp = useCallback(async url => {
-    const supported = await Linking.canOpenURL(url);
-    if (supported) {
-      setpfpuri(url);
-    } else {
-      console.log('Error in pfp');
-    }
-  }, []);
+  // const checkpfp = useCallback(async url => {
+  //   const supported = await Linking.canOpenURL(url);
+  //   if (supported) {
+  //     setpfpuri(url);
+  //   } else {
+  //     console.log('Error in pfp');
+  //   }
+  // }, []);
 
   useEffect(() => {
     const onLoadSetData = async () => {
@@ -88,7 +88,7 @@ function BasicDesign({navigation}) {
       setGender(x.gender);
       setdoctorId(x.doctorId);
       //console.log("doctor id" + x.doctorId);
-      checkpfp(apiConfig.baseUrl + x.profilePhotoPath);
+      //checkpfp(apiConfig.baseUrl + x.profilePhotoPath);
       setprofilePhotoPath(x.profilePhotoPath);
     };
     onLoadSetData();

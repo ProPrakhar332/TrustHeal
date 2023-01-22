@@ -17,6 +17,7 @@ import {useWindowDimensions, Button} from 'react-native';
 import {useNavigation, StackActions} from '@react-navigation/native';
 import axios from 'axios';
 import apiConfig from '../API/apiConfig';
+import DeviceInfo from 'react-native-device-info';
 
 const RoleScreen = ({navigation}) => {
   const [check, setChecked] = useState(false);
@@ -44,6 +45,19 @@ const RoleScreen = ({navigation}) => {
       }
     };
     onLoadSetData();
+    // console.log(
+    //   '======================= DEVICE INFO =====================================',
+    // );
+    // DeviceInfo.getDevice().then(device => {
+    //   console.log('Device : ', device);
+    // });
+    // console.log('DeviceInfo : ', DeviceInfo.getDeviceId());
+    // DeviceInfo.getIpAddress().then(ip => {
+    //   console.log('IP : ', ip); // "92.168.32.44"
+    // });
+    // DeviceInfo.getMacAddress().then(mac => {
+    //   console.log('MAC : ', mac);
+    // });
   }, []);
 
   const onPatient = () => {

@@ -38,6 +38,7 @@ import dateformatter from '../API/dateformatter';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import {PermissionsAndroid} from 'react-native';
+import DeviceInfo from 'react-native-device-info';
 import dayjs from 'dayjs';
 const DoctorRegistrationStep1 = ({navigation}) => {
   const [title, setTitle] = useState('');
@@ -59,13 +60,9 @@ const DoctorRegistrationStep1 = ({navigation}) => {
   const [showMobNo, setshowMobNo] = useState('');
   const [mobile, setmobile] = useState('');
   const [checkTerms, setCheckTerms] = useState(false);
-  const [doctorId, setDoctorId] = useState(0);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [isLoading, setisLoading] = useState(false);
   const [complete, setcomplete] = useState(0);
-  const [pfpuri, setpfpuri] = useState(null);
-  const [profilePhotoPath, setprofilePhotoPath] = useState('');
-  const [pfpFile, setpfpFile] = useState(null);
 
   const dataShowMobNo = [
     {key: 'Yes', value: 'Yes'},
@@ -154,22 +151,6 @@ const DoctorRegistrationStep1 = ({navigation}) => {
     setage(x);
   };
 
-  const SaveData = async () => {
-    //console.log(JSON.stringify(splJson));
-    //await AsyncStorage.setItem("dob", Year + "-" + Month + "-" + Day);
-    // await AsyncStorage.setItem("city", city);
-    // await AsyncStorage.setItem("email", email);
-    // await AsyncStorage.setItem("fullName", name);
-    // await AsyncStorage.setItem("gender", gender);
-    // await AsyncStorage.setItem("mobileNumber", mobile);
-    // await AsyncStorage.setItem("PIN", PIN);
-    // await AsyncStorage.setItem("checkTerms", checkTerms + "");
-    // await AsyncStorage.setItem("title", title);
-    // const pp = await AsyncStorage.getAllKeys();
-    // for (var i = 0; i < pp.length; ++i)
-    //   console.log(pp[i] + "\t" + (await AsyncStorage.getItem(pp[i])));
-  };
-
   const PostData = async () => {
     if (checkTerms == false)
       Alert.alert(
@@ -179,6 +160,10 @@ const DoctorRegistrationStep1 = ({navigation}) => {
     else {
       setisLoading(true);
       let docObj = new Object();
+      //phone ip
+      DeviceInfo.getIpAddress().then(ip => {
+        docObj.phoneIp = ip;
+      });
 
       docObj.age = parseInt(await AsyncStorage.getItem('age'));
       docObj.city = city;
@@ -191,8 +176,7 @@ const DoctorRegistrationStep1 = ({navigation}) => {
       docObj.gender = gender;
       docObj.mobileNumber = mobile;
       docObj.pincode = PIN;
-      docObj.phoneIp = 'phoneIP';
-      docObj.profilephoto = profilePhotoPath;
+
       docObj.termsAndCondition = checkTerms;
       console.log(JSON.stringify(docObj));
 
@@ -217,7 +201,6 @@ const DoctorRegistrationStep1 = ({navigation}) => {
               d + 'speciality',
               JSON.stringify(speciality),
             );
-            userObj.pfpuri = pfpuri;
             await AsyncStorage.setItem(
               'UserDoctorProfile',
               JSON.stringify(userObj),
@@ -229,10 +212,7 @@ const DoctorRegistrationStep1 = ({navigation}) => {
             console.log(langTemp);
 
             await axios
-              .post(
-                apiConfig.baseUrl + '/doctor/language/save/or/update',
-                langTemp,
-              )
+              .post(apiConfig.baseUrl + '/doctor/language/save', langTemp)
               .then(function (response) {
                 if (response.status == 200 || response.status == 201)
                   console.log('Language feeded in');
@@ -327,134 +307,6 @@ const DoctorRegistrationStep1 = ({navigation}) => {
     openURL('https://www.google.com');
   };
 
-  const checkpfp = useCallback(async url => {
-    const supported = await Linking.canOpenURL(url);
-    if (supported) {
-      setpfpuri(url);
-    } else {
-      console.log('Error in pfp');
-    }
-  }, []);
-
-  //pfp
-  const chooseProfileImage = async () => {
-    Alert.alert(
-      'Upload Profile Picture',
-      'Select option for uploading profile picture',
-      [
-        {
-          text: 'Open Library',
-          onPress: () => {
-            launchImageLibrary({mediaType: 'photo'}, async response => {
-              console.log(response);
-              if (response.didCancel) console.log('Cancel');
-              else if (response.errorCode) {
-                Alert.alert('Error', response.errorMessage);
-              } else {
-                if (response.assets[0].fileSize <= 2097152) {
-                  await postpfp(response.assets[0]);
-                  setpfpFile(response.assets[0]);
-                  setpfpuri(response.assets[0].uri);
-                } else
-                  Alert.alert(
-                    'Max Size',
-                    'The file exceeds the maximum limit of 2MB.',
-                  );
-              }
-            });
-          },
-        },
-        {
-          text: 'Open Camera',
-          onPress: () => {
-            requestCameraPermission();
-          },
-        },
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-      ],
-    );
-  };
-
-  const requestCameraPermission = async () => {
-    try {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.CAMERA,
-        {
-          title: 'App Camera Permission',
-          message: 'App needs access to your camera ',
-          buttonNeutral: 'Ask Me Later',
-          buttonNegative: 'Cancel',
-          buttonPositive: 'OK',
-        },
-      );
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        await launchcamera();
-      } else {
-        console.log('Camera permission denied');
-      }
-    } catch (err) {
-      console.warn(err);
-    }
-  };
-
-  const launchcamera = async () => {
-    launchCamera(
-      {mediaType: 'photo', cameraType: 'front', saveToPhotos: true},
-      async response => {
-        console.log(response);
-        if (response.didCancel) console.log('Cancel');
-        else if (response.errorCode) {
-          Alert.alert('Error', response.errorMessage);
-        } else {
-          if (response.assets[0].fileSize <= 2097152) {
-            await postpfp(response.assets[0]);
-            setpfpFile(response.assets[0]);
-            setpfpuri(response.assets[0].uri);
-          } else
-            Alert.alert(
-              'Max Size',
-              'The file exceeds the maximum limit of 2MB.',
-            );
-        }
-      },
-    );
-  };
-  const postpfp = async pickerResult => {
-    try {
-      console.log('==============Inside post pfp==========');
-
-      let ext = '.' + pickerResult.fileName.split('.').pop();
-      pickerResult.size = pickerResult.fileSize;
-      delete pickerResult.fileSize;
-      delete pickerResult.fileName;
-      pickerResult.name = dayjs().format('Hmmss') + '_ProfilePhoto_' + ext;
-      console.log(pickerResult.name);
-      // setMedRegDoc([pickerResult]);
-
-      let formData = new FormData();
-      formData.append('directoryNames', '  DOCTOR_PHOTO');
-      formData.append('file', pickerResult);
-      const {error, response} = await fileUpload(formData);
-
-      if (error != null) {
-        console.log('======error======');
-        console.log(error);
-        Alert.alert(
-          'Error',
-          'There was a problem in uploading profile picture. Please try again.',
-        );
-      } else {
-        console.log('======response======');
-        console.log(response.path);
-        setprofilePhotoPath(response.path);
-      }
-    } catch (e) {
-      console.log(e);
-    }
-  };
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -519,22 +371,7 @@ const DoctorRegistrationStep1 = ({navigation}) => {
                   height: 100,
                   borderRadius: 100,
                 }}
-                source={pfpuri == null ? doctor : {uri: pfpuri}}></Image>
-              <TouchableOpacity onPress={chooseProfileImage}>
-                <FAIcon
-                  name="camera"
-                  size={20}
-                  color={'white'}
-                  style={{
-                    top: -25,
-                    right: -30,
-                    padding: 10,
-                    backgroundColor: 'gray',
-                    borderRadius: 100,
-                    alignSelf: 'center',
-                  }}
-                />
-              </TouchableOpacity>
+                source={doctor}></Image>
             </View>
           </View>
 

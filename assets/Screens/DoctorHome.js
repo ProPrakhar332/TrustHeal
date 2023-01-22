@@ -23,6 +23,7 @@ import {useCallback} from 'react';
 
 import {CheckBox} from 'react-native-elements';
 import FAIcon from 'react-native-vector-icons/FontAwesome5';
+import MIcons from 'react-native-vector-icons/Entypo';
 import CustomButton from '../Components/CustomButton';
 //images
 import pfp1 from '../Resources/patient.png';
@@ -44,6 +45,7 @@ import axios from 'axios';
 import apiConfig from '../API/apiConfig';
 import dateformatter from '../API/dateformatter';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import RNFS from 'react-native-fs';
 import dayjs from 'dayjs';
 
 const dataStatus = [
@@ -54,6 +56,7 @@ const dataStatus = [
 const DoctorHome = ({navigation}) => {
   // console.log("Doctor Home", route.params);
   const [doctorObj, setDoctorObj] = useState(null);
+  const [doctorId, setdoctorId] = useState(null);
   //upcoming tab
   const [Upcoming, setUpcoming] = useState(false);
   const [UpcomingData, setUpcomingData] = useState([]);
@@ -123,14 +126,47 @@ const DoctorHome = ({navigation}) => {
     navigation.navigate('CheifComplaints');
   };
 
-  const openURL = useCallback(async url => {
-    const supported = await Linking.canOpenURL(url);
-    if (supported) {
-      await Linking.openURL(url);
-    } else {
-      Alert.alert('Error', `Don't know how to open this URL: ${url}`);
-    }
-  }, []);
+  const download = async (fileToken, userId, fileName) => {
+    // let op = {};
+    // if (Platform.OS == 'ios') op = {NSURLIsExcludedFromBackupKey: true};
+    // await RNFS.mkdir(`file://${RNFS.DownloadDirectoryPath}/Arogya`, op);
+    let filePath = `file://${RNFS.DownloadDirectoryPath}/`;
+    let options = {
+      fromUrl:
+        apiConfig.baseUrl +
+        '/file/download?fileToken=' +
+        fileToken +
+        '&userId=' +
+        userId,
+      toFile: filePath + fileName,
+    };
+    await RNFS.downloadFile(options)
+      .promise.then(response => {
+        //console.log(response);
+        if (response.statusCode == 200)
+          Alert.alert(
+            'File Downloaded',
+            `The file is downloaded. File name is ${fileName}.`,
+          );
+        else
+          Alert.alert(
+            'Download Fail',
+            `Unable to download file. ${response.statusCode}`,
+          );
+      })
+      .catch(e => {
+        Alert.alert('Error', `${e}`);
+      });
+  };
+
+  // const openURL = useCallback(async url => {
+  //   const supported = await Linking.canOpenURL(url);
+  //   if (supported) {
+  //     await Linking.openURL(url);
+  //   } else {
+  //     Alert.alert('Error', `Don't know how to open this URL: ${url}`);
+  //   }
+  // }, []);
 
   const timeformatter = time => {
     let text = time;
@@ -716,8 +752,13 @@ const DoctorHome = ({navigation}) => {
               borderRadius: 5,
             }}
             onPress={() => {
-              console.log(apiConfig.baseUrl + item.prescriptionPath);
-              openURL(apiConfig.baseUrl + item.prescriptionPath);
+              download(
+                item.prescriptionPath,
+                doctorId,
+                item.consultationId + '_Prescription_' + item.slotDate + '.pdf',
+              );
+              //console.log(apiConfig.baseUrl + item.prescriptionPath);
+              // openURL(apiConfig.baseUrl + item.prescriptionPath);
             }}>
             <FAIcon
               name="prescription"
@@ -971,8 +1012,11 @@ const DoctorHome = ({navigation}) => {
               borderRadius: 5,
             }}
             onPress={() => {
-              console.log(apiConfig.baseUrl + item.prescriptionPath);
-              openURL(apiConfig.baseUrl + item.prescriptionPath);
+              download(
+                item.prescriptionPath,
+                doctorId,
+                item.consultationId + '_Prescription_' + item.slotDate + '.pdf',
+              );
             }}>
             <FAIcon
               name="prescription"
@@ -1078,8 +1122,8 @@ const DoctorHome = ({navigation}) => {
                   marginHorizontal: 5,
                 }}
                 onPress={() => {
-                  console.log(apiConfig.baseUrl + item.documentPath);
-                  openURL(apiConfig.baseUrl + item.documentPath);
+                  //console.log(apiConfig.baseUrl + item.documentPath);
+                  // openURL(apiConfig.baseUrl + item.documentPath);
                 }}
               />
               <Text style={styles.HistoryModalText}>{item.documentName}</Text>
@@ -1115,14 +1159,23 @@ const DoctorHome = ({navigation}) => {
               marginHorizontal: 5,
             }}
             onPress={() => {
-              console.log(apiConfig.baseUrl + item.documentPath);
-              openURL(apiConfig.baseUrl + item.documentPath);
+              //console.log(apiConfig.baseUrl + item.documentPath);
+              // openURL(apiConfig.baseUrl + item.documentPath);
             }}
           />
         </View>
       </TouchableOpacity>
     );
   };
+
+  useEffect(() => {
+    const onLoadScreen = async () => {
+      let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
+
+      setdoctorId(x.doctorId);
+    };
+    onLoadScreen();
+  }, []);
 
   useEffect(() => {
     const getData = async () => {
@@ -1332,8 +1385,10 @@ const DoctorHome = ({navigation}) => {
       .then(function (response) {
         setisFetching(false);
         if (response.status == 200) {
-          if (response.data != '') setCompleteData(response.data);
-          else setendOfList(true);
+          if (response.data != '') {
+            setendOfList(true);
+            setCompleteData(response.data);
+          } else setendOfList(false);
         }
         //console.log(CompleteData);
       })
@@ -1402,6 +1457,12 @@ const DoctorHome = ({navigation}) => {
             <TouchableOpacity
               style={[styles.WhiteLabel, {marginTop: 20}]}
               onPress={() => setUpcoming(!Upcoming)}>
+              <FAIcon
+                name="comment-medical"
+                size={15}
+                color={Upcoming ? '#2b8ada' : 'gray'}
+                style={{marginLeft: 3, alignSelf: 'center'}}
+              />
               <Text
                 style={[
                   styles.label,
@@ -1855,6 +1916,12 @@ const DoctorHome = ({navigation}) => {
             <TouchableOpacity
               style={styles.WhiteLabel}
               onPress={() => setComplete(!Complete)}>
+              <FAIcon
+                name="calendar-check"
+                size={15}
+                color={Complete ? '#2b8ada' : 'gray'}
+                style={{marginLeft: 3, alignSelf: 'center'}}
+              />
               <Text
                 style={[
                   styles.label,
@@ -1940,7 +2007,7 @@ const DoctorHome = ({navigation}) => {
                           </Text>
                         </Pressable>
                       ) : null}
-                      {!endOfList ? (
+                      {endOfList ? (
                         <Pressable
                           style={{flexDirection: 'row'}}
                           onPress={() => onNext()}>
@@ -1972,6 +2039,15 @@ const DoctorHome = ({navigation}) => {
             <TouchableOpacity
               style={styles.WhiteLabel}
               onPress={() => setStatus(!Status)}>
+              <MIcons
+                name="back-in-time"
+                size={17}
+                color={Status ? '#2b8ada' : 'gray'}
+                style={{
+                  marginLeft: 3,
+                  alignSelf: 'center',
+                }}
+              />
               <Text
                 style={[
                   styles.label,

@@ -17,12 +17,14 @@ import {
 } from 'react-native';
 import CustomButton from '../Components/CustomButton';
 import FAIcon from 'react-native-vector-icons/FontAwesome5';
+import MIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {
   SelectList,
   MultipleSelectList,
 } from 'react-native-dropdown-select-list';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import {PermissionsAndroid} from 'react-native';
+import RNFS from 'react-native-fs';
 import {useCallback} from 'react';
 //icons
 import doctor from '../Resources/doctor.png';
@@ -45,6 +47,7 @@ import {fileUpload} from '../API/apiConfig';
 
 import Header from '../Components/Header';
 import {Switch} from 'react-native-elements';
+import {Platform} from 'react-native';
 
 const dataIdenDocs = [
   {key: 'Aadhar', value: 'Aadhar'},
@@ -113,7 +116,7 @@ const EditProfile = ({navigation}) => {
   const [email, setEmail] = useState('');
   const [dob, setdob] = useState('');
   const [pfpuri, setpfpuri] = useState(null);
-  const [profilePhotoPath, setprofilePhotoPath] = useState('');
+  const [profilePhotoPath, setprofilePhotoPath] = useState(null);
   //Calendar View
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [selectedDateFromModal, setselectedDateFromModal] =
@@ -135,8 +138,8 @@ const EditProfile = ({navigation}) => {
   const [RegCouncil, setRegCouncil] = useState('');
   const [RegCert, setRegCert] = useState('');
   const [RegYear, setRegYear] = useState('');
-  const [certificatePath, setcertificatePath] = useState('');
-  const [newcertificatePath, setnewcertificatePath] = useState('');
+  const [certificatePath, setcertificatePath] = useState(null);
+  const [newcertificatePath, setnewcertificatePath] = useState(null);
   const [MedRegDoc, setMedRegDoc] = React.useState(null);
 
   //Educational Details Field
@@ -149,7 +152,7 @@ const EditProfile = ({navigation}) => {
   const [Education, setEducation] = useState([]);
   const [Degree, setDegree] = useState('');
   const [DegreePassingYear, setDegreePassingYear] = useState('');
-  const [degreePath, setdegreePath] = useState('');
+  const [degreePath, setdegreePath] = useState(null);
   const [Specialization, setSpecialization] = useState('');
   const [University, setUniversity] = useState('');
   const [doctorEducationPkId, setdoctorEducationPkId] = useState(0);
@@ -179,7 +182,7 @@ const EditProfile = ({navigation}) => {
   const [doctorIdentificationPkId, setdoctorIdentificationPkId] = useState(0);
   const [IdenElementModal, setIdenElementModal] = useState(false);
   const [editIden, seteditIden] = useState(false);
-  const [identificationPath, setidentificationPath] = useState('');
+  const [identificationPath, setidentificationPath] = useState(null);
 
   //General Configuration
   const [showGenConfig, setShowGenConfig] = useState(false);
@@ -226,8 +229,8 @@ const EditProfile = ({navigation}) => {
       setAge(x.age + '');
       setPinCode(x.pincode == null ? x.pinCode : x.pincode);
 
-      checkpfp(apiConfig.baseUrl + x.profilePhotoPath);
-      setprofilePhotoPath(x.profilePhotoPath);
+      // checkpfp(apiConfig.baseUrl + x.profilePhotoPath);
+      // setprofilePhotoPath(x.profilePhotoPath);
 
       setDoctorConfiguration(
         x.doctorConfigurationDTO != null ? x.doctorConfigurationDTO : '',
@@ -283,24 +286,6 @@ const EditProfile = ({navigation}) => {
       dataYear.push({key: i + '', value: i + ''});
     }
   };
-
-  const openURL = useCallback(async url => {
-    const supported = await Linking.canOpenURL(url);
-    if (supported) {
-      await Linking.openURL(url);
-    } else {
-      Alert.alert('Error', `Don't know how to open this URL: ${url}`);
-    }
-  }, []);
-
-  const checkpfp = useCallback(async url => {
-    const supported = await Linking.canOpenURL(url);
-    if (supported) {
-      setpfpuri(url);
-    } else {
-      console.log('Error in pfp');
-    }
-  }, []);
 
   // useEffect(() => {
   //   const setDate = async () => {
@@ -503,7 +488,7 @@ const EditProfile = ({navigation}) => {
   //uploading documents point
 
   // medical registration document upload
-  const selectDocsMedReg = async () => {
+  const selectDocsMedReg = async fileToken => {
     try {
       console.log('==============Inside select Docs==========');
 
@@ -512,38 +497,49 @@ const EditProfile = ({navigation}) => {
         copyTo: 'cachesDirectory',
         type: types.pdf,
       });
-      let ext = '.' + pickerResult.name.split('.').pop();
 
-      pickerResult.name = doctorId + '_MedicalRegistration' + ext;
-      console.log(pickerResult.name);
-      console.log(pickerResult);
-      setMedRegDoc([pickerResult]);
-
-      let formData = new FormData();
-      formData.append('directoryNames', 'DOCTOR_MEDICAL_REGISTRATION');
-      formData.append('file', pickerResult);
-      const {error, response} = await fileUpload(formData);
-
-      if (error != null) {
-        console.log('======error======');
-        console.log(error);
+      if (pickerResult.size > 2097152)
         Alert.alert(
-          'Error',
-          'There was a problem in selecting document. Please try again.',
+          'Size Error',
+          'The size of the file should be less than 2MB.',
         );
-      } else {
-        console.log('======response======');
-        console.log(response.path);
-        setcertificatePath(response.path);
-        setnewcertificatePath(response.path);
-        //setRegCert(error == null ? pickerResult.name : '');
+      else {
+        let ext = '.' + pickerResult.name.split('.').pop();
+
+        pickerResult.name = doctorId + '_MedicalRegistration' + ext;
+        console.log(pickerResult.name);
+        console.log(pickerResult);
+        setMedRegDoc([pickerResult]);
+
+        let formData = new FormData();
+        formData.append('directoryNames', 'DOCTOR_MEDICAL_REGISTRATION');
+        formData.append('file', pickerResult);
+        formData.append('userId', doctorId);
+        if (fileToken != undefined) formData.append('fileToken', fileToken);
+
+        const {error, response} = await fileUpload(formData);
+
+        if (error != null) {
+          console.log('======error======');
+          console.log(error);
+          Alert.alert(
+            'Error',
+            'There was a problem in selecting document. Please try again.',
+          );
+        } else {
+          console.log('======response======');
+          console.log(response.fileToken);
+          setcertificatePath(response.fileToken);
+          setnewcertificatePath(response.fileToken);
+          //setRegCert(error == null ? pickerResult.name : '');
+        }
       }
     } catch (e) {
       console.log(e);
     }
   };
   // education document upload
-  const selectDocsEdu = async () => {
+  const selectDocsEdu = async fileToken => {
     try {
       console.log('==============Inside select Docs Education==========');
 
@@ -561,6 +557,8 @@ const EditProfile = ({navigation}) => {
       let formData = new FormData();
       formData.append('directoryNames', 'DOCTOR_EDUCATION');
       formData.append('file', pickerResult);
+      formData.append('userId', doctorId);
+      if (fileToken != undefined) formData.append('fileToken', fileToken);
       const {error, response} = await fileUpload(formData);
       if (error != null) {
         console.log('======error======');
@@ -571,15 +569,15 @@ const EditProfile = ({navigation}) => {
         );
       } else {
         console.log('======response======');
-        console.log(response.path);
-        setdegreePath(response.path);
+        console.log(response.fileToken);
+        setdegreePath(response.fileToken);
       }
     } catch (e) {
       console.log(e);
     }
   };
   //identification document upload
-  const selectDocsIden = async () => {
+  const selectDocsIden = async fileToken => {
     try {
       console.log('==============Inside select Docs Identification==========');
 
@@ -597,6 +595,8 @@ const EditProfile = ({navigation}) => {
       let formData = new FormData();
       formData.append('directoryNames', 'DOCTOR_IDENTIFICATION');
       formData.append('file', pickerResult);
+      formData.append('userId', doctorId);
+      if (fileToken != undefined) formData.append('fileToken', fileToken);
       const {error, response} = await fileUpload(formData);
       if (error != null) {
         console.log('======error======');
@@ -607,8 +607,8 @@ const EditProfile = ({navigation}) => {
         );
       } else {
         console.log('======response======');
-        console.log(response.path);
-        setidentificationPath(response.path);
+        console.log(response.fileToken);
+        setidentificationPath(response.fileToken);
       }
     } catch (e) {
       console.log(e);
@@ -706,7 +706,7 @@ const EditProfile = ({navigation}) => {
 
     console.log('Medical Regd Update---------\n' + mj);
     axios
-      .post(apiConfig.baseUrl + '/doctor/medicalregi/save/or/update', mj)
+      .post(apiConfig.baseUrl + '/doctor/medicalregistration/save', mj)
       .then(function (response) {
         setisUploading(false);
         if (response.status == 200) {
@@ -715,7 +715,7 @@ const EditProfile = ({navigation}) => {
             'Medical Registration details have been updated successfully!',
           );
           setMedInfoEdit(false);
-          setnewcertificatePath('');
+          setnewcertificatePath(null);
         } else Alert.alert('Updation Error', 'Could not update details. Please try again later.');
       })
       .catch(function (error) {
@@ -729,7 +729,7 @@ const EditProfile = ({navigation}) => {
     let amp = [];
     amp.push(item);
     axios
-      .post(apiConfig.baseUrl + '/doctor/education/save/or/update', amp)
+      .post(apiConfig.baseUrl + '/doctor/education/save', amp)
       .then(function (response) {
         setisUploading(false);
         if (response.status == 200) {
@@ -756,7 +756,7 @@ const EditProfile = ({navigation}) => {
     let amp = [];
     amp.push(item);
     axios
-      .post(apiConfig.baseUrl + '/doctor/experience/save/or/update', amp)
+      .post(apiConfig.baseUrl + '/doctor/experience/save', amp)
       .then(function (response) {
         setisUploading(false);
         if (response.status == 200) {
@@ -779,7 +779,7 @@ const EditProfile = ({navigation}) => {
     let amp = [];
     amp.push(item);
     axios
-      .post(apiConfig.baseUrl + '/doctor/identity/save/or/update', amp)
+      .post(apiConfig.baseUrl + '/doctor/identity/save', amp)
       .then(function (response) {
         setisUploading(false);
         if (response.status == 200) {
@@ -903,6 +903,39 @@ const EditProfile = ({navigation}) => {
     }
   };
 
+  const download = async (fileToken, userId, fileName) => {
+    // let op = {};
+    // if (Platform.OS == 'ios') op = {NSURLIsExcludedFromBackupKey: true};
+    // await RNFS.mkdir(`file://${RNFS.DownloadDirectoryPath}/Arogya`, op);
+    let filePath = `file://${RNFS.DownloadDirectoryPath}/`;
+    let options = {
+      fromUrl:
+        apiConfig.baseUrl +
+        '/file/download?fileToken=' +
+        fileToken +
+        '&userId=' +
+        userId,
+      toFile: filePath + fileName,
+    };
+    await RNFS.downloadFile(options)
+      .promise.then(response => {
+        //console.log(response);
+        if (response.statusCode == 200)
+          Alert.alert(
+            'File Downloaded',
+            `The file is downloaded. File name is ${fileName}.`,
+          );
+        else
+          Alert.alert(
+            'Download Fail',
+            `Unable to download file. ${response.statusCode}`,
+          );
+      })
+      .catch(e => {
+        Alert.alert('Error', `${e}`);
+      });
+  };
+
   //rendering dynamic components
 
   const ViewIdentificationsTabular = () => {
@@ -925,26 +958,21 @@ const EditProfile = ({navigation}) => {
               margin: 0,
               padding: 0,
             }}>
-            {/* Practice At */}
-            <View style={styles.cellStyle}>
-              <Text style={{textAlign: 'center', fontSize: 10}}>
-                {IdentificationDocs.identificationType}
-              </Text>
-            </View>
-            {/* Start Date */}
-            <View style={styles.cellStyle}>
-              <Text style={{textAlign: 'center', fontSize: 10}}>
-                {IdentificationDocs.identificationNumber}
-              </Text>
-            </View>
-            {/* End Date */}
+            {/* Identification File */}
             <TouchableOpacity
               style={styles.cellStyle}
               onPress={() => {
-                console.log(IdentificationDocs.identificationPath);
-                openURL(
-                  apiConfig.baseUrl + IdentificationDocs.identificationPath,
+                download(
+                  IdentificationDocs.identificationPath,
+                  doctorId,
+                  doctorId +
+                    '_DoctorIdentification_' +
+                    IdentificationDocs.identificationType +
+                    '.pdf',
                 );
+                // openURL(
+                //   apiConfig.baseUrl + IdentificationDocs.identificationPath,
+                // );
               }}>
               <FAIcon
                 name="file-pdf"
@@ -953,6 +981,19 @@ const EditProfile = ({navigation}) => {
                 style={{marginVertical: 3}}
               />
             </TouchableOpacity>
+            {/* Identification Type */}
+            <View style={styles.cellStyle}>
+              <Text style={{textAlign: 'center', fontSize: 10}}>
+                {IdentificationDocs.identificationType}
+              </Text>
+            </View>
+            {/* Identification Number */}
+            <View style={styles.cellStyle}>
+              <Text style={{textAlign: 'center', fontSize: 10}}>
+                {IdentificationDocs.identificationNumber}
+              </Text>
+            </View>
+
             {IdenDetEdit ? (
               <View
                 style={[
@@ -1026,8 +1067,17 @@ const EditProfile = ({navigation}) => {
                 color={'#2b8ada'}
                 style={{marginVertical: 3}}
                 onPress={() => {
-                  console.log(Education.degreePath);
-                  openURL(apiConfig.baseUrl + Education.degreePath);
+                  download(
+                    Education.degreePath,
+                    doctorId,
+                    doctorId +
+                      '_DoctorEducation_' +
+                      Education.degree +
+                      '_' +
+                      Education.passingYear +
+                      '.pdf',
+                  );
+                  // openURL(apiConfig.baseUrl + Education.degreePath);
                 }}
               />
               <Text style={styles.cellText}>{Education.degree}</Text>
@@ -1057,6 +1107,7 @@ const EditProfile = ({navigation}) => {
                     setDateData();
                     setDegree(Education.degree);
                     setDegreePassingYear(Education.passingYear);
+                    setdegreePath(Education.degreePath);
                     setSpecialization(Education.specialization);
                     setUniversity(Education.university);
                     setdoctorEducationPkId(Education.doctorEducationPkId);
@@ -1294,11 +1345,13 @@ const EditProfile = ({navigation}) => {
       pickerResult.name = doctorId + '_ProfilePhoto' + ext;
       console.log(pickerResult.name);
       console.log(pickerResult);
-      // setMedRegDoc([pickerResult]);
 
       let formData = new FormData();
       formData.append('directoryNames', 'DOCTOR_PHOTO');
       formData.append('file', pickerResult);
+      formData.append('userId', doctorId);
+      if (profilePhotoPath != null)
+        formData.append('fileToken', profilePhotoPath);
       const {error, response} = await fileUpload(formData);
 
       if (error != null) {
@@ -1310,10 +1363,10 @@ const EditProfile = ({navigation}) => {
         );
       } else {
         console.log('======response======');
-        console.log(response.path);
-        setprofilePhotoPath(response.path);
+        console.log(response.fileToken);
+        setprofilePhotoPath(response.fileToken);
         let x = await AsyncStorage.getItem('UserDoctorProfile');
-        x.profilePhotoPath = response.path;
+        x.profilePhotoPath = response.fileToken;
         await AsyncStorage.setItem('UserDoctorProfile', x);
       }
     } catch (e) {
@@ -1416,11 +1469,17 @@ const EditProfile = ({navigation}) => {
                         setShowGenInfo(!showGenInfo);
                       }
                     }}>
+                    <FAIcon
+                      name="info-circle"
+                      size={15}
+                      color={showGenInfo ? '#2b8ada' : 'gray'}
+                      style={{marginHorizontal: 5, alignSelf: 'center'}}
+                    />
                     <Text
                       style={[
                         styles.label,
-                        {width: '90%'},
-                        showGenInfo ? {color: '#2B8ADA', width: '80%'} : null,
+                        {width: '85%'},
+                        showGenInfo ? {color: '#2B8ADA', width: '75%'} : null,
                       ]}>
                       General Information
                     </Text>
@@ -1782,11 +1841,17 @@ const EditProfile = ({navigation}) => {
                         setShowMedReg(!showMedReg);
                       }
                     }}>
+                    <FAIcon
+                      name="file-medical"
+                      size={15}
+                      color={showMedReg ? '#2b8ada' : 'gray'}
+                      style={{marginHorizontal: 5, alignSelf: 'center'}}
+                    />
                     <Text
                       style={[
                         styles.label,
-                        {width: '90%'},
-                        showMedReg ? {color: '#2B8ADA', width: '80%'} : null,
+                        {width: '85%'},
+                        showMedReg ? {color: '#2B8ADA', width: '75%'} : null,
                       ]}>
                       Medical Registration
                     </Text>
@@ -1876,6 +1941,18 @@ const EditProfile = ({navigation}) => {
                                 borderWidth: 1,
                                 padding: 5,
                                 borderRadius: 10,
+                              }}
+                              onPress={() => {
+                                if (MedInfoEdit == false)
+                                  download(
+                                    certificatePath,
+                                    doctorId,
+                                    doctorId + '_MedicalRegistration.pdf',
+                                  );
+                                else
+                                  Alert.alert(
+                                    'Please Click on Edit and then select File',
+                                  );
                               }}>
                               {/* <TextInput
                               style={[
@@ -1926,39 +2003,53 @@ const EditProfile = ({navigation}) => {
                                   justifyContent: 'center',
                                   paddingHorizontal: 8,
                                 }}>
-                                {certificatePath.substring(34)}
+                                {certificatePath != null
+                                  ? doctorId + '_MedicalRegistration.pdf'
+                                  : 'Upload File'}
                               </Text>
                             </TouchableOpacity>
                           ) : (
-                            <CustomButton
-                              text={
-                                newcertificatePath == ''
-                                  ? 'Select Document'
-                                  : ' ✓ File Selected'
-                              }
-                              textstyle={{
-                                color:
-                                  newcertificatePath == ''
-                                    ? '#2b8ada'
-                                    : '#21c47f',
-                                fontSize: 12,
-                              }}
-                              style={{
-                                marginTop: 10,
-                                backgroundColor: 'white',
-                                borderRadius: 12,
-                                padding: 6,
-                                paddingHorizontal: 10,
-                                borderWidth: 2,
-                                borderColor:
-                                  newcertificatePath == ''
-                                    ? '#2b8ada'
-                                    : '#21c47f',
-                              }}
-                              onPress={() => {
-                                selectDocsMedReg();
-                              }}
-                            />
+                            <View>
+                              <CustomButton
+                                text={
+                                  certificatePath == null
+                                    ? 'Select Document'
+                                    : ' ✓ File Selected'
+                                }
+                                textstyle={{
+                                  color:
+                                    certificatePath == null
+                                      ? '#2b8ada'
+                                      : '#21c47f',
+                                  fontSize: 12,
+                                }}
+                                style={{
+                                  marginTop: 10,
+                                  backgroundColor: 'white',
+                                  borderRadius: 12,
+                                  padding: 6,
+                                  paddingHorizontal: 10,
+                                  borderWidth: 2,
+                                  borderColor:
+                                    certificatePath == null
+                                      ? '#2b8ada'
+                                      : '#21c47f',
+                                }}
+                                onPress={() => {
+                                  selectDocsMedReg();
+                                }}
+                              />
+                              <Text
+                                style={{
+                                  alignSelf: 'center',
+                                  fontSize: 9,
+                                  marginTop: 2,
+                                  color: 'red',
+                                }}>
+                                Note: Click on the button above to upload other
+                                file
+                              </Text>
+                            </View>
                           )}
                         </View>
                         <View style={{flex: 0.45}}>
@@ -1983,6 +2074,26 @@ const EditProfile = ({navigation}) => {
                             text="Done"
                             textstyle={styles.ButtonText}
                             onPress={() => {
+                              if (RegNo == '')
+                                Alert.alert(
+                                  'Incomplete Details!',
+                                  'Please fill registration number.',
+                                );
+                              else if (RegCouncil == '')
+                                Alert.alert(
+                                  'Incomplete Details!',
+                                  'Please fill registration council.',
+                                );
+                              if (RegYear == '')
+                                Alert.alert(
+                                  'Incomplete Details!',
+                                  'Please fill registration year.',
+                                );
+                              if (certificatePath == null)
+                                Alert.alert(
+                                  'Incomplete Details!',
+                                  'Please fill registration certificate file.',
+                                );
                               updateMedReg();
                               //setMedInfoEdit(false);
                             }}
@@ -1992,7 +2103,7 @@ const EditProfile = ({navigation}) => {
                             text="Cancel"
                             textstyle={styles.ButtonTextCancel}
                             onPress={() => {
-                              setnewcertificatePath('');
+                              setnewcertificatePath(null);
                               setMedInfoEdit(false);
                             }}
                             style={styles.ButtonCancel}
@@ -2032,11 +2143,17 @@ const EditProfile = ({navigation}) => {
                         setShowEduDet(!showEduDet);
                       } else setShowEduDet(!showEduDet);
                     }}>
+                    <MIcons
+                      name="certificate"
+                      size={20}
+                      color={showEduDet ? '#2b8ada' : 'gray'}
+                      style={{marginHorizontal: 2, alignSelf: 'center'}}
+                    />
                     <Text
                       style={[
                         styles.label,
-                        {width: '90%'},
-                        showEduDet ? {color: '#2B8ADA', width: '80%'} : null,
+                        {width: '85%'},
+                        showEduDet ? {color: '#2B8ADA', width: '75%'} : null,
                       ]}>
                       Educational Qualifications & Certificates
                     </Text>
@@ -2172,7 +2289,7 @@ const EditProfile = ({navigation}) => {
                                 paddingHorizontal: 10,
                                 marginTop: 10,
                               }}
-                              onPress={() => seteditEduDet(false)}
+                              onPress={() => setEduDetEdit(false)}
                             />
                           </View>
                         ) : null}
@@ -2210,11 +2327,17 @@ const EditProfile = ({navigation}) => {
                         setShowExpDet(!showExpDet);
                       } else setShowExpDet(!showExpDet);
                     }}>
+                    <FAIcon
+                      name="calendar-plus"
+                      size={15}
+                      color={showExpDet ? '#2b8ada' : 'gray'}
+                      style={{marginHorizontal: 5, alignSelf: 'center'}}
+                    />
                     <Text
                       style={[
                         styles.label,
-                        {width: '90%'},
-                        showExpDet ? {color: '#2B8ADA', width: '80%'} : null,
+                        {width: '85%'},
+                        showExpDet ? {color: '#2B8ADA', width: '75%'} : null,
                       ]}>
                       Experience
                     </Text>
@@ -2350,7 +2473,7 @@ const EditProfile = ({navigation}) => {
                                 paddingHorizontal: 10,
                                 marginTop: 10,
                               }}
-                              onPress={() => seteditExp(false)}
+                              onPress={() => setExpDetEdit(false)}
                             />
                           </View>
                         ) : null}
@@ -2388,11 +2511,17 @@ const EditProfile = ({navigation}) => {
                         setShowIdenDet(!showIdenDet);
                       } else setShowIdenDet(!showIdenDet);
                     }}>
+                    <FAIcon
+                      name="address-card"
+                      size={15}
+                      color={showIdenDet ? '#2b8ada' : 'gray'}
+                      style={{marginHorizontal: 5, alignSelf: 'center'}}
+                    />
                     <Text
                       style={[
                         styles.label,
-                        {width: '90%'},
-                        showIdenDet ? {color: '#2B8ADA', width: '80%'} : null,
+                        {width: '85%'},
+                        showIdenDet ? {color: '#2B8ADA', width: '75%'} : null,
                       ]}>
                       Identification
                     </Text>
@@ -2451,15 +2580,15 @@ const EditProfile = ({navigation}) => {
                               padding: 0,
                             }}>
                             <View style={styles.cellHeading}>
+                              <Text style={styles.cellHeadingText}>File</Text>
+                            </View>
+                            <View style={styles.cellHeading}>
                               <Text style={styles.cellHeadingText}>Name</Text>
                             </View>
                             <View style={styles.cellHeading}>
                               <Text style={styles.cellHeadingText}>ID No.</Text>
                             </View>
 
-                            <View style={styles.cellHeading}>
-                              <Text style={styles.cellHeadingText}>File</Text>
-                            </View>
                             {IdenDetEdit ? (
                               <View
                                 style={{
@@ -2557,12 +2686,18 @@ const EditProfile = ({navigation}) => {
                     onPress={() => {
                       setShowConsultFees(!showConsultFees);
                     }}>
+                    <FAIcon
+                      name="money-check"
+                      size={15}
+                      color={showConsultFees ? '#2b8ada' : 'gray'}
+                      style={{marginHorizontal: 5, alignSelf: 'center'}}
+                    />
                     <Text
                       style={[
                         styles.label,
-                        {width: '90%'},
+                        {width: '85%'},
                         showConsultFees
-                          ? {color: '#2B8ADA', width: '80%'}
+                          ? {color: '#2B8ADA', width: '75%'}
                           : null,
                       ]}>
                       Consultation Fees
@@ -2801,7 +2936,10 @@ const EditProfile = ({navigation}) => {
                           right: 0,
                         }}
                         onPress={() => {
-                          setdegreePath('');
+                          setdegreePath(null);
+                          setDegree('');
+                          setDegreePassingYear('');
+                          setSpecialization('');
                           setEduElementModal(false);
                         }}
                       />
@@ -2896,19 +3034,19 @@ const EditProfile = ({navigation}) => {
                       </View>
                       <View
                         style={{
-                          flexDirection: 'row',
+                          flexDirection: 'column',
                           marginVertical: 5,
                           flex: 1,
                           marginBottom: 10,
                         }}>
                         <CustomButton
                           text={
-                            degreePath == ''
+                            degreePath == null
                               ? 'Select Document'
                               : ' ✓ File Selected'
                           }
                           textstyle={{
-                            color: degreePath == '' ? '#2b8ada' : '#21c47f',
+                            color: degreePath == null ? '#2b8ada' : '#21c47f',
                             fontSize: 12,
                           }}
                           style={{
@@ -2918,7 +3056,7 @@ const EditProfile = ({navigation}) => {
                             paddingHorizontal: 10,
                             borderWidth: 2,
                             borderColor:
-                              degreePath == '' ? '#2b8ada' : '#21c47f',
+                              degreePath == null ? '#2b8ada' : '#21c47f',
                           }}
                           onPress={() => {
                             if (Degree == '' || DegreePassingYear == '')
@@ -2929,6 +3067,15 @@ const EditProfile = ({navigation}) => {
                             else selectDocsEdu();
                           }}
                         />
+                        <Text
+                          style={{
+                            alignSelf: 'center',
+                            fontSize: 9,
+                            marginTop: 2,
+                            color: 'red',
+                          }}>
+                          Note: Click on the button above to upload other file
+                        </Text>
                       </View>
                     </View>
 
@@ -2963,7 +3110,7 @@ const EditProfile = ({navigation}) => {
                             'Incomplete Details!',
                             'Please fill University Name',
                           );
-                        else if (degreePath == '')
+                        else if (degreePath == null)
                           Alert.alert(
                             'Incomplete Details!',
                             'Please select pdf file',
@@ -2984,7 +3131,7 @@ const EditProfile = ({navigation}) => {
 
                           updateEduDet(p);
                           setDegree('');
-                          setdegreePath('');
+                          setdegreePath(null);
                           setDegreePassingYear('');
                           setdoctorEducationPkId(0);
                           setSpecialization('');
@@ -3208,7 +3355,6 @@ const EditProfile = ({navigation}) => {
                           let p = {
                             doctorId: Number(doctorId),
                             endDate: endExpDate,
-
                             experienceInMonths: Number(experienceInMonths),
                             practiceAt: practiceAt,
                             startDate: startExpDate,
@@ -3331,13 +3477,15 @@ const EditProfile = ({navigation}) => {
                         </View>
                         <CustomButton
                           text={
-                            identificationPath == ''
+                            identificationPath == null
                               ? 'Select Document'
                               : ' ✓ File Selected'
                           }
                           textstyle={{
                             color:
-                              identificationPath == '' ? '#2b8ada' : '#21c47f',
+                              identificationPath == null
+                                ? '#2b8ada'
+                                : '#21c47f',
                             fontSize: 12,
                           }}
                           style={{
@@ -3348,7 +3496,9 @@ const EditProfile = ({navigation}) => {
                             paddingHorizontal: 10,
                             borderWidth: 2,
                             borderColor:
-                              identificationPath == '' ? '#2b8ada' : '#21c47f',
+                              identificationPath == null
+                                ? '#2b8ada'
+                                : '#21c47f',
                           }}
                           onPress={() => {
                             if (identificationType == '')
@@ -3376,7 +3526,7 @@ const EditProfile = ({navigation}) => {
                         if (
                           identificationNumber != '' &&
                           identificationType != '' &&
-                          identificationPath != ''
+                          identificationPath != null
                         ) {
                           var flag = 1;
                           if (
@@ -3419,7 +3569,7 @@ const EditProfile = ({navigation}) => {
 
                             updateIden(p);
                             setidentificationNumber('');
-                            setidentificationPath('');
+                            setidentificationPath(null);
                             setidentificationType('');
                             setIdenElementModal(false);
                             setShowIdenDet(false);
@@ -3434,7 +3584,7 @@ const EditProfile = ({navigation}) => {
                             'Incomplete Details!',
                             'Please Select Document Name',
                           );
-                        else if (identificationPath == '')
+                        else if (identificationPath == null)
                           Alert.alert(
                             'Incomplete Details!',
                             'Please Select Identification Document from your device',
