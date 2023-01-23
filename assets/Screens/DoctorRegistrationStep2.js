@@ -3947,7 +3947,7 @@ const DoctorRegistration2 = ({navigation}) => {
                                 // });
                                 let p = {
                                   questions: consultationQuestion,
-                                  speciality: questionSpl,
+                                  specialization: questionSpl,
                                 };
                                 let arr = [...questionareList];
                                 arr.push(p);
