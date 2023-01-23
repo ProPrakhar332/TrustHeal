@@ -9,6 +9,7 @@ import {
   StyleSheet,
   Linking,
 } from 'react-native';
+import apiConfig from './assets/API/apiConfig';
 import {useState, useEffect, useCallback} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -22,10 +23,11 @@ import {
   DrawerItem,
 } from '@react-navigation/drawer';
 import {useNavigation} from '@react-navigation/native';
-LogBox.ignoreLogs(['Warning: ...']);
+//LogBox.ignoreLogs(['Warning: ...']);
 //Screens
 
 import CallPage from './assets/Screens/CallPage';
+import doctor from './assets/Resources/doctor2x.png';
 
 import RoleScreen from './assets/Screens/RoleScreen1';
 import OTPScreen from './assets/Screens/OTPScreen';
@@ -316,17 +318,33 @@ function CustomDrawerContent(props) {
                 alignSelf: 'center',
                 borderRadius: 100,
               }}>
-              <Image
-                style={{
-                  height: 80,
-                  width: 80,
-                  borderRadius: 80,
-                  alignSelf: 'center',
-                  backgroundColor: 'white',
-                  margin: 5,
-                }}
-                source={require('./assets/Resources/doctor.png')}
-              />
+              {props.doctorObj.profilePhotoPath == null ? (
+                <Image
+                  style={{
+                    height: 80,
+                    width: 80,
+                    borderRadius: 80,
+                    alignSelf: 'center',
+                    backgroundColor: 'white',
+                    margin: 5,
+                  }}
+                  source={doctor}
+                />
+              ) : (
+                <Image
+                  style={{
+                    height: 80,
+                    width: 80,
+                    borderRadius: 80,
+                    alignSelf: 'center',
+                    backgroundColor: 'white',
+                    margin: 5,
+                  }}
+                  source={{
+                    uri: `${apiConfig.baseUrl}/file/download?fileToken=${props.doctorObj.profilePhotoPath}&userId=${props.doctorObj.doctorId}`,
+                  }}
+                />
+              )}
             </View>
           </View>
           <TouchableOpacity
@@ -340,7 +358,7 @@ function CustomDrawerContent(props) {
                 fontWeight: 'bold',
               }}>
               {props.doctorObj != null
-                ? props.doctorObj.fullName
+                ? props.doctorObj.doctorName
                 : 'Doctor Name'}
             </Text>
             <Text style={{color: 'white', fontSize: 10, marginBottom: 10}}>

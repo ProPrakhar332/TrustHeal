@@ -1408,6 +1408,7 @@ const FirstScreen = ({route, navigation}) => {
                         fontWeight: 'bold',
                         alignSelf: 'center',
                         marginTop: 15,
+                        color: 'black',
                       }}>
                       Enter OTP
                     </Text>
@@ -1432,12 +1433,18 @@ const FirstScreen = ({route, navigation}) => {
                       style={{
                         textAlign: 'center',
                         fontSize: 13,
+                        color: 'black',
                         marginVertical: 16,
                       }}>
                       Enter 4 digit OTP sent to your mobile number and
                       Registered email
                     </Text>
-                    <Text style={{fontSize: 22, fontWeight: 'bold'}}>
+                    <Text
+                      style={{
+                        fontSize: 22,
+                        fontWeight: 'bold',
+                        color: 'black',
+                      }}>
                       <FAIcon name="phone-alt" size={22} color="black" />
                       {'  '}
                       {mob}
@@ -1567,30 +1574,35 @@ const FirstScreen = ({route, navigation}) => {
                     </View>
 
                     {show ? (
-                      <View style={{flexDirection: 'row', alignSelf: 'center'}}>
-                        <Text style={{color: 'black'}}>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          alignSelf: 'center',
+                          marginTop: 10,
+                        }}>
+                        <Text style={{color: 'black', marginTop: 10}}>
                           Resend OTP after
-                          {
-                            <CountDown
-                              size={16}
-                              until={val}
-                              digitStyle={{
-                                marginHorizontal: 2,
-                              }}
-                              digitTxtStyle={{
-                                paddingTop: 15,
-                                marginTop: 10,
-                                color: '#2b8ada',
-                              }}
-                              separatorStyle={{paddingTop: 15, marginTop: 10}}
-                              timeToShow={['M', 'S']}
-                              timeLabels={{m: null, s: null}}
-                              showSeparator={true}
-                              onFinish={onFinishCount}
-                            />
-                          }
-                          sec
                         </Text>
+
+                        <CountDown
+                          size={16}
+                          until={val}
+                          digitStyle={{
+                            marginHorizontal: 2,
+                            padding: 0,
+                          }}
+                          digitTxtStyle={{
+                            color: '#2b8ada',
+                            padding: 0,
+                          }}
+                          //separatorStyle={{paddingTop: 15, marginTop: 10}}
+                          timeToShow={['M', 'S']}
+                          timeLabels={{m: null, s: null}}
+                          showSeparator={true}
+                          onFinish={onFinishCount}
+                        />
+
+                        <Text style={{color: 'black', marginTop: 10}}>sec</Text>
                       </View>
                     ) : null}
                   </View>

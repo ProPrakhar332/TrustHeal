@@ -159,14 +159,14 @@ const DoctorHome = ({navigation}) => {
       });
   };
 
-  // const openURL = useCallback(async url => {
-  //   const supported = await Linking.canOpenURL(url);
-  //   if (supported) {
-  //     await Linking.openURL(url);
-  //   } else {
-  //     Alert.alert('Error', `Don't know how to open this URL: ${url}`);
-  //   }
-  // }, []);
+  const openURL = useCallback(async url => {
+    const supported = await Linking.canOpenURL(url);
+    if (supported) {
+      await Linking.openURL(url);
+    } else {
+      Alert.alert('Error', `Don't know how to open this URL: ${url}`);
+    }
+  }, []);
 
   const timeformatter = time => {
     let text = time;
@@ -752,11 +752,15 @@ const DoctorHome = ({navigation}) => {
               borderRadius: 5,
             }}
             onPress={() => {
-              download(
-                item.prescriptionPath,
-                doctorId,
-                item.consultationId + '_Prescription_' + item.slotDate + '.pdf',
+              openURL(
+                `${apiConfig.baseUrl}/file/download?fileToken=${item.prescriptionPath}&userId=${doctorId}`,
               );
+
+              // download(
+              //   item.prescriptionPath,
+              //   doctorId,
+              //   item.consultationId + '_Prescription_' + item.slotDate + '.pdf',
+              // );
               //console.log(apiConfig.baseUrl + item.prescriptionPath);
               // openURL(apiConfig.baseUrl + item.prescriptionPath);
             }}>
@@ -1012,11 +1016,10 @@ const DoctorHome = ({navigation}) => {
               borderRadius: 5,
             }}
             onPress={() => {
-              download(
-                item.prescriptionPath,
-                doctorId,
-                item.consultationId + '_Prescription_' + item.slotDate + '.pdf',
+              openURL(
+                `${apiConfig.baseUrl}/file/download?fileToken=${item.prescriptionPath}&userId=${doctorId}`,
               );
+              // download(item.prescriptionPath,doctorId,item.consultationId + '_Prescription_' + item.slotDate + '.pdf');
             }}>
             <FAIcon
               name="prescription"

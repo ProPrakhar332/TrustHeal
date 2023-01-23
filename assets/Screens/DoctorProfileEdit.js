@@ -205,6 +205,7 @@ const EditProfile = ({navigation}) => {
 
   useEffect(() => {
     const onLoadSetData = async () => {
+      setisLoading(true);
       let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
       console.log('profile: ', x);
       setdoctorObj(x);
@@ -228,6 +229,18 @@ const EditProfile = ({navigation}) => {
       setdob(x.dob);
       setAge(x.age + '');
       setPinCode(x.pincode == null ? x.pinCode : x.pincode);
+      setprofilePhotoPath(
+        x.profilePhotoPath != null ? x.profilePhotoPath : null,
+      );
+      // if (x.profilePhotoPath != null) {
+      //   //await download(x.profilePhotoPath, x.doctorId, 'pfp.jpg');
+      //   // RNFS.exists(`file://${RNFS.DownloadDirectoryPath}/pfp.jpg`).then(
+      //   //   response => {
+      //   //     console.log(response);
+      //   //   },
+      //   // );
+      //   setpfpuri(`file://${RNFS.DownloadDirectoryPath}/pfp.jpg`);
+      // }
 
       // checkpfp(apiConfig.baseUrl + x.profilePhotoPath);
       // setprofilePhotoPath(x.profilePhotoPath);
@@ -235,6 +248,7 @@ const EditProfile = ({navigation}) => {
       setDoctorConfiguration(
         x.doctorConfigurationDTO != null ? x.doctorConfigurationDTO : '',
       );
+      setisLoading(false);
     };
 
     onLoadSetData();
@@ -904,37 +918,48 @@ const EditProfile = ({navigation}) => {
   };
 
   const download = async (fileToken, userId, fileName) => {
-    // let op = {};
-    // if (Platform.OS == 'ios') op = {NSURLIsExcludedFromBackupKey: true};
-    // await RNFS.mkdir(`file://${RNFS.DownloadDirectoryPath}/Arogya`, op);
-    let filePath = `file://${RNFS.DownloadDirectoryPath}/`;
-    let options = {
-      fromUrl:
-        apiConfig.baseUrl +
-        '/file/download?fileToken=' +
-        fileToken +
-        '&userId=' +
-        userId,
-      toFile: filePath + fileName,
-    };
-    await RNFS.downloadFile(options)
-      .promise.then(response => {
-        //console.log(response);
-        if (response.statusCode == 200)
-          Alert.alert(
-            'File Downloaded',
-            `The file is downloaded. File name is ${fileName}.`,
-          );
-        else
-          Alert.alert(
-            'Download Fail',
-            `Unable to download file. ${response.statusCode}`,
-          );
-      })
-      .catch(e => {
-        Alert.alert('Error', `${e}`);
-      });
+    // let filePath = `file://${RNFS.DownloadDirectoryPath}/`;
+    // let options = {
+    //   fromUrl:
+    //     apiConfig.baseUrl +
+    //     '/file/download?fileToken=' +
+    //     fileToken +
+    //     '&userId=' +
+    //     userId,
+    //   toFile: filePath + fileName,
+    // };
+    // await RNFS.downloadFile(options)
+    //   .promise.then(response => {
+    //     //console.log(response);
+    //     if (response.statusCode == 200) {
+    //       Alert.alert(
+    //         'File Downloaded',
+    //         `The file is downloaded. File name is ${fileName}.`,
+    //       );
+    //       openURL(filePath + fileName);
+    //     } else
+    //       Alert.alert(
+    //         'Download Fail',
+    //         `Unable to download file. ${response.statusCode}`,
+    //       );
+    //   })
+    //   .catch(e => {
+    //     Alert.alert('Error', `${e}`);
+    //   });
+
+    openURL(
+      `${apiConfig.baseUrl}/file/download?fileToken=${fileToken}&userId=${doctorId}`,
+    );
   };
+
+  const openURL = useCallback(async url => {
+    const supported = await Linking.canOpenURL(url);
+    if (supported) {
+      await Linking.openURL(url);
+    } else {
+      Alert.alert('Error', `Don't know how to open this URL: ${url}`);
+    }
+  }, []);
 
   //rendering dynamic components
 
@@ -1406,17 +1431,31 @@ const EditProfile = ({navigation}) => {
                   alignSelf: 'center',
                   marginVertical: 20,
                 }}>
-                <Image
-                  style={{
-                    alignSelf: 'center',
-                    width: 75,
-                    height: 75,
-                    marginVertical: 5,
-                    width: 100,
-                    height: 100,
-                    borderRadius: 100,
-                  }}
-                  source={pfpuri == null ? doctor : {uri: pfpuri}}></Image>
+                {profilePhotoPath == null ? (
+                  <Image
+                    style={{
+                      alignSelf: 'center',
+                      width: 75,
+                      height: 75,
+                      width: 100,
+                      height: 100,
+                      borderRadius: 100,
+                    }}
+                    source={doctor}></Image>
+                ) : (
+                  <Image
+                    style={{
+                      alignSelf: 'center',
+                      width: 75,
+                      height: 75,
+                      width: 100,
+                      height: 100,
+                      borderRadius: 100,
+                    }}
+                    source={{
+                      uri: `${apiConfig.baseUrl}/file/download?fileToken=${profilePhotoPath}&userId=${doctorId}`,
+                    }}></Image>
+                )}
                 {GenInfoEdit ? (
                   <TouchableOpacity onPress={chooseProfileImage}>
                     <FAIcon

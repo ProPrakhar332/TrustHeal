@@ -30,7 +30,9 @@ import notification from '../Icons/notification.png';
 import appointment from '../Icons/appointment.png';
 import help from '../Icons/help.png';
 import about from '../Icons/about.png';
+import waiting from '../Animations/waiting1.gif';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import RNFS from 'react-native-fs';
 import axios from 'axios';
 import apiConfig from '../API/apiConfig';
 import dateformatter from '../API/dateformatter';
@@ -53,6 +55,7 @@ function BasicDesign({navigation}) {
   const [HelpModal, setHelpModal] = useState(false);
   const [profilePhotoPath, setprofilePhotoPath] = useState('');
   const [pfpuri, setpfpuri] = useState(null);
+  const [isLoading, setisLoading] = useState(false);
 
   const logout = async () => {
     console.log('Logging out');
@@ -73,12 +76,38 @@ function BasicDesign({navigation}) {
   //     console.log('Error in pfp');
   //   }
   // }, []);
+  const download = async (fileToken, userId, fileName) => {
+    // let op = {};
+    // if (Platform.OS == 'ios') op = {NSURLIsExcludedFromBackupKey: true};
+    // await RNFS.mkdir(`file://${RNFS.DownloadDirectoryPath}/Arogya`, op);
+    let filePath = `file://${RNFS.CachesDirectoryPath}/`;
+    let options = {
+      fromUrl:
+        apiConfig.baseUrl +
+        '/file/download?fileToken=' +
+        fileToken +
+        '&userId=' +
+        userId,
+      toFile: filePath + fileName,
+    };
+    await RNFS.downloadFile(options)
+      .promise.then(response => {
+        //console.log(response);
+        if (response.statusCode != 200)
+          Alert.alert('Error', `Unable to load pfp. ${response.statusCode}`);
+      })
+      .catch(e => {
+        Alert.alert('Error', `${e}`);
+      });
+  };
 
   useEffect(() => {
     const onLoadSetData = async () => {
+      setisLoading(true);
       let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
 
       //setTitle(x.fullName.substring(0, x.fullName.indexOf(' ')));
+      console.log(x);
       setName(x.doctorName != undefined ? x.doctorName : x.fullName);
       setCity(x.city);
       setEmail(x.email);
@@ -87,9 +116,13 @@ function BasicDesign({navigation}) {
       setdob(x.dob);
       setGender(x.gender);
       setdoctorId(x.doctorId);
+      setprofilePhotoPath(
+        x.profilePhotoPath != null ? x.profilePhotoPath : null,
+      );
       //console.log("doctor id" + x.doctorId);
       //checkpfp(apiConfig.baseUrl + x.profilePhotoPath);
-      setprofilePhotoPath(x.profilePhotoPath);
+      //setprofilePhotoPath(x.profilePhotoPath);
+      setisLoading(false);
     };
     onLoadSetData();
   }, []);
@@ -150,16 +183,31 @@ function BasicDesign({navigation}) {
                   borderColor: '#2B8ADA',
                   justifyContent: 'center',
                 }}>
-                <Image
-                  source={pfpuri == null ? doctor : {uri: pfpuri}}
-                  style={{
-                    backgroundColor: '#2B8ADA',
-                    borderRadius: 70,
-                    width: 70,
-                    height: 70,
-                    alignSelf: 'center',
-                  }}
-                />
+                {profilePhotoPath == null ? (
+                  <Image
+                    source={doctor}
+                    style={{
+                      backgroundColor: '#2B8ADA',
+                      borderRadius: 70,
+                      width: 70,
+                      height: 70,
+                      alignSelf: 'center',
+                    }}
+                  />
+                ) : (
+                  <Image
+                    source={{
+                      uri: `${apiConfig.baseUrl}/file/download?fileToken=${profilePhotoPath}&userId=${doctorId}`,
+                    }}
+                    style={{
+                      backgroundColor: '#2B8ADA',
+                      borderRadius: 70,
+                      width: 70,
+                      height: 70,
+                      alignSelf: 'center',
+                    }}
+                  />
+                )}
               </View>
               <View style={{alignSelf: 'center'}}>
                 <Text style={[styles.blueUnderText, {textAlign: 'center'}]}>
@@ -758,6 +806,50 @@ function BasicDesign({navigation}) {
             {/* Speciality Modal */}
           </View>
         </ScrollView>
+        {isLoading && (
+          <View
+            style={{
+              position: 'absolute',
+              height: '100%',
+              width: '100%',
+              flexDirection: 'row',
+              justifyContent: 'center',
+              backgroundColor: 'rgba(0,0,0,0.4)',
+            }}>
+            <View
+              style={{
+                backgroundColor: 'white',
+                alignSelf: 'center',
+                borderRadius: 50,
+                width: 250,
+                height: 250,
+                justifyContent: 'center',
+                flexDirection: 'column',
+              }}>
+              <Image
+                source={waiting}
+                style={{
+                  alignSelf: 'center',
+                  width: 100,
+                  height: 100,
+                  borderRadius: 100,
+                }}
+              />
+              <Text
+                style={{
+                  alignSelf: 'center',
+                  textAlign: 'center',
+                  color: '#2B8ADA',
+                  fontSize: 20,
+                  fontWeight: 'bold',
+                  width: '100%',
+                  padding: 10,
+                }}>
+                Loading...
+              </Text>
+            </View>
+          </View>
+        )}
       </SafeAreaView>
     </KeyboardAvoidingView>
   );
