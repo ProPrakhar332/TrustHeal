@@ -516,7 +516,7 @@ const ManageSchedule = () => {
     amp.push(item);
 
     axios
-      .post(apiConfig.baseUrl + '/doctor/clinic/save/or/update', amp)
+      .post(apiConfig.baseUrl + '/doctor/clinic/save', amp)
       .then(function (response) {
         if (response.status == 200 || response.status == 201) {
           Alert.alert(

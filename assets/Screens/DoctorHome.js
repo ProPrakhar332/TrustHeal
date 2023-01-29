@@ -23,7 +23,8 @@ import {useCallback} from 'react';
 
 import {CheckBox} from 'react-native-elements';
 import FAIcon from 'react-native-vector-icons/FontAwesome5';
-import MIcons from 'react-native-vector-icons/Entypo';
+import Entypo from 'react-native-vector-icons/Entypo';
+import MIcons from 'react-native-vector-icons/MaterialIcons';
 import CustomButton from '../Components/CustomButton';
 //images
 import pfp1 from '../Resources/patient.png';
@@ -47,6 +48,7 @@ import dateformatter from '../API/dateformatter';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNFS from 'react-native-fs';
 import dayjs from 'dayjs';
+import Pdf from 'react-native-pdf';
 
 const dataStatus = [
   {key: 'Yes', value: 'Yes'},
@@ -68,6 +70,7 @@ const DoctorHome = ({navigation}) => {
   const [upcomingEConsultations, setupcomingEConsultations] = useState(false);
   const [upcomingPConsultations, setupcomingPConsultations] = useState(false);
   const [PrescriptionModal, setPrescriptionModal] = useState(false);
+  const [prescriptionId, setprescriptionId] = useState(null);
   const [ChattingModal, setChattingModal] = useState(false);
   const [HistoryModal, setHistoryModal] = useState(false);
   const [historyData, sethistoryData] = useState([]);
@@ -93,6 +96,14 @@ const DoctorHome = ({navigation}) => {
   const [strtCC, setstrtCC] = useState(0);
   const [endCC, setendCC] = useState(4);
   const [endOfList, setendOfList] = useState(false);
+  const [zoom, setZoom] = useState(1);
+
+  const onZoomIn = () => {
+    if (zoom < 2.5) setZoom(zoom + 0.25);
+  };
+  const onZoomOut = () => {
+    if (zoom > 1) setZoom(zoom - 0.25);
+  };
 
   const layout = useWindowDimensions();
 
@@ -143,12 +154,47 @@ const DoctorHome = ({navigation}) => {
     await RNFS.downloadFile(options)
       .promise.then(response => {
         //console.log(response);
-        if (response.statusCode == 200)
+        if (response.statusCode == 200) {
           Alert.alert(
             'File Downloaded',
             `The file is downloaded. File name is ${fileName}.`,
           );
-        else
+          // setprescriptionId(filePath + fileName);
+        } else
+          Alert.alert(
+            'Download Fail',
+            `Unable to download file. ${response.statusCode}`,
+          );
+      })
+      .catch(e => {
+        Alert.alert('Error', `${e}`);
+      });
+  };
+
+  const downloadCache = async (fileToken, userId, fileName) => {
+    // let op = {};
+    // if (Platform.OS == 'ios') op = {NSURLIsExcludedFromBackupKey: true};
+    // await RNFS.mkdir(`file://${RNFS.DownloadDirectoryPath}/Arogya`, op);
+    let filePath = `file://${RNFS.CachesDirectoryPath}/`;
+    let options = {
+      fromUrl:
+        apiConfig.baseUrl +
+        '/file/download?fileToken=' +
+        fileToken +
+        '&userId=' +
+        userId,
+      toFile: filePath + fileName,
+    };
+    await RNFS.downloadFile(options)
+      .promise.then(response => {
+        //console.log(response);
+        if (response.statusCode == 200) {
+          //  Alert.alert(
+          //   'File Downloaded',
+          //   `The file is downloaded. File name is ${fileName}.`,
+          // );
+          setprescriptionId(filePath + fileName);
+        } else
           Alert.alert(
             'Download Fail',
             `Unable to download file. ${response.statusCode}`,
@@ -185,7 +231,7 @@ const DoctorHome = ({navigation}) => {
 
   const renderCard = ({item}) => {
     return (
-      <TouchableOpacity
+      <View
         style={{
           backgroundColor: 'white',
           width: '95%',
@@ -193,7 +239,8 @@ const DoctorHome = ({navigation}) => {
           borderRadius: 10,
           marginVertical: 5,
         }}
-        onPress={() => console.log(item)}>
+        // onPress={() => console.log(item)}
+      >
         <View
           style={{
             flexDirection: 'row',
@@ -506,13 +553,13 @@ const DoctorHome = ({navigation}) => {
             <Text style={{fontSize: 13}}>Today's Doc</Text>
           </TouchableOpacity>
         </View>
-      </TouchableOpacity>
+      </View>
     );
   };
 
   const renderCardCompleted = ({item}) => {
     return (
-      <TouchableOpacity
+      <View
         style={{
           backgroundColor: 'white',
           width: '95%',
@@ -521,7 +568,7 @@ const DoctorHome = ({navigation}) => {
           marginVertical: 5,
           padding: 10,
         }}
-        onPress={() => console.log(item.consultationId)}
+        // onPress={() => console.log(item.consultationId)}
         key={item.consultationId}>
         <View
           style={{
@@ -752,15 +799,21 @@ const DoctorHome = ({navigation}) => {
               borderRadius: 5,
             }}
             onPress={() => {
-              openURL(
-                `${apiConfig.baseUrl}/file/download?fileToken=${item.prescriptionPath}&userId=${doctorId}`,
-              );
-
-              // download(
-              //   item.prescriptionPath,
-              //   doctorId,
-              //   item.consultationId + '_Prescription_' + item.slotDate + '.pdf',
+              // setprescriptionId(item.prescriptionPath);
+              // console.log(
+              //   `${apiConfig.baseUrl}/file/download?fileToken=${item.prescriptionPath}&userId=${doctorId}`,
               // );
+              // setPrescriptionModal(true);
+              // openURL(
+              //   `${apiConfig.baseUrl}/file/download?fileToken=${item.prescriptionPath}&userId=${doctorId}`,
+              // );
+
+              downloadCache(
+                item.prescriptionPath,
+                doctorId,
+                item.consultationId + '_Prescription_' + item.slotDate + '.pdf',
+              );
+              setPrescriptionModal(true);
               //console.log(apiConfig.baseUrl + item.prescriptionPath);
               // openURL(apiConfig.baseUrl + item.prescriptionPath);
             }}>
@@ -771,12 +824,12 @@ const DoctorHome = ({navigation}) => {
             />
           </TouchableOpacity>
         </View>
-      </TouchableOpacity>
+      </View>
     );
   };
   const renderCardRecent = ({item}) => {
     return (
-      <TouchableOpacity
+      <View
         style={{
           backgroundColor: 'white',
           width: '95%',
@@ -785,7 +838,7 @@ const DoctorHome = ({navigation}) => {
           marginVertical: 5,
           padding: 10,
         }}
-        onPress={() => console.log(item.consultationId)}
+        //onPress={() => console.log(item.consultationId)}
         key={item.consultationId}>
         <View
           style={{
@@ -1016,10 +1069,16 @@ const DoctorHome = ({navigation}) => {
               borderRadius: 5,
             }}
             onPress={() => {
-              openURL(
-                `${apiConfig.baseUrl}/file/download?fileToken=${item.prescriptionPath}&userId=${doctorId}`,
-              );
+              // openURL(
+              //   `${apiConfig.baseUrl}/file/download?fileToken=${item.prescriptionPath}&userId=${doctorId}`,
+              // );
               // download(item.prescriptionPath,doctorId,item.consultationId + '_Prescription_' + item.slotDate + '.pdf');
+              downloadCache(
+                item.prescriptionPath,
+                doctorId,
+                item.consultationId + '_Prescription_' + item.slotDate + '.pdf',
+              );
+              setPrescriptionModal(true);
             }}>
             <FAIcon
               name="prescription"
@@ -1028,7 +1087,7 @@ const DoctorHome = ({navigation}) => {
             />
           </TouchableOpacity>
         </View>
-      </TouchableOpacity>
+      </View>
     );
   };
 
@@ -1915,6 +1974,146 @@ const DoctorHome = ({navigation}) => {
                 </View>
               </Modal>
             ) : null}
+            {PrescriptionModal ? (
+              <Modal
+                animationType="slide"
+                transparent={true}
+                visible={PrescriptionModal}
+                onRequestClose={() => {
+                  setPrescriptionModal(!PrescriptionModal);
+                }}>
+                <View
+                  style={{
+                    height: '100%',
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                  }}>
+                  <View
+                    style={[
+                      styles.modalView,
+                      {
+                        borderRadius: 10,
+                      },
+                    ]}>
+                    <View
+                      style={{
+                        width: '100%',
+                        alignSelf: 'center',
+                        borderBottomWidth: 1,
+                        borderBottomColor: 'gray',
+                      }}>
+                      <Text
+                        style={{
+                          fontWeight: 'bold',
+                          fontSize: 16,
+                          padding: 5,
+                        }}>
+                        Prescription
+                      </Text>
+                      <FAIcon
+                        name="window-close"
+                        color="black"
+                        size={26}
+                        style={{
+                          position: 'absolute',
+                          top: 0,
+                          right: 0,
+                        }}
+                        onPress={() => {
+                          setPrescriptionModal(false);
+                          setprescriptionId(null);
+                          setZoom(1);
+                        }}
+                      />
+                    </View>
+                    <View style={{minHeight: 150, width: '100%'}}>
+                      <View
+                        style={{
+                          padding: 10,
+                          width: '100%',
+                          alignSelf: 'center',
+                          borderRadius: 7,
+                          marginVertical: 10,
+                          borderWidth: 2,
+                          borderColor: 'gray',
+                        }}>
+                        <Pdf
+                          source={{
+                            uri: prescriptionId,
+                          }}
+                          style={{
+                            width: '100%',
+                            height: 275,
+                            alignSelf: 'center',
+                          }}
+                          //onLoadComplete={() => console.log('fully loaded')}
+                          scale={zoom}
+                        />
+                      </View>
+                      <View
+                        style={{alignSelf: 'center', flexDirection: 'column'}}>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            alignContent: 'center',
+                            justifyContent: 'space-evenly',
+                            width: '95%',
+                          }}>
+                          <TouchableOpacity>
+                            <FAIcon
+                              name="minus-circle"
+                              size={20}
+                              color={'gray'}
+                              onPress={onZoomOut}
+                            />
+                          </TouchableOpacity>
+                          <Text>
+                            {zoom * 100}
+                            {' %'}
+                          </Text>
+                          <TouchableOpacity>
+                            <FAIcon
+                              name="plus-circle"
+                              size={20}
+                              color={'gray'}
+                              onPress={onZoomIn}
+                            />
+                          </TouchableOpacity>
+                        </View>
+                        <View
+                          style={{
+                            width: '85%',
+                            alignSelf: 'center',
+                            marginTop: 5,
+                          }}></View>
+                        <CustomButton
+                          textstyle={{color: 'white', fontSize: 12}}
+                          text={'Download'}
+                          style={{
+                            backgroundColor: 'limegreen',
+                            borderRadius: 10,
+                          }}
+                          onPress={async () => {
+                            let fileName = prescriptionId.split('/').pop();
+                            //console.log(fileName);
+                            await RNFS.copyFile(
+                              prescriptionId,
+                              `file://${RNFS.DownloadDirectoryPath}/` +
+                                fileName,
+                            );
+                            Alert.alert(
+                              'Downloaded',
+                              `Prescription has been downloaded under the name of:- ${fileName}`,
+                            );
+                          }}
+                        />
+                      </View>
+                    </View>
+                  </View>
+                </View>
+              </Modal>
+            ) : null}
             {/* Completed Consultaions White Label */}
             <TouchableOpacity
               style={styles.WhiteLabel}
@@ -2042,7 +2241,7 @@ const DoctorHome = ({navigation}) => {
             <TouchableOpacity
               style={styles.WhiteLabel}
               onPress={() => setStatus(!Status)}>
-              <MIcons
+              <Entypo
                 name="back-in-time"
                 size={17}
                 color={Status ? '#2b8ada' : 'gray'}

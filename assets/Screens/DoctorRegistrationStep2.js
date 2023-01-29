@@ -905,7 +905,7 @@ const DoctorRegistration2 = ({navigation}) => {
             {/* Start Date */}
             <View style={styles.cellStyle}>
               <Text style={{textAlign: 'center', fontSize: 10}}>
-                {questionareList.speciality}
+                {questionareList.specialization}
               </Text>
             </View>
             {/* End Date */}
@@ -2031,7 +2031,7 @@ const DoctorRegistration2 = ({navigation}) => {
                           else if (RegYear == '')
                             Alert.alert(
                               'Incomplete Details!',
-                              'Please Select Registration',
+                              'Please Select Registration Year',
                             );
                           else if (certificatePath == null)
                             Alert.alert(
@@ -2374,11 +2374,12 @@ const DoctorRegistration2 = ({navigation}) => {
                     <View style={{flex: 1}}>
                       <CustomButton
                         text={'+ Add More'}
-                        textstyle={{color: 'white', fontSize: 10}}
+                        textstyle={{color: '#2b8ada', fontSize: 10}}
                         style={{
                           alignSelf: 'flex-end',
                           width: 80,
-                          backgroundColor: '#2b8ada',
+                          borderColor: '#2b8ada',
+                          borderWidth: 1,
                           borderRadius: 5,
                           padding: 3,
                           paddingHorizontal: 10,
@@ -2433,7 +2434,7 @@ const DoctorRegistration2 = ({navigation}) => {
                           if (Education.length == 0)
                             Alert.alert(
                               'Incomplete Details!',
-                              'Please Fill Education details before uploasding.',
+                              'Please Fill Education details before uploading.',
                             );
                           else postEduDet();
                         }}
@@ -2789,11 +2790,12 @@ const DoctorRegistration2 = ({navigation}) => {
                     <View style={{flex: 1}}>
                       <CustomButton
                         text={'+ Add More'}
-                        textstyle={{color: 'white', fontSize: 10}}
+                        textstyle={{color: '#2b8ada', fontSize: 10}}
                         style={{
                           alignSelf: 'flex-end',
                           width: 80,
-                          backgroundColor: '#2b8ada',
+                          borderColor: '#2b8ada',
+                          borderWidth: 1,
                           borderRadius: 5,
                           padding: 3,
                           paddingHorizontal: 10,
@@ -2849,7 +2851,7 @@ const DoctorRegistration2 = ({navigation}) => {
                           if (Experience.length == 0)
                             Alert.alert(
                               'Incomplete Details!',
-                              'Please Fill Education details before uploading ',
+                              'Please Fill Experience details before uploading ',
                             );
                           else postExpDet();
                         }}
@@ -3149,11 +3151,12 @@ const DoctorRegistration2 = ({navigation}) => {
                     <View style={{flex: 1}}>
                       <CustomButton
                         text={'+ Add More'}
-                        textstyle={{color: 'white', fontSize: 10}}
+                        textstyle={{color: '#2b8ada', fontSize: 10}}
                         style={{
                           alignSelf: 'flex-end',
                           width: 80,
-                          backgroundColor: '#2b8ada',
+                          borderColor: '#2b8ada',
+                          borderWidth: 1,
                           borderRadius: 5,
                           padding: 3,
                           paddingHorizontal: 10,
@@ -3375,12 +3378,12 @@ const DoctorRegistration2 = ({navigation}) => {
                             if (clinicAddress == '')
                               Alert.alert(
                                 'Incomplete Details!',
-                                'Please fill Clinic Name before saving',
+                                'Please fill Clinic Address before saving',
                               );
                             else if (clinicName == '')
                               Alert.alert(
                                 'Incomplete Details!',
-                                'Please fill Clinic Address before saving',
+                                'Please fill Clinic Name before saving',
                               );
                             else {
                               let p = [
@@ -3429,11 +3432,12 @@ const DoctorRegistration2 = ({navigation}) => {
                       <View style={{flex: 1}}>
                         <CustomButton
                           text={'+ Add More'}
-                          textstyle={{color: 'white', fontSize: 10}}
+                          textstyle={{color: '#2b8ada', fontSize: 10}}
                           style={{
                             alignSelf: 'flex-end',
                             width: 80,
-                            backgroundColor: '#2b8ada',
+                            borderColor: '#2b8ada',
+                            borderWidth: 1,
                             borderRadius: 5,
                             padding: 3,
                             paddingHorizontal: 10,
@@ -3488,7 +3492,7 @@ const DoctorRegistration2 = ({navigation}) => {
                             if (ClinicDet.length == 0)
                               Alert.alert(
                                 'Incomplete Details!',
-                                'Please Fill ClinicDet details before continuing ',
+                                'Please Fill Clinic details before continuing ',
                               );
                             else postClinicDet();
                           }}
@@ -4074,9 +4078,14 @@ const DoctorRegistration2 = ({navigation}) => {
                         flexDirection: 'column',
                         width: '100%',
                       }}>
-                      <Text style={styles.inputLabel}>
-                        Physical Consultation Fees(in ₹)
-                      </Text>
+                      <View style={{flexDirection: 'row'}}>
+                        <Text style={styles.inputLabel}>
+                          Physical Consultation Fees{' '}
+                        </Text>
+                        <Text style={[styles.inputLabel, {color: 'red'}]}>
+                          ( in ₹ )
+                        </Text>
+                      </View>
                       <TextInput
                         style={[styles.textInput]}
                         maxLength={5}
@@ -4092,9 +4101,14 @@ const DoctorRegistration2 = ({navigation}) => {
                         flexDirection: 'column',
                         width: '100%',
                       }}>
-                      <Text style={styles.inputLabel}>
-                        E-Consultation Fees(in ₹)
-                      </Text>
+                      <View style={{flexDirection: 'row'}}>
+                        <Text style={styles.inputLabel}>
+                          E-Consultation Fees{' '}
+                        </Text>
+                        <Text style={[styles.inputLabel, {color: 'red'}]}>
+                          ( in ₹ )
+                        </Text>
+                      </View>
                       <TextInput
                         style={[styles.textInput]}
                         maxLength={5}
@@ -4110,9 +4124,12 @@ const DoctorRegistration2 = ({navigation}) => {
                         flexDirection: 'column',
                         width: '100%',
                       }}>
-                      <Text style={styles.inputLabel}>
-                        Follow-Up Fees(in ₹)
-                      </Text>
+                      <View style={{flexDirection: 'row'}}>
+                        <Text style={styles.inputLabel}>Follow-Up Fees </Text>
+                        <Text style={[styles.inputLabel, {color: 'red'}]}>
+                          ( in ₹ )
+                        </Text>
+                      </View>
                       <TextInput
                         style={[styles.textInput]}
                         keyboardType={'number-pad'}
@@ -4128,8 +4145,8 @@ const DoctorRegistration2 = ({navigation}) => {
                         flexDirection: 'column',
                         width: '100%',
                       }}>
-                      <Text style={styles.inputLabel}>
-                        Duration of Follow-Up(in days)
+                      <Text style={[styles.inputLabel, {marginBottom: 7}]}>
+                        Duration of Follow-Up ( in days )
                       </Text>
                       <SelectList
                         defaultOption={'4'}
@@ -4137,6 +4154,7 @@ const DoctorRegistration2 = ({navigation}) => {
                         boxStyles={{
                           backgroundColor: '#e8f0fe',
                           borderWidth: 0,
+                          padding: 0,
                         }}
                         dropdownTextStyles={{
                           color: '#2b8ada',
@@ -4186,10 +4204,10 @@ const DoctorRegistration2 = ({navigation}) => {
                         borderRadius: 10,
                       }}
                       onPress={() => {
-                        if (showFollowUp == '')
+                        if (physicalConsulationFees == '')
                           Alert.alert(
                             'Incomplete Details!',
-                            'Please add Follow-Up duration before uploading',
+                            'Please fill p-consultation fees before saving',
                           );
                         else if (eConsulationFees == '')
                           Alert.alert(
@@ -4200,6 +4218,11 @@ const DoctorRegistration2 = ({navigation}) => {
                           Alert.alert(
                             'Incomplete Details!',
                             'Please fill follow-up fees before saving',
+                          );
+                        else if (showFollowUp == '')
+                          Alert.alert(
+                            'Incomplete Details!',
+                            'Please add Follow-Up duration before uploading',
                           );
                         else {
                           postConsultFees();

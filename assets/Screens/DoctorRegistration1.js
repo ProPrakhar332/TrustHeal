@@ -148,6 +148,7 @@ const DoctorRegistrationStep1 = ({navigation}) => {
     }
     //console.log(x);
     await AsyncStorage.setItem('age', x + '');
+    // await AsyncStorage.removeItem('dob');
     setage(x);
   };
 

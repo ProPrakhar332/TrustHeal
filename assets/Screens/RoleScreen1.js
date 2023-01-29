@@ -191,13 +191,18 @@ const RoleScreen = ({navigation}) => {
                     // navigation.push("OTPScreen", {
                     //   nextScreen: "PatientRegistration",
                     // });
-                    navigation.navigate('CallPage', {
-                      consultationType: 'VIDEO_CALL',
-                      callID: '1',
-                      userID: 'Patient',
-                      userName: 'Patient',
-                    });
-                    //Alert.alert("Coming in next phase");
+
+                    // navigation.navigate('CallPage', {
+                    //   consultationType: 'VIDEO_CALL',
+                    //   callID: '1',
+                    //   userID: 'Patient',
+                    //   userName: 'Patient',
+                    // });
+                    navigation.navigate('PatientRegistration1');
+                    // Alert.alert(
+                    //   'Coming Soon',
+                    //   'This section would be available in next phase!',
+                    // );
                   }}
                 />
               </TouchableOpacity>

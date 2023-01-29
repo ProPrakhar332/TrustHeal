@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useState} from 'react';
 import {
   Text,
   Alert,
@@ -13,51 +13,38 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   useWindowDimensions,
-} from "react-native";
-import CustomButton from "../Components/CustomButton";
+} from 'react-native';
+import CustomButton from '../Components/CustomButton';
 import {
   SelectList,
   MultipleSelectList,
-} from "react-native-dropdown-select-list";
+} from 'react-native-dropdown-select-list';
+import dayjs from 'dayjs';
+import dateformatter from '../API/dateformatter';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
 //icons
-import patient from "../Resources/patient.png";
-import upload from "../Resources/upload.png";
-import { CheckBox } from "react-native-elements";
-import FAIcon from "react-native-vector-icons/FontAwesome5";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useEffect } from "react";
+import patient from '../Resources/patient.png';
+import upload from '../Resources/upload.png';
+import {CheckBox} from 'react-native-elements';
+import FAIcon from 'react-native-vector-icons/FontAwesome5';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useEffect} from 'react';
 
-const PatientRegistration1 = ({ navigation }) => {
+const PatientRegistration1 = ({navigation}) => {
   const [patientDto, setpatientDto] = useState([]);
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const [title, setTitle] = useState('');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [gender, setGender] = useState('');
+  const [city, setCity] = useState('');
+  const [dob, setdob] = useState('');
+  const [age, setage] = useState('');
+  const [mobno, setmobno] = useState('');
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const [isLoading, setisLoading] = useState(false);
+  const [complete, setcomplete] = useState(0);
 
-  const [mobno, setmobno] = useState("");
-  const [gender, setGender] = useState("");
-  const [city, setCity] = useState("");
-  const [dob, setdob] = useState("");
-  const dataGender = [
-    { key: "Male", value: "Male" },
-    { key: "Female", value: "Female" },
-    { key: "Other", value: "Other" },
-  ];
-  const [title, setTitle] = useState("");
-  const dataTitle = [
-    { key: "Mr.", value: "Mr." },
-    { key: "Mrs.", value: "Mrs." },
-    { key: "Ms.", value: "Ms." },
-  ];
-  const dataBloodGroup = [
-    { key: "A+", value: "A+" },
-    { key: "A-", value: "A-" },
-    { key: "B+", value: "B+" },
-    { key: "B-", value: "B-" },
-    { key: "O+", value: "O+" },
-    { key: "O-", value: "O-" },
-    { key: "AB+", value: "AB+" },
-    { key: "AB-", value: "AB-" },
-  ];
   const [checkTerms, setCheckTerms] = useState(false);
 
   const window = useWindowDimensions();
@@ -66,603 +53,497 @@ const PatientRegistration1 = ({ navigation }) => {
   //geninfo
   const [showGenInfo, setShowGenInfo] = useState(true);
   const [GenInfoEdit, setGenInfoEdit] = useState(false);
-  const [age, setAge] = useState("");
 
   //Medical Registration Feild
-  const [showMedReg, setShowMedReg] = useState(false);
-  const [BloodGroup, setBloodGroup] = useState("");
-  const [Occupation, setOccupation] = useState("");
-  const [Weight, setWeight] = useState("");
-  const [Height, setHeight] = useState("");
+  const [showOtherInfo, setshowOtherInfo] = useState(false);
+  const [BloodGroup, setBloodGroup] = useState('');
+  const [Occupation, setOccupation] = useState('');
+  const [Weight, setWeight] = useState('');
+  const [Height, setHeight] = useState('');
+  const dataGender = [
+    {key: 'Male', value: 'Male'},
+    {key: 'Female', value: 'Female'},
+    {key: 'Other', value: 'Other'},
+  ];
+  const dataTitle = [
+    {key: 'Mr.', value: 'Mr.'},
+    {key: 'Mrs.', value: 'Mrs.'},
+    {key: 'Ms.', value: 'Ms.'},
+  ];
+  const dataBloodGroup = [
+    {key: 'A+', value: 'A+'},
+    {key: 'A-', value: 'A-'},
+    {key: 'B+', value: 'B+'},
+    {key: 'B-', value: 'B-'},
+    {key: 'O+', value: 'O+'},
+    {key: 'O-', value: 'O-'},
+    {key: 'AB+', value: 'AB+'},
+    {key: 'AB-', value: 'AB-'},
+  ];
 
-  useEffect(() => {
-    async function fetchData() {
-      const p = JSON.parse(
-        await AsyncStorage.getItem("PatientInitialRegistrationDetails")
-      );
-      setTitle(p.patientTitle);
-      setName(p.patientName);
-      setEmail(p.patientEmail);
-      setGender(p.patientGender);
-      setCity(p.patientCity);
-      setdob(p.patientDob);
-      setAge(p.patientAge);
-    }
-    fetchData();
-  }, []);
-  const SetData = async () => {
-    let p = {
-      patientTitle: title,
-      patientName: name,
-      patientEmail: email,
-      patientGender: gender,
-      patientCity: city,
-      patientDob: dob,
-      patientAge: age,
-      patientMobno: mobno,
-      patientBloodGroup: BloodGroup,
-      patientOccupation: Occupation,
-      patientHeight: Height,
-      patientWeight: Weight,
-    };
-    p = JSON.stringify(p);
-    await AsyncStorage.setItem("PatientRegistrationDetails", p);
-    console.log(await AsyncStorage.getItem("PatientRegistrationDetails"));
+  // useEffect(() => {
+  //   async function fetchData() {
+  //     const p = JSON.parse(
+  //       await AsyncStorage.getItem("PatientInitialRegistrationDetails")
+  //     );
+  //     setTitle(p.patientTitle);
+  //     setName(p.patientName);
+  //     setEmail(p.patientEmail);
+  //     setGender(p.patientGender);
+  //     setCity(p.patientCity);
+  //     setdob(p.patientDob);
+  //     setAge(p.patientAge);
+  //   }
+  //   fetchData();
+  // }, []);
+
+  const hideDatePicker = () => {
+    setDatePickerVisibility(false);
   };
+  const showDatePicker = () => {
+    //console.log("Pressed button");
+
+    setDatePickerVisibility(true);
+  };
+
+  const handleConfirm = date => {
+    setdob(date);
+    console.log(dayjs().diff(dayjs(date), 'year'));
+    setage(dayjs().diff(dayjs(date), 'year'));
+
+    hideDatePicker();
+  };
+
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}
-      enabled={true}
-    >
+      enabled={true}>
       <SafeAreaView
         style={{
-          backgroundColor: "#E8F0FE",
-          width: "100%",
-          marginTop: 30,
-        }}
-      >
+          backgroundColor: '#E8F0FE',
+          width: '100%',
+        }}>
         <ScrollView
           style={{
-            width: "90%",
-            alignSelf: "center",
+            width: '90%',
+            alignSelf: 'center',
             marginVertical: 10,
           }}
-          showsVerticalScrollIndicator={false}
-        >
+          showsVerticalScrollIndicator={false}>
+          {/* Progress Bar */}
+          <View
+            style={{
+              flex: 1,
+              // elevation: 20,
+              backgroundColor: 'white',
+              width: '90%',
+              height: 10,
+              alignSelf: 'center',
+              borderRadius: 10,
+              marginVertical: 10,
+            }}>
+            <View
+              style={{
+                position: 'absolute',
+                top: 0,
+                width: window.width * 0.45 * complete,
+                height: 10,
+                borderRadius: 10,
+                backgroundColor: '#2b8ada',
+              }}></View>
+          </View>
+          {/* Image */}
           <View>
             <View
               style={{
                 borderWidth: 5,
-                borderColor: "white",
-                backgroundColor: "white",
+                borderColor: 'white',
+                backgroundColor: 'white',
                 width: 100,
                 height: 100,
                 borderRadius: 150,
-                alignSelf: "center",
-                alignItems: "center",
+                alignSelf: 'center',
+                alignItems: 'center',
                 marginVertical: 10,
-              }}
-            >
+              }}>
               <Image
                 style={{
-                  alignSelf: "center",
+                  alignSelf: 'center',
                   width: 75,
                   height: 75,
                   marginVertical: 5,
                 }}
-                source={patient}
-              ></Image>
+                source={patient}></Image>
             </View>
           </View>
+          {/* General Info Label */}
           <View
             style={{
-              width: "100%",
-              alignSelf: "center",
-            }}
-          >
+              width: '100%',
+              alignSelf: 'center',
+            }}>
             <View
               style={[
                 {
-                  flexDirection: "row",
-                  backgroundColor: "white",
+                  flexDirection: 'row',
+                  backgroundColor: 'white',
                   borderTopRightRadius: 10,
                   borderTopLeftRadius: 10,
                   borderRadius: 10,
                   padding: 5,
                   marginVertical: 10,
                 },
-                showGenInfo ? { borderRadius: 0, marginBottom: 0 } : null,
-              ]}
-            >
+                showGenInfo ? {borderRadius: 0, marginBottom: 0} : null,
+              ]}>
               <TouchableOpacity
                 style={[
-                  { flexDirection: "row", width: "100%" },
+                  {flexDirection: 'row', width: '100%'},
                   showGenInfo
-                    ? { borderBottomWidth: 0.5, borderBottomColor: "#707070" }
+                    ? {borderBottomWidth: 0.5, borderBottomColor: '#707070'}
                     : null,
                 ]}
                 onPress={() => {
-                  if (!showGenInfo) {
-                    setShowGenInfo(!showGenInfo);
-                  } else {
-                    setShowGenInfo(!showGenInfo);
-                  }
-                }}
-              >
+                  setShowGenInfo(!showGenInfo);
+                }}>
+                <FAIcon
+                  name="address-card"
+                  size={15}
+                  color={showGenInfo ? '#2b8ada' : 'gray'}
+                  style={{marginHorizontal: 5, alignSelf: 'center'}}
+                />
                 <Text
                   style={[
                     styles.label,
-                    { width: "90%" },
-                    showGenInfo ? { color: "#2B8ADA", width: "80%" } : null,
-                  ]}
-                >
+                    {width: '85%'},
+                    showGenInfo ? {color: '#2B8ADA'} : null,
+                  ]}>
                   General Information
                 </Text>
-                {showGenInfo ? (
-                  <Text
-                    style={{
-                      alignSelf: "center",
-                      color: "#2B8ADA",
-                      padding: 5,
-                      textDecorationLine: "underline",
-                    }}
-                    onPress={() => {
-                      Alert.alert("You can now edit General Information Field");
-                      setGenInfoEdit(true);
-                    }}
-                  >
-                    Edit
-                  </Text>
-                ) : null}
+
                 <FAIcon
-                  name={showGenInfo ? "chevron-down" : "chevron-right"}
-                  style={[styles.label, { width: "10%", fontSize: 20 }]}
-                  color={showGenInfo ? "#2B8ADA" : "gray"}
-                ></FAIcon>
+                  name={showGenInfo ? 'chevron-down' : 'chevron-right'}
+                  style={[styles.label, {width: '10%', fontSize: 20}]}
+                  color={showGenInfo ? '#2B8ADA' : 'gray'}></FAIcon>
               </TouchableOpacity>
             </View>
           </View>
+          {/* General Info Body */}
           {showGenInfo ? (
             <View>
               <View
                 style={{
-                  backgroundColor: "white",
+                  backgroundColor: 'white',
                   padding: 10,
                   borderBottomRightRadius: 10,
                   borderBottomLeftRadius: 10,
                   marginBottom: 10,
-                }}
-              >
-                <View style={{ flexDirection: "column", marginVertical: 10 }}>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      alignSelf: "center",
-                      backgroundColor: "#E8F0FE",
-                      width: "90%",
-                      height: 52,
-                      borderRadius: 5,
-                    }}
-                  >
-                    <View
-                      style={{
-                        flexDirection: "column",
-                        flex: 1,
-                      }}
-                    >
-                      <TouchableOpacity
-                        style={{
-                          flexDirection: "row",
-                          alignSelf: "center",
-                          alignItems: "center",
-                          flex: 1,
-                        }}
-                        onPress={() => {}}
-                      >
-                        <Image
-                          source={upload}
-                          style={{ marginRight: "5%" }}
-                        ></Image>
-                        <Text style={{ fontSize: 12 }}>Upload Image</Text>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                  <View style={{ flexDirection: "row", alignSelf: "center" }}>
-                    <View style={{ flex: 0.45, marginRight: "5%" }}>
+                }}>
+                <View style={{flexDirection: 'column', marginVertical: 10}}>
+                  <View style={{flexDirection: 'row', alignSelf: 'center'}}>
+                    <View style={{flex: 0.45, marginRight: '5%'}}>
                       <Text style={styles.inputLabel}>Title</Text>
-                      {GenInfoEdit ? (
-                        <SelectList
-                          defaultOption={title}
-                          placeholder={title}
-                          setSelected={(val) => setTitle(val)}
-                          data={dataTitle}
-                          save="value"
-                          boxStyles={[
-                            {
-                              backgroundColor: "white",
-                              borderWidth: 0,
-                              backgroundColor: "#d0e0fc",
-                            },
-                            GenInfoEdit ? { backgroundColor: "#E8F0FE" } : null,
-                          ]}
-                          dropdownStyles={{ backgroundColor: "white" }}
-                          dropdownTextStyles={{
-                            color: "#2b8ada",
-                            fontWeight: "bold",
-                          }}
-                          badgeStyles={{ backgroundColor: "#2b8ada" }}
-                        />
-                      ) : (
-                        <TextInput
-                          style={[
-                            styles.textInput,
-                            { backgroundColor: "#d0e0fc" },
-                            GenInfoEdit ? { backgroundColor: "#E8F0FE" } : null,
-                          ]}
-                          placeholderTextColor={"black"}
-                          value={title}
-                          editable={GenInfoEdit}
-                        ></TextInput>
-                      )}
+
+                      <SelectList
+                        defaultOption={title}
+                        placeholder={title}
+                        setSelected={val => setTitle(val)}
+                        data={dataTitle}
+                        save="value"
+                        boxStyles={[
+                          {
+                            backgroundColor: 'white',
+                            borderWidth: 0,
+                            backgroundColor: '#d0e0fc',
+                          },
+                          {backgroundColor: '#E8F0FE'},
+                        ]}
+                        dropdownStyles={{backgroundColor: 'white'}}
+                        dropdownTextStyles={{
+                          color: '#2b8ada',
+                          fontWeight: 'bold',
+                        }}
+                        badgeStyles={{backgroundColor: '#2b8ada'}}
+                      />
                     </View>
-                    <View style={{ flex: 0.45 }}>
+                    <View style={{flex: 0.45}}>
                       <Text style={styles.inputLabel}>Full Name</Text>
                       <TextInput
-                        style={[
-                          styles.textInput,
-                          { backgroundColor: "#d0e0fc" },
-                          GenInfoEdit ? { backgroundColor: "#E8F0FE" } : null,
-                        ]}
-                        placeholderTextColor={"black"}
-                        onChangeText={(text) => setName(text)}
-                        value={name}
-                        editable={GenInfoEdit}
-                      ></TextInput>
+                        style={[styles.textInput, {backgroundColor: '#E8F0FE'}]}
+                        placeholderTextColor={'black'}
+                        onChangeText={text => setName(text)}
+                        value={name}></TextInput>
                     </View>
                   </View>
-                  <View style={{ flexDirection: "row", alignSelf: "center" }}>
-                    <View style={{ flex: 0.45, marginRight: "5%" }}>
+                  <View style={{flexDirection: 'row', alignSelf: 'center'}}>
+                    <View style={{flex: 0.45, marginRight: '5%'}}>
                       <Text style={styles.inputLabel}>Email</Text>
                       <TextInput
-                        style={[
-                          styles.textInput,
-                          { backgroundColor: "#d0e0fc" },
-                          GenInfoEdit ? { backgroundColor: "#E8F0FE" } : null,
-                        ]}
-                        placeholderTextColor={"black"}
-                        onChangeText={(text) => setEmail(text)}
+                        style={[styles.textInput, {backgroundColor: '#E8F0FE'}]}
+                        placeholderTextColor={'black'}
+                        onChangeText={text => setEmail(text)}
                         value={email}
-                        keyboardType={"email-address"}
-                        editable={GenInfoEdit}
-                      ></TextInput>
+                        keyboardType={'email-address'}></TextInput>
                     </View>
-                    <View style={{ flex: 0.45 }}>
+                    <View style={{flex: 0.45}}>
                       <Text style={styles.inputLabel}>Gender</Text>
-                      {GenInfoEdit ? (
-                        <SelectList
-                          setSelected={(val) => setGender(val)}
-                          data={dataGender}
-                          placeholder={gender}
-                          defaultOption={gender}
-                          save="value"
-                          boxStyles={[
-                            {
-                              backgroundColor: "white",
-                              borderWidth: 0,
-                              backgroundColor: "#d0e0fc",
-                            },
-                            GenInfoEdit ? { backgroundColor: "#E8F0FE" } : null,
-                          ]}
-                          dropdownStyles={{ backgroundColor: "white" }}
-                          dropdownTextStyles={{
-                            color: "#2b8ada",
-                            fontWeight: "bold",
-                          }}
-                          badgeStyles={{ backgroundColor: "#2b8ada" }}
-                        />
-                      ) : (
-                        <TextInput
-                          style={[
-                            styles.textInput,
-                            { backgroundColor: "#d0e0fc" },
-                            GenInfoEdit ? { backgroundColor: "#E8F0FE" } : null,
-                          ]}
-                          value={gender}
-                          editable={GenInfoEdit}
-                        ></TextInput>
-                      )}
+
+                      <SelectList
+                        setSelected={val => setGender(val)}
+                        data={dataGender}
+                        placeholder={gender}
+                        defaultOption={gender}
+                        save="value"
+                        boxStyles={[
+                          {
+                            backgroundColor: 'white',
+                            borderWidth: 0,
+                          },
+                          {backgroundColor: '#E8F0FE'},
+                        ]}
+                        dropdownStyles={{backgroundColor: 'white'}}
+                        dropdownTextStyles={{
+                          color: '#2b8ada',
+                          fontWeight: 'bold',
+                        }}
+                        badgeStyles={{backgroundColor: '#2b8ada'}}
+                      />
                     </View>
                   </View>
 
-                  <View style={{ flex: 1, width: "90%", alignSelf: "center" }}>
+                  <View style={{flex: 1, width: '90%', alignSelf: 'center'}}>
                     <Text style={styles.inputLabel}>City</Text>
                     <TextInput
-                      style={[
-                        styles.textInput,
-                        { backgroundColor: "#d0e0fc" },
-                        GenInfoEdit ? { backgroundColor: "#E8F0FE" } : null,
-                      ]}
-                      placeholderTextColor={"black"}
-                      onChangeText={(text) => setCity(text)}
-                      value={city}
-                      editable={GenInfoEdit}
-                    ></TextInput>
+                      style={[styles.textInput, {backgroundColor: '#E8F0FE'}]}
+                      placeholderTextColor={'black'}
+                      onChangeText={text => setCity(text)}
+                      value={city}></TextInput>
                   </View>
-                  <View style={{ flexDirection: "row", alignSelf: "center" }}>
-                    <View style={{ flex: 0.45, marginRight: "5%" }}>
+                  <View style={{flexDirection: 'row', alignSelf: 'center'}}>
+                    <View style={{flex: 0.45, marginRight: '5%'}}>
                       <Text style={styles.inputLabel}>Date Of Birth</Text>
                       <View>
                         <TextInput
                           style={[
                             styles.textInput,
-                            { backgroundColor: "#E8F0FE" },
+                            {backgroundColor: '#E8F0FE'},
                           ]}
-                          placeholderTextColor={"black"}
-                          onChangeText={(text) => setdob(text)}
-                          value={dob}
-                          editable={GenInfoEdit}
-                        ></TextInput>
+                          placeholderTextColor={'black'}
+                          value={
+                            dob != '' ? dayjs(dob).format('DD-MM-YYYY') : ''
+                          }
+                          editable={false}></TextInput>
                         <FAIcon
                           name="calendar-alt"
-                          color={"gray"}
+                          color={'gray'}
                           size={16}
                           style={{
-                            position: "absolute",
+                            position: 'absolute',
                             right: 0,
                             bottom: 0,
-                            marginRight: "5%",
-                            marginBottom: "5%",
+                            marginRight: '5%',
+                            marginBottom: '5%',
                           }}
                           onPress={() => {
-                            setdob("12 / 09 / 1987");
-                            setAge("32");
+                            showDatePicker();
                           }}
+                        />
+                        <DateTimePickerModal
+                          isVisible={isDatePickerVisible}
+                          mode="date"
+                          display="spinner"
+                          onConfirm={handleConfirm}
+                          onCancel={hideDatePicker}
+                          maximumDate={new Date()}
+                          minimumDate={new Date('1940-01-01')}
                         />
                       </View>
                     </View>
-                    <View style={{ flex: 0.45 }}>
+                    <View style={{flex: 0.45}}>
                       <Text style={styles.inputLabel}>Age</Text>
-                      <TextInput
+                      <Text
                         style={[
                           styles.textInput,
-                          { backgroundColor: "#E8F0FE" },
-                        ]}
-                        placeholderTextColor={"black"}
-                        editable={false}
-                        placeholder={age}
-                      ></TextInput>
+                          {
+                            backgroundColor: '#E8F0FE',
+                            paddingVertical: 8,
+                            color: 'black',
+                          },
+                        ]}>
+                        {age}
+                      </Text>
                     </View>
                   </View>
-                  <View
-                    style={{
-                      flexDirection: "column",
-                      width: "95%",
-                      alignSelf: "center",
-                    }}
-                  ></View>
-                  {GenInfoEdit ? (
-                    <CustomButton
-                      text="Update"
-                      textstyle={{ color: "white", alignSelf: "center" }}
-                      onPress={() => {
-                        Alert.alert(
-                          "All changes made in Genreal Information have been updated"
-                        );
-                        setGenInfoEdit(false);
-                      }}
-                      style={{
-                        width: "50%",
-                        marginTop: 15,
-                        flexDirection: "column",
-                        alignSelf: "center",
-                        backgroundColor: "#2B8ADA",
-                      }}
-                    />
-                  ) : null}
                 </View>
               </View>
             </View>
           ) : null}
+          {/* Other Information Label */}
           <View
             style={{
-              width: "100%",
-              alignSelf: "center",
-            }}
-          >
+              width: '100%',
+              alignSelf: 'center',
+            }}>
             <View
               style={[
                 {
-                  flexDirection: "row",
-                  backgroundColor: "white",
+                  flexDirection: 'row',
+                  backgroundColor: 'white',
                   borderRadius: 10,
                   marginVertical: 10,
                   padding: 5,
                 },
-                showMedReg
+                showOtherInfo
                   ? {
                       borderBottomLeftRadius: 0,
                       borderBottomRightRadius: 0,
                       marginBottom: 0,
                     }
                   : null,
-              ]}
-            >
+              ]}>
               <TouchableOpacity
                 style={[
-                  { flexDirection: "row", width: "100%" },
-                  showMedReg
-                    ? { borderBottomWidth: 0.5, borderBottomColor: "#707070" }
+                  {flexDirection: 'row', width: '100%'},
+                  showOtherInfo
+                    ? {borderBottomWidth: 0.5, borderBottomColor: '#707070'}
                     : null,
                 ]}
                 onPress={() => {
-                  if (!showMedReg) {
-                    setShowMedReg(!showMedReg);
+                  if (!showOtherInfo) {
+                    setshowOtherInfo(!showOtherInfo);
                   } else {
-                    setShowMedReg(!showMedReg);
+                    setshowOtherInfo(!showOtherInfo);
                   }
-                }}
-              >
+                }}>
+                <FAIcon
+                  name="info-circle"
+                  size={15}
+                  color={showOtherInfo ? '#2b8ada' : 'gray'}
+                  style={{marginHorizontal: 5, alignSelf: 'center'}}
+                />
                 <Text
                   style={[
                     styles.label,
-                    { width: "90%" },
-                    showMedReg ? { color: "#2B8ADA" } : null,
-                  ]}
-                >
+                    {width: '85%'},
+                    showOtherInfo ? {color: '#2B8ADA'} : null,
+                  ]}>
                   Other Details (Optional)
                 </Text>
                 <FAIcon
-                  name={showMedReg ? "chevron-down" : "chevron-right"}
-                  color={showMedReg ? "#2B8ADA" : "gray"}
-                  style={[styles.label, { width: "10%", fontSize: 20 }]}
-                ></FAIcon>
+                  name={showOtherInfo ? 'chevron-down' : 'chevron-right'}
+                  color={showOtherInfo ? '#2B8ADA' : 'gray'}
+                  style={[styles.label, {width: '10%', fontSize: 20}]}></FAIcon>
               </TouchableOpacity>
             </View>
           </View>
-          {showMedReg ? (
+          {/* Other Information Body */}
+          {showOtherInfo ? (
             <View>
               <View
                 style={{
-                  backgroundColor: "white",
+                  backgroundColor: 'white',
                   padding: 10,
                   borderBottomRightRadius: 10,
                   borderBottomLeftRadius: 10,
                   marginBottom: 10,
-                }}
-              >
-                <View style={{ flexDirection: "column", marginBottom: 10 }}>
+                }}>
+                <View style={{flexDirection: 'column', marginBottom: 10}}>
                   <View
                     style={{
-                      flexDirection: "row",
-                      alignSelf: "center",
-                    }}
-                  >
-                    <View style={{ flex: 0.45, marginRight: "5%" }}>
-                      <Text style={[styles.inputLabel, { marginTop: 0 }]}>
+                      flexDirection: 'row',
+                      alignSelf: 'center',
+                    }}>
+                    <View style={{flex: 0.45, marginRight: '5%'}}>
+                      <Text style={[styles.inputLabel, {marginTop: 0}]}>
                         Blood Group
                       </Text>
                       <SelectList
                         defaultOption={BloodGroup}
-                        placeholder={" "}
-                        setSelected={(val) => setBloodGroup(val)}
+                        placeholder={' '}
+                        setSelected={val => setBloodGroup(val)}
                         data={dataBloodGroup}
                         save="value"
                         boxStyles={[
                           {
-                            backgroundColor: "#E8F0FE",
+                            backgroundColor: '#E8F0FE',
                             borderWidth: 0,
                           },
                         ]}
-                        dropdownStyles={{ backgroundColor: "white" }}
+                        dropdownStyles={{backgroundColor: 'white'}}
                         dropdownTextStyles={{
-                          color: "#2b8ada",
-                          fontWeight: "bold",
+                          color: '#2b8ada',
+                          fontWeight: 'bold',
                         }}
-                        badgeStyles={{ backgroundColor: "#2b8ada" }}
+                        badgeStyles={{backgroundColor: '#2b8ada'}}
                       />
                     </View>
-                    <View style={{ flex: 0.45 }}>
-                      <Text style={[styles.inputLabel, { marginTop: 0 }]}>
+                    <View style={{flex: 0.45}}>
+                      <Text style={[styles.inputLabel, {marginTop: 0}]}>
                         Occupation
                       </Text>
                       <TextInput
-                        style={[
-                          styles.textInput,
-                          { backgroundColor: "#E8F0FE" },
-                        ]}
-                        placeholderTextColor={"black"}
+                        style={[styles.textInput, {backgroundColor: '#E8F0FE'}]}
+                        placeholderTextColor={'black'}
                         value={Occupation}
-                        onChangeText={(text) => setOccupation(text)}
-                      ></TextInput>
+                        maxLength={30}
+                        onChangeText={text => setOccupation(text)}></TextInput>
                     </View>
                   </View>
                   <View
                     style={{
-                      flexDirection: "row",
-                      alignSelf: "center",
-                    }}
-                  >
-                    <View style={{ flex: 0.45, marginRight: "5%" }}>
-                      <Text style={styles.inputLabel}>Height</Text>
+                      flexDirection: 'row',
+                      alignSelf: 'center',
+                    }}>
+                    <View style={{flex: 0.45, marginRight: '5%'}}>
+                      <Text style={styles.inputLabel}>Height ( in cm )</Text>
                       <TextInput
-                        style={[
-                          styles.textInput,
-                          { backgroundColor: "#E8F0FE" },
-                        ]}
-                        placeholderTextColor={"black"}
+                        style={[styles.textInput, {backgroundColor: '#E8F0FE'}]}
+                        placeholderTextColor={'black'}
                         value={Height}
-                        keyboardType={"number-pad"}
-                        onChangeText={(text) => setHeight(text)}
-                      ></TextInput>
+                        maxLength={3}
+                        keyboardType={'number-pad'}
+                        onChangeText={text => setHeight(text)}></TextInput>
                     </View>
-                    <View style={{ flex: 0.45 }}>
-                      <Text style={styles.inputLabel}>Weight</Text>
+                    <View style={{flex: 0.45}}>
+                      <Text style={styles.inputLabel}>Weight ( in kg )</Text>
                       <TextInput
-                        style={[
-                          styles.textInput,
-                          { backgroundColor: "#E8F0FE" },
-                        ]}
-                        placeholderTextColor={"black"}
+                        style={[styles.textInput, {backgroundColor: '#E8F0FE'}]}
+                        placeholderTextColor={'black'}
                         value={Weight}
-                        keyboardType={"number-pad"}
-                        onChangeText={(text) => setWeight(text)}
-                      ></TextInput>
+                        maxLength={3}
+                        keyboardType={'number-pad'}
+                        onChangeText={text => setWeight(text)}></TextInput>
                     </View>
                   </View>
                 </View>
               </View>
             </View>
           ) : null}
+          {/* Buttons */}
           <View
             style={{
-              alignSelf: "center",
-              flexDirection: "row",
+              alignSelf: 'center',
+              flexDirection: 'row',
               marginVertical: 15,
-            }}
-          >
+            }}>
             <CustomButton
               text="Submit"
               textstyle={{
-                color: "white",
+                color: 'white',
                 fontSize: 16,
-                fontWeight: "bold",
+                fontWeight: 'bold',
               }}
               style={{
-                flex: 0.45,
-                marginRight: "5%",
+                flex: 1,
                 marginBottom: 50,
                 marginVertical: 10,
                 padding: 10,
                 borderRadius: 10,
-                backgroundColor: "#2b8ada",
+                backgroundColor: '#2b8ada',
               }}
               onPress={() => {
-                SetData();
-                navigation.push("PatientHome");
-              }}
-            ></CustomButton>
-            <CustomButton
-              text="Save"
-              textstyle={{
-                color: "#2b8ada",
-                fontSize: 16,
-                fontWeight: "bold",
-              }}
-              style={{
-                borderColor: "#2b8ada",
-                borderWidth: 2,
-                flex: 0.45,
-                marginBottom: 50,
-                marginVertical: 10,
-                padding: 10,
-                borderRadius: 10,
-              }}
-              onPress={() => {
-                SetData();
-                Alert.alert("All details have been saved!");
-              }}
-            ></CustomButton>
+                navigation.push('PatientHome');
+              }}></CustomButton>
           </View>
         </ScrollView>
       </SafeAreaView>
@@ -673,46 +554,45 @@ const PatientRegistration1 = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#2B8ADA",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#2B8ADA',
   },
   textInput: {
-    flex: 0.45,
     padding: 5,
-    backgroundColor: "#E8F0FE",
+    backgroundColor: '#E8F0FE',
     borderRadius: 10,
     fontSize: 14,
     marginVertical: 5,
-    color: "black",
+    color: 'black',
   },
   inputLabel: {
     fontSize: 12,
     marginBottom: 2,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginTop: 10,
   },
   label: {
-    alignSelf: "center",
+    alignSelf: 'center',
     fontSize: 14,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     padding: 5,
   },
   card: {
     margin: 20,
-    backgroundColor: "#e6e3e3",
-    alignSelf: "center",
-    width: "90%",
+    backgroundColor: '#e6e3e3',
+    alignSelf: 'center',
+    width: '90%',
   },
   modalView: {
-    position: "absolute",
-    width: "100%",
-    alignSelf: "center",
-    backgroundColor: "white",
+    position: 'absolute',
+    width: '100%',
+    alignSelf: 'center',
+    backgroundColor: 'white',
     padding: 35,
-    alignItems: "center",
-    shadowColor: "#000",
+    alignItems: 'center',
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2,
@@ -721,23 +601,23 @@ const styles = StyleSheet.create({
   modalText: {
     marginVertical: 15,
     marginHorizontal: 10,
-    textAlign: "center",
+    textAlign: 'center',
   },
   heading: {
     fontSize: 30,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
   headingTriple: {
     fontSize: 12,
   },
   pickerStyle: {
     marginVertical: 10,
-    alignSelf: "center",
+    alignSelf: 'center',
   },
   containerStyle: {
-    backgroundColor: "white",
+    backgroundColor: 'white',
     borderWidth: 0,
-    alignSelf: "flex-start",
+    alignSelf: 'flex-start',
   },
 });
 

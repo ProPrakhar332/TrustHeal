@@ -18,6 +18,7 @@ import {
 import CustomButton from '../Components/CustomButton';
 import FAIcon from 'react-native-vector-icons/FontAwesome5';
 import MIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import Pdf from 'react-native-pdf';
 import {
   SelectList,
   MultipleSelectList,
@@ -202,6 +203,52 @@ const EditProfile = ({navigation}) => {
   const [isLoading, setisLoading] = useState(false);
   const [isFetching, setisFetching] = useState(false);
   const [isUploading, setisUploading] = useState(false);
+
+  //viewing document
+  const [docPath, setdocPath] = useState(null);
+  const [docsModal, setdocsModal] = useState(false);
+  const [zoom, setZoom] = useState(1);
+
+  const onZoomIn = () => {
+    if (zoom < 2.5) setZoom(zoom + 0.25);
+  };
+  const onZoomOut = () => {
+    if (zoom > 1) setZoom(zoom - 0.25);
+  };
+
+  const downloadCache = async (fileToken, userId, fileName) => {
+    // let op = {};
+    // if (Platform.OS == 'ios') op = {NSURLIsExcludedFromBackupKey: true};
+    // await RNFS.mkdir(`file://${RNFS.DownloadDirectoryPath}/Arogya`, op);
+    let filePath = `file://${RNFS.CachesDirectoryPath}/`;
+    let options = {
+      fromUrl:
+        apiConfig.baseUrl +
+        '/file/download?fileToken=' +
+        fileToken +
+        '&userId=' +
+        userId,
+      toFile: filePath + fileName,
+    };
+    await RNFS.downloadFile(options)
+      .promise.then(response => {
+        //console.log(response);
+        if (response.statusCode == 200) {
+          //  Alert.alert(
+          //   'File Downloaded',
+          //   `The file is downloaded. File name is ${fileName}.`,
+          // );
+          setdocPath(filePath + fileName);
+        } else
+          Alert.alert(
+            'Download Fail',
+            `Unable to download file. ${response.statusCode}`,
+          );
+      })
+      .catch(e => {
+        Alert.alert('Error', `${e}`);
+      });
+  };
 
   useEffect(() => {
     const onLoadSetData = async () => {
@@ -679,31 +726,6 @@ const EditProfile = ({navigation}) => {
       });
   };
 
-  // const updateContactVisibility = async () => {
-  //   axios
-  //     .post(
-  //       apiConfig.baseUrl +
-  //         '/doctor/contact/visibility/update?contactVisibility=' +
-  //         showMobNo +
-  //         '&doctorId=' +
-  //         doctorId +
-  //         '&email=' +
-  //         email,
-  //     )
-  //     .then(function (response) {
-  //       if (response.status == 200)
-  //         Alert.alert(
-  //           'Contact Visbility',
-  //           'Your Contact Visibility is now turned ' +
-  //             (!showMobNo ? 'ON' : 'OFF'),
-  //         );
-  //     })
-  //     .catch(function (error) {
-  //       console.log('=====Error in updating contact visibility=====');
-  //       console.log(error);
-  //     });
-  // };
-
   const updateMedReg = async () => {
     setisUploading(true);
     let p = {
@@ -814,43 +836,6 @@ const EditProfile = ({navigation}) => {
         Alert.alert('Error', `An error has occured please try again. ${error}`);
       });
   };
-
-  // const updateGenConfig = async () => {
-  //   let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
-
-  //   console.log('General Config Update---------\n');
-  //   var flag = 1;
-  //   axios
-  //     .post(
-  //       apiConfig.baseUrl +
-  //         '/doctor/contact/visibility/update?contactVisibility=' +
-  //         '&doctorId=' +
-  //         doctorId,
-  //     )
-  //     .then(function (response) {
-  //       if (response.status == 200) {
-  //         // x.doctorConfigurationDTO.followUpDuration = showFollowUp;
-  //         // x.doctorConfigurationDTO.contactVisibility =
-  //         //   showMobNo == 'Yes' ? true : false;
-  //         // AsyncStorage.setItem('UserDoctorProfile', JSON.stringify(x));
-  //         flag = 1;
-  //         //setGenConfigEdit(false);
-  //       } else flag = 0;
-  //     });
-  //   let doctorFees = new Object();
-  //   doctorFees.doctorId = doctorId;
-  //   doctorFees.followUpDuration = followUpDuration;
-  //   axios
-  //     .post(apiConfig.baseUrl + '/doctor/fees/update', doctorFees)
-  //     .then(function (response) {
-  //       if (response.status == 200) {
-  //         flag = 1;
-  //       } else flag = 0;
-  //     });
-  //   if (flag == 1)
-  //     Alert.alert('All changes made in General Config have been updated');
-  //   else Alert.alert('Could not Update Details. Please try again later.');
-  // };
 
   //updating Consultation Fees Details(completed)
   const updatefees = async () => {
@@ -987,7 +972,7 @@ const EditProfile = ({navigation}) => {
             <TouchableOpacity
               style={styles.cellStyle}
               onPress={() => {
-                download(
+                downloadCache(
                   IdentificationDocs.identificationPath,
                   doctorId,
                   doctorId +
@@ -995,6 +980,8 @@ const EditProfile = ({navigation}) => {
                     IdentificationDocs.identificationType +
                     '.pdf',
                 );
+
+                setdocsModal(true);
                 // openURL(
                 //   apiConfig.baseUrl + IdentificationDocs.identificationPath,
                 // );
@@ -1092,7 +1079,7 @@ const EditProfile = ({navigation}) => {
                 color={'#2b8ada'}
                 style={{marginVertical: 3}}
                 onPress={() => {
-                  download(
+                  downloadCache(
                     Education.degreePath,
                     doctorId,
                     doctorId +
@@ -1102,6 +1089,7 @@ const EditProfile = ({navigation}) => {
                       Education.passingYear +
                       '.pdf',
                   );
+                  setdocsModal(true);
                   // openURL(apiConfig.baseUrl + Education.degreePath);
                 }}
               />
@@ -1982,14 +1970,16 @@ const EditProfile = ({navigation}) => {
                                 borderRadius: 10,
                               }}
                               onPress={() => {
-                                if (MedInfoEdit == false)
-                                  download(
+                                if (MedInfoEdit == false) {
+                                  downloadCache(
                                     certificatePath,
                                     doctorId,
                                     doctorId + '_MedicalRegistration.pdf',
                                   );
-                                else
+                                  setdocsModal(true);
+                                } else
                                   Alert.alert(
+                                    'Alert',
                                     'Please Click on Edit and then select File',
                                   );
                               }}>
@@ -2131,7 +2121,7 @@ const EditProfile = ({navigation}) => {
                               if (certificatePath == null)
                                 Alert.alert(
                                   'Incomplete Details!',
-                                  'Please fill registration certificate file.',
+                                  'Please select registration certificate file.',
                                 );
                               updateMedReg();
                               //setMedInfoEdit(false);
@@ -2978,6 +2968,7 @@ const EditProfile = ({navigation}) => {
                           setdegreePath(null);
                           setDegree('');
                           setDegreePassingYear('');
+                          setUniversity('');
                           setSpecialization('');
                           setEduElementModal(false);
                         }}
@@ -3231,7 +3222,12 @@ const EditProfile = ({navigation}) => {
                           top: 0,
                           right: 0,
                         }}
-                        onPress={() => setExpElementModal(false)}
+                        onPress={() => {
+                          setExpElementModal(false);
+                          setPracticeAt('');
+                          setStartExpDate('');
+                          setEndExpDate('');
+                        }}
                       />
                     </View>
                     <View
@@ -3466,7 +3462,9 @@ const EditProfile = ({navigation}) => {
                           right: 0,
                         }}
                         onPress={() => {
-                          setidentificationPath('');
+                          setidentificationPath(null);
+                          setidentificationType('');
+                          setidentificationNumber('');
                           setIdenElementModal(false);
                         }}
                       />
@@ -3631,6 +3629,146 @@ const EditProfile = ({navigation}) => {
                         else updateIden();
                       }}
                     />
+                  </View>
+                </View>
+              </Modal>
+            ) : null}
+            {docsModal ? (
+              <Modal
+                animationType="slide"
+                transparent={true}
+                visible={docsModal}
+                onRequestClose={() => {
+                  setdocsModal(!docsModal);
+                }}>
+                <View
+                  style={{
+                    height: '100%',
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                  }}>
+                  <View
+                    style={[
+                      styles.modalView,
+                      {
+                        borderRadius: 10,
+                      },
+                    ]}>
+                    <View
+                      style={{
+                        width: '100%',
+                        alignSelf: 'center',
+                        borderBottomWidth: 1,
+                        borderBottomColor: 'gray',
+                      }}>
+                      <Text
+                        style={{
+                          fontWeight: 'bold',
+                          fontSize: 16,
+                          padding: 5,
+                        }}>
+                        Document Viewer
+                      </Text>
+                      <FAIcon
+                        name="window-close"
+                        color="black"
+                        size={26}
+                        style={{
+                          position: 'absolute',
+                          top: 0,
+                          right: 0,
+                        }}
+                        onPress={() => {
+                          setdocsModal(false);
+                          setdocPath(null);
+                          setZoom(1);
+                        }}
+                      />
+                    </View>
+                    <View style={{minHeight: 150, width: '100%'}}>
+                      <View
+                        style={{
+                          padding: 10,
+                          width: '100%',
+                          alignSelf: 'center',
+                          borderRadius: 7,
+                          marginVertical: 10,
+                          borderWidth: 2,
+                          borderColor: 'gray',
+                        }}>
+                        <Pdf
+                          source={{
+                            uri: docPath,
+                          }}
+                          style={{
+                            width: '100%',
+                            height: 275,
+                            alignSelf: 'center',
+                          }}
+                          //onLoadComplete={() => console.log('fully loaded')}
+                          scale={zoom}
+                        />
+                      </View>
+                      <View
+                        style={{alignSelf: 'center', flexDirection: 'column'}}>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            alignContent: 'center',
+                            justifyContent: 'space-evenly',
+                            width: '95%',
+                          }}>
+                          <TouchableOpacity>
+                            <FAIcon
+                              name="minus-circle"
+                              size={20}
+                              color={'gray'}
+                              onPress={onZoomOut}
+                            />
+                          </TouchableOpacity>
+                          <Text>
+                            {zoom * 100}
+                            {' %'}
+                          </Text>
+                          <TouchableOpacity>
+                            <FAIcon
+                              name="plus-circle"
+                              size={20}
+                              color={'gray'}
+                              onPress={onZoomIn}
+                            />
+                          </TouchableOpacity>
+                        </View>
+                        <View
+                          style={{
+                            width: '85%',
+                            alignSelf: 'center',
+                            marginTop: 5,
+                          }}></View>
+                        <CustomButton
+                          textstyle={{color: 'white', fontSize: 12}}
+                          text={'Download'}
+                          style={{
+                            backgroundColor: 'limegreen',
+                            borderRadius: 10,
+                          }}
+                          onPress={async () => {
+                            let fileName = docPath.split('/').pop();
+                            //console.log(fileName);
+                            await RNFS.copyFile(
+                              docPath,
+                              `file://${RNFS.DownloadDirectoryPath}/` +
+                                fileName,
+                            );
+                            Alert.alert(
+                              'Downloaded',
+                              `Prescription has been downloaded under the name of:- ${fileName}`,
+                            );
+                          }}
+                        />
+                      </View>
+                    </View>
                   </View>
                 </View>
               </Modal>
