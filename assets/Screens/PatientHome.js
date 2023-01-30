@@ -220,308 +220,6 @@ const ItemSymptoms = ({name, img}) => (
     </Text>
   </TouchableOpacity>
 );
-const ItemDoctors = ({name, img, spl, exp, deg}) => (
-  <View
-    style={{
-      alignSelf: 'center',
-      flex: 1,
-      backgroundColor: 'white',
-      padding: 10,
-      borderRadius: 15,
-      width: 175,
-      marginHorizontal: 5,
-    }}>
-    {/* Image */}
-    <Image
-      source={img}
-      style={{
-        width: 120,
-        height: 120,
-        alignSelf: 'center',
-        marginVertical: 5,
-      }}
-    />
-    {/* Details */}
-    <View>
-      <Text
-        style={{
-          textAlign: 'left',
-          fontWeight: 'bold',
-          fontSize: 14,
-        }}>
-        {name}
-      </Text>
-      <Text
-        style={{
-          textAlign: 'left',
-          fontWeight: 'bold',
-          fontSize: 10,
-          color: 'gray',
-        }}>
-        {spl}
-      </Text>
-      <Text
-        style={{
-          textAlign: 'left',
-          fontWeight: 'bold',
-          fontSize: 12,
-        }}>
-        {exp}
-      </Text>
-      <Text
-        style={{
-          textAlign: 'left',
-          fontWeight: 'bold',
-          fontSize: 12,
-        }}>
-        {deg}
-      </Text>
-    </View>
-    {/* Consult Now Button */}
-    <CustomButton
-      text="CONSULT NOW"
-      textstyle={{color: 'white', fontSize: 12}}
-      style={{
-        backgroundColor: '#2B8ADA',
-        paddingVertical: 3,
-        marginVertical: 5,
-      }}
-      onPress={() => {
-        console.log(name);
-      }}
-    />
-  </View>
-);
-// const ItemRecent = ({
-//   name,
-//   img,
-//   spl,
-//   exp,
-//   deg,
-//   date,
-//   mode,
-//   time,
-//   loc,
-//   pres,
-// }) => (
-//   <View
-//     style={{
-//       backgroundColor: "#E8F0FE",
-//       borderRadius: 10,
-//       padding: 5,
-//       margin: 5,
-//       flexDirection: "column",
-//       width: 350,
-//       height: 210,
-//     }}
-//   >
-//     {/* UpperHalf */}
-//     <View
-//       style={{
-//         flexDirection: "row",
-//         borderBottomColor: "gray",
-//         borderBottomWidth: 1,
-//       }}
-//     >
-//       {/* Image */}
-//       <View
-//         style={{
-//           width: 80,
-//           flexDirection: "column",
-//           alignSelf: "center",
-//           margin: 5,
-//         }}
-//         onPress={() => navigation.navigate("DoctorDetails")}
-//       >
-//         <Image
-//           source={img}
-//           style={{
-//             width: 80,
-//             height: 150,
-//             borderRadius: 10,
-//             alignSelf: "center",
-//           }}
-//         />
-//       </View>
-//       {/* Details */}
-//       <View style={{ width: 250, justifyContent: "space-evenly" }}>
-//         <Text style={{ fontSize: 18, fontWeight: "bold" }}>{name}</Text>
-//         <Text style={{ fontSize: 12, color: "gray" }}>{spl}</Text>
-
-//         <Text style={{ fontSize: 12, fontWeight: "bold" }}>{exp}</Text>
-//         <Text style={{ fontSize: 12, fontWeight: "bold" }}>{deg}</Text>
-//         <View
-//           style={{
-//             flexDirection: "row",
-//             justifyContent: "space-evenly",
-//           }}
-//         >
-//           <View
-//             style={{
-//               flex: 1,
-//               flexDirection: "column",
-//               justifyContent: "space-between",
-//             }}
-//           >
-//             <Text style={{ fontSize: 10, fontWeight: "bold" }}>Date</Text>
-//             <View
-//               style={{
-//                 flexDirection: "row",
-//               }}
-//             >
-//               <FAIcons name="calendar-alt" style={{ marginRight: 5 }} />
-//               <Text style={{ fontSize: 10 }}> {date}</Text>
-//             </View>
-//           </View>
-
-//           <View
-//             style={{
-//               flex: 1,
-//               flexDirection: "column",
-//               justifyContent: "space-between",
-//               marginRight: 5,
-//             }}
-//           >
-//             <Text style={{ fontSize: 10, fontWeight: "bold" }}>Mode</Text>
-//             <View
-//               style={{
-//                 flexDirection: "row",
-//               }}
-//             >
-//               <FAIcons
-//                 name={mode === "P-Consultation" ? "user-alt" : "video"}
-//                 style={{ marginRight: 5 }}
-//               />
-//               <Text style={{ fontSize: 10 }}> {mode}</Text>
-//             </View>
-//           </View>
-
-//           <View
-//             style={{
-//               flex: 1,
-//               flexDirection: "column",
-//               justifyContent: "space-between",
-//               marginLeft: 5,
-//             }}
-//           >
-//             <Text style={{ fontSize: 10, fontWeight: "bold" }}>Time</Text>
-//             <View
-//               style={{
-//                 flexDirection: "row",
-//               }}
-//             >
-//               <FAIcons name="clock" style={{ marginRight: 5 }} />
-//               <Text style={{ fontSize: 10 }}> {time}</Text>
-//             </View>
-//           </View>
-//         </View>
-//       </View>
-//     </View>
-//     {/* LowerHalf */}
-//     <View style={{ flexDirection: "row", alignSelf: "center" }}>
-//       {/* Location */}
-//       <View style={{ flexDirection: "row", padding: 10 }}>
-//         <IonIcons name="location" style={{ alignSelf: "center" }} />
-//         <Text style={{ alignSelf: "center", fontSize: 12 }}>{loc}</Text>
-//       </View>
-//       {/* Button Re-consultation */}
-//       <View style={{ flexDirection: "row" }}>
-//         <CustomButton
-//           text="Re-Consult"
-//           textstyle={{
-//             color: "white",
-//             fontSize: 12,
-//             fontWeight: "bold",
-//           }}
-//           style={{
-//             backgroundColor: "#2B8ADA",
-//             borderRadius: 5,
-//             padding: 20,
-//             paddingVertical: 5,
-//             alignSelf: "center",
-//           }}
-//         />
-//       </View>
-//       {/* Button Prescription */}
-//       <TouchableOpacity style={{ flexDirection: "row", padding: 10 }}>
-//         <FAIcons
-//           name="prescription"
-//           size={12}
-//           style={{
-//             alignSelf: "center",
-//             color: "#2B8ADA",
-//             borderColor: "#2B8ADA",
-//             borderWidth: 1,
-//             padding: 5,
-//             borderRadius: 5,
-//           }}
-//         />
-//       </TouchableOpacity>
-//     </View>
-//   </View>
-// );
-
-const ItemUpcoming = ({name, img, spl, date, mode, time}) => (
-  <TouchableOpacity
-    style={{
-      backgroundColor: 'white',
-      borderRadius: 10,
-      padding: 5,
-      margin: 5,
-      flexDirection: 'column',
-      width: 290,
-      height: 80,
-    }}>
-    <View
-      style={{
-        flexDirection: 'row',
-      }}>
-      {/* Image */}
-      <View
-        style={{
-          width: 80,
-          flexDirection: 'column',
-          alignSelf: 'center',
-          margin: 5,
-        }}>
-        <Image
-          source={img}
-          style={{
-            width: 60,
-            height: 60,
-            borderRadius: 10,
-            alignSelf: 'center',
-          }}
-        />
-      </View>
-      {/* Details */}
-      <View style={{width: 160, justifyContent: 'space-evenly'}}>
-        <Text style={{fontSize: 15, fontWeight: 'bold'}}>{name}</Text>
-        <Text style={{fontSize: 10, color: 'gray'}}>{spl}</Text>
-        <Text style={{fontSize: 10, color: '#2B8ADA'}}>{mode}</Text>
-        <Text style={{fontSize: 12, fontWeight: 'bold'}}>
-          {time}
-          {'-'}
-          {date}
-        </Text>
-      </View>
-      {/* Chat Button */}
-      <TouchableOpacity style={{alignSelf: 'flex-start'}}>
-        <Entypo
-          name="chat"
-          color={'white'}
-          size={15}
-          style={{
-            backgroundColor: '#2B8ADA',
-            padding: 5,
-            borderRadius: 20,
-          }}
-        />
-      </TouchableOpacity>
-    </View>
-  </TouchableOpacity>
-);
-
 function PatientHome({navigation}) {
   const renderRecentConsultations = ({item}) => (
     <TouchableOpacity
@@ -679,9 +377,6 @@ function PatientHome({navigation}) {
         flexDirection: 'column',
         width: 290,
         height: 80,
-      }}
-      onPress={() => {
-        navigation.navigate('DoctorDetails');
       }}>
       <View
         style={{
@@ -741,15 +436,83 @@ function PatientHome({navigation}) {
     <ItemSymptoms name={item.name} img={item.img} />
   );
 
-  const renderListOfDoctors = ({item}) => (
-    <ItemDoctors
-      name={item.name}
-      img={item.img}
-      spl={item.spl}
-      exp={item.exp}
-      deg={item.deg}
-    />
-  );
+  const renderListOfDoctors = ({item}) => {
+    return (
+      <View
+        style={{
+          alignSelf: 'center',
+          flex: 1,
+          backgroundColor: 'white',
+          padding: 10,
+          borderRadius: 15,
+          width: 175,
+          marginHorizontal: 5,
+        }}>
+        {/* Image */}
+        <Image
+          source={item.img}
+          style={{
+            width: 120,
+            height: 120,
+            alignSelf: 'center',
+            marginVertical: 5,
+          }}
+        />
+        {/* Details */}
+        <View>
+          <Text
+            style={{
+              textAlign: 'left',
+              fontWeight: 'bold',
+              fontSize: 14,
+              color: 'black',
+            }}>
+            {item.name}
+          </Text>
+          <Text
+            style={{
+              textAlign: 'left',
+              fontWeight: 'bold',
+              fontSize: 10,
+              color: '#2b8ada',
+            }}>
+            {item.spl}
+          </Text>
+          <Text
+            style={{
+              textAlign: 'left',
+              fontWeight: 'bold',
+              fontSize: 12,
+            }}>
+            {item.exp}
+          </Text>
+          <Text
+            style={{
+              textAlign: 'left',
+              fontWeight: 'bold',
+              fontSize: 12,
+              color: 'black',
+            }}>
+            {item.deg}
+          </Text>
+        </View>
+        {/* Consult Now Button */}
+        <CustomButton
+          text="Consult Now"
+          textstyle={{color: 'white', fontSize: 12, fontWeight: 'bold'}}
+          style={{
+            backgroundColor: '#2B8ADA',
+            paddingVertical: 3,
+            marginVertical: 5,
+          }}
+          onPress={() => {
+            console.log(item.name);
+            navigation.navigate('DoctorDetails');
+          }}
+        />
+      </View>
+    );
+  };
   const [states, setStates] = useState(0);
   const change = ({nativeEvent}) => {
     const slide = Math.ceil(
@@ -877,10 +640,20 @@ function PatientHome({navigation}) {
           <View style={styles.transparentBox}>
             {/* Heading */}
             <View style={styles.headingBox}>
-              <Text style={{color: '#2B8ADA'}}>Upcoming Consultations</Text>
               <Text
-                style={{color: '#2B8ADA', textDecorationLine: 'underline'}}
-                onPress={() => {}}>
+                style={{color: '#2B8ADA', fontWeight: 'bold', fontSize: 15}}>
+                Upcoming Consultations
+              </Text>
+              <Text
+                style={{
+                  color: '#2B8ADA',
+                  textDecorationLine: 'underline',
+                  fontSize: 12,
+                  alignSelf: 'center',
+                }}
+                onPress={() => {
+                  navigation.navigate('Appointments');
+                }}>
                 View All
               </Text>
             </View>
@@ -897,9 +670,17 @@ function PatientHome({navigation}) {
           <View style={styles.transparentBox}>
             {/* Heading */}
             <View style={styles.headingBox}>
-              <Text style={{color: '#2B8ADA'}}>Select Via Speciality</Text>
               <Text
-                style={{color: '#2B8ADA', textDecorationLine: 'underline'}}
+                style={{color: '#2B8ADA', fontWeight: 'bold', fontSize: 15}}>
+                Select Via Speciality
+              </Text>
+              <Text
+                style={{
+                  color: '#2B8ADA',
+                  textDecorationLine: 'underline',
+                  fontSize: 12,
+                  alignSelf: 'center',
+                }}
                 onPress={() => {
                   console.log(Math.floor(width / 90));
                 }}>
@@ -928,10 +709,23 @@ function PatientHome({navigation}) {
                 marginBottom: 10,
                 alignSelf: 'center',
               }}>
-              <Text
-                style={{color: '#2B8ADA', fontSize: 14, fontWeight: 'bold'}}>
-                Consult Doctor Via Symptom
-              </Text>
+              <View
+                style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                <Text
+                  style={{color: '#2B8ADA', fontSize: 14, fontWeight: 'bold'}}>
+                  Consult Doctor Via Symptom
+                </Text>
+                <Text
+                  style={{
+                    color: '#2B8ADA',
+                    textDecorationLine: 'underline',
+                    fontSize: 12,
+                    alignSelf: 'center',
+                  }}
+                  onPress={() => {}}>
+                  View All
+                </Text>
+              </View>
               <Text style={{color: 'gray', fontSize: 12}}>
                 Select a symptom to book in 1 step
               </Text>
@@ -951,11 +745,19 @@ function PatientHome({navigation}) {
           <View style={styles.transparentBox}>
             {/* Heading */}
             <View style={styles.headingBox}>
-              <Text style={{color: '#2B8ADA'}}>List Of Doctors</Text>
               <Text
-                style={{color: '#2B8ADA', textDecorationLine: 'underline'}}
+                style={{color: '#2B8ADA', fontWeight: 'bold', fontSize: 15}}>
+                List Of Doctors
+              </Text>
+              <Text
+                style={{
+                  color: '#2B8ADA',
+                  textDecorationLine: 'underline',
+                  fontSize: 12,
+                  alignSelf: 'center',
+                }}
                 onPress={() => {
-                  console.log(Math.floor(width / 90));
+                  navigation.navigate('Consult');
                 }}>
                 View All
               </Text>

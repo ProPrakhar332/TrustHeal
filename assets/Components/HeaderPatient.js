@@ -232,15 +232,10 @@ const Header = ({title, showMenu}) => {
             }}>
             <Image style={styles.icon} source={profileicon} color="white" />
           </TouchableOpacity>
-          <Image
-            style={styles.icon}
-            source={heart}
-            color="white"
-            onPress={() => {
-              console.log('Sign Out');
-              // navigation.navigate("Login/SignUp");
-            }}
-          />
+          <TouchableOpacity onPress={() => navigation.navigate('PatientFav')}>
+            <Image style={styles.icon} source={heart} color="white" />
+          </TouchableOpacity>
+
           <TouchableOpacity
             onPress={() => {
               setLocationModal(true);

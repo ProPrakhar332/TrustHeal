@@ -400,6 +400,7 @@ function DoctorDetails({navigation}) {
                 fontSize: 20,
                 fontWeight: 'bold',
                 alignSelf: 'center',
+                color: 'black',
               }}>
               {data.name}
             </Text>
@@ -408,7 +409,7 @@ function DoctorDetails({navigation}) {
                 fontSize: 13,
                 color: 'gray',
                 alignSelf: 'center',
-                marginVertical: 3,
+                marginBottom: 5,
               }}>
               {data.spl}
             </Text>
@@ -904,7 +905,7 @@ function DoctorDetails({navigation}) {
                         padding: 0,
                       }}>
                       <View style={styles.cellHeading}>
-                        <Text style={styles.cellHeadingText}>Practice At</Text>
+                        <Text style={styles.cellHeadingText}>Practice </Text>
                       </View>
                       {/* <View style={styles.cellHeading}>
                         <Text style={styles.cellHeadingText}>Start Date</Text>

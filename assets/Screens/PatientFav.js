@@ -29,7 +29,7 @@ import CheckBoxIcon from 'react-native-elements/dist/checkbox/CheckBoxIcon';
 import doctor_m from '../Resources/doctor_m.png';
 import doctor_f from '../Resources/doctor_f.jpg';
 
-function PatientConsult({navigation}) {
+function PatientFav({navigation}) {
   const [search, setsearch] = useState('');
   const [searchData, setsearchData] = useState([]);
   const [SortBy, setSortBy] = useState(false);
@@ -206,7 +206,7 @@ function PatientConsult({navigation}) {
       type: 'P-Consultation',
       time: '9:30 am',
       loc: 'JSPL, Angul',
-      fav: false,
+      fav: true,
       img: doctor_f,
     },
     {
@@ -236,7 +236,7 @@ function PatientConsult({navigation}) {
       type: 'E-Consultation',
       time: '9:30 am',
       loc: 'JSPL, Angul',
-      fav: false,
+      fav: true,
       img: doctor_f,
     },
     {
@@ -253,6 +253,21 @@ function PatientConsult({navigation}) {
       loc: 'JSPL, Angul',
       fav: true,
       img: doctor_f,
+    },
+    {
+      fees: 540,
+      doctorId: 4,
+      name: 'Dr. Salim Ahmed',
+      spl: 'Orthopedics',
+      exp: '20 Years',
+      deg: 'MBBS, MD, FID, CCLHA',
+      date: '03-11-2022',
+      mode: '',
+      type: 'P-Consultation',
+      time: '9:30 am',
+      loc: 'JSPL, Angul',
+      fav: true,
+      img: doctor_m,
     },
   ];
 
@@ -398,7 +413,7 @@ function PatientConsult({navigation}) {
           }}
           showsVerticalScrollIndicator={false}
           nestedScrollEnabled={true}>
-          <HeaderPatient showMenu={false} title={'Consult'} />
+          <HeaderPatient showMenu={false} title={'Favourite'} />
 
           {/* Search Bar */}
           <View style={styles.searchBar}>
@@ -1297,4 +1312,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PatientConsult;
+export default PatientFav;

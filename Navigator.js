@@ -52,6 +52,7 @@ import PConsultation from './assets/Screens/P-Consultation';
 import EConsultation from './assets/Screens/E-Consultation';
 
 import PatientConsult from './assets/Screens/PatientConsult';
+import PatientFav from './assets/Screens/PatientFav';
 import PatientHome from './assets/Screens/PatientHome';
 import MyAppointment from './assets/Screens/MyAppointments';
 import MyUpcomingAppointment from './assets/Screens/MyUpcomingAppointment';
@@ -139,35 +140,56 @@ function PatientTabNavigator() {
         tabBarIcon: ({focused, color}) => {
           let iconName;
 
+          // if (route.name === 'Home') {
+          //   iconName = home_p;
+          // } else if (route.name === 'Appointments') {
+          //   iconName = support_p;
+          // } else if (route.name === 'Consult') {
+          //   iconName = consult_p;
+          // } else if (route.name === 'HealthRecords') {
+          //   iconName = history_p;
+          // } else if (route.name === 'Profile') {
+          //   iconName = user;
+          // }
           if (route.name === 'Home') {
-            iconName = home_p;
-          } else if (route.name === 'Support') {
-            iconName = support_p;
+            iconName = 'home';
+          } else if (route.name === 'Appointments') {
+            iconName = 'comment-medical';
           } else if (route.name === 'Consult') {
-            iconName = consult_p;
-          } else if (route.name === 'HealthRecords') {
-            iconName = history_p;
+            iconName = 'hand-holding-medical';
+          } else if (route.name === 'Support') {
+            iconName = 'headset';
           } else if (route.name === 'Profile') {
-            iconName = focused ? user : user;
+            iconName = 'user-circle';
           }
           // You can return any component that you like here!
           return (
-            <Image
-              source={iconName}
-              style={{
-                width: 25,
-                height: 25,
-                color: {color},
-              }}></Image>
+            // <Image
+            //   source={iconName}
+            //   style={{
+            //     width: 25,
+            //     height: 25,
+            //     color: focused ? 'white' : 'pink',
+            //   }}></Image>
+            <FAIcons
+              name={iconName}
+              size={20}
+              solid={focused}
+              color={focused ? 'white' : '#53a7ed'}
+              style={{alignSelf: 'center'}}
+            />
           );
         },
         tabBarActiveTintColor: 'white',
-        tabBarInactiveTintColor: '#2B8ADA',
+        tabBarInactiveTintColor: '#53a7ed',
         tabBarStyle: {
           backgroundColor: '#2B8ADA',
+          borderRadius: 25,
+          bottom: 10,
         },
         tabBarLabelStyle: {
-          fontSize: 10,
+          fontSize: 11,
+          paddingBottom: 3,
         },
       })}>
       <Tab.Screen
@@ -176,8 +198,8 @@ function PatientTabNavigator() {
         options={{headerShown: false}}
       />
       <Tab.Screen
-        name="Support"
-        component={SupportPatient}
+        name="Appointments"
+        component={MyAppointment}
         options={{headerShown: false}}
       />
       <Tab.Screen
@@ -186,8 +208,8 @@ function PatientTabNavigator() {
         options={{headerShown: false}}
       />
       <Tab.Screen
-        name="HealthRecords"
-        component={PatientHealthRecords}
+        name="Support"
+        component={SupportPatient}
         options={{headerShown: false}}
       />
       <Tab.Screen
@@ -990,7 +1012,6 @@ function App() {
             headerBackButtonMenuEnabled: false,
           }}
         />
-
         <Stack.Screen
           name="CheifComplaints"
           component={CheifComplaints}
@@ -1055,7 +1076,6 @@ function App() {
             headerBackButtonMenuEnabled: false,
           }}
         />
-
         <Stack.Screen
           name="RegisterDoctor"
           component={RegisterScreen}
@@ -1108,7 +1128,6 @@ function App() {
         <Stack.Screen name="Interests" component={Interests} />
         <Stack.Screen name="Registration" component={Registration} />
         <Stack.Screen name="AddDocument" component={AddDocument} />
-
         <Stack.Screen
           name="PatientProfile"
           component={PatientProfile}
@@ -1123,7 +1142,6 @@ function App() {
           component={PersonalDetailsDoctor}
         />
         <Stack.Screen name="FamilyMembers" component={FamilyMembers} />
-
         <Stack.Screen name="MedicalRecord" component={MedicalRecord} />
         <Stack.Screen
           name="PatientHome"
@@ -1133,6 +1151,11 @@ function App() {
         <Stack.Screen
           name="MyAppointment"
           component={MyAppointment}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="PatientFav"
+          component={PatientFav}
           options={{headerShown: false}}
         />
         <Stack.Screen
@@ -1151,7 +1174,6 @@ function App() {
           component={DoctorDetails}
           options={{headerShown: false}}
         />
-
         <Stack.Screen
           name="PatientPayment"
           component={PatientPayment}
@@ -1177,7 +1199,6 @@ function App() {
           component={DoctorRegistration2}
           options={{headerShown: false}}
         />
-
         <Stack.Screen
           name="DoctorProfileEdit"
           component={DoctorProfileEdit}
