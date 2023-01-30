@@ -525,9 +525,6 @@ const ItemUpcoming = ({name, img, spl, date, mode, time}) => (
 function PatientHome({navigation}) {
   const renderRecentConsultations = ({item}) => (
     <TouchableOpacity
-      onPress={() => {
-        navigation.navigate('DoctorDetails');
-      }}
       style={{
         backgroundColor: '#E8F0FE',
         borderRadius: 10,
@@ -673,14 +670,67 @@ function PatientHome({navigation}) {
     </TouchableOpacity>
   );
   const renderUpcomingConsultations = ({item}) => (
-    <ItemUpcoming
-      name={item.name}
-      img={item.img}
-      spl={item.spl}
-      date={item.date}
-      mode={item.mode}
-      time={item.time}
-    />
+    <TouchableOpacity
+      style={{
+        backgroundColor: 'white',
+        borderRadius: 10,
+        padding: 5,
+        margin: 5,
+        flexDirection: 'column',
+        width: 290,
+        height: 80,
+      }}
+      onPress={() => {
+        navigation.navigate('DoctorDetails');
+      }}>
+      <View
+        style={{
+          flexDirection: 'row',
+        }}>
+        {/* Image */}
+        <View
+          style={{
+            width: 80,
+            flexDirection: 'column',
+            alignSelf: 'center',
+            margin: 5,
+          }}>
+          <Image
+            source={item.img}
+            style={{
+              width: 60,
+              height: 60,
+              borderRadius: 10,
+              alignSelf: 'center',
+            }}
+          />
+        </View>
+        {/* Details */}
+        <View style={{width: 160, justifyContent: 'space-evenly'}}>
+          <Text style={{fontSize: 15, fontWeight: 'bold'}}>{item.name}</Text>
+          <Text style={{fontSize: 10, color: 'gray'}}>{item.spl}</Text>
+          <Text style={{fontSize: 10, color: '#2B8ADA'}}>{item.mode}</Text>
+          <Text style={{fontSize: 12, fontWeight: 'bold'}}>
+            {item.time}
+            {'-'}
+            {item.date}
+          </Text>
+        </View>
+        {/* Chat Button */}
+        <TouchableOpacity style={{alignSelf: 'flex-start'}}>
+          <Entypo
+            name="chat"
+            color={'white'}
+            size={15}
+            style={{
+              backgroundColor: '#2B8ADA',
+              padding: 5,
+              borderRadius: 20,
+            }}
+          />
+        </TouchableOpacity>
+      </View>
+    </TouchableOpacity>
   );
 
   const renderSpeciality = ({item}) => (
@@ -802,9 +852,9 @@ function PatientHome({navigation}) {
             />
           </View>
           {/* Recent Consultation */}
-          <View style={styles.whiteBox}>
+          {/* <View style={styles.whiteBox}>
             {/* Heading */}
-            <View style={styles.headingBox}>
+          {/* <View style={styles.headingBox}>
               <Text style={{color: '#2B8ADA'}}>Recent Consultations</Text>
               <Text
                 style={{color: '#2B8ADA', textDecorationLine: 'underline'}}
@@ -813,15 +863,16 @@ function PatientHome({navigation}) {
               </Text>
             </View>
             {/* Blue Box */}
-            <View style={{flex: 1}}>
+          {/* <View style={{flex: 1}}>
               <FlatList
                 data={dataRecentConsultation}
                 horizontal={true}
                 keyExtractor={item => item.name}
                 renderItem={renderRecentConsultations}
-              />
-            </View>
-          </View>
+              /> 
+            </View> 
+          </View> */}
+
           {/* Upcoming Consultation */}
           <View style={styles.transparentBox}>
             {/* Heading */}

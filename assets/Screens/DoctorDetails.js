@@ -25,6 +25,7 @@ import MIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import doctor_m from '../Resources/doctor_m.png';
 import downloading from '../Animations/downloading.gif';
+import apiConfig from '../API/apiConfig';
 
 const data = {
   name: 'Dr. Imran Singh',
@@ -33,7 +34,8 @@ const data = {
   deg: 'MBBS, MD, FID, CCLHA',
   city: 'New Delhi',
   email: 'Imran@gmail.com',
-  pres: '',
+  mobileNumber: '+945652154',
+  contactVisibility: true,
   age: 36,
   dob: '03/02/1973',
   img: doctor_m,
@@ -56,28 +58,209 @@ const data = {
   doctorMedicalRegistrationDTOs: [
     {
       certificatePath: 'xyz',
-      registrationCouncil: 'abc',
-      registrationNo: '23643',
+      registrationCouncil: 'Mumbai Medical College',
+      registrationNo: 'MH0234sb',
       registrationYear: '1986',
     },
   ],
 };
 
 function DoctorDetails({navigation}) {
-  const [showGenInfo, setShowGenInfo] = useState(true);
-  const [showEduInfo, setShowEduInfo] = useState(true);
+  const [showGenInfo, setShowGenInfo] = useState(false);
+  const [GenInfo, setGenInfo] = useState(true);
+  const [showLangDet, setshowLangDet] = useState(false);
+  const [showEduInfo, setShowEduInfo] = useState(false);
+  const [EduInfo, setEduInfo] = useState(true);
   const [Education, setEducation] = useState([]);
-  const [showMedInfo, setShowMedInfo] = useState(true);
+  const [showMedInfo, setShowMedInfo] = useState(false);
+  const [MedInfo, setMedInfo] = useState(true);
+  const [MedRegDet, setMedRegDet] = useState(null);
   const [showExpDet, setShowExpDet] = useState(false);
+  const [ExpInfo, setExpInfo] = useState(true);
   const [Experience, setExperience] = useState([]);
-  const [showAddInfo, setShowAddInfo] = useState(false);
+  const [showClinicDet, setShowClinicDet] = useState(false);
+  const [ClinicInfo, setClinicInfo] = useState(true);
   const [ClinicDet, setClinicDet] = useState([]);
   const [isFetching, setisFetching] = useState(false);
   const [consultationModeModal, setconsultationModeModal] = useState(false);
   const layout = useWindowDimensions();
 
-  useEffect(() => {}, []);
+  //   useEffect(() => {
+  // const getGenInfo = async()=>{
+  //   axios.get(apiConfig.baseUrl+"")
+  // }
 
+  //   }, [showGenInfo]);
+
+  const languages = [
+    {
+      languageId: 2,
+      language: 'English',
+      doctorId: null,
+    },
+    {
+      languageId: 3,
+      language: 'Hindi',
+      doctorId: null,
+    },
+  ];
+
+  const ViewEducation = () => {
+    return Education.map((Education, index) => {
+      return (
+        <View
+          style={{
+            flexDirection: 'column',
+            borderWidth: 1,
+            borderTopWidth: 0,
+            borderColor: '#d3d3d3',
+          }}
+          key={index}>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              margin: 0,
+              padding: 0,
+            }}>
+            {/* Degree */}
+            <View style={styles.cellStyle}>
+              <Text style={{textAlign: 'center', fontSize: 10}}>
+                {Education.degree}
+              </Text>
+            </View>
+            {/* Passing Year */}
+            <View style={styles.cellStyle}>
+              <Text style={{textAlign: 'center', fontSize: 10}}>
+                {Education.passingYear}
+              </Text>
+            </View>
+            {/* Specialization */}
+            <View style={styles.cellStyle}>
+              <Text style={{textAlign: 'center', fontSize: 10}}>
+                {Education.specialization}
+              </Text>
+            </View>
+            {/* University */}
+            <View style={styles.cellStyle}>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  fontSize: 10,
+                }}>
+                {Education.university}
+              </Text>
+            </View>
+          </View>
+        </View>
+      );
+    });
+  };
+  const ViewExperience = () => {
+    return Experience.map((Experience, index) => {
+      return (
+        <View
+          style={{
+            flexDirection: 'column',
+            borderWidth: 1,
+            borderTopWidth: 0,
+            borderColor: '#d3d3d3',
+          }}
+          key={index}>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              margin: 0,
+              padding: 0,
+            }}>
+            {/* Practice At */}
+            <View style={styles.cellStyle}>
+              <Text style={{textAlign: 'center', fontSize: 10}}>
+                {Experience.practiceAt}
+              </Text>
+            </View>
+            {/*             
+           
+            <View style={styles.cellStyle}>
+              <Text style={{textAlign: 'center', fontSize: 10}}>
+                {dayjs(Experience.startDate).isValid()
+                  ? dayjs(Experience.startDate).format('DD-MM-YYYY')
+                  : 'DD-MM-YYYY'}
+              </Text>
+            </View>
+           
+            <View style={styles.cellStyle}>
+              <Text style={{textAlign: 'center', fontSize: 10}}>
+                {dayjs(Experience.endDate).isValid()
+                  ? dayjs(Experience.endDate).format('DD-MM-YYYY')
+                  : 'DD-MM-YYYY'}
+              </Text>
+            </View>
+            
+             */}
+            {/* Total Experience */}
+            <View style={styles.cellStyle}>
+              {Math.floor(Experience.experienceInMonths / 12) > 0 ? (
+                <Text style={{textAlign: 'center', fontSize: 10}}>
+                  {Math.floor(Experience.experienceInMonths / 12) + ' year(s)'}
+                </Text>
+              ) : null}
+              {parseInt(Experience.experienceInMonths % 12) != 0 ? (
+                <Text style={{textAlign: 'center', fontSize: 10}}>
+                  {parseInt(Experience.experienceInMonths % 12) + ' month(s)'}
+                </Text>
+              ) : null}
+            </View>
+          </View>
+        </View>
+      );
+    });
+  };
+  const ViewClinics = () => {
+    return ClinicDet.map((ClinicDet, index) => {
+      return (
+        <View
+          style={{
+            flexDirection: 'column',
+            borderWidth: 1,
+            borderTopWidth: 0,
+            borderColor: '#d3d3d3',
+          }}
+          key={index}>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              margin: 0,
+              padding: 0,
+            }}>
+            {/* Clinic Name */}
+            <View style={styles.cellStyle}>
+              <Text style={{textAlign: 'center', fontSize: 10}}>
+                {ClinicDet.clinicName}
+              </Text>
+            </View>
+            {/* Clinic Address */}
+            <View style={styles.cellStyle}>
+              <Text style={{textAlign: 'center', fontSize: 10}}>
+                {ClinicDet.clinicAddress}
+              </Text>
+            </View>
+          </View>
+        </View>
+      );
+    });
+  };
+  const ViewLang = () => {
+    return languages.map((lang, index) => {
+      return (
+        <View style={styles.bubble} key={index}>
+          <Text style={{color: 'white', fontSize: 12}}>{lang.language}</Text>
+        </View>
+      );
+    });
+  };
   const RenderModal = () => {
     return (
       <Modal
@@ -181,150 +364,6 @@ function DoctorDetails({navigation}) {
         </View>
       </Modal>
     );
-  };
-  const ViewEducation = () => {
-    return Education.map((Education, index) => {
-      return (
-        <View
-          style={{
-            flexDirection: 'column',
-            borderWidth: 1,
-            borderTopWidth: 0,
-            borderColor: '#d3d3d3',
-          }}
-          key={index}>
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              margin: 0,
-              padding: 0,
-            }}>
-            {/* Degree */}
-            <View style={styles.cellStyle}>
-              <Text style={{textAlign: 'center', fontSize: 10}}>
-                {Education.degree}
-              </Text>
-            </View>
-            {/* Passing Year */}
-            <View style={styles.cellStyle}>
-              <Text style={{textAlign: 'center', fontSize: 10}}>
-                {Education.passingYear}
-              </Text>
-            </View>
-            {/* Specialization */}
-            <View style={styles.cellStyle}>
-              <Text style={{textAlign: 'center', fontSize: 10}}>
-                {Education.specialization}
-              </Text>
-            </View>
-            {/* University */}
-            <View style={styles.cellStyle}>
-              <Text
-                style={{
-                  textAlign: 'center',
-                  fontSize: 10,
-                }}>
-                {Education.university}
-              </Text>
-            </View>
-          </View>
-        </View>
-      );
-    });
-  };
-  const ViewExperience = () => {
-    return Experience.map((Experience, index) => {
-      return (
-        <View
-          style={{
-            flexDirection: 'column',
-            borderWidth: 1,
-            borderTopWidth: 0,
-            borderColor: '#d3d3d3',
-          }}
-          key={index}>
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              margin: 0,
-              padding: 0,
-            }}>
-            {/* Practice At */}
-            <View style={styles.cellStyle}>
-              <Text style={{textAlign: 'center', fontSize: 10}}>
-                {Experience.practiceAt}
-              </Text>
-            </View>
-            {/* Start Date */}
-            <View style={styles.cellStyle}>
-              <Text style={{textAlign: 'center', fontSize: 10}}>
-                {dayjs(Experience.startDate).isValid()
-                  ? dayjs(Experience.startDate).format('DD-MM-YYYY')
-                  : 'DD-MM-YYYY'}
-              </Text>
-            </View>
-            {/* End Date */}
-            <View style={styles.cellStyle}>
-              <Text style={{textAlign: 'center', fontSize: 10}}>
-                {dayjs(Experience.endDate).isValid()
-                  ? dayjs(Experience.endDate).format('DD-MM-YYYY')
-                  : 'DD-MM-YYYY'}
-              </Text>
-            </View>
-            {/* Total Experience */}
-            <View style={styles.cellStyle}>
-              {Math.floor(Experience.experienceInMonths / 12) > 0 ? (
-                <Text style={{textAlign: 'center', fontSize: 10}}>
-                  {Math.floor(Experience.experienceInMonths / 12) + ' year(s)'}
-                </Text>
-              ) : null}
-              {parseInt(Experience.experienceInMonths % 12) != 0 ? (
-                <Text style={{textAlign: 'center', fontSize: 10}}>
-                  {parseInt(Experience.experienceInMonths % 12) + ' month(s)'}
-                </Text>
-              ) : null}
-            </View>
-          </View>
-        </View>
-      );
-    });
-  };
-  const ViewClinics = () => {
-    return ClinicDet.map((ClinicDet, index) => {
-      return (
-        <View
-          style={{
-            flexDirection: 'column',
-            borderWidth: 1,
-            borderTopWidth: 0,
-            borderColor: '#d3d3d3',
-          }}
-          key={index}>
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              margin: 0,
-              padding: 0,
-            }}>
-            {/* Clinic Name */}
-            <View style={styles.cellStyle}>
-              <Text style={{textAlign: 'center', fontSize: 10}}>
-                {ClinicDet.clinicName}
-              </Text>
-            </View>
-            {/* Clinic Address */}
-            <View style={styles.cellStyle}>
-              <Text style={{textAlign: 'center', fontSize: 10}}>
-                {ClinicDet.clinicAddress}
-              </Text>
-            </View>
-          </View>
-        </View>
-      );
-    });
   };
 
   return (
@@ -445,52 +484,166 @@ function DoctorDetails({navigation}) {
                   }}>
                   <View style={{flexDirection: 'column', flex: 0.6}}>
                     <View style={{flexDirection: 'row'}}>
-                      <Text
-                        style={{
-                          fontWeight: 'bold',
-                          fontSize: 12,
-                          marginBottom: 5,
-                        }}>
-                        Email :
-                      </Text>
+                      <Text style={styles.subHeading}>Email :</Text>
                       <Text style={{fontSize: 12}}> {data.email}</Text>
                     </View>
-                    <View style={{flexDirection: 'row'}}>
-                      <Text
-                        style={{
-                          fontWeight: 'bold',
-                          fontSize: 12,
-                          marginBottom: 5,
-                        }}>
-                        Date of Birth :
-                      </Text>
-                      <Text style={{fontSize: 12}}> {data.dob}</Text>
-                    </View>
+                    {data.contactVisibility ? (
+                      <View style={{flexDirection: 'row'}}>
+                        <Text style={styles.subHeading}>Mobile No :</Text>
+                        <Text style={{fontSize: 12}}> {data.mobileNumber}</Text>
+                      </View>
+                    ) : null}
                   </View>
                   <View style={{flexDirection: 'column', flex: 0.3}}>
                     <View style={{flexDirection: 'row'}}>
-                      <Text
-                        style={{
-                          fontWeight: 'bold',
-                          fontSize: 12,
-                          marginBottom: 5,
-                        }}>
-                        City :
-                      </Text>
+                      <Text style={styles.subHeading}>City :</Text>
                       <Text style={{fontSize: 12}}> {data.city}</Text>
                     </View>
                     <View style={{flexDirection: 'row'}}>
-                      <Text
-                        style={{
-                          fontWeight: 'bold',
-                          fontSize: 12,
-                          marginBottom: 5,
-                        }}>
-                        Age :
-                      </Text>
+                      <Text style={styles.subHeading}>Age :</Text>
                       <Text style={{fontSize: 12}}> {data.age}</Text>
                     </View>
                   </View>
+                </View>
+              </View>
+            </View>
+          ) : null}
+
+          {/* Clinic Information Label*/}
+          <View
+            style={{
+              width: '90%',
+              alignSelf: 'center',
+            }}>
+            <View
+              style={[
+                styles.whiteLabelView,
+                showLangDet
+                  ? {
+                      borderBottomLeftRadius: 0,
+                      borderBottomRightRadius: 0,
+                      marginBottom: 0,
+                    }
+                  : null,
+              ]}>
+              <TouchableOpacity
+                style={[
+                  {flexDirection: 'row', width: '100%'},
+                  showLangDet
+                    ? {borderBottomWidth: 0.5, borderBottomColor: '#707070'}
+                    : null,
+                ]}
+                onPress={() => {
+                  setshowLangDet(!showLangDet);
+                }}>
+                <FAIcon
+                  name="language"
+                  size={15}
+                  color={showLangDet ? '#2b8ada' : 'gray'}
+                  style={{marginHorizontal: 5, alignSelf: 'center'}}
+                />
+                <Text
+                  style={[
+                    styles.label,
+                    {width: '85%'},
+                    showLangDet ? {color: '#2B8ADA'} : null,
+                  ]}>
+                  Language
+                </Text>
+                <FAIcon
+                  name={showLangDet ? 'chevron-down' : 'chevron-right'}
+                  color={showLangDet ? '#2B8ADA' : 'gray'}
+                  style={[styles.label, {width: '10%', fontSize: 20}]}></FAIcon>
+              </TouchableOpacity>
+            </View>
+          </View>
+          {/* Clinic Information Body*/}
+          {showLangDet ? (
+            <View style={{width: '90%', alignSelf: 'center'}}>
+              <View style={styles.whiteBodyView}>
+                <View style={{flexDirection: 'row'}}>
+                  <ViewLang />
+                </View>
+              </View>
+            </View>
+          ) : null}
+
+          {/* Clinic Information Label*/}
+          <View
+            style={{
+              width: '90%',
+              alignSelf: 'center',
+            }}>
+            <View
+              style={[
+                styles.whiteLabelView,
+                showClinicDet
+                  ? {
+                      borderBottomLeftRadius: 0,
+                      borderBottomRightRadius: 0,
+                      marginBottom: 0,
+                    }
+                  : null,
+              ]}>
+              <TouchableOpacity
+                style={[
+                  {flexDirection: 'row', width: '100%'},
+                  showClinicDet
+                    ? {borderBottomWidth: 0.5, borderBottomColor: '#707070'}
+                    : null,
+                ]}
+                onPress={() => {
+                  setShowClinicDet(!showClinicDet);
+                }}>
+                <FAIcon
+                  name="clinic-medical"
+                  size={15}
+                  color={showClinicDet ? '#2b8ada' : 'gray'}
+                  style={{marginHorizontal: 5, alignSelf: 'center'}}
+                />
+                <Text
+                  style={[
+                    styles.label,
+                    {width: '85%'},
+                    showClinicDet ? {color: '#2B8ADA'} : null,
+                  ]}>
+                  Clinic Information
+                </Text>
+                <FAIcon
+                  name={showClinicDet ? 'chevron-down' : 'chevron-right'}
+                  color={showClinicDet ? '#2B8ADA' : 'gray'}
+                  style={[styles.label, {width: '10%', fontSize: 20}]}></FAIcon>
+              </TouchableOpacity>
+            </View>
+          </View>
+          {/* Clinic Information Body*/}
+          {showClinicDet ? (
+            <View style={{width: '90%', alignSelf: 'center'}}>
+              <View style={styles.whiteBodyView}>
+                <View>
+                  {/* Heading */}
+                  <View
+                    style={{
+                      flexDirection: 'column',
+                      borderWidth: 1,
+                      borderColor: '#d3d3d3',
+                    }}>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        margin: 0,
+                        padding: 0,
+                      }}>
+                      <View style={styles.cellHeading}>
+                        <Text style={styles.cellHeadingText}>Name</Text>
+                      </View>
+                      <View style={styles.cellHeading}>
+                        <Text style={styles.cellHeadingText}>Address</Text>
+                      </View>
+                    </View>
+                  </View>
+                  <ViewClinics />
                 </View>
               </View>
             </View>
@@ -559,45 +712,15 @@ function DoctorDetails({navigation}) {
                     justifyContent: 'space-evenly',
                   }}>
                   <View style={{flexDirection: 'column', flex: 0.6}}>
-                    <View style={{flexDirection: 'row'}}>
-                      <Text
-                        style={{
-                          fontWeight: 'bold',
-                          fontSize: 12,
-                          marginBottom: 5,
-                        }}>
-                        Registration No :
-                      </Text>
+                    <View style={{flexDirection: 'column'}}>
+                      <Text style={styles.subHeading}>Registration No :</Text>
                       <Text style={{fontSize: 12}}>
                         {' '}
                         {data.doctorMedicalRegistrationDTOs[0].registrationNo}
                       </Text>
                     </View>
-                    <View style={{flexDirection: 'row'}}>
-                      <Text
-                        style={{
-                          fontWeight: 'bold',
-                          fontSize: 12,
-                          marginBottom: 5,
-                        }}>
-                        Registration Certificate :
-                      </Text>
-                      <Text style={{fontSize: 12}}>
-                        {' '}
-                        {data.doctorMedicalRegistrationDTOs[0].certificatePath}
-                      </Text>
-                    </View>
-                  </View>
-                  <View style={{flexDirection: 'column', flex: 0.3}}>
-                    <View style={{flexDirection: 'row'}}>
-                      <Text
-                        style={{
-                          fontWeight: 'bold',
-                          fontSize: 12,
-                          marginBottom: 5,
-                        }}>
-                        Reg. Council:
-                      </Text>
+                    <View style={{flexDirection: 'column'}}>
+                      <Text style={styles.subHeading}>Reg. Council:</Text>
                       <Text style={{fontSize: 12}}>
                         {' '}
                         {
@@ -606,15 +729,10 @@ function DoctorDetails({navigation}) {
                         }
                       </Text>
                     </View>
-                    <View style={{flexDirection: 'row'}}>
-                      <Text
-                        style={{
-                          fontWeight: 'bold',
-                          fontSize: 12,
-                          marginBottom: 5,
-                        }}>
-                        Reg. Year :
-                      </Text>
+                  </View>
+                  <View style={{flexDirection: 'column', flex: 0.3}}>
+                    <View style={{flexDirection: 'column'}}>
+                      <Text style={styles.subHeading}>Reg. Year :</Text>
                       <Text style={{fontSize: 12}}>
                         {' '}
                         {data.doctorMedicalRegistrationDTOs[0].registrationYear}
@@ -701,7 +819,7 @@ function DoctorDetails({navigation}) {
                         <Text style={styles.cellHeadingText}>Degree</Text>
                       </View>
                       <View style={styles.cellHeading}>
-                        <Text style={styles.cellHeadingText}>Degree Year</Text>
+                        <Text style={styles.cellHeadingText}>Year</Text>
                       </View>
                       <View style={styles.cellHeading}>
                         <Text style={styles.cellHeadingText}>Speciality</Text>
@@ -788,99 +906,18 @@ function DoctorDetails({navigation}) {
                       <View style={styles.cellHeading}>
                         <Text style={styles.cellHeadingText}>Practice At</Text>
                       </View>
-                      <View style={styles.cellHeading}>
+                      {/* <View style={styles.cellHeading}>
                         <Text style={styles.cellHeadingText}>Start Date</Text>
                       </View>
                       <View style={styles.cellHeading}>
                         <Text style={styles.cellHeadingText}>End Date</Text>
-                      </View>
+                      </View> */}
                       <View style={styles.cellHeading}>
                         <Text style={styles.cellHeadingText}>Experience</Text>
                       </View>
                     </View>
                   </View>
                   <ViewExperience />
-                </View>
-              </View>
-            </View>
-          ) : null}
-
-          {/* Clinic Information Label*/}
-          <View
-            style={{
-              width: '90%',
-              alignSelf: 'center',
-            }}>
-            <View
-              style={[
-                styles.whiteLabelView,
-                showAddInfo
-                  ? {
-                      borderBottomLeftRadius: 0,
-                      borderBottomRightRadius: 0,
-                      marginBottom: 0,
-                    }
-                  : null,
-              ]}>
-              <TouchableOpacity
-                style={[
-                  {flexDirection: 'row', width: '100%'},
-                  showAddInfo
-                    ? {borderBottomWidth: 0.5, borderBottomColor: '#707070'}
-                    : null,
-                ]}
-                onPress={() => {
-                  setShowAddInfo(!showAddInfo);
-                }}>
-                <FAIcon
-                  name="clinic-medical"
-                  size={15}
-                  color={showAddInfo ? '#2b8ada' : 'gray'}
-                  style={{marginHorizontal: 5, alignSelf: 'center'}}
-                />
-                <Text
-                  style={[
-                    styles.label,
-                    {width: '85%'},
-                    showAddInfo ? {color: '#2B8ADA'} : null,
-                  ]}>
-                  Clinic Information
-                </Text>
-                <FAIcon
-                  name={showAddInfo ? 'chevron-down' : 'chevron-right'}
-                  color={showAddInfo ? '#2B8ADA' : 'gray'}
-                  style={[styles.label, {width: '10%', fontSize: 20}]}></FAIcon>
-              </TouchableOpacity>
-            </View>
-          </View>
-          {/* Clinic Information Body*/}
-          {showAddInfo ? (
-            <View style={{width: '90%', alignSelf: 'center'}}>
-              <View style={styles.whiteBodyView}>
-                <View>
-                  {/* Heading */}
-                  <View
-                    style={{
-                      flexDirection: 'column',
-                      borderWidth: 1,
-                      borderColor: '#d3d3d3',
-                    }}>
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                        margin: 0,
-                        padding: 0,
-                      }}>
-                      <View style={styles.cellHeading}>
-                        <Text style={styles.cellHeadingText}>Name</Text>
-                      </View>
-                      <View style={styles.cellHeading}>
-                        <Text style={styles.cellHeadingText}>Address</Text>
-                      </View>
-                    </View>
-                  </View>
-                  <ViewClinics />
                 </View>
               </View>
             </View>
@@ -1035,6 +1072,22 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 11,
     marginVertical: 5,
+  },
+  bubble: {
+    flexDirection: 'row',
+    alignSelf: 'center',
+    backgroundColor: '#2b8ada',
+    padding: 5,
+    paddingHorizontal: 10,
+    borderRadius: 15,
+    marginVertical: 5,
+    marginHorizontal: 5,
+  },
+  subHeading: {
+    fontWeight: 'bold',
+    fontSize: 13,
+    marginBottom: 5,
+    color: '#2b8ada',
   },
 });
 

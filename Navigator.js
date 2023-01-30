@@ -28,6 +28,7 @@ import {useNavigation} from '@react-navigation/native';
 
 import CallPage from './assets/Screens/CallPage';
 import doctor from './assets/Resources/doctor2x.png';
+import patient from './assets/Resources/patient2x.png';
 
 import RoleScreen from './assets/Screens/RoleScreen1';
 import OTPScreen from './assets/Screens/OTPScreen';
@@ -113,6 +114,7 @@ import history_p from './assets/PatientDasboard/history.jpg';
 
 //drawer icons doctor
 import bell from './assets/DrawerIcons/bell.png';
+import consultD from './assets/DrawerIcons/consult.png';
 import about from './assets/DrawerIcons/about.png';
 import appointment from './assets/DrawerIcons/appointment.png';
 import general from './assets/DrawerIcons/general.png';
@@ -486,6 +488,195 @@ function CustomDrawerContent(props) {
     </DrawerContentScrollView>
   );
 }
+function CustomDrawerContentPatient(props) {
+  //const {DoctorName,DoctorId} = route.params.DoctorName
+  //console.log("Drawer Log", route);
+  // console.log(props.doctorObj);
+  return (
+    <DrawerContentScrollView {...props}>
+      <View style={{flex: 1, marginTop: -5}}>
+        <View
+          style={{
+            backgroundColor: '#2B8ADA',
+            flexDirection: 'row',
+            padding: 10,
+            paddingVertical: 20,
+            borderTopRightRadius: 20,
+            justifyContent: 'space-evenly',
+          }}>
+          <View
+            style={{
+              flex: 0.4,
+              alignSelf: 'center',
+            }}>
+            <View
+              style={{
+                borderWidth: 2,
+                borderColor: 'white',
+                alignSelf: 'center',
+                borderRadius: 100,
+              }}>
+              <Image
+                style={{
+                  height: 80,
+                  width: 80,
+                  borderRadius: 80,
+                  alignSelf: 'center',
+                  backgroundColor: 'white',
+                  margin: 5,
+                }}
+                source={patient}
+              />
+            </View>
+          </View>
+          <TouchableOpacity
+            style={{flex: 0.5}}
+            onPress={() => props.navigation.closeDrawer()}>
+            <Text
+              style={{
+                color: 'white',
+                fontSize: 14,
+                marginVertical: 5,
+                fontWeight: 'bold',
+              }}>
+              Patient Name
+            </Text>
+            <Text style={{color: 'white', fontSize: 10, marginBottom: 10}}>
+              +94563357874
+            </Text>
+            <Text
+              style={{color: 'white'}}
+              // onPress={() => props.navigation.navigate('DoctorProfileEdit')}
+            >
+              VIEW AND EDIT
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+      <View style={styles.Heading}>
+        <Text style={styles.HeadingText}>Core Services</Text>
+      </View>
+      {/* <DrawerItem
+        label="Notification"
+        labelStyle={styles.labelStyle}
+        style={{marginVertical: 0, paddingVertical: 0}}
+        onPress={() => {}}
+        icon={({focused, color, size}) => (
+          <Image source={bell} style={{tintColor: '#033158'}} />
+        )}
+      /> */}
+      <DrawerItem
+        label="Consult Now"
+        labelStyle={styles.labelStyle}
+        style={{marginVertical: 0, paddingVertical: 0}}
+        //onPress={() => props.navigation.navigate('MyUpcomingAppointment')}
+        icon={({focused, color, size}) => (
+          <Image source={consultD} style={{tintColor: '#033158'}} />
+        )}
+      />
+      <View style={styles.Heading}>
+        <Text style={styles.HeadingText}>Record</Text>
+      </View>
+      <DrawerItem
+        label="Notification"
+        labelStyle={styles.labelStyle}
+        style={{marginVertical: 0, paddingVertical: 0}}
+        //onPress={() => props.navigation.navigate('MyUpcomingAppointment')}
+        icon={({focused, color, size}) => (
+          <Image source={bell} style={{tintColor: '#033158'}} />
+        )}
+      />
+      <DrawerItem
+        label="Appointment"
+        labelStyle={styles.labelStyle}
+        style={{marginVertical: 0, paddingVertical: 0}}
+        //onPress={() => props.navigation.navigate('MyUpcomingAppointment')}
+        icon={({focused, color, size}) => (
+          <Image source={appointment} style={{tintColor: '#033158'}} />
+        )}
+      />
+      <DrawerItem
+        label="Profile"
+        labelStyle={styles.labelStyle}
+        style={{marginVertical: 0, paddingVertical: 0}}
+        //onPress={() => props.navigation.navigate('MyUpcomingAppointment')}
+        icon={({focused, color, size}) => (
+          <Image source={myprofile} style={{tintColor: '#033158'}} />
+        )}
+      />
+      <DrawerItem
+        label="Invoices"
+        labelStyle={styles.labelStyle}
+        style={{marginVertical: 0, paddingVertical: 0}}
+        //onPress={() => props.navigation.navigate('MyUpcomingAppointment')}
+        icon={({focused, color, size}) => (
+          <Image source={myearning} style={{tintColor: '#033158'}} />
+        )}
+      />
+
+      <View style={styles.Heading}>
+        <Text style={styles.HeadingText}>About</Text>
+      </View>
+      <DrawerItem
+        label="Help & Support"
+        labelStyle={styles.labelStyle}
+        style={{marginVertical: 0, paddingVertical: 0}}
+        // onPress={() => {
+        //   props.navigation.navigate('Support');
+        // }}
+        icon={({focused, color, size}) => (
+          <Image source={help} style={{tintColor: '#033158'}} />
+        )}
+      />
+      <DrawerItem
+        label="About Arogya"
+        labelStyle={styles.labelStyle}
+        style={{marginVertical: 0, paddingVertical: 0}}
+        //onPress={() => props.navigation.navigate('About')}
+        icon={({focused, color, size}) => (
+          <Image source={about} style={{tintColor: '#033158'}} />
+        )}
+      />
+      <DrawerItem
+        label="Terms & Condition"
+        labelStyle={styles.labelStyle}
+        style={{marginVertical: 0, paddingVertical: 0}}
+        onPress={() => {
+          viewTermsConditions();
+        }}
+        icon={({focused, color, size}) => (
+          <Image source={terms} style={{tintColor: '#033158'}} />
+        )}
+      />
+      <View style={styles.Heading}>
+        <Text style={styles.HeadingText}>Settings</Text>
+      </View>
+      <DrawerItem
+        label="Edit Profile"
+        labelStyle={styles.labelStyle}
+        style={{marginVertical: 0, paddingVertical: 0}}
+        // onPress={() => {
+        //   props.navigation.navigate('DoctorProfileEdit');
+        // }}
+        icon={({focused, color, size}) => (
+          <Image source={general} style={{tintColor: '#033158'}} />
+        )}
+      />
+
+      <DrawerItem
+        label="Logout"
+        labelStyle={styles.labelStyle}
+        style={{marginVertical: 0, paddingVertical: 0}}
+        onPress={() => {
+          logoutAction(props);
+        }}
+        icon={({focused, color, size}) => (
+          <Image source={logout} style={{tintColor: '#033158'}} />
+        )}
+      />
+    </DrawerContentScrollView>
+  );
+}
 
 const MyDrawer = props => {
   const doctorObj = props.route.params.doctorObj;
@@ -500,7 +691,6 @@ const MyDrawer = props => {
       screenOptions={{
         drawerStyle: {
           backgroundColor: '#a6d1f5',
-          marginTop: 30,
           borderTopRightRadius: 20,
           borderBottomRightRadius: 20,
         },
@@ -508,6 +698,31 @@ const MyDrawer = props => {
       <Drawer.Screen
         name="Home"
         component={DoctorTabNavigator}
+        options={{headerShown: false}}
+      />
+    </Drawer.Navigator>
+  );
+};
+const PatientDrawer = props => {
+  // const doctorObj = props.route.params.doctorObj;
+  // console.log(doctorObj.doctorName + "------------------ My Drawer");
+  return (
+    <Drawer.Navigator
+      // useLegacyImplementation
+      drawerContent={props => (
+        <CustomDrawerContentPatient {...props} />
+        // <CustomDrawerContent {...props} />
+      )}
+      screenOptions={{
+        drawerStyle: {
+          backgroundColor: '#a6d1f5',
+          borderTopRightRadius: 20,
+          borderBottomRightRadius: 20,
+        },
+      }}>
+      <Drawer.Screen
+        name="PatientsHome"
+        component={PatientTabNavigator}
         options={{headerShown: false}}
       />
     </Drawer.Navigator>
@@ -912,7 +1127,7 @@ function App() {
         <Stack.Screen name="MedicalRecord" component={MedicalRecord} />
         <Stack.Screen
           name="PatientHome"
-          component={PatientTabNavigator}
+          component={PatientDrawer}
           options={{headerShown: false}}
         />
         <Stack.Screen

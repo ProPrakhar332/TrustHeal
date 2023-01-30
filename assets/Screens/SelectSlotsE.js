@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, {useState, useEffect} from 'react';
 import {
   Alert,
   useWindowDimensions,
@@ -14,29 +14,28 @@ import {
   ScrollView,
   StyleSheet,
   KeyboardAvoidingView,
-} from "react-native";
-import { LogBox } from "react-native";
-LogBox.ignoreLogs(["VirtualizedLists should never be nested"]);
-import axios from "axios";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import Header from "../Components/Header";
-import HeaderPatient from "../Components/HeaderPatient";
-import FAIcons from "react-native-vector-icons/FontAwesome5";
+} from 'react-native';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import HeaderPatient from '../Components/HeaderPatient';
+import FAIcons from 'react-native-vector-icons/FontAwesome5';
 
-import doctor_m from "../Resources/doctor_m.png";
-import { SelectList } from "react-native-dropdown-select-list";
-import CustomButton from "../Components/CustomButton";
+import doctor_m from '../Resources/doctor_m.png';
+import CustomButton from '../Components/CustomButton';
+import DayDateMaker from '../API/DayDateMaker';
+import dayjs from 'dayjs';
+import timeformatter from '../API/timeformatter';
 
 const data = {
-  name: "Dr. Imran Singh",
-  spl: "Psychiatry",
-  exp: "10 Years of experience",
-  deg: "MBBS, MD, FID, CCLHA",
-  city: "New Delhi",
-  email: "Imran@gmail.com",
-  pres: "",
+  name: 'Dr. Imran Singh',
+  spl: 'Psychiatry',
+  exp: '10 Years of experience',
+  deg: 'MBBS, MD, FID, CCLHA',
+  city: 'New Delhi',
+  email: 'Imran@gmail.com',
+  pres: '',
   age: 36,
-  dob: "03/02/1973",
+  dob: '03/02/1973',
   img: doctor_m,
   doctorConsultationFeesDTO: {
     eConsulationFees: 500,
@@ -45,187 +44,198 @@ const data = {
   },
   doctorEducationsDTOs: [
     {
-      degree: "MBBS",
-      degreePath: "string",
+      degree: 'MBBS',
+      degreePath: 'string',
       doctorEducationPkId: 0,
-      passingYear: "1986",
-      specialization: ["Psychiatry", "Diabetologist", "General Physician"],
+      passingYear: '1986',
+      specialization: ['Psychiatry', 'Diabetologist', 'General Physician'],
       totalExperiencedInMonths: 0,
-      university: "IGNOU",
+      university: 'IGNOU',
     },
   ],
   doctorClinicDetailsDTOs: [
     {
       doctorclinicpkid: 1,
-      clinicName: "ABCD",
-      clinicAddress: "Ashok Road",
-      specialInstruction: "wear mask",
+      clinicName: 'ABCD',
+      clinicAddress: 'Ashok Road',
+      specialInstruction: 'wear mask',
     },
     {
       doctorclinicpkid: 2,
-      clinicName: "XYZ",
-      clinicAddress: "rohtak road",
-      specialInstruction: "wear mask",
+      clinicName: 'XYZ',
+      clinicAddress: 'rohtak road',
+      specialInstruction: 'wear mask',
     },
     {
       doctorclinicpkid: 3,
-      clinicName: "QWERTY",
-      clinicAddress: "Rajpur Road",
-      specialInstruction: "wear mask",
+      clinicName: 'QWERTY',
+      clinicAddress:
+        'Rajpur Road cjsabckasbc ashchjsabc bashv ahsbvchasbch jabschbashc jkbkhscbkas hbahs',
+      specialInstruction: 'wear mask',
     },
   ],
 };
 
-const DATA = [
+const date = {
+  availableDates: ['2023-01-30', '2023-01-31'],
+};
+const slotsresponse = [
   {
-    date: "19/09/2022",
-    day: "Monday",
-    slots: [
-      "06:45 AM to 07:00 AM",
-      "07:15 AM to 08:30 AM",
-      "08:45 AM to 09:15 AM",
-      "09:30 AM to 09:35 AM",
-      "09:50 AM to 10:15 AM",
-      "10:30 AM to 10:45 AM",
-      "11:00 AM to 11:30 AM",
-      "11:45 AM to 12:30 PM",
-      "12:45 PM to 01:30 PM",
-    ],
+    slotId: 38,
+    startTime: '09:00:00',
+    endTime: '09:30:00',
+    slotDate: '2023-01-30',
+    typeOfEConsultation: 'PHONE_CALL',
+    slotStatus: 'CREATED',
   },
   {
-    date: "20/09/2022",
-    day: "Tuesday",
-    slots: [
-      "06:45 AM to 07:00 AM",
-      "07:15 AM to 08:30 AM",
-      "08:45 AM to 09:15 AM",
-      "09:30 AM to 09:35 AM",
-      "09:50 AM to 10:15 AM",
-      "10:30 AM to 10:45 AM",
-      "11:00 AM to 11:30 AM",
-      "11:45 AM to 12:30 PM",
-      "12:45 PM to 01:30 PM",
-    ],
+    slotId: 39,
+    startTime: '09:50:00',
+    endTime: '10:20:00',
+    slotDate: '2023-01-30',
+    typeOfEConsultation: 'PHONE_CALL',
+    slotStatus: 'CREATED',
   },
   {
-    date: "21/09/2022",
-    day: "Wednesday",
-    slots: [
-      "06:45 AM to 07:00 AM",
-      "07:15 AM to 08:30 AM",
-      "08:45 AM to 09:15 AM",
-      "09:30 AM to 09:35 AM",
-      "09:50 AM to 10:15 AM",
-      "10:30 AM to 10:45 AM",
-      "11:00 AM to 11:30 AM",
-      "11:45 AM to 12:30 PM",
-      "12:45 PM to 01:30 PM",
-    ],
+    slotId: 40,
+    startTime: '10:40:00',
+    endTime: '11:10:00',
+    slotDate: '2023-01-30',
+    typeOfEConsultation: 'PHONE_CALL',
+    slotStatus: 'CREATED',
   },
   {
-    date: "22/09/2022",
-    day: "Thursday",
-    slots: ["08:00 AM to 08:30 AM", "08:45 AM to 09:30"],
+    slotId: 41,
+    startTime: '11:30:00',
+    endTime: '12:00:00',
+    slotDate: '2023-01-30',
+    typeOfEConsultation: 'PHONE_CALL',
+    slotStatus: 'CREATED',
   },
   {
-    date: "23/09/2022",
-    day: "Friday",
-    slots: [
-      "06:45 AM to 07:00 AM",
-      "07:15 AM to 08:30 AM",
-      "08:45 AM to 09:15 AM",
-      "09:30 AM to 09:35 AM",
-      "09:50 AM to 10:15 AM",
-      "10:30 AM to 10:45 AM",
-      "11:00 AM to 11:30 AM",
-      "11:45 AM to 12:30 PM",
-      "12:45 PM to 01:30 PM",
-    ],
+    slotId: 42,
+    startTime: '09:00:00',
+    endTime: '09:30:00',
+    slotDate: '2023-01-31',
+    typeOfEConsultation: 'PHONE_CALL',
+    slotStatus: 'CREATED',
+  },
+  {
+    slotId: 43,
+    startTime: '09:50:00',
+    endTime: '10:20:00',
+    slotDate: '2023-01-31',
+    typeOfEConsultation: 'PHONE_CALL',
+    slotStatus: 'CREATED',
+  },
+  {
+    slotId: 44,
+    startTime: '10:40:00',
+    endTime: '11:10:00',
+    slotDate: '2023-01-31',
+    typeOfEConsultation: 'PHONE_CALL',
+    slotStatus: 'CREATED',
+  },
+  {
+    slotId: 45,
+    startTime: '11:30:00',
+    endTime: '12:00:00',
+    slotDate: '2023-01-31',
+    typeOfEConsultation: 'PHONE_CALL',
+    slotStatus: 'CREATED',
+  },
+  {
+    slotId: 46,
+    startTime: '11:50:00',
+    endTime: '12:20:00',
+    slotDate: '2023-01-31',
+    typeOfEConsultation: 'PHONE_CALL',
+    slotStatus: 'CREATED',
   },
 ];
 
-function SelectSlotsE({ navigation }) {
+function SelectSlotsE({navigation}) {
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedSlotTime, setSelectedSlotTime] = useState(null);
+  const [selectedSlotId, setselectedSlotId] = useState(null);
+  const [EDays, setEDays] = useState([]);
+  const [ESlots, setESlots] = useState([]);
 
-  const renderDate = ({ item }) => {
-    return (
-      <View style={{ flex: 1 }}>
-        <View style={{ width: "90%", alignSelf: "center" }}>
-          <Text
-            style={{
-              color: "white",
-              backgroundColor: "#2B8ADA",
-              padding: 5,
-              alignSelf: "flex-start",
-              textAlign: "center",
-              borderRadius: 5,
-            }}
-          >
-            {item.date}
-          </Text>
-        </View>
-        <View
-          style={{
-            width: "95%",
-            alignSelf: "center",
-            backgroundColor: "white",
-            marginVertical: 10,
-            marginBottom: 20,
-            borderRadius: 10,
-          }}
-        >
-          {/* Heading */}
-          <View
-            style={{
-              borderBottomWidth: 1,
-              width: "90%",
-              alignSelf: "center",
-              padding: 10,
-            }}
-          >
-            <Text style={{ color: "#2B8ADA" }}>Available Slots</Text>
-          </View>
-          <View
-            style={{
-              width: "90%",
-              alignSelf: "center",
-              backgroundColor: "white",
-              marginVertical: 5,
-            }}
-          >
-            <FlatList
-              data={item.slots}
-              renderItem={renderItem}
-              key={item}
-              extraData={selectedSlotTime}
-              numColumns={Math.floor(layout.width / 100)}
-            />
-          </View>
-        </View>
-      </View>
-    );
-  };
+  useEffect(() => {
+    setEDays(DayDateMaker(date));
+    // console.log(layout.width);
+  }, []);
+  useEffect(() => {
+    let p = [];
+    for (var i = 0; i < slotsresponse.length; ++i) {
+      if (selectedDate == slotsresponse[i].slotDate) p.push(slotsresponse[i]);
+    }
+    setESlots(p);
+  }, [selectedDate]);
 
-  const renderItem = ({ item }) => {
-    const backgroundColor = item === selectedSlotTime ? "#2B8ADA" : "white";
-    const color = item === selectedSlotTime ? "white" : "black";
-
+  const renderDays = ({item}) => {
     return (
       <TouchableOpacity
         style={{
-          padding: 5,
-          borderWidth: 1,
-          borderRadius: 10,
-          alignSelf: "center",
-          backgroundColor: backgroundColor,
-          margin: 5,
+          backgroundColor: selectedDate == item.date ? '#2b8ada' : '#e8f0fe',
+          padding: 10,
+          margin: 3,
+          borderRadius: 5,
+          flexDirection: 'column',
+          alignItems: 'center',
         }}
         onPress={() => {
-          setSelectedSlotTime(item);
+          setSelectedDate(item.date);
+          setselectedSlotId(null);
+        }}>
+        <Text
+          style={{
+            fontSize: 12,
+            color: selectedDate == item.date ? 'white' : 'black',
+          }}>
+          {dayjs(item.date).format('DD-MMM-YY')}
+        </Text>
+        <Text
+          style={{
+            fontSize: 12,
+            color: selectedDate == item.date ? 'white' : 'black',
+          }}>
+          {dayjs(item.date).format('dddd')}
+        </Text>
+      </TouchableOpacity>
+    );
+  };
+  const renderSlots = ({item}) => {
+    return (
+      <TouchableOpacity
+        style={{
+          backgroundColor:
+            selectedSlotId == item.slotId ? '#2b8ada' : '#e8f0fe',
+          padding: 10,
+          margin: 5,
+          borderRadius: 5,
+          flexDirection: 'column',
+          alignItems: 'center',
         }}
-      >
-        <Text style={{ color: color, fontSize: 9 }}>{item}</Text>
+        onPress={() => {
+          setselectedSlotId(item.slotId);
+          //setslots(item.slots);
+          setSelectedSlotTime(timeformatter(item.startTime));
+        }}>
+        <Text
+          style={{
+            fontSize: 12,
+            color: selectedSlotId == item.slotId ? 'white' : 'black',
+          }}>
+          {timeformatter(item.startTime)}
+        </Text>
+        {/* <Text
+          style={{
+            fontSize: 12,
+            color: selectedDate == item.date ? 'white' : 'black',
+          }}>
+          {item.endTime}
+        </Text> */}
       </TouchableOpacity>
     );
   };
@@ -234,100 +244,189 @@ function SelectSlotsE({ navigation }) {
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}
-      enabled={true}
-    >
+      enabled={true}>
       <SafeAreaView
         style={{
-          backgroundColor: "#2B8ADA",
-          width: "100%",
-        }}
-      >
+          backgroundColor: '#2B8ADA',
+          width: '100%',
+        }}>
         <ScrollView
           style={{
-            width: "100%",
-            alignSelf: "center",
-            marginTop: 30,
-            backgroundColor: "#e8f0fe",
+            width: '100%',
+            alignSelf: 'center',
+            backgroundColor: '#e8f0fe',
           }}
-          showsVerticalScrollIndicator={false}
-          nestedScrollEnabled={true}
-        >
+          showsVerticalScrollIndicator={false}>
           <HeaderPatient showMenu={false} title="Select Slots" />
           {/* Top */}
-          <View style={{ marginVertical: 10, alignSelf: "center" }}>
+          <View style={{marginVertical: 10, alignSelf: 'center'}}>
             <Image
               source={data.img}
               style={{
                 width: 100,
                 height: 100,
-                alignSelf: "center",
+                alignSelf: 'center',
                 borderRadius: 5,
               }}
             />
             <Text
               style={{
                 fontSize: 20,
-                fontWeight: "bold",
-                alignSelf: "center",
-              }}
-            >
+                fontWeight: 'bold',
+                alignSelf: 'center',
+                color: 'black',
+              }}>
               {data.name}
             </Text>
             <Text
               style={{
                 fontSize: 13,
-                color: "gray",
-                alignSelf: "center",
+                color: 'gray',
+                alignSelf: 'center',
                 marginVertical: 3,
-              }}
-            >
+              }}>
               {data.spl}
             </Text>
             <Text
               style={{
-                backgroundColor: "#2B8ADA",
-                color: "white",
+                backgroundColor: '#2B8ADA',
+                color: 'white',
                 borderRadius: 10,
-                alignSelf: "center",
+                alignSelf: 'center',
                 padding: 3,
                 paddingHorizontal: 15,
-              }}
-            >
+              }}>
               {data.exp}
             </Text>
           </View>
 
-          <FlatList
-            data={DATA}
-            keyExtractor={(item) => item.date}
-            renderItem={renderDate}
-          />
-        </ScrollView>
-        <View
-          style={{
-            backgroundColor: "#2B8ADA",
-            height: 45,
-            flexDirection: "row",
-          }}
-        >
-          <CustomButton
-            text={"PROCEED"}
-            textstyle={{ color: "#2B8ADA", fontSize: 12, fontWeight: "bold" }}
+          {/* Date and Slots */}
+          <View
             style={{
-              position: "absolute",
-              right: 20,
-              alignSelf: "center",
-              backgroundColor: "white",
-              width: 100,
-              padding: 3,
-            }}
-            onPress={() => {
-              navigation.navigate("ConfirmBooking");
-            }}
-          />
-        </View>
+              backgroundColor: 'white',
+              width: '90%',
+              alignSelf: 'center',
+              borderRadius: 10,
+              marginVertical: 10,
+              paddingVertical: 10,
+            }}>
+            <Text
+              style={{
+                width: '90%',
+                alignSelf: 'center',
+                textAlign: 'left',
+                fontSize: 14,
+                fontWeight: 'bold',
+                color: '#2b8ada',
+                borderBottomColor: '#2b8ada',
+                borderBottomWidth: 1,
+              }}>
+              Select Date
+            </Text>
+
+            <View
+              style={{
+                flex: 1,
+                alignSelf: 'center',
+                width: '90%',
+                flexDirection: 'column',
+                marginTop: 10,
+                backgroundColor: 'white',
+              }}>
+              <FlatList
+                data={EDays}
+                renderItem={renderDays}
+                keyExtractor={item => item.date}
+                horizontal={true}
+              />
+            </View>
+          </View>
+
+          {ESlots != '' ? (
+            <View
+              style={{
+                backgroundColor: 'white',
+                width: '90%',
+                alignSelf: 'center',
+                borderRadius: 10,
+                marginVertical: 10,
+                paddingVertical: 10,
+              }}>
+              <Text
+                style={{
+                  width: '90%',
+                  alignSelf: 'center',
+                  textAlign: 'left',
+                  fontSize: 14,
+                  fontWeight: 'bold',
+                  color: '#2b8ada',
+                  borderBottomColor: '#2b8ada',
+                  borderBottomWidth: 1,
+                }}>
+                Select Slot
+              </Text>
+              <View
+                style={{
+                  flex: 1,
+                  alignSelf: 'center',
+                  width: '90%',
+                  flexDirection: 'row',
+                  marginTop: 10,
+                  backgroundColor: 'white',
+                }}>
+                <FlatList
+                  data={ESlots}
+                  renderItem={renderSlots}
+                  keyExtractor={item => item.slotId}
+                  numColumns={Math.floor(layout.width / 98)}
+                  style={{alignSelf: 'center'}}
+                />
+              </View>
+            </View>
+          ) : null}
+        </ScrollView>
+        {selectedSlotId != null && selectedDate != null ? (
+          <View
+            style={{
+              backgroundColor: '#2B8ADA',
+              height: 45,
+              flexDirection: 'row',
+            }}>
+            <CustomButton
+              text={'PROCEED'}
+              textstyle={{color: '#2B8ADA', fontSize: 12, fontWeight: 'bold'}}
+              style={{
+                position: 'absolute',
+                right: 20,
+                alignSelf: 'center',
+                backgroundColor: 'white',
+                width: 100,
+                padding: 3,
+              }}
+              onPress={() => {
+                Alert.alert(
+                  'Confirm Booking',
+                  `Are you sure you want to book appointment on ${dayjs(
+                    selectedDate,
+                  ).format('DD-MMM-YY')} at ${selectedSlotTime}.`,
+                  [
+                    {
+                      text: 'OK',
+                      onPress: () => navigation.navigate('ConfirmBooking'),
+                    },
+                    {
+                      text: 'Cancel',
+                      onPress: () => console.log('Cancel Pressed'),
+                      style: 'cancel',
+                    },
+                  ],
+                );
+              }}
+            />
+          </View>
+        ) : null}
       </SafeAreaView>
     </KeyboardAvoidingView>
   );
@@ -336,10 +435,10 @@ function SelectSlotsE({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#e8f0fe",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#e8f0fe',
   },
 });
 
