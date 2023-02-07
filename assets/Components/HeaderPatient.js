@@ -99,7 +99,7 @@ const Header = ({title, showMenu}) => {
           <FAIcon
             name="trash"
             color={'gray'}
-            size={20}
+            size={15}
             style={{alignSelf: 'center'}}
             onPress={() => {
               // console.log(NotificationList.ques);
@@ -226,12 +226,6 @@ const Header = ({title, showMenu}) => {
 
       <View style={[{flexDirection: 'column', alignSelf: 'center'}]}>
         <View style={{flexDirection: 'row'}}>
-          <TouchableOpacity
-            onPress={() => {
-              navigation.navigate('PatientProfile');
-            }}>
-            <Image style={styles.icon} source={profileicon} color="white" />
-          </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate('PatientFav')}>
             <Image style={styles.icon} source={heart} color="white" />
           </TouchableOpacity>

@@ -22,10 +22,14 @@ import HeaderPatient from '../Components/HeaderPatient';
 import CustomButton from '../Components/CustomButton';
 import FAIcon from 'react-native-vector-icons/FontAwesome5';
 import MIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-
+import dayjs from 'dayjs';
+import DayDateMaker from '../API/DayDateMaker';
+import timeformatter from '../API/timeformatter';
 import doctor_m from '../Resources/doctor_m.png';
 import downloading from '../Animations/downloading.gif';
 import apiConfig from '../API/apiConfig';
+import {SelectList} from 'react-native-dropdown-select-list';
+import clinicMaker from '../API/ClincMaker';
 
 const data = {
   name: 'Dr. Imran Singh',
@@ -64,26 +68,211 @@ const data = {
     },
   ],
 };
+const details = {
+  clinicInfo: [
+    {
+      clinicAddress: 'Rajpur Road',
+      clinicId: 1,
+      clinicName: 'Max Hospital',
+      specialInstruction: 'string',
+    },
+    {
+      clinicAddress: 'Lal Pul',
+      clinicId: 2,
+      clinicName: 'Mahant Indresh',
+      specialInstruction: 'string',
+    },
+    {
+      clinicAddress: 'Dilaram Bazar',
+      clinicId: 3,
+      clinicName: 'Vaish Nursing Home',
+      specialInstruction: 'string',
+    },
+  ],
+  consultationLanguage: {
+    languages: ['English', 'Hindi', 'Telgu'],
+  },
+  doctorFeesInfo: {
+    econsultationFees: 300,
+    followUpDuration: 10,
+    followUpFees: 100,
+    phyiscalConsultationFees: 500,
+  },
+  educationInfo: [
+    {
+      degree: 'MBBS',
+      passingYear: 1968,
+      specialization: 'ENT',
+      university: 'AIMS Delhi',
+    },
+  ],
+  exprienceInfo: [
+    {
+      exprienceInMonths: 39,
+      practiceCenter: 'AIMS Delhi',
+    },
+  ],
+  medicalInfo: {
+    registrationCouncil: 'AIMS Delhi',
+    registrationNo: 'bjs734ba8f',
+    registrationYear: 1968,
+  },
+  slotsDate: {
+    availableDates: [
+      '2023-01-30',
+      '2023-01-31',
+      '2023-02-01',
+      '2023-02-02',
+      '2023-02-03',
+      '2023-02-04',
+      '2023-02-05',
+    ],
+  },
+};
+const slotsresponse = [
+  {
+    slotId: 38,
+    startTime: '09:00:00',
+    endTime: '09:30:00',
+    slotDate: '2023-01-30',
+    typeOfEConsultation: 'PHONE_CALL',
+    slotStatus: 'CREATED',
+  },
+  {
+    slotId: 39,
+    startTime: '09:50:00',
+    endTime: '10:20:00',
+    slotDate: '2023-01-30',
+    typeOfEConsultation: 'PHONE_CALL',
+    slotStatus: 'CREATED',
+  },
+  {
+    slotId: 40,
+    startTime: '10:40:00',
+    endTime: '11:10:00',
+    slotDate: '2023-01-30',
+    typeOfEConsultation: 'PHONE_CALL',
+    slotStatus: 'CREATED',
+  },
+  {
+    slotId: 41,
+    startTime: '11:30:00',
+    endTime: '12:00:00',
+    slotDate: '2023-01-30',
+    typeOfEConsultation: 'PHONE_CALL',
+    slotStatus: 'CREATED',
+  },
+  {
+    slotId: 42,
+    startTime: '09:00:00',
+    endTime: '09:30:00',
+    slotDate: '2023-01-31',
+    typeOfEConsultation: 'PHONE_CALL',
+    slotStatus: 'CREATED',
+  },
+  {
+    slotId: 43,
+    startTime: '09:50:00',
+    endTime: '10:20:00',
+    slotDate: '2023-01-31',
+    typeOfEConsultation: 'PHONE_CALL',
+    slotStatus: 'CREATED',
+  },
+  {
+    slotId: 44,
+    startTime: '10:40:00',
+    endTime: '11:10:00',
+    slotDate: '2023-01-31',
+    typeOfEConsultation: 'PHONE_CALL',
+    slotStatus: 'CREATED',
+  },
+  {
+    slotId: 45,
+    startTime: '11:30:00',
+    endTime: '12:00:00',
+    slotDate: '2023-01-31',
+    typeOfEConsultation: 'PHONE_CALL',
+    slotStatus: 'CREATED',
+  },
+  {
+    slotId: 46,
+    startTime: '11:50:00',
+    endTime: '12:20:00',
+    slotDate: '2023-01-31',
+    typeOfEConsultation: 'PHONE_CALL',
+    slotStatus: 'CREATED',
+  },
+];
+const dataClinic = [
+  {key: '1', value: 'ABCD | Rajpur Road cjsabckasbc ashchjsabc bashv '},
+  {key: '2', value: 'XYZ'},
+  {key: '3', value: 'QWERTY'},
+];
 
 function DoctorDetails({navigation}) {
   const [showGenInfo, setShowGenInfo] = useState(false);
-  const [GenInfo, setGenInfo] = useState(true);
+  const [GenInfo, setGenInfo] = useState([]);
   const [showLangDet, setshowLangDet] = useState(false);
+  const [Languages, setLanguages] = useState([]);
   const [showEduInfo, setShowEduInfo] = useState(false);
   const [EduInfo, setEduInfo] = useState(true);
   const [Education, setEducation] = useState([]);
   const [showMedInfo, setShowMedInfo] = useState(false);
   const [MedInfo, setMedInfo] = useState(true);
-  const [MedRegDet, setMedRegDet] = useState(null);
+  const [MedRegDet, setMedRegDet] = useState([]);
   const [showExpDet, setShowExpDet] = useState(false);
   const [ExpInfo, setExpInfo] = useState(true);
   const [Experience, setExperience] = useState([]);
+  const [showFeesDet, setShowFeesDet] = useState(false);
+  const [FeesInfo, setFeesInfo] = useState(true);
+  const [Fee, setFees] = useState([]);
   const [showClinicDet, setShowClinicDet] = useState(false);
   const [ClinicInfo, setClinicInfo] = useState(true);
   const [ClinicDet, setClinicDet] = useState([]);
   const [isFetching, setisFetching] = useState(false);
   const [consultationModeModal, setconsultationModeModal] = useState(false);
+  const [showEConsult, setshowEConsult] = useState(false);
+  const [showPConsult, setshowPConsult] = useState(false);
   const layout = useWindowDimensions();
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedSlotTime, setSelectedSlotTime] = useState(null);
+  const [selectedSlotId, setselectedSlotId] = useState(null);
+  const [EDays, setEDays] = useState([]);
+  const [ESlots, setESlots] = useState([]);
+  const [selectedPDate, setSelectedPDate] = useState(null);
+  const [selectedPSlotTime, setSelectedPSlotTime] = useState(null);
+  const [selectedPSlotId, setselectedPSlotId] = useState(null);
+  const [PDays, setPDays] = useState([]);
+  const [PSlots, setPSlots] = useState([]);
+  const [ClinicsDropDown, setClinicsDropDown] = useState([]);
+  const [clinicName, setclinicName] = useState('');
+  const [clinicAddress, setclinicAddress] = useState('');
+  const [mode, setMode] = useState(null);
+  useEffect(() => {
+    setEDays(DayDateMaker(details.slotsDate));
+    setPDays(DayDateMaker(details.slotsDate));
+    setClinicsDropDown(clinicMaker(details.clinicInfo));
+
+    // console.log(layout.width);
+  }, []);
+  useEffect(() => {
+    let p = [];
+    for (var i = 0; i < slotsresponse.length; ++i) {
+      if (selectedDate == slotsresponse[i].slotDate) p.push(slotsresponse[i]);
+    }
+    setESlots(p);
+  }, [selectedDate]);
+  useEffect(() => {
+    setPDays(DayDateMaker(details.slotsDate));
+    // console.log(layout.width);
+  }, []);
+  useEffect(() => {
+    let p = [];
+    for (var i = 0; i < slotsresponse.length; ++i) {
+      if (selectedPDate == slotsresponse[i].slotDate) p.push(slotsresponse[i]);
+    }
+    setPSlots(p);
+  }, [selectedPDate]);
 
   //   useEffect(() => {
   // const getGenInfo = async()=>{
@@ -91,6 +280,15 @@ function DoctorDetails({navigation}) {
   // }
 
   //   }, [showGenInfo]);
+
+  useEffect(() => {
+    setMedRegDet(details.medicalInfo);
+    setEducation(details.educationInfo);
+    setExperience(details.exprienceInfo);
+    setClinicDet(details.clinicInfo);
+    setLanguages(details.consultationLanguage.languages);
+    setFees(details.doctorFeesInfo);
+  }, []);
 
   const languages = [
     {
@@ -124,32 +322,20 @@ function DoctorDetails({navigation}) {
               padding: 0,
             }}>
             {/* Degree */}
-            <View style={styles.cellStyle}>
-              <Text style={{textAlign: 'center', fontSize: 10}}>
-                {Education.degree}
-              </Text>
+            <View style={[styles.cellStyle, {flex: 0.4}]}>
+              <Text style={styles.cellText}>{Education.degree}</Text>
             </View>
             {/* Passing Year */}
-            <View style={styles.cellStyle}>
-              <Text style={{textAlign: 'center', fontSize: 10}}>
-                {Education.passingYear}
-              </Text>
+            <View style={[styles.cellStyle, {flex: 0.4}]}>
+              <Text style={styles.cellText}>{Education.passingYear}</Text>
             </View>
             {/* Specialization */}
-            <View style={styles.cellStyle}>
-              <Text style={{textAlign: 'center', fontSize: 10}}>
-                {Education.specialization}
-              </Text>
+            <View style={[styles.cellStyle, {flex: 1}]}>
+              <Text style={styles.cellText}>{Education.specialization}</Text>
             </View>
             {/* University */}
-            <View style={styles.cellStyle}>
-              <Text
-                style={{
-                  textAlign: 'center',
-                  fontSize: 10,
-                }}>
-                {Education.university}
-              </Text>
+            <View style={[styles.cellStyle, {flex: 1}]}>
+              <Text style={styles.cellText}>{Education.university}</Text>
             </View>
           </View>
         </View>
@@ -176,14 +362,12 @@ function DoctorDetails({navigation}) {
             }}>
             {/* Practice At */}
             <View style={styles.cellStyle}>
-              <Text style={{textAlign: 'center', fontSize: 10}}>
-                {Experience.practiceAt}
-              </Text>
+              <Text style={styles.cellText}>{Experience.practiceCenter}</Text>
             </View>
             {/*             
            
             <View style={styles.cellStyle}>
-              <Text style={{textAlign: 'center', fontSize: 10}}>
+              <Text style={styles.cellText}>
                 {dayjs(Experience.startDate).isValid()
                   ? dayjs(Experience.startDate).format('DD-MM-YYYY')
                   : 'DD-MM-YYYY'}
@@ -191,7 +375,7 @@ function DoctorDetails({navigation}) {
             </View>
            
             <View style={styles.cellStyle}>
-              <Text style={{textAlign: 'center', fontSize: 10}}>
+              <Text style={styles.cellText}>
                 {dayjs(Experience.endDate).isValid()
                   ? dayjs(Experience.endDate).format('DD-MM-YYYY')
                   : 'DD-MM-YYYY'}
@@ -201,14 +385,14 @@ function DoctorDetails({navigation}) {
              */}
             {/* Total Experience */}
             <View style={styles.cellStyle}>
-              {Math.floor(Experience.experienceInMonths / 12) > 0 ? (
-                <Text style={{textAlign: 'center', fontSize: 10}}>
-                  {Math.floor(Experience.experienceInMonths / 12) + ' year(s)'}
+              {Math.floor(Experience.exprienceInMonths / 12) > 0 ? (
+                <Text style={styles.cellText}>
+                  {Math.floor(Experience.exprienceInMonths / 12) + ' year(s)'}
                 </Text>
               ) : null}
-              {parseInt(Experience.experienceInMonths % 12) != 0 ? (
-                <Text style={{textAlign: 'center', fontSize: 10}}>
-                  {parseInt(Experience.experienceInMonths % 12) + ' month(s)'}
+              {parseInt(Experience.exprienceInMonths % 12) != 0 ? (
+                <Text style={styles.cellText}>
+                  {parseInt(Experience.exprienceInMonths % 12) + ' month(s)'}
                 </Text>
               ) : null}
             </View>
@@ -237,15 +421,11 @@ function DoctorDetails({navigation}) {
             }}>
             {/* Clinic Name */}
             <View style={styles.cellStyle}>
-              <Text style={{textAlign: 'center', fontSize: 10}}>
-                {ClinicDet.clinicName}
-              </Text>
+              <Text style={styles.cellText}>{ClinicDet.clinicName}</Text>
             </View>
             {/* Clinic Address */}
             <View style={styles.cellStyle}>
-              <Text style={{textAlign: 'center', fontSize: 10}}>
-                {ClinicDet.clinicAddress}
-              </Text>
+              <Text style={styles.cellText}>{ClinicDet.clinicAddress}</Text>
             </View>
           </View>
         </View>
@@ -253,10 +433,10 @@ function DoctorDetails({navigation}) {
     });
   };
   const ViewLang = () => {
-    return languages.map((lang, index) => {
+    return Languages.map((lang, index) => {
       return (
         <View style={styles.bubble} key={index}>
-          <Text style={{color: 'white', fontSize: 12}}>{lang.language}</Text>
+          <Text style={{color: 'white', fontSize: 12}}>{lang}</Text>
         </View>
       );
     });
@@ -363,6 +543,141 @@ function DoctorDetails({navigation}) {
           </View>
         </View>
       </Modal>
+    );
+  };
+  const renderDays = ({item}) => {
+    return (
+      <TouchableOpacity
+        style={[
+          styles.SlotDate,
+          {
+            backgroundColor: selectedDate == item.date ? '#2b8ada' : '#e8f0fe',
+          },
+        ]}
+        onPress={() => {
+          setSelectedDate(item.date);
+          setselectedSlotId(null);
+          setSelectedPDate(null);
+          setselectedPSlotId(null);
+          setSelectedPSlotTime(null);
+          setclinicName('');
+        }}>
+        <Text
+          style={{
+            fontSize: 12,
+            color: selectedDate == item.date ? 'white' : 'black',
+          }}>
+          {dayjs(item.date).format('DD-MMM-YY')}
+        </Text>
+        <Text
+          style={{
+            fontSize: 12,
+            color: selectedDate == item.date ? 'white' : 'black',
+          }}>
+          {dayjs(item.date).format('dddd')}
+        </Text>
+      </TouchableOpacity>
+    );
+  };
+  const renderSlots = ({item}) => {
+    return (
+      <TouchableOpacity
+        style={[
+          styles.SlotTime,
+          {
+            backgroundColor:
+              selectedSlotId == item.slotId ? '#2b8ada' : '#e8f0fe',
+          },
+        ]}
+        onPress={() => {
+          setselectedSlotId(item.slotId);
+          //setslots(item.slots);
+          setSelectedSlotTime(timeformatter(item.startTime));
+          setMode('E-Consultation');
+        }}>
+        <Text
+          style={{
+            fontSize: 10,
+            color: selectedSlotId == item.slotId ? 'white' : 'black',
+          }}>
+          {timeformatter(item.startTime)}
+          {' - '} {timeformatter(item.endTime)}
+        </Text>
+        {/* <Text
+          style={{
+            fontSize: 12,
+            color: selectedDate == item.date ? 'white' : 'black',
+          }}>
+          {item.endTime}
+        </Text> */}
+      </TouchableOpacity>
+    );
+  };
+  const renderPDays = ({item}) => {
+    return (
+      <TouchableOpacity
+        style={[
+          styles.SlotDate,
+          {
+            backgroundColor: selectedPDate == item.date ? '#2b8ada' : '#e8f0fe',
+          },
+        ]}
+        onPress={() => {
+          setSelectedPDate(item.date);
+          setselectedPSlotId(null);
+          setSelectedDate(null);
+          setselectedSlotId(null);
+          setSelectedSlotTime(null);
+        }}>
+        <Text
+          style={{
+            fontSize: 12,
+            color: selectedPDate == item.date ? 'white' : 'black',
+          }}>
+          {dayjs(item.date).format('DD-MMM-YY')}
+        </Text>
+        <Text
+          style={{
+            fontSize: 12,
+            color: selectedPDate == item.date ? 'white' : 'black',
+          }}>
+          {dayjs(item.date).format('dddd')}
+        </Text>
+      </TouchableOpacity>
+    );
+  };
+  const renderPSlots = ({item}) => {
+    return (
+      <TouchableOpacity
+        style={[
+          styles.SlotTime,
+          {
+            backgroundColor:
+              selectedPSlotId == item.slotId ? '#2b8ada' : '#e8f0fe',
+          },
+        ]}
+        onPress={() => {
+          setselectedPSlotId(item.slotId);
+          //setslots(item.slots);
+          setSelectedPSlotTime(timeformatter(item.startTime));
+          setMode('P-Consultation');
+        }}>
+        <Text
+          style={{
+            fontSize: 10,
+            color: selectedPSlotId == item.slotId ? 'white' : 'black',
+          }}>
+          {timeformatter(item.startTime)}
+          {' - '} {timeformatter(item.endTime)}
+        </Text>
+        {/* <Text
+          style={{
+            fontSize: 12,
+            color: selectedPDate == item.date ? 'white' : 'black',
+          }}>
+          {item.endTime}
+        </Text> */}
+      </TouchableOpacity>
     );
   };
 
@@ -717,17 +1032,14 @@ function DoctorDetails({navigation}) {
                       <Text style={styles.subHeading}>Registration No :</Text>
                       <Text style={{fontSize: 12}}>
                         {' '}
-                        {data.doctorMedicalRegistrationDTOs[0].registrationNo}
+                        {MedRegDet.registrationNo}
                       </Text>
                     </View>
                     <View style={{flexDirection: 'column'}}>
                       <Text style={styles.subHeading}>Reg. Council:</Text>
                       <Text style={{fontSize: 12}}>
                         {' '}
-                        {
-                          data.doctorMedicalRegistrationDTOs[0]
-                            .registrationCouncil
-                        }
+                        {MedRegDet.registrationCouncil}
                       </Text>
                     </View>
                   </View>
@@ -736,7 +1048,7 @@ function DoctorDetails({navigation}) {
                       <Text style={styles.subHeading}>Reg. Year :</Text>
                       <Text style={{fontSize: 12}}>
                         {' '}
-                        {data.doctorMedicalRegistrationDTOs[0].registrationYear}
+                        {MedRegDet.registrationYear}
                       </Text>
                     </View>
                   </View>
@@ -816,10 +1128,10 @@ function DoctorDetails({navigation}) {
                         margin: 0,
                         padding: 0,
                       }}>
-                      <View style={styles.cellHeading}>
+                      <View style={[styles.cellHeading, {flex: 0.4}]}>
                         <Text style={styles.cellHeadingText}>Degree</Text>
                       </View>
-                      <View style={styles.cellHeading}>
+                      <View style={[styles.cellHeading, {flex: 0.4}]}>
                         <Text style={styles.cellHeadingText}>Year</Text>
                       </View>
                       <View style={styles.cellHeading}>
@@ -924,28 +1236,469 @@ function DoctorDetails({navigation}) {
             </View>
           ) : null}
 
+          {/* Fees Label */}
+          <View
+            style={{
+              width: '90%',
+              alignSelf: 'center',
+            }}>
+            <View
+              style={[
+                styles.whiteLabelView,
+
+                showFeesDet
+                  ? {
+                      borderBottomRightRadius: 0,
+                      borderBottomLeftRadius: 0,
+                      marginBottom: 0,
+                    }
+                  : null,
+              ]}>
+              <TouchableOpacity
+                style={[
+                  {flexDirection: 'row', width: '100%'},
+                  showFeesDet
+                    ? {borderBottomWidth: 0.5, borderBottomColor: '#707070'}
+                    : null,
+                ]}
+                onPress={() => {
+                  setShowFeesDet(!showFeesDet);
+                }}>
+                <FAIcon
+                  name="money-bill-wave"
+                  size={12}
+                  color={showFeesDet ? '#2b8ada' : 'gray'}
+                  style={{marginHorizontal: 5, alignSelf: 'center'}}
+                />
+                <Text
+                  style={[
+                    styles.label,
+                    {width: '85%'},
+                    showFeesDet ? {color: '#2B8ADA'} : null,
+                  ]}>
+                  Fees
+                </Text>
+                <FAIcon
+                  name={showFeesDet ? 'chevron-down' : 'chevron-right'}
+                  color={showFeesDet ? '#2B8ADA' : 'gray'}
+                  style={[styles.label, {width: '10%', fontSize: 20}]}></FAIcon>
+              </TouchableOpacity>
+            </View>
+          </View>
+          {/* Experience Body */}
+          {showFeesDet ? (
+            <View style={{width: '90%', alignSelf: 'center'}}>
+              <View style={styles.whiteBodyView}>
+                <View
+                  style={{
+                    flex: 1,
+                    flexDirection: 'row',
+                    justifyContent: 'space-evenly',
+                    paddingHorizontal: 10,
+                  }}>
+                  <View style={{flexDirection: 'column', flex: 0.5}}>
+                    <View style={{flexDirection: 'column'}}>
+                      <Text style={styles.subHeading}>Physical Fees</Text>
+                      <Text style={{fontSize: 12}}>
+                        {'₹ '}
+                        {details.doctorFeesInfo.phyiscalConsultationFees}
+                      </Text>
+                    </View>
+                    <View style={{flexDirection: 'column'}}>
+                      <Text style={styles.subHeading}>E-Consultation Fees</Text>
+                      <Text style={{fontSize: 12}}>
+                        {'₹ '}
+                        {details.doctorFeesInfo.econsultationFees}
+                      </Text>
+                    </View>
+                  </View>
+                  <View style={{flexDirection: 'column', flex: 0.5}}>
+                    <View style={{flexDirection: 'column'}}>
+                      <Text style={styles.subHeading}>Follow-Up Fees</Text>
+                      <Text style={{fontSize: 12}}>
+                        {'₹ '}
+                        {details.doctorFeesInfo.followUpFees}
+                      </Text>
+                    </View>
+                    <View style={{flexDirection: 'column'}}>
+                      <Text style={styles.subHeading}>Follow Up Duration</Text>
+                      <Text style={{fontSize: 12}}>
+                        {details.doctorFeesInfo.followUpDuration}
+                        {' days'}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            </View>
+          ) : null}
+
+          {/* E-Consult Label */}
+          <View
+            style={{
+              width: '90%',
+              alignSelf: 'center',
+            }}>
+            <View
+              style={[
+                styles.whiteLabelView,
+
+                showEConsult
+                  ? {
+                      borderBottomRightRadius: 0,
+                      borderBottomLeftRadius: 0,
+                      marginBottom: 0,
+                    }
+                  : null,
+              ]}>
+              <TouchableOpacity
+                style={[
+                  {flexDirection: 'row', width: '100%'},
+                  showEConsult
+                    ? {borderBottomWidth: 0.5, borderBottomColor: '#707070'}
+                    : null,
+                ]}
+                onPress={() => {
+                  setshowEConsult(!showEConsult);
+                }}>
+                <FAIcon
+                  name="video"
+                  size={12}
+                  solid={false}
+                  color={showEConsult ? '#2b8ada' : 'gray'}
+                  style={{marginHorizontal: 5, alignSelf: 'center'}}
+                />
+                <Text
+                  style={[
+                    styles.label,
+                    {width: '85%'},
+                    showEConsult ? {color: '#2B8ADA'} : null,
+                  ]}>
+                  E-Consultation
+                </Text>
+                <FAIcon
+                  name={showEConsult ? 'chevron-down' : 'chevron-right'}
+                  color={showEConsult ? '#2B8ADA' : 'gray'}
+                  style={[styles.label, {width: '10%', fontSize: 20}]}></FAIcon>
+              </TouchableOpacity>
+            </View>
+          </View>
+          {/* E-consult Body */}
+          {showEConsult ? (
+            <View style={{width: '90%', alignSelf: 'center'}}>
+              <View style={styles.whiteBodyView}>
+                {/* Date and Slots */}
+                <View
+                  style={{
+                    backgroundColor: 'white',
+                    width: '95%',
+                    alignSelf: 'center',
+                  }}>
+                  <Text
+                    style={{
+                      width: '95%',
+                      alignSelf: 'center',
+                      textAlign: 'left',
+                      fontSize: 14,
+                      fontWeight: 'bold',
+                      color: '#2b8ada',
+                      borderBottomColor: '#2b8ada',
+                      borderBottomWidth: 1,
+                    }}>
+                    Select Date
+                  </Text>
+
+                  <View
+                    style={{
+                      flex: 1,
+                      alignSelf: 'center',
+                      width: '95%',
+                      flexDirection: 'column',
+                      marginTop: 10,
+                      backgroundColor: 'white',
+                    }}>
+                    <FlatList
+                      data={EDays}
+                      renderItem={renderDays}
+                      keyExtractor={item => item.date}
+                      numColumns={Math.floor(layout.width / 100)}
+                      style={{alignSelf: 'center'}}
+                    />
+                  </View>
+                </View>
+
+                {ESlots != '' ? (
+                  <View
+                    style={{
+                      backgroundColor: 'white',
+                      width: '95%',
+                      alignSelf: 'center',
+                      marginVertical: 10,
+                    }}>
+                    <Text
+                      style={{
+                        width: '95%',
+                        alignSelf: 'center',
+                        textAlign: 'left',
+                        fontSize: 14,
+                        fontWeight: 'bold',
+                        color: '#2b8ada',
+                        borderBottomColor: '#2b8ada',
+                        borderBottomWidth: 1,
+                      }}>
+                      Select Slot
+                    </Text>
+                    <View
+                      style={{
+                        flex: 1,
+                        alignSelf: 'center',
+                        width: '95%',
+                        flexDirection: 'row',
+                        marginTop: 10,
+                        backgroundColor: 'white',
+                      }}>
+                      <FlatList
+                        data={ESlots}
+                        renderItem={renderSlots}
+                        keyExtractor={item => item.slotId}
+                        numColumns={Math.floor(layout.width / 150)}
+                        style={{
+                          alignSelf: 'center',
+                        }}
+                      />
+                    </View>
+                  </View>
+                ) : null}
+              </View>
+            </View>
+          ) : null}
+
+          {/* P-Consult Label */}
+          <View
+            style={{
+              width: '90%',
+              alignSelf: 'center',
+            }}>
+            <View
+              style={[
+                styles.whiteLabelView,
+
+                showPConsult
+                  ? {
+                      borderBottomRightRadius: 0,
+                      borderBottomLeftRadius: 0,
+                      marginBottom: 0,
+                    }
+                  : null,
+              ]}>
+              <TouchableOpacity
+                style={[
+                  {flexDirection: 'row', width: '100%'},
+                  showPConsult
+                    ? {borderBottomWidth: 0.5, borderBottomColor: '#707070'}
+                    : null,
+                ]}
+                onPress={() => {
+                  setshowPConsult(!showPConsult);
+                }}>
+                <FAIcon
+                  name="users"
+                  size={12}
+                  solid={false}
+                  color={showPConsult ? '#2b8ada' : 'gray'}
+                  style={{marginHorizontal: 5, alignSelf: 'center'}}
+                />
+                <Text
+                  style={[
+                    styles.label,
+                    {width: '85%'},
+                    showPConsult ? {color: '#2B8ADA'} : null,
+                  ]}>
+                  P-Consultation
+                </Text>
+                <FAIcon
+                  name={showPConsult ? 'chevron-down' : 'chevron-right'}
+                  color={showPConsult ? '#2B8ADA' : 'gray'}
+                  style={[styles.label, {width: '10%', fontSize: 20}]}></FAIcon>
+              </TouchableOpacity>
+            </View>
+          </View>
+          {/* P-consult Body */}
+          {showPConsult ? (
+            <View style={{width: '90%', alignSelf: 'center'}}>
+              <View style={styles.whiteBodyView}>
+                {/* Clinic Selection */}
+                <View
+                  style={{
+                    backgroundColor: 'white',
+                    width: '95%',
+                    alignSelf: 'center',
+                  }}>
+                  <View style={{flexDirection: 'column'}}>
+                    <Text
+                      style={{
+                        width: '95%',
+                        alignSelf: 'center',
+                        color: '#2b8ada',
+                        fontWeight: 'bold',
+                        borderBottomColor: '#2b8ada',
+                        borderBottomWidth: 1,
+                        marginBottom: 10,
+                      }}>
+                      Select Clinic
+                    </Text>
+                    <SelectList
+                      defaultOption={ClinicsDropDown[0].key}
+                      placeholder={' '}
+                      setSelected={val => setclinicName(val)}
+                      // onSelect={setAddress}
+                      data={ClinicsDropDown}
+                      save={'value'}
+                      boxStyles={{
+                        width: '95%',
+                        alignSelf: 'center',
+                        backgroundColor: '#e8f0fe',
+                        borderWidth: 0,
+                        borderRadius: 5,
+                      }}
+                      dropdownItemStyles={
+                        {
+                          // borderBottomColor: '#2b8ada',
+                          // borderBottomWidth: 2,
+                        }
+                      }
+                      dropdownStyles={{
+                        backgroundColor: 'white',
+                        width: '90%',
+                        alignSelf: 'center',
+                      }}
+                      dropdownTextStyles={{
+                        color: 'gray',
+                        fontWeight: 'bold',
+                      }}
+                      badgeStyles={{backgroundColor: '#2b8ada'}}
+                    />
+                  </View>
+
+                  {/* Date Label*/}
+                  {clinicName != '' ? (
+                    <View
+                      style={{
+                        backgroundColor: 'white',
+                        width: '95%',
+                        alignSelf: 'center',
+                        marginVertical: 10,
+                      }}>
+                      <Text
+                        style={{
+                          width: '95%',
+                          alignSelf: 'center',
+                          textAlign: 'left',
+                          fontSize: 14,
+                          fontWeight: 'bold',
+                          color: '#2b8ada',
+                          borderBottomColor: '#2b8ada',
+                          borderBottomWidth: 1,
+                        }}>
+                        Select Date
+                      </Text>
+
+                      <View
+                        style={{
+                          flex: 1,
+                          alignSelf: 'center',
+                          width: '95%',
+                          flexDirection: 'column',
+                          marginTop: 10,
+                          backgroundColor: 'white',
+                        }}>
+                        <FlatList
+                          data={PDays}
+                          renderItem={renderPDays}
+                          keyExtractor={item => item.date}
+                          numColumns={Math.floor(layout.width / 100)}
+                          style={{
+                            alignSelf: 'center',
+                          }}
+                          scrollEnabled={false}
+                        />
+                      </View>
+                    </View>
+                  ) : null}
+
+                  {/* Slots Label*/}
+                  {PSlots != '' ? (
+                    <View
+                      style={{
+                        backgroundColor: 'white',
+                        width: '95%',
+                        alignSelf: 'center',
+                        borderRadius: 10,
+                        marginVertical: 10,
+                        paddingVertical: 10,
+                      }}>
+                      <Text
+                        style={{
+                          width: '95%',
+                          alignSelf: 'center',
+                          textAlign: 'left',
+                          fontSize: 14,
+                          fontWeight: 'bold',
+                          color: '#2b8ada',
+                          borderBottomColor: '#2b8ada',
+                          borderBottomWidth: 1,
+                        }}>
+                        Select Slot
+                      </Text>
+                      <View
+                        style={{
+                          flex: 1,
+                          alignSelf: 'center',
+                          width: '95%',
+                          flexDirection: 'row',
+                          marginTop: 10,
+                          backgroundColor: 'white',
+                        }}>
+                        <FlatList
+                          data={PSlots}
+                          renderItem={renderPSlots}
+                          keyExtractor={item => item.slotId}
+                          numColumns={Math.floor(layout.width / 150)}
+                          style={{alignSelf: 'center'}}
+                        />
+                      </View>
+                    </View>
+                  ) : null}
+                </View>
+              </View>
+            </View>
+          ) : null}
+
           {consultationModeModal ? <RenderModal /> : null}
         </ScrollView>
-        <View
-          style={{
-            backgroundColor: '#2B8ADA',
-            height: 45,
-            flexDirection: 'row',
-          }}>
-          <CustomButton
-            text={'BOOK NOW'}
-            textstyle={{color: '#2B8ADA', fontSize: 12, fontWeight: 'bold'}}
+        {(selectedDate != null && selectedSlotId != null) ||
+        (selectedPDate != null && selectedPSlotId != null && mode != null) ? (
+          <View
             style={{
-              position: 'absolute',
-              right: 20,
-              alignSelf: 'center',
-              backgroundColor: 'white',
-              width: 100,
-              padding: 3,
-            }}
-            onPress={() => setconsultationModeModal(true)}
-          />
-        </View>
+              backgroundColor: '#2B8ADA',
+              height: 45,
+              flexDirection: 'row',
+            }}>
+            <CustomButton
+              text={'BOOK NOW'}
+              textstyle={{color: '#2B8ADA', fontSize: 12, fontWeight: 'bold'}}
+              style={{
+                position: 'absolute',
+                right: 20,
+                alignSelf: 'center',
+                backgroundColor: 'white',
+                width: 100,
+                padding: 3,
+              }}
+              onPress={() => setconsultationModeModal(true)}
+            />
+          </View>
+        ) : null}
         {isFetching == true && (
           <View
             style={{
@@ -1057,7 +1810,7 @@ const styles = StyleSheet.create({
     borderRightWidth: 1,
     borderColor: '#d3d3d3',
     paddingHorizontal: 1,
-    paddingVertical: 1,
+    paddingVertical: 3,
   },
   cellHeading: {
     flex: 1,
@@ -1067,13 +1820,16 @@ const styles = StyleSheet.create({
     borderColor: '#d3d3d3',
     paddingHorizontal: 1,
     paddingVertical: 1,
+    backgroundColor: '#2b8ada',
   },
   cellHeadingText: {
     textAlign: 'center',
     fontWeight: 'bold',
-    fontSize: 11,
+    fontSize: 12,
     marginVertical: 5,
+    color: 'white',
   },
+  cellText: {textAlign: 'center', fontSize: 11},
   bubble: {
     flexDirection: 'row',
     alignSelf: 'center',
@@ -1089,6 +1845,20 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginBottom: 5,
     color: '#2b8ada',
+  },
+  SlotDate: {
+    padding: 10,
+    margin: 5,
+    borderRadius: 5,
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  SlotTime: {
+    padding: 10,
+    margin: 5,
+    borderRadius: 5,
+    flexDirection: 'column',
+    alignItems: 'center',
   },
 });
 

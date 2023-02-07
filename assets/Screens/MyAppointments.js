@@ -146,6 +146,28 @@ const dataCompleted = [
     img: doctor_f,
   },
 ];
+const UpcomingServiceResponse = [
+  {
+    clinicAddress: 'string',
+    clinicName: 'string',
+    consultationId: 0,
+    consultationStatus: 'BOOKED',
+    consultationType: 'PHONE_CALL',
+    doctorId: 0,
+    doctorName: 'string',
+    doctorPhoto: 0,
+    familyId: 0,
+    familyMemberName: 'string',
+    feesAmout: 0,
+    followUpDate: '2023-02-07',
+    paymentStatus: 'PAY_ON_CLINIC',
+    prescriptionPath: 0,
+    slotDate: '2023-02-07',
+    slotEndTime: '11:00',
+    slotStartTime: '11:00',
+    specialization: ['ENT', 'Dermatology', 'Physician'],
+  },
+];
 
 const ItemUpcoming = ({name, img, spl, date, mode, type, time}) => (
   <View
@@ -184,8 +206,22 @@ const ItemUpcoming = ({name, img, spl, date, mode, type, time}) => (
       </View>
       {/* Details */}
       <View style={{flex: 0.6, justifyContent: 'space-evenly'}}>
-        <Text style={{fontSize: 17, fontWeight: 'bold'}}>{name}</Text>
-        <Text style={{fontSize: 12, color: 'gray'}}>{spl}</Text>
+        <Text style={{fontSize: 17, fontWeight: 'bold', color: 'black'}}>
+          {name}
+        </Text>
+        {/* <Text style={{fontSize: 12, color: 'gray'}}>
+          {UpcomingServiceResponse[0].specialization}
+        </Text> */}
+        {UpcomingServiceResponse[0].specialization.map(index => {
+          return (
+            <Text
+              key={index}
+              style={{fontSize: 12, fontWeight: 'bold', color: 'gray'}}>
+              {index}
+            </Text>
+          );
+        })}
+
         <Text style={{fontSize: 12, color: '#2B8ADA'}}>{type}</Text>
         <Text style={{fontSize: 12, fontWeight: 'bold'}}>
           {time}
@@ -362,6 +398,7 @@ const ItemCompleted = ({
 function MyAppointment({navigation}) {
   const [upcomingActive, setupcomingActive] = useState(true);
   const [completedActive, setcompletedActive] = useState(false);
+  const [UpcomingDetails, setUpcomingDetails] = useState([]);
 
   const renderUpcomingConsultations = ({item}) => (
     <ItemUpcoming

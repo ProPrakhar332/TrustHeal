@@ -79,7 +79,7 @@ const data = {
 };
 
 const dataClinic = [
-  {key: '1', value: 'ABCD'},
+  {key: '1', value: 'ABCD | Rajpur Road cjsabckasbc ashchjsabc bashv '},
   {key: '2', value: 'XYZ'},
   {key: '3', value: 'QWERTY'},
 ];
@@ -224,9 +224,9 @@ const DATA = [
 ];
 
 function SelectSlotsP({navigation}) {
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [selectedSlotTime, setSelectedSlotTime] = useState(null);
-  const [selectedSlotId, setselectedSlotId] = useState(null);
+  const [selectedPDate, setSelectedPDate] = useState(null);
+  const [selectedPSlotTime, setSelectedPSlotTime] = useState(null);
+  const [selectedPSlotId, setselectedPSlotId] = useState(null);
   const [PDays, setPDays] = useState([]);
   const [PSlots, setPSlots] = useState([]);
 
@@ -237,16 +237,16 @@ function SelectSlotsP({navigation}) {
   useEffect(() => {
     let p = [];
     for (var i = 0; i < slotsresponse.length; ++i) {
-      if (selectedDate == slotsresponse[i].slotDate) p.push(slotsresponse[i]);
+      if (selectedPDate == slotsresponse[i].slotDate) p.push(slotsresponse[i]);
     }
     setPSlots(p);
-  }, [selectedDate]);
+  }, [selectedPDate]);
 
-  const renderDays = ({item}) => {
+  const renderPDays = ({item}) => {
     return (
       <TouchableOpacity
         style={{
-          backgroundColor: selectedDate == item.date ? '#2b8ada' : '#e8f0fe',
+          backgroundColor: selectedPDate == item.date ? '#2b8ada' : '#e8f0fe',
           padding: 10,
           margin: 3,
           borderRadius: 5,
@@ -254,32 +254,32 @@ function SelectSlotsP({navigation}) {
           alignItems: 'center',
         }}
         onPress={() => {
-          setSelectedDate(item.date);
-          setselectedSlotId(null);
+          setSelectedPDate(item.date);
+          setselectedPSlotId(null);
         }}>
         <Text
           style={{
             fontSize: 12,
-            color: selectedDate == item.date ? 'white' : 'black',
+            color: selectedPDate == item.date ? 'white' : 'black',
           }}>
           {dayjs(item.date).format('DD-MMM-YY')}
         </Text>
         <Text
           style={{
             fontSize: 12,
-            color: selectedDate == item.date ? 'white' : 'black',
+            color: selectedPDate == item.date ? 'white' : 'black',
           }}>
           {dayjs(item.date).format('dddd')}
         </Text>
       </TouchableOpacity>
     );
   };
-  const renderSlots = ({item}) => {
+  const renderPSlots = ({item}) => {
     return (
       <TouchableOpacity
         style={{
           backgroundColor:
-            selectedSlotId == item.slotId ? '#2b8ada' : '#e8f0fe',
+            selectedPSlotId == item.slotId ? '#2b8ada' : '#e8f0fe',
           padding: 10,
           margin: 5,
           borderRadius: 5,
@@ -287,21 +287,22 @@ function SelectSlotsP({navigation}) {
           alignItems: 'center',
         }}
         onPress={() => {
-          setselectedSlotId(item.slotId);
+          setselectedPSlotId(item.slotId);
           //setslots(item.slots);
-          setSelectedSlotTime(timeformatter(item.startTime));
+          setSelectedPSlotTime(timeformatter(item.startTime));
         }}>
         <Text
           style={{
-            fontSize: 12,
-            color: selectedSlotId == item.slotId ? 'white' : 'black',
+            fontSize: 10,
+            color: selectedPSlotId == item.slotId ? 'white' : 'black',
           }}>
           {timeformatter(item.startTime)}
+          {' - '} {timeformatter(item.endTime)}
         </Text>
         {/* <Text
           style={{
             fontSize: 12,
-            color: selectedDate == item.date ? 'white' : 'black',
+            color: selectedPDate == item.date ? 'white' : 'black',
           }}>
           {item.endTime}
         </Text> */}
@@ -410,7 +411,7 @@ function SelectSlotsP({navigation}) {
                 defaultOption={dataClinic[0].key}
                 placeholder={' '}
                 setSelected={val => setclinicName(val)}
-                onSelect={setAddress}
+                // onSelect={setAddress}
                 data={dataClinic}
                 save={'value'}
                 boxStyles={{
@@ -420,12 +421,20 @@ function SelectSlotsP({navigation}) {
                   borderWidth: 0,
                   borderRadius: 5,
                 }}
-                dropdownStyles={{backgroundColor: 'white'}}
+                dropdownItemStyles={{
+                  borderBottomColor: 'gray',
+                  borderBottomWidth: 2,
+                }}
+                dropdownStyles={{
+                  backgroundColor: 'white',
+                  width: '90%',
+                  alignSelf: 'center',
+                }}
                 dropdownTextStyles={{color: '#2b8ada', fontWeight: 'bold'}}
                 badgeStyles={{backgroundColor: '#2b8ada'}}
               />
             </View>
-            <View style={{flexDirection: 'column', marginTop: 10}}>
+            {/* <View style={{flexDirection: 'column', marginTop: 10}}>
               <Text
                 style={{
                   width: '90%',
@@ -452,7 +461,7 @@ function SelectSlotsP({navigation}) {
                 }}>
                 {clinicAddress}
               </Text>
-            </View>
+            </View> */}
           </View>
 
           {/* Date Label*/}
@@ -490,7 +499,7 @@ function SelectSlotsP({navigation}) {
               }}>
               <FlatList
                 data={PDays}
-                renderItem={renderDays}
+                renderItem={renderPDays}
                 keyExtractor={item => item.date}
                 horizontal={true}
               />
@@ -532,9 +541,9 @@ function SelectSlotsP({navigation}) {
                 }}>
                 <FlatList
                   data={PSlots}
-                  renderItem={renderSlots}
+                  renderItem={renderPSlots}
                   keyExtractor={item => item.slotId}
-                  numColumns={Math.floor(layout.width / 98)}
+                  numColumns={Math.floor(layout.width / 100)}
                   style={{alignSelf: 'center'}}
                 />
               </View>
@@ -542,9 +551,8 @@ function SelectSlotsP({navigation}) {
           ) : null}
         </ScrollView>
         {clinicName != '' &&
-        clinicAddress != '' &&
-        selectedSlotId != null &&
-        selectedDate != null ? (
+        selectedPSlotId != null &&
+        selectedPDate != null ? (
           <View
             style={{
               backgroundColor: '#2B8ADA',
@@ -566,10 +574,10 @@ function SelectSlotsP({navigation}) {
                 Alert.alert(
                   'Confirm Booking',
                   `Are you sure you want to book appointment on ${dayjs(
-                    selectedDate,
+                    selectedPDate,
                   ).format(
                     'DD-MMM-YY',
-                  )} at ${selectedSlotTime} for ${clinicName}, at ${clinicAddress}.`,
+                  )} at ${selectedPSlotTime} for ${clinicName}, at ${clinicAddress}.`,
                   [
                     {
                       text: 'OK',

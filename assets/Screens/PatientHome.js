@@ -368,7 +368,7 @@ function PatientHome({navigation}) {
     </TouchableOpacity>
   );
   const renderUpcomingConsultations = ({item}) => (
-    <TouchableOpacity
+    <View
       style={{
         backgroundColor: 'white',
         borderRadius: 10,
@@ -412,7 +412,7 @@ function PatientHome({navigation}) {
           </Text>
         </View>
         {/* Chat Button */}
-        <TouchableOpacity style={{alignSelf: 'flex-start'}}>
+        {/* <TouchableOpacity style={{alignSelf: 'flex-start'}}>
           <Entypo
             name="chat"
             color={'white'}
@@ -423,9 +423,9 @@ function PatientHome({navigation}) {
               borderRadius: 20,
             }}
           />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
-    </TouchableOpacity>
+    </View>
   );
 
   const renderSpeciality = ({item}) => (

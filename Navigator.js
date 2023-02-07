@@ -553,7 +553,8 @@ function CustomDrawerContentPatient(props) {
           </View>
           <TouchableOpacity
             style={{flex: 0.5}}
-            onPress={() => props.navigation.closeDrawer()}>
+            // onPress={() => props.navigation.closeDrawer()}
+          >
             <Text
               style={{
                 color: 'white',
@@ -591,7 +592,7 @@ function CustomDrawerContentPatient(props) {
         label="Consult Now"
         labelStyle={styles.labelStyle}
         style={{marginVertical: 0, paddingVertical: 0}}
-        //onPress={() => props.navigation.navigate('MyUpcomingAppointment')}
+        onPress={() => props.navigation.navigate('Consult')}
         icon={({focused, color, size}) => (
           <Image source={consultD} style={{tintColor: '#033158'}} />
         )}
@@ -612,7 +613,7 @@ function CustomDrawerContentPatient(props) {
         label="Appointment"
         labelStyle={styles.labelStyle}
         style={{marginVertical: 0, paddingVertical: 0}}
-        //onPress={() => props.navigation.navigate('MyUpcomingAppointment')}
+        onPress={() => props.navigation.navigate('Appointments')}
         icon={({focused, color, size}) => (
           <Image source={appointment} style={{tintColor: '#033158'}} />
         )}
@@ -621,7 +622,7 @@ function CustomDrawerContentPatient(props) {
         label="Profile"
         labelStyle={styles.labelStyle}
         style={{marginVertical: 0, paddingVertical: 0}}
-        //onPress={() => props.navigation.navigate('MyUpcomingAppointment')}
+        onPress={() => props.navigation.navigate('PatientProfile')}
         icon={({focused, color, size}) => (
           <Image source={myprofile} style={{tintColor: '#033158'}} />
         )}
