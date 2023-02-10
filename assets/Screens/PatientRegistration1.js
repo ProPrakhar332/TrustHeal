@@ -30,6 +30,9 @@ import {CheckBox} from 'react-native-elements';
 import FAIcon from 'react-native-vector-icons/FontAwesome5';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useEffect} from 'react';
+import axios from 'axios';
+import apiConfig from '../API/apiConfig';
+import DeviceInfo from 'react-native-device-info';
 
 const PatientRegistration1 = ({navigation}) => {
   const [patientDto, setpatientDto] = useState([]);
@@ -38,6 +41,7 @@ const PatientRegistration1 = ({navigation}) => {
   const [email, setEmail] = useState('');
   const [gender, setGender] = useState('');
   const [city, setCity] = useState('');
+  const [pincode, setpincode] = useState('');
   const [dob, setdob] = useState('');
   const [age, setage] = useState('');
   const [mobno, setmobno] = useState('');
@@ -81,21 +85,18 @@ const PatientRegistration1 = ({navigation}) => {
     {key: 'AB-', value: 'AB-'},
   ];
 
-  // useEffect(() => {
-  //   async function fetchData() {
-  //     const p = JSON.parse(
-  //       await AsyncStorage.getItem("PatientInitialRegistrationDetails")
-  //     );
-  //     setTitle(p.patientTitle);
-  //     setName(p.patientName);
-  //     setEmail(p.patientEmail);
-  //     setGender(p.patientGender);
-  //     setCity(p.patientCity);
-  //     setdob(p.patientDob);
-  //     setAge(p.patientAge);
-  //   }
-  //   fetchData();
-  // }, []);
+  //progress bar
+  useEffect(() => {
+    let c = 0;
+    if (title != '') ++c;
+    if (name != '') ++c;
+    if (email != '') ++c;
+    if (gender != '') ++c;
+    if (city != '') ++c;
+    if (pincode != '') ++c;
+    if (dob != '') ++c;
+    setcomplete(c / 7);
+  }, [title, name, email, gender, city, pincode, dob]);
 
   const hideDatePicker = () => {
     setDatePickerVisibility(false);
@@ -112,6 +113,53 @@ const PatientRegistration1 = ({navigation}) => {
     setage(dayjs().diff(dayjs(date), 'year'));
 
     hideDatePicker();
+  };
+
+  const postData = async () => {
+    setisLoading(true);
+    let p = {
+      age: age,
+      allowWhatsAppNotification: true,
+      bloodGroup: BloodGroup,
+      city: city,
+      dob: dayjs().format('YYYY-MM-DD'),
+      email: email,
+      gender: gender,
+      height: Height,
+      locationPermissions: 'DONT_ALLOW',
+      mobileNumber: mobno,
+      occupation: Occupation,
+      patientName: name,
+      //phoneIp: 'string',
+      pincode: pincode,
+      termsAndConditions: true,
+      weight: Weight,
+      whatsAppNumber: 'string',
+    };
+    DeviceInfo.getIpAddress().then(ip => {
+      p.phoneIp = ip;
+    });
+
+    axios
+      .post(apiConfig.baseUrl + '/patient/record/save', p)
+      .then(function (response) {
+        if (response.status == 200) {
+          setisLoading(false);
+          Alert.alert(
+            'Welcome to Arogya',
+            'Your details have been saved successfully',
+          );
+          AsyncStorage.setItem(
+            'UserPatientProfile',
+            JSON.stringify(response.data),
+          );
+          navigation.navigate('PatientHome');
+        }
+      })
+      .catch(error => {
+        console.log(error);
+        Alert.alert('Error', `${error}`);
+      });
   };
 
   return (
@@ -138,7 +186,7 @@ const PatientRegistration1 = ({navigation}) => {
               // elevation: 20,
               backgroundColor: 'white',
               width: '90%',
-              height: 10,
+              height: 15,
               alignSelf: 'center',
               borderRadius: 10,
               marginVertical: 10,
@@ -147,11 +195,21 @@ const PatientRegistration1 = ({navigation}) => {
               style={{
                 position: 'absolute',
                 top: 0,
-                width: window.width * 0.45 * complete,
-                height: 10,
+                width: window.width * complete * 0.85,
+                height: 15,
                 borderRadius: 10,
                 backgroundColor: '#2b8ada',
-              }}></View>
+              }}>
+              <Text
+                style={{
+                  flex: 1,
+                  color: 'white',
+                  fontSize: 10,
+                  alignSelf: 'center',
+                }}>
+                {Math.round(complete * 100)}%
+              </Text>
+            </View>
           </View>
           {/* Image */}
           <View>
@@ -311,13 +369,23 @@ const PatientRegistration1 = ({navigation}) => {
                     </View>
                   </View>
 
-                  <View style={{flex: 1, width: '90%', alignSelf: 'center'}}>
-                    <Text style={styles.inputLabel}>City</Text>
-                    <TextInput
-                      style={[styles.textInput, {backgroundColor: '#E8F0FE'}]}
-                      placeholderTextColor={'black'}
-                      onChangeText={text => setCity(text)}
-                      value={city}></TextInput>
+                  <View style={{flexDirection: 'row', alignSelf: 'center'}}>
+                    <View style={{flex: 0.45, marginRight: '5%'}}>
+                      <Text style={styles.inputLabel}>City</Text>
+                      <TextInput
+                        style={[styles.textInput, {backgroundColor: '#E8F0FE'}]}
+                        placeholderTextColor={'black'}
+                        onChangeText={text => setCity(text)}
+                        value={city}></TextInput>
+                    </View>
+                    <View style={{flex: 0.45}}>
+                      <Text style={styles.inputLabel}>Pin Code</Text>
+                      <TextInput
+                        style={[styles.textInput, {backgroundColor: '#E8F0FE'}]}
+                        placeholderTextColor={'black'}
+                        onChangeText={text => setpincode(text)}
+                        value={pincode}></TextInput>
+                    </View>
                   </View>
                   <View style={{flexDirection: 'row', alignSelf: 'center'}}>
                     <View style={{flex: 0.45, marginRight: '5%'}}>
@@ -540,6 +608,57 @@ const PatientRegistration1 = ({navigation}) => {
                 padding: 10,
                 borderRadius: 10,
                 backgroundColor: '#2b8ada',
+              }}
+              onPress={() => {
+                if (complete == 1) postData();
+                else {
+                  if (title == '')
+                    Alert.alert(
+                      'Incomplete Details',
+                      'Please select title before continuing.',
+                    );
+                  else if (name == '')
+                    Alert.alert(
+                      'Incomplete Details',
+                      'Please enter name before continuing.',
+                    );
+                  else if (email == '')
+                    Alert.alert(
+                      'Incomplete Details',
+                      'Please enter email before continuing.',
+                    );
+                  else if (gender == '')
+                    Alert.alert(
+                      'Incomplete Details',
+                      'Please select gender before continuing.',
+                    );
+                  else if (city == '')
+                    Alert.alert(
+                      'Incomplete Details',
+                      'Please enter city name before continuing.',
+                    );
+                  else
+                    Alert.alert(
+                      'Incomplete Details',
+                      'Please select date of birth before continuing.',
+                    );
+                }
+              }}></CustomButton>
+            <CustomButton
+              text="Skip"
+              textstyle={{
+                color: '#2b8ada',
+                fontSize: 16,
+                fontWeight: 'bold',
+              }}
+              style={{
+                flex: 1,
+                marginBottom: 50,
+                marginVertical: 10,
+                padding: 10,
+                borderRadius: 10,
+                borderColor: '#2b8ada',
+                borderWidth: 1,
               }}
               onPress={() => {
                 navigation.push('PatientHome');

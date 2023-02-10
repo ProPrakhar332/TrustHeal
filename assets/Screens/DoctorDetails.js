@@ -143,7 +143,7 @@ const slotsresponse = [
     startTime: '09:50:00',
     endTime: '10:20:00',
     slotDate: '2023-01-30',
-    typeOfEConsultation: 'PHONE_CALL',
+    typeOfEConsultation: 'VIDEO_CALL',
     slotStatus: 'CREATED',
   },
   {
@@ -587,6 +587,7 @@ function DoctorDetails({navigation}) {
           {
             backgroundColor:
               selectedSlotId == item.slotId ? '#2b8ada' : '#e8f0fe',
+            flexDirection: 'row',
           },
         ]}
         onPress={() => {
@@ -595,6 +596,14 @@ function DoctorDetails({navigation}) {
           setSelectedSlotTime(timeformatter(item.startTime));
           setMode('E-Consultation');
         }}>
+        <FAIcon
+          name={
+            item.typeOfEConsultation == 'PHONE_CALL' ? 'phone-alt' : 'video'
+          }
+          size={15}
+          color={selectedSlotId == item.slotId ? 'white' : '#2b8ada'}
+          style={{marginRight: 3}}
+        />
         <Text
           style={{
             fontSize: 10,

@@ -18,6 +18,7 @@ import CustomButton from '../Components/CustomButton';
 import {StyleSheet} from 'react-native';
 import HeaderPatient from '../Components/HeaderPatient';
 import FAIcon from 'react-native-vector-icons/FontAwesome5';
+import FAIClose from 'react-native-vector-icons/FontAwesome';
 import {
   SelectList,
   MultipleSelectList,
@@ -36,6 +37,7 @@ import trash from '../Icons/delete.png';
 import right from '../Icons/right.png';
 import down from '../Icons/down.png';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import dayjs from 'dayjs';
 const dataBloodGroup = [
   {key: 'A+', value: 'A+'},
   {key: 'A-', value: 'A-'},
@@ -52,6 +54,13 @@ const dataInvoice = [
   {no: '0125', date: '13-11-2022', doc: ''},
   {no: '0126', date: '14-11-2022', doc: ''},
   {no: '0127', date: '15-11-2022', doc: ''},
+];
+const dataInvoiceService = [
+  {
+    currency: 'string',
+    paidAmount: 0,
+    payementTime: '2023-02-10T14:13:39.530Z',
+  },
 ];
 const datahelp = [
   {
@@ -77,64 +86,55 @@ const datahelp = [
 ];
 const dataFamily = [
   {
-    name: 'Ramesh',
-    relation: 'Son',
-    dob: '12-09-2001',
-    gender: 'Male',
-    edit: 'false',
-    active: 'false',
-    mob: '+919456335783',
-    otherdet: {
-      BloodGroup: 'AB+',
-      Occupation: 'Student',
-      Height: '174',
-      Weight: '75',
-    },
-  },
-  {
-    name: 'Rami',
-    relation: 'Daughter',
-    dob: '23-02-2003',
+    bloodGroup: 'A+',
+    city: 'Mumbai',
+    createdOn: dayjs().format('YYYY-MM-DD'),
+    dob: '2000-01-30',
+    email: 'Anita@gmail.com',
+    familyId: 1,
     gender: 'Female',
-    edit: 'false',
-    active: 'false',
-    mob: '+919456335783',
-    otherdet: {
-      BloodGroup: 'AB+',
-      Occupation: 'Student',
-      Height: '154',
-      Weight: '55',
-    },
-  },
-  {
-    name: 'Suresh',
-    relation: 'Father',
-    dob: '12-09-1942',
-    gender: 'Male',
-    edit: 'false',
-    active: 'false',
-    mob: '+919415024512',
-    otherdet: {
-      BloodGroup: 'AB+',
-      Occupation: 'Retired',
-      Height: '165',
-      Weight: '75',
-    },
-  },
-  {
-    name: 'Kamla',
+    height: '165',
+    mobileNumber: '9412152552',
+    name: 'Anita Mamgain',
+    occupation: 'Homemaker',
+    patientId: 1,
     relation: 'Mother',
-    dob: '02-09-1945',
+    weight: '68',
+    whatsAppNumber: '9412152552',
+  },
+  {
+    bloodGroup: 'B+',
+    city: 'Dubai',
+    createdOn: dayjs().format('YYYY-MM-DD'),
+    dob: '1952-01-30',
+    email: 'Suman@gmail.com',
+    familyId: 2,
     gender: 'Female',
-    edit: 'false',
-    active: 'false',
-    mob: '+919745125875',
-    otherdet: {
-      BloodGroup: 'O+',
-      Occupation: 'Homemaker',
-      Height: '160',
-      Weight: '80',
-    },
+    height: '161',
+    mobileNumber: '9414521548',
+    name: 'Suman Mamgain',
+    occupation: 'Homemaker',
+    patientId: 1,
+    relation: 'Grandmother',
+    weight: '85',
+    whatsAppNumber: '9412152552',
+  },
+  {
+    bloodGroup: 'O+',
+    city: 'Dubai',
+    createdOn: dayjs().format('YYYY-MM-DD'),
+    dob: '1962-05-30',
+    email: 'Anil@gmail.com',
+    familyId: 3,
+    gender: 'Male',
+    height: '171',
+    mobileNumber: '9410221548',
+    name: 'Anil Mamgain',
+    occupation: 'Oil Merchant',
+    patientId: 1,
+    relation: 'Father',
+    weight: '85',
+    whatsAppNumber: '9410221548',
   },
 ];
 const ItemHelp = ({question, answer}) => (
@@ -241,234 +241,6 @@ const ItemInvoice = ({no, date, doc}) => (
     </View>
   </View>
 );
-const ItemFamily = ({
-  name,
-  relation,
-  dob,
-  gender,
-  edit,
-  active,
-  mob,
-  otherdet,
-}) => (
-  <View>
-    <View
-      style={[
-        {
-          backgroundColor: '#F3F7FE',
-          borderRadius: 5,
-          width: '100%',
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          padding: 15,
-          marginTop: 10,
-        },
-        {borderWidth: 1.5, borderColor: '#2B8ADA'},
-      ]}>
-      <Text style={[{flex: 0.6, fontWeight: 'bold'}, {color: '#2B8ADA'}]}>
-        {name}
-      </Text>
-      <View
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'space-evenly',
-          flex: 0.3,
-          alignSelf: 'center',
-        }}>
-        <TouchableOpacity style={{}} onPress={() => {}}>
-          <Image style={{height: 15, width: 15}} source={editicon} />
-        </TouchableOpacity>
-        <TouchableOpacity style={{marginHorizontal: 10}} onPress={() => {}}>
-          <Image style={{height: 15, width: 15}} source={trash} />
-        </TouchableOpacity>
-        <TouchableOpacity style={{}} onPress={() => {}}>
-          <Image
-            style={{height: 15, width: 15}}
-            source={active !== 'true' ? right : down}
-          />
-        </TouchableOpacity>
-      </View>
-    </View>
-    {/* Details */}
-    {active === 'true' ? (
-      <View
-        style={{
-          borderWidth: 1,
-          borderTopWidth: 0,
-          borderColor: '#2B8ADA',
-          flexDirection: 'column',
-          width: '100%',
-          marginBottom: 10,
-          borderBottomRightRadius: 5,
-          borderBottomLeftRadius: 5,
-          top: -3,
-        }}>
-        {/* Relation */}
-        <View
-          style={{
-            backgroundColor: '#D0E0FC',
-            width: '95%',
-            alignSelf: 'center',
-            marginVertical: 10,
-            padding: 5,
-            borderRadius: 5,
-          }}>
-          <TextInput
-            style={{
-              backgroundColor: '#D0E0FC',
-              borderRadius: 5,
-              alignSelf: 'center',
-              width: '90%',
-            }}
-            placeholder="Relation"
-            value={relation}
-          />
-        </View>
-        {/* Date of Birth */}
-        <View
-          style={{
-            backgroundColor: '#D0E0FC',
-            width: '95%',
-            alignSelf: 'center',
-            marginVertical: 10,
-            padding: 5,
-            borderRadius: 5,
-            flexDirection: 'row',
-            justifyContent: 'space-evenly',
-          }}>
-          <TextInput
-            style={{
-              backgroundColor: '#D0E0FC',
-              borderRadius: 5,
-              alignSelf: 'center',
-              width: '80%',
-            }}
-            placeholder="Date Of Birth"
-            value={dob}
-          />
-          <FAIcon
-            name="calendar-alt"
-            size={20}
-            color={'gray'}
-            style={{alignSelf: 'center'}}
-          />
-        </View>
-        {/* Gender */}
-        <View
-          style={{
-            backgroundColor: '#D0E0FC',
-            width: '95%',
-            alignSelf: 'center',
-            marginVertical: 10,
-            padding: 5,
-            borderRadius: 5,
-          }}>
-          <TextInput
-            style={{
-              backgroundColor: '#D0E0FC',
-              borderRadius: 5,
-              alignSelf: 'center',
-              width: '90%',
-            }}
-            placeholder="Gender"
-            value={gender}
-          />
-        </View>
-        {/* Mobile Number */}
-        <View
-          style={{
-            backgroundColor: '#D0E0FC',
-            width: '95%',
-            alignSelf: 'center',
-            marginVertical: 10,
-            padding: 5,
-            borderRadius: 5,
-          }}>
-          <TextInput
-            style={{
-              backgroundColor: '#D0E0FC',
-              borderRadius: 5,
-              alignSelf: 'center',
-              width: '90%',
-            }}
-            placeholder="Mobile No"
-            value={mob}
-          />
-        </View>
-
-        {/* Other Details */}
-        <View
-          style={{
-            width: '95%',
-            alignSelf: 'center',
-            flexDirection: 'column',
-          }}>
-          <Text
-            style={{
-              fontWeight: 'bold',
-              fontSize: 15,
-              paddingHorizontal: 10,
-            }}>
-            Other Details:
-          </Text>
-          <View
-            style={{
-              flexDirection: 'column',
-              marginVertical: 10,
-            }}>
-            <View
-              style={{
-                flexDirection: 'row',
-                alignSelf: 'center',
-              }}>
-              <View style={{flex: 0.45, marginRight: '5%'}}>
-                <Text style={[styles.inputLabel, {marginTop: 0}]}>
-                  Blood Group
-                </Text>
-                <TextInput
-                  style={[styles.textInput, {backgroundColor: '#E8F0FE'}]}
-                  placeholderTextColor={'black'}
-                  value={otherdet.Gender}
-                  keyboardType={'number-pad'}></TextInput>
-              </View>
-              <View style={{flex: 0.45}}>
-                <Text style={[styles.inputLabel, {marginTop: 0}]}>
-                  Occupation
-                </Text>
-                <TextInput
-                  style={[styles.textInput, {backgroundColor: '#E8F0FE'}]}
-                  placeholderTextColor={'black'}
-                  value={otherdet.Occupation}></TextInput>
-              </View>
-            </View>
-            <View
-              style={{
-                flexDirection: 'row',
-                alignSelf: 'center',
-              }}>
-              <View style={{flex: 0.45, marginRight: '5%'}}>
-                <Text style={styles.inputLabel}>Height</Text>
-                <TextInput
-                  style={[styles.textInput, {backgroundColor: '#E8F0FE'}]}
-                  placeholderTextColor={'black'}
-                  value={otherdet.Height}
-                  keyboardType={'number-pad'}></TextInput>
-              </View>
-              <View style={{flex: 0.45}}>
-                <Text style={styles.inputLabel}>Weight</Text>
-                <TextInput
-                  style={[styles.textInput, {backgroundColor: '#E8F0FE'}]}
-                  placeholderTextColor={'black'}
-                  value={otherdet.Weight}
-                  keyboardType={'number-pad'}></TextInput>
-              </View>
-            </View>
-          </View>
-        </View>
-      </View>
-    ) : null}
-  </View>
-);
 function PatientProfile({navigation}) {
   const [HelpModal, setHelpModal] = useState(false);
   //other details
@@ -482,7 +254,27 @@ function PatientProfile({navigation}) {
   const [invoiceModal, setinvoiceModal] = useState(false);
   //family modal
   const [familyModal, setfamilyModal] = useState(false);
-  const [familyMembers, setfamilyMembers] = useState(dataFamily);
+  const [familyMembers, setfamilyMembers] = useState([]);
+  const [famMemName, setfamMemName] = useState('');
+  const [famMemEmail, setfamMemEmail] = useState('');
+  const [famMemCity, setfamMemCity] = useState('');
+  const [famMemDob, setfamMemDob] = useState('');
+  const [famMemRelation, setfamMemRelation] = useState('');
+  const [famMemMobile, setfamMemMobile] = useState('');
+  const [famMemGender, setfamMemGender] = useState('');
+  const [famMemBloodGroup, setfamMemBloodGroup] = useState('');
+  const [famMemOccupation, setfamMemOccupation] = useState('');
+  const [famMemWeight, setfamMemWeight] = useState('');
+  const [famMemHeight, setfamMemHeight] = useState('');
+  const [activeFamilyId, setactiveFamilyId] = useState('');
+  const [editfamilyItem, seteditfamilyItem] = useState([]);
+  const [familyEditModal, setfamilyEditModal] = useState(false);
+  const [addMore, setaddMore] = useState(false);
+
+  useEffect(() => {
+    setfamilyMembers(dataFamily);
+  }, []);
+
   const logout = () => {
     console.log('Logging out');
     navigation.navigate('RoleScreen');
@@ -493,18 +285,298 @@ function PatientProfile({navigation}) {
   const renderHelp = ({item}) => (
     <ItemHelp question={item.question} answer={item.answer} />
   );
-  const renderFamily = ({item}) => (
-    <ItemFamily
-      name={item.name}
-      relation={item.relation}
-      dob={item.dob}
-      gender={item.gender}
-      mob={item.mob}
-      otherdet={item.otherdet}
-      edit={item.edit}
-      active={item.active}
-    />
-  );
+  const RenderFamily = () => {
+    return familyMembers.map((item, index) => {
+      return (
+        <View key={index} style={{width: '95%', alignSelf: 'center'}}>
+          <View
+            style={[
+              {
+                backgroundColor: '#F3F7FE',
+                borderRadius: 5,
+                width: '100%',
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                padding: 5,
+                marginTop: 10,
+              },
+              {borderWidth: 1.5, borderColor: '#2B8ADA'},
+            ]}>
+            <FAIcon
+              name={item.gender == 'Female' ? 'female' : 'male'}
+              size={20}
+              color={item.familyId == activeFamilyId ? '#2b8ada' : 'black'}
+            />
+            <Text
+              style={[
+                {flex: 0.7, fontWeight: 'bold', color: 'black', fontSize: 14},
+                item.familyId == activeFamilyId ? {color: '#2b8ada'} : null,
+              ]}>
+              {item.name}
+            </Text>
+
+            {item.familyId == activeFamilyId ? (
+              <View
+                style={{
+                  flex: 0.2,
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                }}>
+                <TouchableOpacity
+                  style={{}}
+                  onPress={() => {
+                    setfamilyModal(false);
+                    setfamMemName(item.name);
+                    setfamMemEmail(item.email);
+                    setfamMemMobile(item.mobileNumber);
+                    setfamMemRelation(item.relation);
+                    setfamMemGender(item.gender);
+                    setfamMemCity(item.city);
+                    setfamMemDob(item.dob);
+                    setfamMemBloodGroup(item.bloodGroup);
+                    setfamMemOccupation(item.occupation);
+                    setfamMemHeight(item.height);
+                    setfamMemWeight(item.weight);
+                    setfamilyEditModal(true);
+                  }}>
+                  <Image
+                    style={{height: 15, width: 15, tintColor: '#2b8ada'}}
+                    source={editicon}
+                  />
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={{marginHorizontal: 10}}
+                  onPress={() => {
+                    removeFamilyHandler(item.familyId);
+                  }}>
+                  <Image
+                    style={{height: 15, width: 15, tintColor: 'red'}}
+                    source={trash}
+                  />
+                </TouchableOpacity>
+              </View>
+            ) : null}
+
+            <TouchableOpacity
+              style={{right: 0}}
+              onPress={() => {
+                if (activeFamilyId == item.familyId) setactiveFamilyId('');
+                else setactiveFamilyId(item.familyId);
+              }}>
+              <FAIcon
+                name={
+                  item.familyId == activeFamilyId
+                    ? 'chevron-down'
+                    : 'chevron-right'
+                }
+                size={15}
+                color={item.familyId == activeFamilyId ? '#2b8ada' : 'gray'}
+                style={{alignSelf: 'center'}}
+              />
+            </TouchableOpacity>
+          </View>
+          {item.familyId == activeFamilyId ? (
+            <ScrollView
+              style={{
+                height: 175,
+                borderWidth: 1,
+                borderTopWidth: 0,
+                borderColor: '#2B8ADA',
+                flexDirection: 'column',
+                width: '100%',
+                marginBottom: 10,
+                borderBottomRightRadius: 5,
+                borderBottomLeftRadius: 5,
+                top: -3,
+              }}>
+              {/* <Text
+                style={{
+                  marginTop: 5,
+                  fontWeight: 'bold',
+                  fontSize: 15,
+                  color: '#000080',
+                  borderBottomWidth: 1,
+                  borderBottomColor: '#000080',
+                  width: '90%',
+                  alignSelf: 'center',
+                }}>
+                Basic Details:
+              </Text> */}
+              <View
+                style={{
+                  flexDirection: 'column',
+                  width: '95%',
+                  alignSelf: 'center',
+                }}>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-around',
+                  }}>
+                  {/* Relation */}
+                  <View style={[{flex: 0.45}]}>
+                    <Text style={styles.inputLabel}>Relation</Text>
+                    <Text style={styles.detailsTextInput}>{item.relation}</Text>
+                  </View>
+                  {/* Date of Birth */}
+                  <View style={[{flex: 0.45}]}>
+                    <Text style={styles.inputLabel}>Date of Birth</Text>
+                    <Text style={[styles.detailsTextInput, {flex: 0.7}]}>
+                      {dayjs(item.dob).format('DD-MMM-YYYY')}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-evenly',
+                  width: '95%',
+                  alignSelf: 'center',
+                }}>
+                {/* Gender */}
+                <View style={[{flex: 0.45}]}>
+                  <Text style={styles.inputLabel}>Gender</Text>
+                  <Text style={styles.detailsTextInput}>{item.gender}</Text>
+                </View>
+                {/* Mobile Number */}
+                <View style={[{flex: 0.45}]}>
+                  <Text style={styles.inputLabel}>Mobile Number</Text>
+                  <Text style={styles.detailsTextInput}>
+                    {item.mobileNumber}
+                  </Text>
+                </View>
+              </View>
+
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-evenly',
+                  width: '95%',
+                  alignSelf: 'center',
+                }}>
+                {/* Gender */}
+                <View style={[{flex: 0.45}]}>
+                  <Text style={styles.inputLabel}>City</Text>
+                  <Text style={styles.detailsTextInput}>{item.city}</Text>
+                </View>
+                {/* Mobile Number */}
+                <View style={[{flex: 0.45}]}>
+                  <Text style={styles.inputLabel}>E-mail</Text>
+                  <Text style={styles.detailsTextInput}>{item.email}</Text>
+                </View>
+              </View>
+
+              {/* Other Details */}
+              <View
+                style={{
+                  width: '95%',
+                  alignSelf: 'center',
+                  flexDirection: 'column',
+                  marginTop: 5,
+                }}>
+                {/* <Text
+                  style={{
+                    fontWeight: 'bold',
+                    fontSize: 15,
+
+                    color: '#000080',
+                    borderBottomWidth: 1,
+                    borderBottomColor: '#000080',
+                    width: '90%',
+                    alignSelf: 'center',
+                  }}>
+                  Other Details:
+                </Text> */}
+                <View
+                  style={{
+                    flexDirection: 'column',
+                    marginVertical: 5,
+                  }}>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignSelf: 'center',
+                    }}>
+                    <View style={{flex: 0.45, marginRight: '5%'}}>
+                      <Text style={[styles.inputLabel, {marginTop: 0}]}>
+                        Blood Group
+                      </Text>
+                      <Text
+                        style={[
+                          styles.otherDetailsTextInput,
+                          {backgroundColor: '#E8F0FE'},
+                        ]}>
+                        {item.bloodGroup}
+                      </Text>
+                    </View>
+                    <View style={{flex: 0.45}}>
+                      <Text style={[styles.inputLabel, {marginTop: 0}]}>
+                        Occupation
+                      </Text>
+                      <Text
+                        style={[
+                          styles.otherDetailsTextInput,
+                          {backgroundColor: '#E8F0FE'},
+                        ]}>
+                        {item.occupation}
+                      </Text>
+                    </View>
+                  </View>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignSelf: 'center',
+                    }}>
+                    <View style={{flex: 0.45, marginRight: '5%'}}>
+                      <Text style={styles.inputLabel}>Height (in cm)</Text>
+                      <Text
+                        style={[
+                          styles.otherDetailsTextInput,
+                          {backgroundColor: '#E8F0FE'},
+                        ]}>
+                        {item.height}
+                      </Text>
+                    </View>
+                    <View style={{flex: 0.45}}>
+                      <Text style={styles.inputLabel}>Weight (in kg)</Text>
+                      <Text
+                        style={[
+                          styles.otherDetailsTextInput,
+                          {backgroundColor: '#E8F0FE'},
+                        ]}>
+                        {item.weight}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            </ScrollView>
+          ) : null}
+        </View>
+      );
+    });
+  };
+  const removeFamilyHandler = e => {
+    setfamilyMembers(familyMembers.filter(obj => obj.familyId !== e));
+  };
+
+  const reset = () => {
+    setfamMemName('');
+    setfamMemEmail('');
+    setfamMemMobile('');
+    setfamMemRelation('');
+    setfamMemGender('');
+    setfamMemCity('');
+    setfamMemDob('');
+    setfamMemBloodGroup('');
+    setfamMemOccupation('');
+    setfamMemHeight('');
+    setfamMemWeight('');
+  };
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -790,10 +862,10 @@ function PatientProfile({navigation}) {
                         }}>
                         Help & Support
                       </Text>
-                      <FAIcon
-                        name="window-close"
+                      <FAIClose
+                        name="close"
                         color="black"
-                        size={26}
+                        size={20}
                         style={{
                           position: 'absolute',
                           top: 0,
@@ -895,10 +967,10 @@ function PatientProfile({navigation}) {
                           }>
                           Edit
                         </Text>
-                        <FAIcon
-                          name="window-close"
+                        <FAIClose
+                          name="close"
                           color="black"
-                          size={26}
+                          size={20}
                           style={{marginHorizontal: 5, alignSelf: 'center'}}
                           onPress={() => setOtherDetailsModal(false)}
                         />
@@ -958,7 +1030,7 @@ function PatientProfile({navigation}) {
                             ) : (
                               <TextInput
                                 style={[
-                                  styles.textInput,
+                                  styles.otherDetailsTextInput,
                                   {backgroundColor: '#d0e0fc'},
                                   editOtherDetails
                                     ? {backgroundColor: '#E8F0FE'}
@@ -974,7 +1046,7 @@ function PatientProfile({navigation}) {
                             </Text>
                             <TextInput
                               style={[
-                                styles.textInput,
+                                styles.otherDetailsTextInput,
                                 editOtherDetails
                                   ? {backgroundColor: '#E8F0FE'}
                                   : {backgroundColor: '#d0e0fc'},
@@ -996,7 +1068,7 @@ function PatientProfile({navigation}) {
                             <TextInput
                               editable={editOtherDetails}
                               style={[
-                                styles.textInput,
+                                styles.otherDetailsTextInput,
                                 editOtherDetails
                                   ? {backgroundColor: '#E8F0FE'}
                                   : {backgroundColor: '#d0e0fc'},
@@ -1013,7 +1085,7 @@ function PatientProfile({navigation}) {
                             <TextInput
                               editable={editOtherDetails}
                               style={[
-                                styles.textInput,
+                                styles.otherDetailsTextInput,
                                 editOtherDetails
                                   ? {backgroundColor: '#E8F0FE'}
                                   : {backgroundColor: '#d0e0fc'},
@@ -1108,10 +1180,10 @@ function PatientProfile({navigation}) {
                         }}>
                         My Invoices
                       </Text>
-                      <FAIcon
-                        name="window-close"
+                      <FAIClose
+                        name="close"
                         color="black"
-                        size={26}
+                        size={20}
                         style={{
                           position: 'absolute',
                           top: 0,
@@ -1163,14 +1235,12 @@ function PatientProfile({navigation}) {
                         justifyContent: 'center',
                         alignSelf: 'center',
                         padding: 15,
-                        height: 400,
                       },
                     ]}>
                     <View
                       style={{
                         width: '100%',
                         alignSelf: 'center',
-                        marginBottom: 20,
                         borderBottomWidth: 1,
                         borderBottomColor: 'gray',
                       }}>
@@ -1179,64 +1249,698 @@ function PatientProfile({navigation}) {
                           fontWeight: 'bold',
                           fontSize: 16,
                           padding: 5,
+                          color: 'black',
                         }}>
                         Family Members
                       </Text>
-                      <FAIcon
-                        name="window-close"
+                      <FAIClose
+                        name="close"
                         color="black"
-                        size={26}
+                        size={20}
                         style={{
                           position: 'absolute',
                           top: 0,
                           right: 0,
                         }}
-                        onPress={() => setfamilyModal(false)}
-                      />
-                    </View>
-                    <View style={{height: 270}}>
-                      <FlatList
-                        data={familyMembers}
-                        keyExtractor={item => item.relation}
-                        renderItem={renderFamily}
-                        scrollEnabled={true}
+                        onPress={() => {
+                          reset();
+                          setfamilyModal(false);
+                          setaddMore(false);
+                        }}
                       />
                     </View>
 
+                    {familyMembers != '' && !addMore ? (
+                      <RenderFamily />
+                    ) : (
+                      <View
+                        style={{
+                          // borderWidth: 1,
+                          // borderColor: '#2B8ADA',
+                          flexDirection: 'column',
+                          width: '100%',
+                          marginVertical: 10,
+                          borderRadius: 5,
+                        }}>
+                        <Text
+                          style={{
+                            marginTop: 5,
+                            fontWeight: 'bold',
+                            fontSize: 15,
+
+                            color: '#000080',
+                            borderBottomWidth: 1,
+                            borderBottomColor: '#000080',
+                            width: '90%',
+                            alignSelf: 'center',
+                          }}>
+                          Basic Details
+                        </Text>
+                        <View style={{width: '95%', alignSelf: 'center'}}>
+                          <View
+                            style={{
+                              flexDirection: 'row',
+                              justifyContent: 'space-evenly',
+                              marginTop: 5,
+                            }}>
+                            <View
+                              style={[{flex: 0.95}, styles.detailsTextView]}>
+                              <Text style={[styles.inputLabel, {marginTop: 0}]}>
+                                Name
+                              </Text>
+                              <TextInput
+                                style={styles.detailsTextInput}
+                                placeholder="Name"
+                                onChangeText={text => setfamMemName(text)}
+                                value={famMemName}
+                              />
+                            </View>
+                          </View>
+                          <View
+                            style={{
+                              flexDirection: 'row',
+                              justifyContent: 'space-evenly',
+                            }}>
+                            <View
+                              style={[{flex: 0.45}, styles.detailsTextView]}>
+                              <Text style={[styles.inputLabel, {marginTop: 0}]}>
+                                Email
+                              </Text>
+                              <TextInput
+                                style={styles.detailsTextInput}
+                                placeholder="Email"
+                                onChangeText={text => setfamMemEmail(text)}
+                                value={famMemEmail}
+                                keyboardType={'email-address'}
+                              />
+                            </View>
+                            <View
+                              style={[{flex: 0.45}, styles.detailsTextView]}>
+                              <Text style={[styles.inputLabel, {marginTop: 0}]}>
+                                Mobile Number
+                              </Text>
+                              <TextInput
+                                style={[styles.detailsTextInput, {flex: 0.7}]}
+                                placeholder="Mobile Number"
+                                onChangeText={text => setfamMemMobile(text)}
+                                value={famMemMobile}
+                                keyboardType={'number-pad'}
+                                maxLength={10}
+                              />
+                            </View>
+                          </View>
+                          <View
+                            style={{
+                              flexDirection: 'row',
+                              justifyContent: 'space-evenly',
+                            }}>
+                            <View
+                              style={[{flex: 0.45}, styles.detailsTextView]}>
+                              <Text style={[styles.inputLabel, {marginTop: 0}]}>
+                                Relation
+                              </Text>
+                              <TextInput
+                                style={styles.detailsTextInput}
+                                placeholder="Relation"
+                                onChangeText={text => setfamMemRelation(text)}
+                                value={famMemRelation}
+                              />
+                            </View>
+                            <View
+                              style={[styles.detailsTextView, {flex: 0.45}]}>
+                              <Text style={[styles.inputLabel, {marginTop: 0}]}>
+                                Gender
+                              </Text>
+                              <TextInput
+                                style={styles.detailsTextInput}
+                                placeholder="Gender"
+                                onChangeText={text => setfamMemGender(text)}
+                                value={famMemGender}
+                              />
+                            </View>
+                          </View>
+
+                          <View
+                            style={{
+                              flexDirection: 'row',
+                              justifyContent: 'space-evenly',
+                            }}>
+                            <View
+                              style={[styles.detailsTextView, {flex: 0.45}]}>
+                              <Text style={[styles.inputLabel, {marginTop: 0}]}>
+                                City
+                              </Text>
+                              <TextInput
+                                style={styles.detailsTextInput}
+                                placeholder="City"
+                                onChangeText={text => setfamMemCity(text)}
+                                value={famMemCity}
+                              />
+                            </View>
+                            <View
+                              style={[{flex: 0.45}, styles.detailsTextView]}>
+                              <Text style={[styles.inputLabel, {marginTop: 0}]}>
+                                Date of Birth
+                              </Text>
+                              <View
+                                style={{
+                                  flexDirection: 'row',
+                                  justifyContent: 'space-evenly',
+                                  backgroundColor: '#E8F0FE',
+                                  borderRadius: 5,
+                                }}>
+                                <TextInput
+                                  style={[styles.detailsTextInput, {flex: 0.7}]}
+                                  placeholder="Date Of Birth"
+                                  value={famMemDob}
+                                  editable={false}
+                                />
+                                <FAIcon
+                                  name="calendar-alt"
+                                  size={20}
+                                  color={'gray'}
+                                  style={{flex: 0.3, alignSelf: 'center'}}
+                                />
+                              </View>
+                            </View>
+                          </View>
+                        </View>
+
+                        <View
+                          style={{
+                            marginTop: 5,
+                            width: '95%',
+                            alignSelf: 'center',
+                            flexDirection: 'column',
+                          }}>
+                          <Text
+                            style={{
+                              fontWeight: 'bold',
+                              fontSize: 15,
+                              color: '#000080',
+                              borderBottomWidth: 1,
+                              borderBottomColor: '#000080',
+                              width: '90%',
+                              alignSelf: 'center',
+                            }}>
+                            Other Details (optional)
+                          </Text>
+                          <View
+                            style={{
+                              flexDirection: 'column',
+                              marginVertical: 10,
+                            }}>
+                            <View
+                              style={{
+                                flexDirection: 'row',
+                                alignSelf: 'center',
+                              }}>
+                              <View style={{flex: 0.45, marginRight: '5%'}}>
+                                <Text
+                                  style={[styles.inputLabel, {marginTop: 0}]}>
+                                  Blood Group
+                                </Text>
+                                <TextInput
+                                  style={[
+                                    styles.otherDetailsTextInput,
+                                    {backgroundColor: '#E8F0FE'},
+                                  ]}
+                                  placeholderTextColor={'black'}
+                                  onChangeText={text =>
+                                    setfamMemBloodGroup(text)
+                                  }
+                                  value={famMemBloodGroup}></TextInput>
+                              </View>
+                              <View style={{flex: 0.45}}>
+                                <Text
+                                  style={[styles.inputLabel, {marginTop: 0}]}>
+                                  Occupation
+                                </Text>
+                                <TextInput
+                                  style={[
+                                    styles.otherDetailsTextInput,
+                                    {backgroundColor: '#E8F0FE'},
+                                  ]}
+                                  placeholderTextColor={'black'}
+                                  onChangeText={text =>
+                                    setfamMemOccupation(text)
+                                  }
+                                  value={famMemOccupation}></TextInput>
+                              </View>
+                            </View>
+                            <View
+                              style={{
+                                flexDirection: 'row',
+                                alignSelf: 'center',
+                              }}>
+                              <View style={{flex: 0.45, marginRight: '5%'}}>
+                                <Text style={styles.inputLabel}>Height</Text>
+                                <TextInput
+                                  style={[
+                                    styles.otherDetailsTextInput,
+                                    {backgroundColor: '#E8F0FE'},
+                                  ]}
+                                  placeholderTextColor={'black'}
+                                  onChangeText={text => setfamMemHeight(text)}
+                                  value={famMemHeight}
+                                  keyboardType={'number-pad'}></TextInput>
+                              </View>
+                              <View style={{flex: 0.45}}>
+                                <Text style={styles.inputLabel}>Weight</Text>
+                                <TextInput
+                                  style={[
+                                    styles.otherDetailsTextInput,
+                                    {backgroundColor: '#E8F0FE'},
+                                  ]}
+                                  placeholderTextColor={'black'}
+                                  onChangeText={text => setfamMemWeight(text)}
+                                  value={famMemWeight}
+                                  keyboardType={'number-pad'}></TextInput>
+                              </View>
+                            </View>
+                          </View>
+                        </View>
+                      </View>
+                    )}
+
                     {/* Buttons */}
+                    {!addMore ? (
+                      <View
+                        style={{
+                          flex: 1,
+                          flexDirection: 'row',
+                          alignSelf: 'flex-end',
+                        }}>
+                        <CustomButton
+                          text={'+ Add More'}
+                          textstyle={{color: 'white', fontSize: 12}}
+                          style={{
+                            alignSelf: 'flex-end',
+                            width: 100,
+                            borderColor: '#2b8ada',
+                            borderWidth: 1,
+                            backgroundColor: '#2b8ada',
+                            borderRadius: 5,
+                            padding: 3,
+                            paddingHorizontal: 10,
+                            marginTop: 10,
+                            marginRight: 5,
+                          }}
+                          onPress={() => {
+                            reset();
+                            setaddMore(!addMore);
+                          }}
+                        />
+                      </View>
+                    ) : (
+                      <View
+                        style={{
+                          flex: 1,
+                          flexDirection: 'row',
+                          alignSelf: 'flex-end',
+                        }}>
+                        <CustomButton
+                          text={'Done'}
+                          textstyle={{color: 'white', fontSize: 12}}
+                          style={{
+                            alignSelf: 'flex-end',
+                            width: 100,
+                            borderColor: '#2b8ada',
+                            borderWidth: 1,
+                            backgroundColor: '#2b8ada',
+                            borderRadius: 5,
+                            padding: 3,
+                            paddingHorizontal: 10,
+                            marginTop: 10,
+                            marginRight: 5,
+                          }}
+                          onPress={() => setaddMore(!addMore)}
+                        />
+                        <CustomButton
+                          text={'Cancel'}
+                          textstyle={{color: '#2b8ada', fontSize: 12}}
+                          style={{
+                            alignSelf: 'flex-end',
+                            width: 100,
+                            borderColor: '#2b8ada',
+                            borderWidth: 1,
+                            borderRadius: 5,
+                            padding: 3,
+                            paddingHorizontal: 10,
+                            marginTop: 10,
+                            marginRight: 5,
+                          }}
+                          onPress={() => {
+                            reset();
+                            setaddMore(false);
+                          }}
+                        />
+                      </View>
+                    )}
+                  </View>
+                </View>
+              </Modal>
+            ) : null}
+            {familyEditModal ? (
+              <Modal
+                animationType="slide"
+                transparent={true}
+                visible={familyEditModal}
+                onRequestClose={() => {
+                  setfamilyEditModal(!familyEditModal);
+                }}>
+                <View
+                  style={{
+                    height: '100%',
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                  }}>
+                  <View
+                    style={[
+                      styles.modalView,
+                      {
+                        borderRadius: 10,
+                        width: '95%',
+                        justifyContent: 'center',
+                        alignSelf: 'center',
+                        padding: 15,
+                      },
+                    ]}>
                     <View
                       style={{
-                        justifyContent: 'space-between',
-                        flexDirection: 'row',
+                        width: '100%',
                         alignSelf: 'center',
+                        borderBottomWidth: 1,
+                        borderBottomColor: 'gray',
+                      }}>
+                      <Text
+                        style={{
+                          fontWeight: 'bold',
+                          fontSize: 16,
+                          padding: 5,
+                          color: 'black',
+                        }}>
+                        Edit Family Member Details
+                      </Text>
+                      <FAIClose
+                        name="close"
+                        color="black"
+                        size={20}
+                        style={{
+                          position: 'absolute',
+                          top: 0,
+                          right: 0,
+                        }}
+                        onPress={() => {
+                          reset();
+                          setfamilyEditModal(false);
+                          setaddMore(false);
+                        }}
+                      />
+                    </View>
+
+                    <View
+                      style={{
+                        // borderWidth: 1,
+                        // borderColor: '#2B8ADA',
+                        flexDirection: 'column',
                         width: '100%',
                         marginVertical: 10,
+                        borderRadius: 5,
+                      }}>
+                      <Text
+                        style={{
+                          marginTop: 5,
+                          fontWeight: 'bold',
+                          fontSize: 15,
+                          color: '#000080',
+                          borderBottomWidth: 1,
+                          borderBottomColor: '#000080',
+                          width: '90%',
+                          alignSelf: 'center',
+                        }}>
+                        Basic Details
+                      </Text>
+                      <View style={{width: '95%', alignSelf: 'center'}}>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-evenly',
+                            marginTop: 5,
+                          }}>
+                          <View style={[{flex: 0.95}, styles.detailsTextView]}>
+                            <Text style={[styles.inputLabel, {marginTop: 0}]}>
+                              Name
+                            </Text>
+                            <TextInput
+                              style={styles.detailsTextInput}
+                              placeholder="Name"
+                              onChangeText={text => setfamMemName(text)}
+                              value={famMemName}
+                            />
+                          </View>
+                        </View>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-evenly',
+                          }}>
+                          <View style={[{flex: 0.45}, styles.detailsTextView]}>
+                            <Text style={[styles.inputLabel, {marginTop: 0}]}>
+                              Email
+                            </Text>
+                            <TextInput
+                              style={styles.detailsTextInput}
+                              placeholder="Email"
+                              onChangeText={text => setfamMemEmail(text)}
+                              value={famMemEmail}
+                              keyboardType={'email-address'}
+                            />
+                          </View>
+                          <View style={[{flex: 0.45}, styles.detailsTextView]}>
+                            <Text style={[styles.inputLabel, {marginTop: 0}]}>
+                              Mobile Number
+                            </Text>
+                            <TextInput
+                              style={[styles.detailsTextInput, {flex: 0.7}]}
+                              placeholder="Mobile Number"
+                              onChangeText={text => setfamMemMobile(text)}
+                              value={famMemMobile}
+                              keyboardType={'number-pad'}
+                              maxLength={10}
+                            />
+                          </View>
+                        </View>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-evenly',
+                          }}>
+                          <View style={[{flex: 0.45}, styles.detailsTextView]}>
+                            <Text style={[styles.inputLabel, {marginTop: 0}]}>
+                              Relation
+                            </Text>
+                            <TextInput
+                              style={styles.detailsTextInput}
+                              placeholder="Relation"
+                              onChangeText={text => setfamMemRelation(text)}
+                              value={famMemRelation}
+                            />
+                          </View>
+                          <View style={[styles.detailsTextView, {flex: 0.45}]}>
+                            <Text style={[styles.inputLabel, {marginTop: 0}]}>
+                              Gender
+                            </Text>
+                            <TextInput
+                              style={styles.detailsTextInput}
+                              placeholder="Gender"
+                              onChangeText={text => setfamMemGender(text)}
+                              value={famMemGender}
+                            />
+                          </View>
+                        </View>
+
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-evenly',
+                          }}>
+                          <View style={[styles.detailsTextView, {flex: 0.45}]}>
+                            <Text style={[styles.inputLabel, {marginTop: 0}]}>
+                              City
+                            </Text>
+                            <TextInput
+                              style={styles.detailsTextInput}
+                              placeholder="City"
+                              onChangeText={text => setfamMemCity(text)}
+                              value={famMemCity}
+                            />
+                          </View>
+                          <View style={[{flex: 0.45}, styles.detailsTextView]}>
+                            <Text style={[styles.inputLabel, {marginTop: 0}]}>
+                              Date of Birth
+                            </Text>
+                            <View
+                              style={{
+                                flexDirection: 'row',
+                                justifyContent: 'space-evenly',
+                                backgroundColor: '#E8F0FE',
+                                borderRadius: 5,
+                              }}>
+                              <TextInput
+                                style={[styles.detailsTextInput, {flex: 0.7}]}
+                                placeholder="Date Of Birth"
+                                value={famMemDob}
+                                editable={false}
+                              />
+                              <FAIcon
+                                name="calendar-alt"
+                                size={20}
+                                color={'gray'}
+                                style={{flex: 0.3, alignSelf: 'center'}}
+                              />
+                            </View>
+                          </View>
+                        </View>
+                      </View>
+
+                      <View
+                        style={{
+                          marginTop: 5,
+                          width: '95%',
+                          alignSelf: 'center',
+                          flexDirection: 'column',
+                        }}>
+                        <Text
+                          style={{
+                            fontWeight: 'bold',
+                            fontSize: 15,
+                            color: '#000080',
+                            borderBottomWidth: 1,
+                            borderBottomColor: '#000080',
+                            width: '90%',
+                            alignSelf: 'center',
+                          }}>
+                          Other Details (optional)
+                        </Text>
+                        <View
+                          style={{
+                            flexDirection: 'column',
+                            marginVertical: 10,
+                          }}>
+                          <View
+                            style={{
+                              flexDirection: 'row',
+                              alignSelf: 'center',
+                            }}>
+                            <View style={{flex: 0.45, marginRight: '5%'}}>
+                              <Text style={[styles.inputLabel, {marginTop: 0}]}>
+                                Blood Group
+                              </Text>
+                              <TextInput
+                                style={[
+                                  styles.otherDetailsTextInput,
+                                  {backgroundColor: '#E8F0FE'},
+                                ]}
+                                placeholderTextColor={'black'}
+                                onChangeText={text => setfamMemBloodGroup(text)}
+                                value={famMemBloodGroup}></TextInput>
+                            </View>
+                            <View style={{flex: 0.45}}>
+                              <Text style={[styles.inputLabel, {marginTop: 0}]}>
+                                Occupation
+                              </Text>
+                              <TextInput
+                                style={[
+                                  styles.otherDetailsTextInput,
+                                  {backgroundColor: '#E8F0FE'},
+                                ]}
+                                placeholderTextColor={'black'}
+                                onChangeText={text => setfamMemOccupation(text)}
+                                value={famMemOccupation}></TextInput>
+                            </View>
+                          </View>
+                          <View
+                            style={{
+                              flexDirection: 'row',
+                              alignSelf: 'center',
+                            }}>
+                            <View style={{flex: 0.45, marginRight: '5%'}}>
+                              <Text style={styles.inputLabel}>Height</Text>
+                              <TextInput
+                                style={[
+                                  styles.otherDetailsTextInput,
+                                  {backgroundColor: '#E8F0FE'},
+                                ]}
+                                placeholderTextColor={'black'}
+                                onChangeText={text => setfamMemHeight(text)}
+                                value={famMemHeight}
+                                keyboardType={'number-pad'}></TextInput>
+                            </View>
+                            <View style={{flex: 0.45}}>
+                              <Text style={styles.inputLabel}>Weight</Text>
+                              <TextInput
+                                style={[
+                                  styles.otherDetailsTextInput,
+                                  {backgroundColor: '#E8F0FE'},
+                                ]}
+                                placeholderTextColor={'black'}
+                                onChangeText={text => setfamMemWeight(text)}
+                                value={famMemWeight}
+                                keyboardType={'number-pad'}></TextInput>
+                            </View>
+                          </View>
+                        </View>
+                      </View>
+                    </View>
+                    {/* Buttons */}
+
+                    <View
+                      style={{
+                        flex: 1,
+                        flexDirection: 'row',
+                        alignSelf: 'flex-end',
                       }}>
                       <CustomButton
-                        text={'+Add More'}
+                        text={'Done'}
                         textstyle={{color: 'white', fontSize: 12}}
                         style={{
-                          backgroundColor: '#2B8ADA',
-                          flex: 0.45,
+                          alignSelf: 'flex-end',
+                          width: 100,
+                          borderColor: '#2b8ada',
+                          borderWidth: 1,
+                          backgroundColor: '#2b8ada',
                           borderRadius: 5,
-                          padding: 10,
+                          padding: 3,
+                          paddingHorizontal: 10,
+                          marginTop: 10,
+                          marginRight: 5,
+                        }}
+                        onPress={() => {
+                          setfamilyEditModal(false);
+                          setfamilyModal(true);
                         }}
                       />
                       <CustomButton
-                        text={'Skip'}
-                        textstyle={{
-                          color: '#2B8ADA',
-                          fontSize: 12,
-                          fontWeight: 'bold',
-                        }}
+                        text={'Cancel'}
+                        textstyle={{color: '#2b8ada', fontSize: 12}}
                         style={{
-                          borderWidth: 2,
-                          borderColor: '#2B8ADA',
-                          flex: 0.45,
+                          alignSelf: 'flex-end',
+                          width: 100,
+                          borderColor: '#2b8ada',
+                          borderWidth: 1,
                           borderRadius: 5,
-                          padding: 10,
+                          padding: 3,
+                          paddingHorizontal: 10,
+                          marginTop: 10,
+                          marginRight: 5,
                         }}
-                        onPress={() => setfamilyModal(false)}
+                        onPress={() => {
+                          reset();
+                          setfamilyEditModal(false);
+                          setfamilyModal(true);
+                        }}
                       />
                     </View>
                   </View>
@@ -1257,10 +1961,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#e8f0fe',
   },
-  grayHeading: {color: 'gray', fontSize: 15, marginBottom: 10},
+  grayHeading: {
+    color: 'gray',
+    fontSize: 15,
+    marginBottom: 10,
+    fontWeight: 'bold',
+  },
   blueUnderText: {
     color: '#2B8ADA',
     fontSize: 16,
+    fontWeight: 'bold',
   },
   whiteInnerBox: {
     flex: 0.45,
@@ -1352,19 +2062,35 @@ const styles = StyleSheet.create({
     margin: 10,
   },
 
-  textInput: {
-    padding: 5,
+  otherDetailsTextInput: {
     backgroundColor: '#E8F0FE',
     borderRadius: 5,
-    fontSize: 14,
-    marginVertical: 5,
+    fontSize: 12,
     color: 'black',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+  detailsTextView: {
+    //backgroundColor: '#D0E0FC',
+    //backgroundColor: '#E8F0FE',
+    alignSelf: 'center',
+    marginVertical: 3,
+    borderRadius: 5,
+  },
+  detailsTextInput: {
+    backgroundColor: '#E8F0FE',
+    borderRadius: 5,
+    fontSize: 12,
+    color: 'black',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
   },
   inputLabel: {
     fontSize: 12,
     marginBottom: 2,
     fontWeight: 'bold',
     marginTop: 10,
+    color: '#2b8ada',
   },
 });
 export default PatientProfile;

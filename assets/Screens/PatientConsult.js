@@ -351,7 +351,7 @@ function PatientConsult({navigation}) {
               </Text>
             </View>
             {/* Doctor Fees */}
-            <View
+            {/* <View
               style={{
                 flexDirection: 'row',
               }}>
@@ -364,7 +364,7 @@ function PatientConsult({navigation}) {
               <Text style={[styles.CardText, {fontWeight: 'bold'}]}>
                 {item.fees}
               </Text>
-            </View>
+            </View> */}
           </TouchableOpacity>
           {/* Like Button */}
           <TouchableOpacity style={{flex: 0.1}}>

@@ -71,8 +71,8 @@ const NotiSample = [
 ];
 
 const Header = ({title, showMenu}) => {
-  const [name, setName] = useState('');
-  const [mob, setMob] = useState('');
+  const [patientName, setpatientName] = useState('');
+  const [patientNumber, setpatientNumber] = useState('');
   const [mode, setMode] = useState('');
   const [date, setdate] = useState('');
   const [slot, setSlot] = useState('');
@@ -133,23 +133,28 @@ const Header = ({title, showMenu}) => {
     console.log("Don't Allow");
   };
 
-  const Message = () => {
-    let p =
-      'Hello! ' +
-      name +
-      ', Your Appointment has been set at ' +
-      slot +
-      ' on ' +
-      date +
-      ' in ' +
-      mode +
-      ' Mode.\n Please Download the app and join the meet 10 mins before.\n Use ' +
-      mob +
-      ' number to login.\n Thank You and Take care';
-    if (name !== '' && mob !== '' && mode !== '') {
-      setMsg(p);
-      console.log(msg);
-    }
+  const Message = async () => {
+    let x = JSON.parse(await AsyncStorage.getItem('UserPatientProfile'));
+    var patientId = Number(x.patientId);
+    axios
+      .post(apiConfig.baseUrl + '/app/patient/to/patient/share', {
+        patientId: patientId,
+        patientName: patientName,
+        patientNumber: patientNumber,
+      })
+      .then(async function (response) {
+        if (response.status == 200) {
+          Alert.alert(
+            'Shared Successfully',
+            `The app has been shared with ${patientName} via message on mobile number ${patientNumber}`,
+          );
+          setShareModal(false);
+          await reset();
+        }
+      })
+      .catch(function (error) {
+        Alert.alert('Error', `${error}`);
+      });
   };
 
   const Item = ({id, time}) => (
@@ -330,8 +335,8 @@ const Header = ({title, showMenu}) => {
                         borderRadius: 5,
                         color: 'black',
                       }}
-                      onChangeText={text => setName(text)}
-                      value={name}
+                      onChangeText={text => setpatientName(text)}
+                      value={patientName}
                     />
                   </View>
                   <View style={{flex: 0.45}}>
@@ -343,8 +348,8 @@ const Header = ({title, showMenu}) => {
                         borderRadius: 5,
                         color: 'black',
                       }}
-                      onChangeText={text => setMob(text)}
-                      value={mob}
+                      onChangeText={text => setpatientNumber(text)}
+                      value={patientNumber}
                     />
                   </View>
                 </View>
@@ -370,10 +375,8 @@ const Header = ({title, showMenu}) => {
                         borderRadius: 10,
                         marginTop: 10,
                       }}
-                      onPress={() => {
-                        console.log(name);
-                        console.log(mob);
-                        setShareModal(false);
+                      onPress={async () => {
+                        await Message();
                       }}
                     />
                   </View>
