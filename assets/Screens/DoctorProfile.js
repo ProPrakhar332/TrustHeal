@@ -36,6 +36,7 @@ import RNFS from 'react-native-fs';
 import axios from 'axios';
 import apiConfig from '../API/apiConfig';
 import dateformatter from '../API/dateformatter';
+import dayjs from 'dayjs';
 
 function BasicDesign({navigation}) {
   //details
@@ -111,7 +112,7 @@ function BasicDesign({navigation}) {
       setName(x.doctorName != undefined ? x.doctorName : x.fullName);
       setCity(x.city);
       setEmail(x.email);
-      setAge(x.age + '');
+      setAge(dayjs().diff(dayjs(x.dob), 'y'));
       setMob(x.mobileNumber);
       setdob(x.dob);
       setGender(x.gender);
@@ -270,7 +271,7 @@ function BasicDesign({navigation}) {
                   <Image source={earnings} style={styles.whiteBoxRowIcon} />
                 </View>
                 <View style={{flex: 0.6}}>
-                  <Text style={styles.whiteBoxRowText}>My Earning</Text>
+                  <Text style={styles.whiteBoxRowText}>My Earnings</Text>
                 </View>
               </TouchableOpacity>
               {/* <TouchableOpacity style={styles.whiteBoxRow} onPress={() => {}}>
@@ -290,7 +291,7 @@ function BasicDesign({navigation}) {
                   <Image source={appointment} style={styles.whiteBoxRowIcon} />
                 </View>
                 <View style={{flex: 0.6}}>
-                  <Text style={styles.whiteBoxRowText}>My Appointment</Text>
+                  <Text style={styles.whiteBoxRowText}>My Appointments</Text>
                 </View>
               </TouchableOpacity>
               <TouchableOpacity
@@ -475,7 +476,7 @@ function BasicDesign({navigation}) {
                                   fontWeight: 'bold',
                                   textAlign: 'right',
                                 }}>
-                                ₹ {EarningsData.pEarning}
+                                ₹ {EarningsData.pearning}
                               </Text>
                             </View>
                           </View>
@@ -554,13 +555,13 @@ function BasicDesign({navigation}) {
                                   fontWeight: 'bold',
                                   textAlign: 'right',
                                 }}>
-                                ₹ {EarningsData.eEarning}
+                                ₹ {EarningsData.eearning}
                               </Text>
                             </View>
                           </View>
                         </View>
                       </View>
-                      {/* Overall Earnings */}
+                      {/* Total Earnings */}
                       <View
                         style={[
                           styles.bubble,
@@ -586,7 +587,7 @@ function BasicDesign({navigation}) {
                                 flex: 0.8,
                               }}>
                               <Text style={{textAlign: 'center'}}>
-                                Overall Earning:
+                                Total Earning:
                               </Text>
                             </View>
                             <View
@@ -863,7 +864,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#e8f0fe',
   },
-  grayHeading: {color: 'gray', fontSize: 15},
+  grayHeading: {color: 'gray', fontSize: 15, fontWeight: 'bold'},
   blueUnderText: {
     color: '#2B8ADA',
     fontSize: 18,

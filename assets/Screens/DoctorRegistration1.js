@@ -40,6 +40,7 @@ import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import {PermissionsAndroid} from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 import dayjs from 'dayjs';
+import {checkAlphabetOnly, checkAlphanumicOnly} from '../API/Validations';
 const DoctorRegistrationStep1 = ({navigation}) => {
   const [title, setTitle] = useState('');
   const [name, setName] = useState('');
@@ -69,19 +70,14 @@ const DoctorRegistrationStep1 = ({navigation}) => {
     {key: 'No', value: 'No'},
   ];
 
-  const dataTitle = [
-    {key: 'Dr.', value: 'Dr.'},
-    {key: 'Mr.', value: 'Mr.'},
-    {key: 'Mrs.', value: 'Mrs.'},
-    {key: 'Ms.', value: 'Ms.'},
-  ];
+  const dataTitle = [{key: 'Dr.', value: 'Dr.'}];
 
   const data = [
     {key: 'Dermatologist', value: 'Dermatologist'},
-    {key: 'Dietician & Nutition', value: 'Dietician & Nutition'},
+    {key: 'Dietitian and Nutritionist', value: 'Dietitian and Nutritionist'},
     {key: 'ENT', value: 'ENT'},
     {key: 'Endocrinologist', value: 'Endocrinologist'},
-    {key: 'Gastoentrologist', value: 'Gastoentrologist'},
+    {key: 'Gastroenterologist', value: 'Gastroenterologist'},
     {key: 'Gynecologist', value: 'Gynecologist'},
     {key: 'Lifestyle Diseases', value: 'Lifestyle Diseases'},
     {key: 'Ophthalmologist', value: 'Ophthalmologist'},
@@ -241,7 +237,7 @@ const DoctorRegistrationStep1 = ({navigation}) => {
       if (flag == 1) {
         Alert.alert(
           'Welcome to Arogya! ',
-          'Your General Information has been saved.',
+          'Your General Information has been saved successfully.',
         );
         navigation.push('DoctorRegistrationStep2');
       }
@@ -307,6 +303,14 @@ const DoctorRegistrationStep1 = ({navigation}) => {
   const viewPrivacyPolicy = () => {
     openURL('https://www.google.com');
   };
+
+  // const checkAlphanumicOnly = text => {
+  //   var regEx = /^[0-9a-zA-Z]+$/;
+  //   if (!text.match(regEx)) {
+  //     Alert.alert('Invalid Input', 'Please enter letters and numbers only.');
+  //     return false;
+  //   } else return true;
+  // };
 
   return (
     <KeyboardAvoidingView
@@ -403,11 +407,22 @@ const DoctorRegistrationStep1 = ({navigation}) => {
                 <Text style={{color: 'red'}}>*</Text>
               </View>
               <TextInput
+                returnKeyType="done"
                 style={styles.textInput}
                 placeholderTextColor={'gray'}
+                keyboardType={'default'}
                 onChangeText={text => setName(text)}
                 maxLength={50}
-                value={name}></TextInput>
+                value={name}
+                onSubmitEditing={() => {
+                  if (!checkAlphabetOnly(name)) {
+                    Alert.alert(
+                      'Invalid Input',
+                      'Please enter letters and numbers only.',
+                    );
+                    setName('');
+                  }
+                }}></TextInput>
             </View>
             {/* Email Label */}
             <View style={{marginVertical: 10}}>
@@ -552,13 +567,13 @@ const DoctorRegistrationStep1 = ({navigation}) => {
 
             <View style={{marginVertical: 10}}>
               <View style={{flexDirection: 'row'}}>
-                <Text style={styles.inputLabel}>PIN CODE</Text>
+                <Text style={styles.inputLabel}>Pin Code</Text>
                 <Text style={{color: 'red'}}>*</Text>
               </View>
               <TextInput
                 style={styles.textInput}
                 placeholderTextColor={'gray'}
-                maxLength={10}
+                maxLength={6}
                 keyboardType={'number-pad'}
                 onChangeText={text => {
                   setPIN(text);
@@ -576,12 +591,21 @@ const DoctorRegistrationStep1 = ({navigation}) => {
                 onChangeText={text => {
                   setCity(text);
                 }}
-                value={city}></TextInput>
+                value={city}
+                onSubmitEditing={() => {
+                  if (!checkAlphabetOnly(name)) {
+                    Alert.alert(
+                      'Invalid Input',
+                      'Please enter letters and numbers only.',
+                    );
+                    setName('');
+                  }
+                }}></TextInput>
             </View>
             <View style={{marginVertical: 10}}>
               <View style={{flexDirection: 'row'}}>
                 <Text style={styles.inputLabel}>
-                  Show Mobile No to Patients
+                  Show Mobile No. to patients
                 </Text>
                 <Text style={{color: 'red'}}>*</Text>
               </View>

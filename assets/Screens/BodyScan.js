@@ -184,7 +184,7 @@ function BodyScan({navigation}) {
                       <Text
                         style={[
                           styles.label,
-                          {fontWeight: 'bold', fontSize: 15},
+                          {fontWeight: 'bold', fontSize: 15, color: 'black'},
                         ]}>
                         Temperature
                       </Text>
@@ -233,7 +233,7 @@ function BodyScan({navigation}) {
                       <Text
                         style={[
                           styles.label,
-                          {fontWeight: 'bold', fontSize: 15},
+                          {fontWeight: 'bold', fontSize: 15, color: 'black'},
                         ]}>
                         Blood Pressure
                       </Text>
@@ -525,7 +525,7 @@ function BodyScan({navigation}) {
                           }}
                           textstyle={{color: 'white'}}
                           onPress={() => {
-                            setBP(tempBPDia + 'mmHg ' + tempBPSys + 'mmHg');
+                            setBP(tempBPSys + 'mmHg ' + tempBPDia + 'mmHg');
 
                             setBPModalVisible(false);
                           }}></CustomButton>

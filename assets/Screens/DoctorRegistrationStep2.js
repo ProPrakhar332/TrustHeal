@@ -45,6 +45,8 @@ import dateformatter from '../API/dateformatter';
 import DaysCreator from '../API/slotscreate';
 import {fileUpload} from '../API/apiConfig';
 import apiConfig from '../API/apiConfig';
+import {checkAlphabetOnly, checkAlphanumicOnly} from '../API/Validations';
+import {CheckBox} from 'react-native-elements';
 
 const dataTitle = [
   {key: 'Dr.', value: 'Dr.'},
@@ -59,10 +61,10 @@ const dataGender = [
 ];
 const data = [
   {key: 'Dermatologist', value: 'Dermatologist'},
-  {key: 'Dietician & Nutition', value: 'Dietician & Nutition'},
+  {key: 'Dietitian and Nutritionist', value: 'Dietitian and Nutritionist'},
   {key: 'ENT', value: 'ENT'},
   {key: 'Endocrinologist', value: 'Endocrinologist'},
-  {key: 'Gastoentrologist', value: 'Gastoentrologist'},
+  {key: 'Gastroenterologist', value: 'Gastroenterologist'},
   {key: 'Gynecologist', value: 'Gynecologist'},
   {key: 'Lifestyle Diseases', value: 'Lifestyle Diseases'},
   {key: 'Ophthalmologist', value: 'Ophthalmologist'},
@@ -70,12 +72,13 @@ const data = [
   {key: 'Physician', value: 'Physician'},
   {key: 'Psychiatrist', value: 'Psychiatrist'},
   {key: 'Psychological Counselling', value: 'Psychological Counselling'},
+  {key: 'Other', value: 'Other'},
 ];
 const dataYear = [];
 
 const dataIdenDocs = [
   {key: 'Aadhar', value: 'Aadhar'},
-  {key: 'Driving License', value: 'Driving License'},
+  {key: 'Driving Licence', value: 'Driving Licence'},
   {key: 'PAN', value: 'PAN'},
   {key: 'Passport No.', value: 'Passport No.'},
 ];
@@ -148,6 +151,7 @@ const DoctorRegistration2 = ({navigation}) => {
   const [TotalYear, setTotalYear] = useState('');
   const [TotalMonths, setTotalMonths] = useState('');
   const [FinalTotalMonths, setFinalTotalMonths] = useState(0);
+  const [checkPresent, setcheckPresent] = useState(false);
   //Identification
   const [showIdenDet, setShowIdenDet] = useState(false);
   const [addMoreIdenDet, setaddMoreIdenDet] = useState(false);
@@ -299,6 +303,15 @@ const DoctorRegistration2 = ({navigation}) => {
         setTotalMonths(parseInt(diffMonth % 12));
       }
     }
+  };
+
+  calculateExpPresent = async () => {
+    let startDt = dayjs(startExpDate);
+    let endDt = dayjs();
+    let diffMonth = endDt.diff(startDt, 'month');
+    setExperienceInMonths(diffMonth);
+    setTotalYear(Math.floor(diffMonth / 12));
+    setTotalMonths(parseInt(diffMonth % 12));
   };
 
   const calculateAge = async () => {
@@ -1364,7 +1377,7 @@ const DoctorRegistration2 = ({navigation}) => {
     let amp = {
       doctorId: doctorId,
       econsulationFees: eConsulationFees,
-      followUpDuration: showFollowUp,
+      followUpDuration: Number(showFollowUp),
       followUpFees: followUpFees,
       physicalConsulationFees: physicalConsulationFees,
     };
@@ -2040,7 +2053,19 @@ const DoctorRegistration2 = ({navigation}) => {
                             );
                           // else if (certificatePath == '')
                           //   Alert.alert('Incomplete Details!', 'Please Select Document');
-                          else postMedReg();
+                          else if (!checkAlphanumicOnly(RegNo)) {
+                            Alert.alert(
+                              'Invalid Input',
+                              'Please enter letters and numbers only in Registration Number.',
+                            );
+                            setRegNo('');
+                          } else if (!checkAlphanumicOnly(RegCouncil)) {
+                            Alert.alert(
+                              'Invalid Input',
+                              'Please enter letters and numbers only in Registration Number.',
+                            );
+                            setRegCouncil('');
+                          } else postMedReg();
                         }}
                       />
                     </View>
@@ -2153,6 +2178,7 @@ const DoctorRegistration2 = ({navigation}) => {
                               justifyContent: 'center',
                               paddingHorizontal: 1,
                               paddingVertical: 1,
+                              backgroundColor: '#2b8ada',
                             }}>
                             <Text style={styles.cellHeadingText}>Actions</Text>
                           </View>
@@ -2548,6 +2574,7 @@ const DoctorRegistration2 = ({navigation}) => {
                               justifyContent: 'center',
                               paddingHorizontal: 1,
                               paddingVertical: 1,
+                              backgroundColor: '#2b8ada',
                             }}>
                             <Text style={styles.cellHeadingText}>Actions</Text>
                           </View>
@@ -2640,33 +2667,36 @@ const DoctorRegistration2 = ({navigation}) => {
                           </View>
                           <View style={{flex: 0.475}}>
                             <Text style={styles.inputLabel}>End Date</Text>
-                            <View
-                              style={{
-                                flexDirection: 'row',
-                                width: '100%',
-                                alignItems: 'center',
-                                backgroundColor: '#E8F0FE',
-                                borderRadius: 10,
-                              }}>
-                              <Text style={[styles.textInput, {flex: 1}]}>
-                                {dayjs(endExpDate).isValid()
-                                  ? dayjs(endExpDate).format('DD-MM-YYYY')
-                                  : 'DD-MM-YYYY'}
-                              </Text>
-                              <FAIcon
-                                name="calendar-alt"
-                                color={'gray'}
-                                size={20}
+
+                            {!checkPresent ? (
+                              <View
                                 style={{
-                                  marginHorizontal: 5,
-                                  position: 'absolute',
-                                  right: 0,
-                                }}
-                                onPress={() => {
-                                  setEndExpDatePickerVisible(true);
-                                }}
-                              />
-                            </View>
+                                  flexDirection: 'row',
+                                  width: '100%',
+                                  alignItems: 'center',
+                                  backgroundColor: '#E8F0FE',
+                                  borderRadius: 10,
+                                }}>
+                                <Text style={[styles.textInput, {flex: 1}]}>
+                                  {dayjs(endExpDate).isValid()
+                                    ? dayjs(endExpDate).format('DD-MM-YYYY')
+                                    : 'DD-MM-YYYY'}
+                                </Text>
+                                <FAIcon
+                                  name="calendar-alt"
+                                  color={'gray'}
+                                  size={20}
+                                  style={{
+                                    marginHorizontal: 5,
+                                    position: 'absolute',
+                                    right: 0,
+                                  }}
+                                  onPress={() => {
+                                    setEndExpDatePickerVisible(true);
+                                  }}
+                                />
+                              </View>
+                            ) : null}
                             <DateTimePickerModal
                               isVisible={isEndExpDatePickerVisible}
                               mode="date"
@@ -2680,6 +2710,27 @@ const DoctorRegistration2 = ({navigation}) => {
                               onConfirm={handleEndExpDate}
                               onCancel={() => {
                                 setEndExpDatePickerVisible(false);
+                              }}
+                            />
+                            <CheckBox
+                              title={
+                                <Text style={{fontSize: 10}}>
+                                  Present (Current)
+                                </Text>
+                              }
+                              containerStyle={{
+                                marginTop: 3,
+                                width: '100%',
+                                borderWidth: 0,
+                                padding: 0,
+                                margin: 0,
+                                backgroundColor: 'white',
+                              }}
+                              checkedColor={'#2b8ada'}
+                              checked={checkPresent}
+                              onPress={async () => {
+                                setcheckPresent(!checkPresent);
+                                await calculateExpPresent();
                               }}
                             />
                           </View>
@@ -2733,7 +2784,7 @@ const DoctorRegistration2 = ({navigation}) => {
                                 'Incomplete Details!',
                                 'Please Select Practise Start Date',
                               );
-                            else if (endExpDate == '')
+                            else if (endExpDate == '' && checkPresent == false)
                               Alert.alert(
                                 'Incomplete Details!',
                                 'Please Select Practise End Date',
@@ -2755,6 +2806,7 @@ const DoctorRegistration2 = ({navigation}) => {
                               setExperienceInMonths('');
                               setTotalYear('');
                               setTotalMonths('');
+                              setcheckPresent(false);
                               setaddMoreExpDet(false);
                             }
                           }}
@@ -2953,6 +3005,7 @@ const DoctorRegistration2 = ({navigation}) => {
                               justifyContent: 'center',
                               paddingHorizontal: 1,
                               paddingVertical: 1,
+                              backgroundColor: '#2b8ada',
                             }}>
                             <Text style={styles.cellHeadingText}>Actions</Text>
                           </View>
@@ -3320,6 +3373,7 @@ const DoctorRegistration2 = ({navigation}) => {
                                 justifyContent: 'center',
                                 paddingHorizontal: 1,
                                 paddingVertical: 1,
+                                backgroundColor: '#2b8ada',
                               }}>
                               <Text style={styles.cellHeadingText}>
                                 Actions
@@ -3385,7 +3439,21 @@ const DoctorRegistration2 = ({navigation}) => {
                                 'Incomplete Details!',
                                 'Please fill Clinic Name before saving',
                               );
-                            else {
+                            else if (!checkAlphabetOnly(clinicName)) {
+                              Alert.alert(
+                                'Inavlid Input',
+                                'Enter letters only in Clinic Name.',
+                              );
+                              setClinicName('');
+                            } else if (
+                              !checkAlphanumicOnly(specialInstruction)
+                            ) {
+                              Alert.alert(
+                                'Inavlid Input',
+                                'Enter letters and digits only in Special Instructions.',
+                              );
+                              setSpecialInstruction('');
+                            } else {
                               let p = [
                                 {
                                   clinicName: clinicName,
@@ -3654,6 +3722,7 @@ const DoctorRegistration2 = ({navigation}) => {
                                 justifyContent: 'center',
                                 paddingHorizontal: 1,
                                 paddingVertical: 1,
+                                backgroundColor: '#2b8ada',
                               }}>
                               <Text style={styles.cellHeadingText}>
                                 Actions
@@ -4148,7 +4217,7 @@ const DoctorRegistration2 = ({navigation}) => {
                       <Text style={[styles.inputLabel, {marginBottom: 7}]}>
                         Duration of Follow-Up ( in days )
                       </Text>
-                      <SelectList
+                      {/* <SelectList
                         defaultOption={'4'}
                         placeholder={showFollowUp}
                         boxStyles={{
@@ -4162,6 +4231,13 @@ const DoctorRegistration2 = ({navigation}) => {
                         }}
                         setSelected={setshowFollowUp}
                         data={dataFollowUp}
+                      /> */}
+                      <TextInput
+                        style={[styles.textInput]}
+                        keyboardType={'number-pad'}
+                        maxLength={2}
+                        onChangeText={text => setshowFollowUp(text)}
+                        value={showFollowUp}
                       />
                     </View>
                   </View>
@@ -4590,12 +4666,14 @@ const styles = StyleSheet.create({
     borderColor: '#d3d3d3',
     paddingHorizontal: 1,
     paddingVertical: 1,
+    backgroundColor: '#2b8ada',
   },
   cellHeadingText: {
     textAlign: 'center',
     fontWeight: 'bold',
     fontSize: 11,
     marginVertical: 5,
+    color: 'white',
   },
 });
 

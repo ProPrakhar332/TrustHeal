@@ -1,19 +1,19 @@
 function DaysCreator() {
-  var d = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  var d = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   var days = [];
-  var i = 1;
+  var i = 0;
   var p = new Date().getDay();
-  if (p == 6) {
-    i = 2;
-    p = -1;
-  } else if (p == 5) {
-    i = 3;
-    p = -2;
-  }
-  while (p + i < 6) {
+  // if (p == 6) {
+  //   i = 2;
+  //   p = -1;
+  // } else if (p == 5) {
+  //   i = 3;
+  //   p = -2;
+  // }
+  while (i <= 6) {
     var cur = new Date();
     cur.setDate(cur.getDate() + i);
-    var day = d[p + i];
+    var day = d[(p + i) % 7];
     days.push({
       date: JSON.stringify(cur).substring(1, 11),
       day: day,

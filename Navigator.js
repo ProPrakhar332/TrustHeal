@@ -229,34 +229,76 @@ function DoctorTabNavigator() {
         tabBarIcon: ({focused, color}) => {
           let iconName;
 
+          // if (route.name === 'Home') {
+          //   iconName = focused ? home_active : home;
+          // } else if (route.name === 'Schedule') {
+          //   iconName = focused ? consulting : consulting;
+          // } else if (route.name === 'Check Earning') {
+          //   iconName = focused ? salary : salary;
+          // } else if (route.name === 'Support') {
+          //   iconName = focused ? support : support;
+          // } else if (route.name === 'Profile') {
+          //   iconName = focused ? user : user;
+          // }
+
+          //   return (
+          //     <Image
+          //       source={iconName}
+          //       style={{
+          //         width: 20,
+          //         height: 20,
+          //         color: {color},
+          //       }}></Image>
+          //   );
+          // },
+          // tabBarActiveTintColor: 'white',
+          // tabBarInactiveTintColor: '#2B8ADA',
+          // tabBarStyle: {
+          //   backgroundColor: '#2B8ADA',
+          // },
+          // tabBarLabelStyle: {
+          //   fontSize: 10,
+          // },
+
           if (route.name === 'Home') {
-            iconName = focused ? home_active : home;
+            iconName = 'home';
           } else if (route.name === 'Schedule') {
-            iconName = focused ? consulting : consulting;
+            iconName = 'calendar-alt';
           } else if (route.name === 'Check Earning') {
-            iconName = focused ? salary : salary;
+            iconName = 'money-check';
           } else if (route.name === 'Support') {
-            iconName = focused ? support : support;
+            iconName = 'headset';
           } else if (route.name === 'Profile') {
-            iconName = focused ? user : user;
+            iconName = 'user-circle';
           }
+
           return (
-            <Image
-              source={iconName}
-              style={{
-                width: 20,
-                height: 20,
-                color: {color},
-              }}></Image>
+            // <Image
+            //   source={iconName}
+            //   style={{
+            //     width: 25,
+            //     height: 25,
+            //     color: focused ? 'white' : 'pink',
+            //   }}></Image>
+            <FAIcons
+              name={iconName}
+              size={20}
+              solid={focused}
+              color={focused ? 'white' : '#53a7ed'}
+              style={{alignSelf: 'center'}}
+            />
           );
         },
         tabBarActiveTintColor: 'white',
-        tabBarInactiveTintColor: '#2B8ADA',
+        tabBarInactiveTintColor: '#53a7ed',
         tabBarStyle: {
           backgroundColor: '#2B8ADA',
+          borderRadius: 25,
+          bottom: 10,
         },
         tabBarLabelStyle: {
-          fontSize: 10,
+          fontSize: 11,
+          paddingBottom: 3,
         },
       })}>
       <Tab.Screen
@@ -411,7 +453,7 @@ function CustomDrawerContent(props) {
         )}
       /> */}
       <DrawerItem
-        label="My Appointment"
+        label="My Appointments"
         labelStyle={styles.labelStyle}
         style={{marginVertical: 0, paddingVertical: 0}}
         onPress={() => props.navigation.navigate('MyUpcomingAppointment')}
@@ -429,7 +471,7 @@ function CustomDrawerContent(props) {
         )}
       />
       <DrawerItem
-        label="My Earning"
+        label="Check Earnings"
         labelStyle={styles.labelStyle}
         style={{marginVertical: 0, paddingVertical: 0}}
         onPress={() => props.navigation.navigate('Check Earning')}

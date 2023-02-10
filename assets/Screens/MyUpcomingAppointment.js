@@ -108,7 +108,7 @@ const MyUpcomingAppointment = ({navigation}) => {
 
   const renderCard = ({item}) => {
     return (
-      <TouchableOpacity
+      <View
         style={{
           backgroundColor: 'white',
           width: '95%',
@@ -116,7 +116,8 @@ const MyUpcomingAppointment = ({navigation}) => {
           borderRadius: 10,
           marginVertical: 5,
         }}
-        onPress={() => console.log(item)}>
+        // onPress={() => console.log(item)}
+      >
         <View
           style={{
             flexDirection: 'row',
@@ -206,10 +207,11 @@ const MyUpcomingAppointment = ({navigation}) => {
                 flexDirection: 'row',
                 fontSize: 20,
                 fontWeight: 'bold',
+                color: 'black',
               }}>
-              {item.familyDetails == null
-                ? item.patientsDetails.patientName
-                : item.familyDetails.patientName}
+              {item.familyUserName == null
+                ? item.patientName
+                : item.familyUserName}
             </Text>
             {item.consultationType == 'PHYSICAL' ? (
               <View style={{flexDirection: 'row'}}>
@@ -240,7 +242,7 @@ const MyUpcomingAppointment = ({navigation}) => {
               </View>
             ) : null}
 
-            {item.patientsDetails.age != null || item.familyDetails != null ? (
+            {item.patientDob != null || item.familyUserDob ? (
               <View style={{flexDirection: 'row'}}>
                 <View
                   style={{
@@ -252,14 +254,15 @@ const MyUpcomingAppointment = ({navigation}) => {
                 </View>
                 <View style={{flexDirection: 'column', width: '60%'}}>
                   <Text style={styles.cardText}>
-                    {item.familyDetails == null
-                      ? item.patientsDetails.age
-                      : item.familyDetails.age}
+                    {item.familyUserDob == null
+                      ? dayjs().diff(dayjs(item.patientDob), 'y')
+                      : dayjs().diff(dayjs(item.familyUserDob), 'y')}
                   </Text>
                 </View>
               </View>
             ) : null}
-            {item.patientsDetails.city != null || item.familyDetails != null ? (
+
+            {item.patientCity != null || item.familyUsercity ? (
               <View style={{flexDirection: 'row'}}>
                 <View
                   style={{
@@ -271,9 +274,9 @@ const MyUpcomingAppointment = ({navigation}) => {
                 </View>
                 <View style={{flexDirection: 'column', width: '60%'}}>
                   <Text style={styles.cardText}>
-                    {item.familyDetails == null
-                      ? item.patientsDetails.city
-                      : item.familyDetails.city}
+                    {item.familyUsercity == null
+                      ? item.patientCity
+                      : item.familyUsercity}
                   </Text>
                 </View>
               </View>
@@ -319,7 +322,8 @@ const MyUpcomingAppointment = ({navigation}) => {
               </View>
               <View style={{flexDirection: 'column', width: '60%'}}>
                 <Text style={styles.cardText}>
-                  {timeformatter(item.slotTime)} {dayextractor(item.slotDate)}
+                  {dayjs(item.slotTime).format('HH:mm')}{' '}
+                  {dayextractor(item.slotDate)}
                 </Text>
               </View>
             </View>
@@ -391,20 +395,22 @@ const MyUpcomingAppointment = ({navigation}) => {
               paddingHorizontal: 5,
               alignSelf: 'center',
               borderWidth: 1,
-              borderColor: 'gray',
+              borderColor: '#000080',
               borderRadius: 5,
             }}
             onPress={() => {
-              sethistoryId(item.patientsDetails.patientId);
+              sethistoryId(
+                item.familyId != null ? item.familyId : item.patientId,
+              );
               setHistoryModal(true);
             }}>
             <FAIcon
               name="file-pdf"
-              color={'black'}
+              color={'#000080'}
               size={15}
               style={{marginRight: 5}}
             />
-            <Text style={{fontSize: 13}}>History</Text>
+            <Text style={{fontSize: 13, color: '#000080'}}>History</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={{
@@ -422,16 +428,17 @@ const MyUpcomingAppointment = ({navigation}) => {
             }}>
             <FAIcon
               name="file-pdf"
-              color={'black'}
+              color={'gray'}
               size={15}
               style={{marginRight: 5}}
             />
             <Text style={{fontSize: 13}}>Today's Doc</Text>
           </TouchableOpacity>
         </View>
-      </TouchableOpacity>
+      </View>
     );
   };
+
   const renderQuestionAnswers = ({item}) => {
     return (
       <View style={{width: '95%', alignSelf: 'center', marginBottom: 10}}>
@@ -590,10 +597,24 @@ const MyUpcomingAppointment = ({navigation}) => {
   };
 
   const onPressPrescription = async item => {
+    let obj = {
+      age:
+        item.familyUserDob != null
+          ? dayjs().diff(dayjs(item.familyUserDob), 'y')
+          : dayjs().diff(dayjs(item.patientDob), 'y'),
+
+      patientName:
+        item.familyUserName != null ? item.familyUserName : item.patientName,
+      profilePhoto:
+        item.familyUserPhoto != null ? item.familyUserPhoto : item.patientPhoto,
+    };
+    if (item.familyUsercity != null) obj.city = item.familyUsercity;
+    else if (item.patientCity != null) obj.city = item.patientCity;
+    else obj.city = null;
+
     let p = {
-      patientDet:
-        item.familyDetails == null ? item.patientsDetails : item.familyDetails,
-      patientId: item.patientsDetails.patientId,
+      patientDet: obj,
+      patientId: item.patientNumber,
       consultationId: item.consultationId,
       clinicName: item.clinicName != null ? item.clinicName : '',
       clinicAddress: item.clinicAddress != null ? item.clinicAddress : '',

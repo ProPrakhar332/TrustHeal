@@ -81,7 +81,7 @@ function PrescriptionPreview({navigation}) {
       let c = JSON.parse(await AsyncStorage.getItem('Prescription'));
       let d = JSON.parse(await AsyncStorage.getItem('Investigation'));
       let e = JSON.parse(await AsyncStorage.getItem('Advice'));
-      let f = await AsyncStorage.getItem('FollowUpDate');
+      let f = JSON.parse(await AsyncStorage.getItem('FollowUpDate'));
       let g = await AsyncStorage.getItem('Diagnosis');
       let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
       let h = JSON.parse(await AsyncStorage.getItem('PrescriptionFor'));
@@ -92,7 +92,7 @@ function PrescriptionPreview({navigation}) {
         setpatientObj(h);
         setclinicName(h.clinicName);
         setclinicAddress(h.clinicAddress);
-        setpatientID(h.patientDet.patientId);
+        setpatientID(h.patientId);
         setconsultationId(h.consultationId);
         setpatientName(h.patientDet.patientName);
         setpatientAge(h.patientDet.age);
@@ -117,9 +117,9 @@ function PrescriptionPreview({navigation}) {
                     </div>
                     <div  style="flex:50%">
                         <p class="p-nme mb-0"  ><b>Blood Pressure - </b>` +
-          b.BPDiastolic +
-          `/` +
           b.BPSystolic +
+          `/` +
+          b.BPDiastolic +
           ` mmHg</p>
                     </div>
                 </div>
@@ -148,7 +148,7 @@ function PrescriptionPreview({navigation}) {
             c[i].instruction +
             ` for ` +
             c[i].days +
-            ` days</p></td>
+            ` day(s)</p></td>
                                 </tr>`;
         }
         setPrescription(z);
@@ -400,7 +400,7 @@ th{
                         <p class="p-nme mb-0"><b>Date :</b>` +
     dayjs(new Date()).format('DD-MM-YYYY') +
     `</p>
-                        <p class="p-nme mb-0"><b>Patient ID:</b> ${patientID}</p>
+                        <p class="p-nme mb-0"><b>Mobile Number:</b> ${patientID}</p>
                     </div>
                 </div>
                 <p class="mb-0 complaints"><b><u>Chief Complaints</u> :-  </b>` +
@@ -443,7 +443,7 @@ th{
     Advice +
     `</h2>
               <p class="mb-1 complaints" ><b><u>Follow-Up Date</u> :-   </b>` +
-    FollowUpDate +
+    dayjs(FollowUpDate).format('DD-MMM-YYYY') +
     `
  
                 
@@ -689,19 +689,25 @@ th{
   };
 
   const completeConsultationStatusUpdate = async path => {
+    //console.log(FollowUpDate);
+
     console.log(
       'header call\n\n',
       apiConfig.baseUrl +
-        '/doctor/consultation/complete/status/update?consultationid=' +
+        '/doctor/consultation/status/complete?consultationid=' +
         consultationId +
+        '&reVisitDate=' +
+        dayjs(FollowUpDate).format('YYYY-MM-DD') +
         '&prescription=' +
         encodeURI(path),
     );
     axios
       .post(
         apiConfig.baseUrl +
-          '/doctor/consultation/complete/status/update?consultationid=' +
+          '/doctor/consultation/status/complete?consultationid=' +
           consultationId +
+          '&reVisitDate=' +
+          dayjs(FollowUpDate).format('YYYY-MM-DD') +
           '&prescription=' +
           encodeURI(path),
       )
@@ -767,14 +773,14 @@ th{
                   marginVertical: 20,
                 }}
               />
-              <Text
+              {/* <Text
                 style={{
                   flex: 1,
                   fontWeight: 'bold',
                   alignSelf: 'center',
                 }}>
                 File Name:- {filePdf.name}
-              </Text>
+              </Text> */}
             </View>
           ) : null}
 
@@ -786,7 +792,7 @@ th{
               flex: 1,
               width: '90%',
             }}>
-            <CustomButton
+            {/* <CustomButton
               text="Re-Generate PDF"
               textstyle={{color: 'white', fontSize: 12}}
               style={{
@@ -799,11 +805,11 @@ th{
                 //createPDF();
                 stackOverflowPDF();
               }}
-            />
+            /> */}
 
             <CustomButton
               text="Upload Prescription"
-              textstyle={{color: 'white', fontSize: 12}}
+              textstyle={{color: 'white', fontSize: 12, fontWeight: 'bold'}}
               style={{
                 borderRadius: 10,
                 backgroundColor: 'limegreen',
@@ -816,8 +822,11 @@ th{
                 //     console.log(response);
                 //   }),
                 // );
-                await uploadPres();
                 //await onPressUpload();
+
+                await uploadPres();
+                // console.log(FollowUpDate);
+                // console.log(dayjs(FollowUpDate).format('YYYY-MM-DD'));
               }}
             />
             <CustomButton

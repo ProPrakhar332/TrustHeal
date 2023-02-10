@@ -33,7 +33,7 @@ import dayjs from 'dayjs';
 function FollowUp({navigation}) {
   const window = useWindowDimensions();
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-  const [date, setdate] = useState();
+  const [date, setdate] = useState(new Date());
   //const [minDate, setminDate] = useState();
 
   const showDatePicker = () => {
@@ -47,13 +47,13 @@ function FollowUp({navigation}) {
   };
 
   const handleConfirm = async date => {
-    setdate(dayjs(date).format('DD-MM-YYYY'));
+    setdate(date);
     hideDatePicker();
   };
 
   const pressedProceed = async () => {
     if (date != null) {
-      await AsyncStorage.setItem('FollowUpDate', date);
+      await AsyncStorage.setItem('FollowUpDate', JSON.stringify(date));
       console.log(await AsyncStorage.getItem('FollowUpDate'));
       navigation.push('PrescriptionPreview');
     } else Alert.alert('Follow- Up Date', 'Please select follow-up date');
@@ -144,7 +144,7 @@ function FollowUp({navigation}) {
                     placeholder="click on calendar icon"
                     editable={false}
                     onChangeText={text => setdate(text)}
-                    value={date}
+                    value={dayjs(date).format('DD-MM-YYYY')}
                     style={styles.searchBarText}
                   />
                   <FAIcon
@@ -159,6 +159,7 @@ function FollowUp({navigation}) {
                     mode="date"
                     onConfirm={handleConfirm}
                     onCancel={hideDatePicker}
+                    minimumDate={new Date()}
                   />
                 </View>
               </View>

@@ -174,7 +174,7 @@ const ManageSchedule = () => {
     setviewPDates('');
     let doctorId = Number(x.doctorId);
     axios
-      .get(apiConfig.baseUrl + '/slot/dates/eslot?doctorId=' + doctorId)
+      .get(apiConfig.baseUrl + '/slot/eslot/dates?doctorId=' + doctorId)
       .then(function (response) {
         setviewEDates(DayDateMaker(response.data));
       })
@@ -214,7 +214,7 @@ const ManageSchedule = () => {
       axios
         .get(
           apiConfig.baseUrl +
-            '/slot/dates/pslot?doctorId=' +
+            '/slot/pslot/dates?doctorId=' +
             doctorId +
             '&clinicId=' +
             PCclinicId,
@@ -257,7 +257,7 @@ const ManageSchedule = () => {
     axios
       .get(
         apiConfig.baseUrl +
-          '/slot/all/eslot?date=' +
+          '/slot/eslot/all?date=' +
           date +
           '&doctorId=' +
           doctorId,
@@ -279,7 +279,7 @@ const ManageSchedule = () => {
 
     console.log(
       apiConfig.baseUrl +
-        '/slot/all/pslots?doctorId=' +
+        '/slot/pslots/all?doctorId=' +
         doctorId +
         '&clinicId=' +
         PCCreateClinicID +
@@ -289,7 +289,7 @@ const ManageSchedule = () => {
     axios
       .get(
         apiConfig.baseUrl +
-          '/slot/all/pslots?doctorId=' +
+          '/slot/pslots/all?doctorId=' +
           doctorId +
           '&clinicId=' +
           PCCreateClinicID +
@@ -420,7 +420,7 @@ const ManageSchedule = () => {
       consultationStartTime:
         (ECinTimeHH.length == 1 ? '0' + ECinTimeHH : ECinTimeHH) +
         ':' +
-        (ECoutTimeHH.length == 1 ? '0' + ECoutTimeHH : ECoutTimeHH),
+        (ECinTimeMM.length == 1 ? '0' + ECinTimeMM : ECinTimeMM),
       doctorId: doctorId,
       gap: Number(ECGap),
       slotDuration: Number(ECduration),

@@ -90,6 +90,8 @@ const Header = ({title, showMenu}) => {
   const [viewESlotsDate, setviewESlotsDate] = useState([]);
   const [fees, setfees] = useState(0);
   const [slotTime, setslotTime] = useState('');
+  const [slotStartTime, setslotStartTime] = useState('');
+  const [slotEndTime, setslotEndTime] = useState('');
   //const [PaymentStatus, setPaymentStatus] = useState("");
   const [slot, setSlot] = useState('');
   const [msg, setMsg] = useState('');
@@ -127,7 +129,7 @@ const Header = ({title, showMenu}) => {
 
       let doctorId = Number(x.doctorId);
       axios
-        .get(apiConfig.baseUrl + '/slot/dates/eslot?doctorId=' + doctorId)
+        .get(apiConfig.baseUrl + '/slot/eslot/dates?doctorId=' + doctorId)
         .then(function (response) {
           setviewESlotsDate(DayDateMaker(response.data));
         })
@@ -143,13 +145,15 @@ const Header = ({title, showMenu}) => {
     let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
     var doctorId = Number(x.doctorId);
     setslotTime('');
+    setslotStartTime('');
+    setslotEndTime('');
     console.log(doctorId);
     console.log(date);
     if (date != '') {
       axios
         .get(
           apiConfig.baseUrl +
-            '/slot/all/eslot?date=' +
+            '/slot/eslot/available?date=' +
             date +
             '&doctorId=' +
             doctorId,
@@ -220,14 +224,21 @@ const Header = ({title, showMenu}) => {
             justifyContent: 'center',
             marginRight: 5,
           },
+          item.slotId == eslotsId ? {backgroundColor: '#2b8ada'} : null,
         ]}
         onPress={() => {
-          console.log(timeformatter(item.startTime).substring(0, 7));
-          setslotTime(timeformatter(item.startTime).substring(0, 7));
+          console.log(item);
+          setslotTime(timeformatter(item.startTime));
+          setslotStartTime(timeformatter(item.startTime));
+          setslotEndTime(timeformatter(item.endTime));
           seteslotsId(item.slotId);
           setMode(item.typeOfEConsultation);
         }}>
-        <Text style={styles.slotTitle}>
+        <Text
+          style={[
+            styles.slotTitle,
+            item.slotId == eslotsId ? {color: 'white'} : null,
+          ]}>
           {timeformatter(item.startTime)} to {timeformatter(item.endTime)}
         </Text>
       </TouchableOpacity>
@@ -243,15 +254,21 @@ const Header = ({title, showMenu}) => {
             justifyContent: 'center',
             marginLeft: 5,
           },
+          item.date == date ? {backgroundColor: '#2b8ada'} : null,
         ]}
         onPress={async () => {
           //console.log(item.date)
           setviewESlots('');
           setdate(item.date);
           await getSlots(item.date);
+          console.log(item);
           //getEViewSlots(item.date);
         }}>
-        <Text style={styles.bubbleTitle}>
+        <Text
+          style={[
+            styles.bubbleTitle,
+            item.date == date ? {color: 'white'} : null,
+          ]}>
           {item.day + '\n' + new Date(item.date).getDate()}
         </Text>
       </TouchableOpacity>
@@ -291,18 +308,19 @@ const Header = ({title, showMenu}) => {
       patientMobileNumber: mob,
       patientName: name,
       slotDate: date,
-      slotTime: slotTime.substring(0, 5),
+      slotStartTime: slotStartTime.substring(0, 5),
+      slotEndTime: slotEndTime.substring(0, 5),
     };
     console.log(p);
     axios
-      .post(apiConfig.baseUrl + '/app/doctor/patient/share', p)
+      .post(apiConfig.baseUrl + '/app/doctor/to/patient/share', p)
       .then(async function (response) {
         if (response.status == 200) {
           Alert.alert(
             'Slot Booked',
             `Slot successfully booked for ${p.patientName} on ${dayjs(
               p.slotDate,
-            ).format('DD-MMM-YYYY')} at ${p.slotTime}`,
+            ).format('DD-MMM-YYYY')} at ${p.slotStartTime}`,
           );
           setShareModal(false);
           await reset();
@@ -315,9 +333,11 @@ const Header = ({title, showMenu}) => {
 
   const reset = async () => {
     seteslotsId('');
-    setdate('');
+    setdate(null);
     setMode('');
     setslotTime('');
+    setslotStartTime('');
+    setslotEndTime('');
     setName('');
     setMob('');
     setfees('');
@@ -533,7 +553,6 @@ const Header = ({title, showMenu}) => {
                           justifyContent: 'center',
                           paddingLeft: 10,
                           borderColor: '#2b8ada',
-                          borderWidth: 1,
                           borderRadius: 15,
                           marginVertical: 10,
                         }}>
@@ -624,7 +643,6 @@ const Header = ({title, showMenu}) => {
                     alignSelf: 'center',
                     width: '95%',
                     minHeight: 0,
-                    maxHeight: 150,
                   }}>
                   <Text
                     style={{
@@ -635,14 +653,16 @@ const Header = ({title, showMenu}) => {
                       borderBottomColor: '#2b8ada',
                       color: '#2b8ada',
                     }}>
-                    Select Slots :- {slotTime}
+                    Select Slots :-
+                    {slotStartTime != ''
+                      ? slotStartTime + ' to ' + slotEndTime
+                      : null}
                   </Text>
                   {viewESlots.length > 0 ? (
                     <View
                       style={{
                         padding: 3,
                         borderColor: '#2b8ada',
-                        borderWidth: 1,
                         marginVertical: 10,
                         borderRadius: 15,
                       }}>
@@ -652,7 +672,7 @@ const Header = ({title, showMenu}) => {
                         keyExtractor={(item, index) => index}
                         renderItem={renderSlot}
                         numColumns={3}
-                        scrollEnabled={true}
+                        style={{alignSelf: 'center'}}
                       />
                     </View>
                   ) : (
@@ -779,7 +799,7 @@ const Header = ({title, showMenu}) => {
                     style={{
                       backgroundColor: '#2B8ADA',
                       alignSelf: 'center',
-                      flex: 0.65,
+                      flex: 0.9,
                       borderRadius: 10,
                       marginTop: 10,
                     }}
@@ -804,7 +824,7 @@ const Header = ({title, showMenu}) => {
                           'Incomplete Details',
                           'Please select the date for e-consultation',
                         );
-                      else if (slotTime == '')
+                      else if (slotStartTime == '')
                         Alert.alert(
                           'Incomplete Details',
                           'Please select the time slot for e-consultation',

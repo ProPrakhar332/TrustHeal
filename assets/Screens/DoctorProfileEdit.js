@@ -70,10 +70,10 @@ const dataGender = [
 ];
 const dataSpecialization = [
   {key: 'Dermatologist', value: 'Dermatologist'},
-  {key: 'Dietician & Nutition', value: 'Dietician & Nutition'},
+  {key: 'Dietitian and Nutritionist', value: 'Dietitian and Nutritionist'},
   {key: 'ENT', value: 'ENT'},
   {key: 'Endocrinologist', value: 'Endocrinologist'},
-  {key: 'Gastoentrologist', value: 'Gastoentrologist'},
+  {key: 'Gastroenterologist', value: 'Gastroenterologist'},
   {key: 'Gynecologist', value: 'Gynecologist'},
   {key: 'Lifestyle Diseases', value: 'Lifestyle Diseases'},
   {key: 'Ophthalmologist', value: 'Ophthalmologist'},
@@ -81,6 +81,7 @@ const dataSpecialization = [
   {key: 'Physician', value: 'Physician'},
   {key: 'Psychiatrist', value: 'Psychiatrist'},
   {key: 'Psychological Counselling', value: 'Psychological Counselling'},
+  {key: 'Other', value: 'Other'},
 ];
 const dataFollowUp = [
   {key: '1', value: '1'},
@@ -274,7 +275,7 @@ const EditProfile = ({navigation}) => {
       //console.log(x.age);
       setshowMobNo(x.contactVisibility);
       setdob(x.dob);
-      setAge(x.age + '');
+      setAge(dayjs().diff(dayjs(x.dob), 'y'));
       setPinCode(x.pincode == null ? x.pinCode : x.pincode);
       setprofilePhotoPath(
         x.profilePhotoPath != null ? x.profilePhotoPath : null,
@@ -2269,6 +2270,7 @@ const EditProfile = ({navigation}) => {
                                   justifyContent: 'center',
                                   paddingHorizontal: 1,
                                   paddingVertical: 1,
+                                  backgroundColor: '#2b8ada',
                                 }}>
                                 <Text style={styles.cellHeadingText}>
                                   Actions
@@ -2453,6 +2455,7 @@ const EditProfile = ({navigation}) => {
                                   justifyContent: 'center',
                                   paddingHorizontal: 1,
                                   paddingVertical: 1,
+                                  backgroundColor: '#2b8ada',
                                 }}>
                                 <Text style={styles.cellHeadingText}>
                                   Actions
@@ -2626,6 +2629,7 @@ const EditProfile = ({navigation}) => {
                                   justifyContent: 'center',
                                   paddingHorizontal: 1,
                                   paddingVertical: 1,
+                                  backgroundColor: '#2b8ada',
                                 }}>
                                 <Text style={styles.cellHeadingText}>
                                   Actions
@@ -2853,30 +2857,15 @@ const EditProfile = ({navigation}) => {
                           Duration of Follow-Up
                         </Text>
 
-                        {!ConsultFeesEdit ? (
-                          <TextInput
-                            style={[
-                              styles.textInput,
-                              {backgroundColor: '#d0e0fc'},
-                            ]}
-                            value={showFollowUp + ''}
-                            editable={ConsultFeesEdit}
-                          />
-                        ) : (
-                          <SelectList
-                            placeholder={showFollowUp}
-                            boxStyles={{
-                              backgroundColor: '#e8f0fe',
-                              borderWidth: 0,
-                            }}
-                            dropdownTextStyles={{
-                              color: '#2b8ada',
-                              fontWeight: 'bold',
-                            }}
-                            setSelected={setshowFollowUp}
-                            data={dataFollowUp}
-                          />
-                        )}
+                        <TextInput
+                          style={[
+                            styles.textInput,
+                            {backgroundColor: '#d0e0fc'},
+                          ]}
+                          onChangeText={text => setshowFollowUp(text)}
+                          value={showFollowUp + ''}
+                          editable={ConsultFeesEdit}
+                        />
                       </View>
                     </View>
                   </View>
@@ -3667,6 +3656,7 @@ const EditProfile = ({navigation}) => {
                           fontWeight: 'bold',
                           fontSize: 16,
                           padding: 5,
+                          color: 'black',
                         }}>
                         Document Viewer
                       </Text>
@@ -3815,7 +3805,7 @@ const EditProfile = ({navigation}) => {
                   width: '100%',
                   padding: 10,
                 }}>
-                Updating Please Wait...
+                Loading...
               </Text>
             </View>
           </View>
@@ -4101,12 +4091,14 @@ const styles = StyleSheet.create({
     borderColor: '#d3d3d3',
     paddingHorizontal: 1,
     paddingVertical: 1,
+    backgroundColor: '#2b8ada',
   },
   cellHeadingText: {
     textAlign: 'center',
     fontWeight: 'bold',
     fontSize: 10,
     marginVertical: 3,
+    color: 'white',
   },
   ButtonView: {
     alignContent: 'space-between',

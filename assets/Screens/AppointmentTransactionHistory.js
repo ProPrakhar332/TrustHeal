@@ -54,7 +54,10 @@ function CheckEarnings({navigation}) {
         )
         .then(function (response) {
           setisLoading(false);
-          if (response.status == 200) setData(response.data);
+          if (response.status == 200) {
+            console.log(response.data);
+            setData(response.data);
+          }
           //console.log(response.data);
         })
         .catch(function (error) {
@@ -125,10 +128,10 @@ function CheckEarnings({navigation}) {
           }}>
           <View style={[styles.detailsRow]}>
             <View style={styles.detailsCol}>
-              <Text style={styles.detailsText}>Patient UHID</Text>
+              <Text style={styles.detailsText}>Patient Mobile No.</Text>
             </View>
             <View style={{flexDirection: 'column'}}>
-              <Text style={styles.detailsText}>{item.consultationId}</Text>
+              <Text style={styles.detailsText}>{item.patientNumber}</Text>
             </View>
           </View>
           <View style={[styles.detailsRow]}>
@@ -137,9 +140,9 @@ function CheckEarnings({navigation}) {
             </View>
             <View style={{flexDirection: 'column'}}>
               <Text style={styles.detailsText}>
-                {item.familyDetails == null
-                  ? item.patientsDetails.patientName
-                  : item.familyDetails.patientName}
+                {item.familyUserName == null
+                  ? item.patientName
+                  : item.familyUserName}
               </Text>
             </View>
           </View>
@@ -156,12 +159,13 @@ function CheckEarnings({navigation}) {
                     ? 'phone-alt'
                     : 'hospital-user'
                 }
-                color={'#2B8ADA'}
-                style={[styles.detailsText, {fontSize: 15}]}
+                style={[styles.detailsText, {fontSize: 15, color: '#2B8ADA'}]}
               />
             </View>
           </View>
-          <View style={[styles.detailsRow]}>
+          {/* Payment Mode */}
+
+          {/* <View style={[styles.detailsRow]}>
             <View style={styles.detailsCol}>
               <Text style={styles.detailsText}>Payment Mode</Text>
             </View>
@@ -170,14 +174,14 @@ function CheckEarnings({navigation}) {
                 {item.consultationType != 'PHYSICAL' ? 'Online' : 'Offline'}
               </Text>
             </View>
-          </View>
+          </View> */}
 
           <View style={[styles.detailsRow]}>
             <View style={styles.detailsCol}>
-              <Text style={styles.detailsText}>Pay Amount</Text>
+              <Text style={styles.detailsText}>Paid Amount</Text>
             </View>
             <View style={{flexDirection: 'column'}}>
-              <Text style={styles.detailsText}>{item.fees}</Text>
+              <Text style={styles.detailsText}>₹ {item.fees}</Text>
             </View>
           </View>
         </View>
@@ -223,7 +227,7 @@ function CheckEarnings({navigation}) {
 
             {/* List of Payments */}
 
-            {Data === '' ? (
+            {Data != '' ? (
               <FlatList
                 data={Data}
                 keyExtractor={item => item.consultationId}
@@ -336,6 +340,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     alignSelf: 'center',
     paddingHorizontal: 10,
+    color: 'black',
   },
 });
 
