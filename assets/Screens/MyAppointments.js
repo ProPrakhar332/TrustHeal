@@ -20,6 +20,8 @@ import HeaderPatient from '../Components/HeaderPatient';
 import FAIcons from 'react-native-vector-icons/FontAwesome5';
 import IonIcons from 'react-native-vector-icons/Ionicons';
 import Entypo from 'react-native-vector-icons/Entypo';
+import OptionsMenu from 'react-native-option-menu';
+import apiConfig from '../API/apiConfig';
 
 //images
 import doctor_m from '../Resources/doctor_m.png';
@@ -150,40 +152,42 @@ const dataCompleted = [
 ];
 const UpcomingServiceResponse = [
   {
+    city: 'Delhi',
     clinicAddress: 'Rajpur Road',
     clinicName: 'Max Hospital',
     consultationId: 1,
     consultationStatus: 'BOOKED',
     consultationType: 'PHONE_CALL',
+    doctorDob: '1947-06-14',
+    doctorEmail: 'abc@geu.ac.in',
     doctorId: 1,
     doctorName: 'Dr. Imran Khan',
     doctorPhoto: 0,
     familyId: 0,
     familyMemberName: '',
     feesAmout: 400,
-    followUpDate: '2023-02-07',
     paymentStatus: 'PAY_ON_CLINIC',
-    prescriptionPath: 0,
     slotDate: '2023-02-07',
     slotEndTime: '11:30',
     slotStartTime: '11:00',
     specialization: ['ENT', 'Dermatology', 'Physician'],
   },
   {
+    city: 'Delhi',
     clinicAddress: 'Lal Pul Road',
     clinicName: 'Mahant Indresh',
     consultationId: 2,
     consultationStatus: 'BOOKED',
     consultationType: 'PHYSICAL',
+    doctorDob: '1947-06-14',
+    doctorEmail: 'abc@geu.ac.in',
     doctorId: 2,
     doctorName: 'Dr. Wolfeschlegelsteinhausenbergerdorff Sr.',
     doctorPhoto: 0,
     familyId: 0,
     familyMemberName: '',
     feesAmout: 900,
-    followUpDate: '2023-02-07',
     paymentStatus: 'PAY_ON_CLINIC',
-    prescriptionPath: 0,
     slotDate: '2023-02-07',
     slotEndTime: '20:30',
     slotStartTime: '20:27',
@@ -193,167 +197,99 @@ const UpcomingServiceResponse = [
 
 const CompletedServiceResponse = [
   {
-    clinicAddress: 'string',
-    clinicName: 'string',
-    consultationId: 0,
-    consultationStatus: 'BOOKED',
-    consultationType: 'PHONE_CALL',
-    doctorId: 0,
-    doctorName: 'string',
-    doctorPhoto: 0,
-    familyId: 0,
-    familyMemberName: 'string',
-    feesAmout: 0,
-    followUpEligible: '2023-02-10',
+    clinicAddress: 'DL Road',
+    clinicName: 'Vaish Nursing Home',
+    consultationId: 1,
+    consultationStatus: 'COMPLETED',
+    consultationType: 'PHYSICAL',
+    doctorId: 1,
+    doctorName: 'Dr. Amit Vaish',
+    doctorPhoto: 215448540,
+    //familyId: 0,
+    //familyMemberName: 'string',
+    feesAmout: 400,
+    followUpEligible: '2023-02-21',
     paymentStatus: 'PAY_ON_CLINIC',
-    prescriptionPath: 0,
-    reVisitDate: '2023-02-10',
-    slotDate: '2023-02-10',
+    prescriptionPath: 2154564614,
+    reVisitDate: '2023-04-11',
+    slotDate: '2023-02-11',
     slotEndTime: '11:00',
-    slotStartTime: '11:00',
-    specialization: ['string'],
+    slotStartTime: '10:00',
+    specialization: ['ENT,Dematology'],
   },
   {
-    clinicAddress: 'string',
-    clinicName: 'string',
-    consultationId: 0,
-    consultationStatus: 'BOOKED',
-    consultationType: 'PHONE_CALL',
-    doctorId: 0,
-    doctorName: 'string',
-    doctorPhoto: 0,
-    familyId: 0,
-    familyMemberName: 'string',
-    feesAmout: 0,
-    followUpEligible: '2023-02-10',
+    consultationId: 2,
+    consultationStatus: 'COMPLETED',
+    consultationType: 'VIDEO_CALL',
+    doctorId: 2,
+    doctorName: 'Dr. Sumit Kumar',
+    doctorPhoto: 1545464844,
+    //familyId: 0,
+    //familyMemberName: 'string',
+    feesAmout: 600,
+    followUpEligible: '2023-02-16',
     paymentStatus: 'PAY_ON_CLINIC',
-    prescriptionPath: 0,
-    reVisitDate: '2023-02-10',
-    slotDate: '2023-02-10',
-    slotEndTime: '11:00',
-    slotStartTime: '11:00',
-    specialization: ['string'],
+    prescriptionPath: 1548468680,
+    reVisitDate: '2023-03-11',
+    slotDate: '2023-02-09',
+    slotEndTime: '23:00',
+    slotStartTime: '22:00',
+    specialization: ['Orthopedics,Dermatology'],
   },
 ];
 
-const ItemCompleted = ({
-  name,
-  img,
-  spl,
-  date,
-  mode,
-  type,
-  slotttime,
-  fees,
-  pres,
-  history,
-}) => (
-  <View
-    style={{
-      backgroundColor: 'white',
-      borderRadius: 10,
-      padding: 5,
-      margin: 5,
-      flexDirection: 'column',
-      // width: 290,
-      // height: 80,
-    }}>
-    <View
-      style={{
-        flexDirection: 'row',
-        alignSelf: 'center',
-        justifyContent: 'space-evenly',
-      }}>
-      {/* Image */}
-      <View
-        style={{
-          flexDirection: 'column',
-          alignSelf: 'center',
-          margin: 5,
-          flex: 0.3,
-        }}>
-        <Image
-          source={img}
-          style={{
-            width: 100,
-            height: 100,
-            borderRadius: 10,
-            alignSelf: 'center',
-          }}
-        />
-      </View>
-      {/* Details */}
-      <View style={{flex: 0.6, justifyContent: 'space-evenly'}}>
-        <Text style={{fontSize: 17, fontWeight: 'bold'}}>{name}</Text>
-        <Text style={{fontSize: 12, color: 'gray'}}>{spl}</Text>
-        <Text style={{fontSize: 12, color: '#2B8ADA'}}>{type}</Text>
-        <Text style={{fontSize: 12}}>Paid: {fees}</Text>
-
-        <View
-          style={{
-            flexDirection: 'row',
-            marginVertical: 3,
-            justifyContent: 'space-between',
-          }}>
-          <TouchableOpacity
-            style={{
-              padding: 5,
-              backgroundColor: '#2B8ADA',
-              alignSelf: 'center',
-              borderRadius: 5,
-              borderWidth: 2,
-              flex: 0.45,
-              borderColor: '#2B8ADA',
-            }}>
-            <Text
-              style={{
-                fontSize: 10,
-                alignSelf: 'center',
-                fontWeight: 'bold',
-                color: 'white',
-              }}>
-              {date}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={{
-              borderWidth: 2,
-              flex: 0.45,
-              borderColor: '#2B8ADA',
-              padding: 5,
-              borderRadius: 5,
-            }}>
-            <Text
-              style={{
-                fontSize: 10,
-                alignSelf: 'center',
-                fontWeight: 'bold',
-                color: '#2B8ADA',
-              }}>
-              {slotttime}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-      {/* Options Button */}
-      <TouchableOpacity style={{flex: 0.1, alignSelf: 'flex-start'}}>
-        <FAIcons
-          name="ellipsis-h"
-          color={'black'}
-          size={15}
-          style={{
-            padding: 5,
-            borderRadius: 20,
-          }}
-        />
-      </TouchableOpacity>
-    </View>
-  </View>
-);
 function MyAppointment({navigation}) {
   const [upcomingActive, setupcomingActive] = useState(true);
   const [completedActive, setcompletedActive] = useState(false);
-  const [UpcomingDetails, setUpcomingDetails] = useState([]);
+  const [UpcomingData, setUpcomingData] = useState([]);
+  const [CompletedData, setCompletedData] = useState([]);
+
+  useEffect(() => {
+    const getUpcoming = async () => {
+      axios
+        .get(apiConfig.baseUrl + '/patient/upcoming/consultations?patientId=1')
+        .then(function (response) {
+          console.log(
+            '\n=========================== UPCOMING CONSULTATIONS ====================================\n',
+          );
+          console.log(response.data);
+          if (response.status == 200) {
+            //setUpcomingData(response.data);
+            setUpcomingData(UpcomingServiceResponse);
+          }
+        })
+        .catch(error => {
+          Alert.alert('Error Upcoming', `${error}`);
+        });
+    };
+
+    if (upcomingActive == true) getUpcoming();
+  }, [upcomingActive]);
+
+  useEffect(() => {
+    const getCompleted = async () => {
+      axios
+        .get(
+          apiConfig.baseUrl +
+            '/patient/complete/consultations?max=5&min=0&patientId=1',
+        )
+        .then(function (response) {
+          console.log(
+            '\n=========================== COMPLETED CONSULTATIONS ====================================\n',
+          );
+          console.log(response.data);
+          if (response.status == 200) {
+            // setCompletedData(response.data);
+            setCompletedData(CompletedServiceResponse);
+          }
+        })
+        .catch(error => {
+          Alert.alert('Error Completed', `${error}`);
+        });
+    };
+
+    if (completedActive == true) getCompleted();
+  }, [completedActive]);
 
   const renderUpcomingConsultations = ({item}) => {
     return (
@@ -400,7 +336,7 @@ function MyAppointment({navigation}) {
             {/* <Text style={{fontSize: 12, color: 'gray'}}>
           {item.specialization}
         </Text> */}
-            <Text style={{fontSize: 12, color: '#033158'}}>
+            <Text style={{fontSize: 12, color: 'gray', fontWeight: 'bold'}}>
               {item.specialization.map(index => {
                 return item.specialization.indexOf(index) !=
                   item.specialization.length - 1
@@ -478,20 +414,154 @@ function MyAppointment({navigation}) {
     );
   };
 
-  const renderCompleted = ({item}) => (
-    <ItemCompleted
-      name={item.name}
-      img={item.img}
-      spl={item.spl}
-      date={item.date}
-      mode={item.mode}
-      type={item.type}
-      slotttime={item.slottime}
-      fees={item.fees}
-      pres={item.pres}
-      history={item.history}
-    />
-  );
+  const renderCompleted = ({item}) => {
+    return (
+      <View
+        style={{
+          backgroundColor: 'white',
+          borderRadius: 10,
+          padding: 5,
+          margin: 5,
+          flexDirection: 'column',
+          // width: 290,
+          // height: 80,
+        }}
+        key={item.consultationId}>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignSelf: 'center',
+            justifyContent: 'space-evenly',
+          }}>
+          {/* Image */}
+          <View
+            style={{
+              flexDirection: 'column',
+              alignSelf: 'center',
+              margin: 5,
+              flex: 0.3,
+            }}>
+            <Image
+              source={doctor_m}
+              style={{
+                width: 100,
+                height: 100,
+                borderRadius: 10,
+                alignSelf: 'center',
+              }}
+            />
+          </View>
+          {/* Details */}
+          <View style={{flex: 0.6, justifyContent: 'space-evenly'}}>
+            <Text style={{fontSize: 17, fontWeight: 'bold', color: 'black'}}>
+              {item.doctorName}
+            </Text>
+            <Text style={{fontSize: 12, color: 'gray', fontWeight: 'bold'}}>
+              {item.specialization.map(index => {
+                return item.specialization.indexOf(index) !=
+                  item.specialization.length - 1
+                  ? index + ', '
+                  : index;
+              })}
+            </Text>
+            <View style={{flexDirection: 'row'}}>
+              <FAIcons
+                name={
+                  item.consultationType == 'PHYSICAL'
+                    ? 'users'
+                    : item.consultationType == 'PHONE_CALL'
+                    ? 'phone-alt'
+                    : 'video'
+                }
+                color={'#2b8ada'}
+                size={12}
+                solid={false}
+                style={{
+                  alignSelf: 'center',
+                  marginRight: 5,
+                }}
+              />
+              <Text style={{fontSize: 12, color: '#2B8ADA'}}>
+                {item.consultationType == 'PHYSICAL'
+                  ? 'P-Consultation'
+                  : 'E-Consultation'}
+              </Text>
+            </View>
+
+            {item.consultationType == 'PHYSICAL' ? (
+              <View style={{flexDirection: 'row'}}>
+                <Text style={{fontSize: 12}}>
+                  {item.clinicName + ' | ' + item.clinicAddress}
+                </Text>
+              </View>
+            ) : null}
+
+            <Text style={{fontSize: 12, color: '#000080'}}>
+              Paid: ₹ {item.feesAmout}
+            </Text>
+
+            <View
+              style={{
+                flexDirection: 'row',
+                marginVertical: 3,
+                justifyContent: 'space-between',
+              }}>
+              <TouchableOpacity
+                style={{
+                  padding: 5,
+                  backgroundColor: '#2B8ADA',
+                  alignSelf: 'center',
+                  borderRadius: 5,
+                  borderWidth: 2,
+                  flex: 0.45,
+                  borderColor: '#2B8ADA',
+                }}>
+                <Text
+                  style={{
+                    fontSize: 10,
+                    alignSelf: 'center',
+                    fontWeight: 'bold',
+                    color: 'white',
+                  }}>
+                  {dayjs(item.slotDate).format('DD-MMM-YYYY')}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  borderWidth: 2,
+                  flex: 0.45,
+                  borderColor: '#2B8ADA',
+                  padding: 5,
+                  borderRadius: 5,
+                }}>
+                <Text
+                  style={{
+                    fontSize: 10,
+                    alignSelf: 'center',
+                    fontWeight: 'bold',
+                    color: '#2B8ADA',
+                  }}>
+                  {timeformatter(item.slotStartTime)}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+          {/* Options Button */}
+          <TouchableOpacity style={{flex: 0.1, alignSelf: 'flex-start'}}>
+            <FAIcons
+              name="ellipsis-h"
+              color={'black'}
+              size={15}
+              style={{
+                padding: 5,
+                borderRadius: 20,
+              }}
+            />
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
 
   return (
     <KeyboardAvoidingView
@@ -576,19 +646,31 @@ function MyAppointment({navigation}) {
           </View>
           {upcomingActive ? (
             <View style={{alignSelf: 'center', width: '90%'}}>
-              <FlatList
-                data={UpcomingServiceResponse}
-                keyExtractor={item => item.consultationId}
-                renderItem={renderUpcomingConsultations}
-              />
+              {UpcomingData != '' ? (
+                <FlatList
+                  data={UpcomingData}
+                  keyExtractor={item => item.consultationId}
+                  renderItem={renderUpcomingConsultations}
+                />
+              ) : (
+                <Text style={{alignSelf: 'center', color: 'gray'}}>
+                  No New Upcoming Consulations
+                </Text>
+              )}
             </View>
           ) : (
             <View style={{alignSelf: 'center', width: '90%'}}>
-              <FlatList
-                data={dataCompleted}
-                keyExtractor={item => item.name}
-                renderItem={renderCompleted}
-              />
+              {CompletedData != '' ? (
+                <FlatList
+                  data={CompletedData}
+                  keyExtractor={item => item.consultationId}
+                  renderItem={renderCompleted}
+                />
+              ) : (
+                <Text style={{alignSelf: 'center', color: 'gray'}}>
+                  No Data Found for Completed Consulations
+                </Text>
+              )}
             </View>
           )}
         </ScrollView>

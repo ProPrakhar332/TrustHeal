@@ -89,10 +89,8 @@ const details = {
       specialInstruction: 'string',
     },
   ],
-  consultationLanguage: {
-    languages: ['English', 'Hindi', 'Telgu'],
-  },
-  doctorFeesInfo: {
+  languages: ['English', 'Hindi', 'Telgu'],
+  feesInfo: {
     econsultationFees: 300,
     followUpDuration: 10,
     followUpFees: 100,
@@ -117,17 +115,15 @@ const details = {
     registrationNo: 'bjs734ba8f',
     registrationYear: 1968,
   },
-  slotsDate: {
-    availableDates: [
-      '2023-01-30',
-      '2023-01-31',
-      '2023-02-01',
-      '2023-02-02',
-      '2023-02-03',
-      '2023-02-04',
-      '2023-02-05',
-    ],
-  },
+  eslotDates: [
+    '2023-01-30',
+    '2023-01-31',
+    '2023-02-01',
+    '2023-02-02',
+    '2023-02-03',
+    '2023-02-04',
+    '2023-02-05',
+  ],
 };
 const slotsresponse = [
   {
@@ -249,8 +245,8 @@ function DoctorDetails({navigation}) {
   const [clinicAddress, setclinicAddress] = useState('');
   const [mode, setMode] = useState(null);
   useEffect(() => {
-    setEDays(DayDateMaker(details.slotsDate));
-    setPDays(DayDateMaker(details.slotsDate));
+    setEDays(DayDateMaker(details.eslotDates));
+    setPDays(DayDateMaker(details.eslotDates));
     setClinicsDropDown(clinicMaker(details.clinicInfo));
 
     // console.log(layout.width);
@@ -263,7 +259,7 @@ function DoctorDetails({navigation}) {
     setESlots(p);
   }, [selectedDate]);
   useEffect(() => {
-    setPDays(DayDateMaker(details.slotsDate));
+    setPDays(DayDateMaker(details.eslotDates));
     // console.log(layout.width);
   }, []);
   useEffect(() => {
@@ -286,8 +282,8 @@ function DoctorDetails({navigation}) {
     setEducation(details.educationInfo);
     setExperience(details.exprienceInfo);
     setClinicDet(details.clinicInfo);
-    setLanguages(details.consultationLanguage.languages);
-    setFees(details.doctorFeesInfo);
+    setLanguages(details.languages);
+    setFees(details.feesInfo);
   }, []);
 
   const languages = [
@@ -1310,14 +1306,14 @@ function DoctorDetails({navigation}) {
                       <Text style={styles.subHeading}>Physical Fees</Text>
                       <Text style={{fontSize: 12}}>
                         {'₹ '}
-                        {details.doctorFeesInfo.phyiscalConsultationFees}
+                        {details.feesInfo.phyiscalConsultationFees}
                       </Text>
                     </View>
                     <View style={{flexDirection: 'column'}}>
                       <Text style={styles.subHeading}>E-Consultation Fees</Text>
                       <Text style={{fontSize: 12}}>
                         {'₹ '}
-                        {details.doctorFeesInfo.econsultationFees}
+                        {details.feesInfo.econsultationFees}
                       </Text>
                     </View>
                   </View>
@@ -1326,13 +1322,13 @@ function DoctorDetails({navigation}) {
                       <Text style={styles.subHeading}>Follow-Up Fees</Text>
                       <Text style={{fontSize: 12}}>
                         {'₹ '}
-                        {details.doctorFeesInfo.followUpFees}
+                        {details.feesInfo.followUpFees}
                       </Text>
                     </View>
                     <View style={{flexDirection: 'column'}}>
                       <Text style={styles.subHeading}>Follow Up Duration</Text>
                       <Text style={{fontSize: 12}}>
-                        {details.doctorFeesInfo.followUpDuration}
+                        {details.feesInfo.followUpDuration}
                         {' days'}
                       </Text>
                     </View>

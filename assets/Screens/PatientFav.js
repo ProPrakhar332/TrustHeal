@@ -30,6 +30,7 @@ import doctor_m from '../Resources/doctor_m.png';
 import doctor_f from '../Resources/doctor_f.jpg';
 
 function PatientFav({navigation}) {
+  const [doctorDataList, setdoctorDataList] = useState([]);
   const [search, setsearch] = useState('');
   const [searchData, setsearchData] = useState([]);
   const [SortBy, setSortBy] = useState(false);
@@ -57,6 +58,28 @@ function PatientFav({navigation}) {
   const [FilterGenderValue, setFilterGenderValue] = useState(null);
   const [FilterMode, setFilterMode] = useState(false);
   const [FilterModeValue, setFilterModeValue] = useState(null);
+
+  useEffect(() => {
+    const getFavDoctor = async () => {
+      axios
+        .get(apiConfig.baseUrl + '/patient/favourite/doctor?patientId=1')
+        .then(function (response) {
+          console.log(
+            '\n=========================== FAVOURITE DOCTORS ====================================\n',
+          );
+          console.log(response.data);
+          if (response.status == 200) {
+            //setdoctorDataList(response.data);
+            setdoctorDataList(serviceResponse);
+          }
+        })
+        .catch(error => {
+          Alert.alert('Error Favourite', `${error}`);
+        });
+    };
+
+    getFavDoctor();
+  }, []);
 
   const dataExp = [
     {min: 0, max: 24},
@@ -270,6 +293,28 @@ function PatientFav({navigation}) {
       img: doctor_m,
     },
   ];
+  const serviceResponse = [
+    {
+      city: 'Delhi',
+      degrees: ['MBBS'],
+      dob: '1968-05-21',
+      doctorId: 1,
+      doctorName: 'Dr. Amit Jain',
+      photoPath: 31453410,
+      specialization: ['ENT', 'Dermatologist'],
+      totalExprienceInMonths: 30,
+    },
+    {
+      city: 'Doon',
+      degrees: ['MBBS', 'BDS', 'MD'],
+      dob: '1968-02-11',
+      doctorId: 2,
+      doctorName: 'Dr. Vishal Gupta',
+      photoPath: 46546540,
+      specialization: ['Pediatrics'],
+      totalExprienceInMonths: 60,
+    },
+  ];
 
   const renderDoctor = ({item}) => {
     return (
@@ -282,7 +327,8 @@ function PatientFav({navigation}) {
           marginVertical: 5,
           justifyContent: 'space-evenly',
           marginTop: 10,
-        }}>
+        }}
+        key={item.doctorId}>
         <View
           style={{
             padding: 10,
@@ -296,7 +342,8 @@ function PatientFav({navigation}) {
               justifyContent: 'center',
             }}
             onPress={() => navigation.navigate('DoctorDetails')}>
-            <Text
+            {/* Tag */}
+            {/* <Text
               style={[
                 styles.tag,
                 {
@@ -304,10 +351,11 @@ function PatientFav({navigation}) {
                 },
               ]}>
               Active
-            </Text>
+            </Text> */}
+
             {/* Image */}
             <Image
-              source={item.img}
+              source={doctor_m}
               style={{
                 width: 90,
                 height: 90,
@@ -332,12 +380,24 @@ function PatientFav({navigation}) {
                 fontWeight: 'bold',
                 color: '#033158',
               }}>
-              {item.name}
+              {item.doctorName}
+            </Text>
+            {/* Doctor Degree */}
+            <Text style={{fontSize: 12, color: '#2b8ada', fontWeight: 'bold'}}>
+              {item.degrees.map(index => {
+                return item.degrees.indexOf(index) != item.degrees.length - 1
+                  ? index + ', '
+                  : index;
+              })}
             </Text>
             {/* Doctor Specialization */}
-            <Text
-              style={[styles.CardText, {color: '#2b8ada', fontWeight: 'bold'}]}>
-              {item.spl}
+            <Text style={{fontSize: 12, color: 'gray', fontWeight: 'bold'}}>
+              {item.specialization.map(index => {
+                return item.specialization.indexOf(index) !=
+                  item.specialization.length - 1
+                  ? index + ', '
+                  : index;
+              })}
             </Text>
             {/* Doctor Experience */}
             <View style={{flexDirection: 'row', marginVertical: 3}}>
@@ -347,7 +407,9 @@ function PatientFav({navigation}) {
                 color={'black'}
                 style={{marginRight: 5, alignSelf: 'center'}}
               />
-              <Text style={styles.CardText}>{item.exp}</Text>
+              <Text style={styles.CardText}>
+                {Math.ceil(item.totalExprienceInMonths / 12)} year(s)
+              </Text>
             </View>
             {/* Doctor Location */}
             <View
@@ -362,11 +424,11 @@ function PatientFav({navigation}) {
                 style={{marginRight: 5, alignSelf: 'center'}}
               />
               <Text style={[styles.CardText, {color: 'black'}]}>
-                {item.loc}
+                {item.city}
               </Text>
             </View>
             {/* Doctor Fees */}
-            <View
+            {/* <View
               style={{
                 flexDirection: 'row',
               }}>
@@ -379,20 +441,36 @@ function PatientFav({navigation}) {
               <Text style={[styles.CardText, {fontWeight: 'bold'}]}>
                 {item.fees}
               </Text>
-            </View>
+            </View> */}
           </TouchableOpacity>
           {/* Like Button */}
-          <TouchableOpacity style={{flex: 0.1}}>
-            <FAIcons
-              name="heart"
-              color={'#2b8ada'}
-              solid={item.fav}
-              size={25}
-            />
+          <TouchableOpacity
+            style={{flex: 0.1}}
+            onPress={() => removeFavourite(item)}>
+            <FAIcons name="heart" color={'#2b8ada'} solid={true} size={25} />
           </TouchableOpacity>
         </View>
       </View>
     );
+  };
+
+  const removeFavourite = async item => {
+    axios
+      .delete(
+        apiConfig.baseUrl +
+          '/patient/favourite/doctor/delete?doctorId=400&patientId=400',
+      )
+      .then(response => {
+        if (response.status == 200) {
+          Alert.alert(
+            'Doctor Removed',
+            `${item.doctorName} has been removed from Favourite List.`,
+          );
+        }
+      })
+      .catch(error => {
+        console.log('Error Favourite', `${error}`);
+      });
   };
 
   return (
@@ -1198,11 +1276,18 @@ function PatientFav({navigation}) {
 
           {/* Doctor Cards */}
           <View>
-            <FlatList
-              data={doctorData}
-              key={item => item.doctorId}
-              renderItem={renderDoctor}
-            />
+            {doctorDataList != '' ? (
+              <FlatList
+                data={doctorDataList}
+                key={item => item.doctorId}
+                renderItem={renderDoctor}
+              />
+            ) : (
+              <Text
+                style={{alignSelf: 'center', color: 'gray', marginTop: 100}}>
+                No Favourite Doctor(s)
+              </Text>
+            )}
           </View>
         </ScrollView>
       </SafeAreaView>

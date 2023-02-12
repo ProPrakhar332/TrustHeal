@@ -1,7 +1,7 @@
 function DayDateMaker(item) {
-  var d = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  var d = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   var days = [];
-  var cd = item.availableDates;
+  var cd = item.availableDates == undefined ? item : item.availableDates;
   var i = 0;
   while (i < cd.length) {
     let p = {
