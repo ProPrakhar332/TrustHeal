@@ -1700,7 +1700,28 @@ function DoctorDetails({navigation}) {
                 width: 100,
                 padding: 3,
               }}
-              onPress={() => setconsultationModeModal(true)}
+              onPress={() => {
+                // console.log(selectedSlotTime);
+
+                if (selectedDate != null)
+                  Alert.alert(
+                    'Confirm Booking',
+                    `Are you sure you want to book an appointment?\n\nOn Date:- ${dayjs(
+                      selectedDate,
+                    ).format(
+                      'DD-MMM-YYYY',
+                    )}\nAt Time:- ${selectedSlotTime}\nMode:- ${mode}`,
+                  );
+                else if (selectedPDate != null)
+                  Alert.alert(
+                    'Confirm Booking',
+                    `Are you sure you want to book an appointment?\n\nClinic:- ${clinicName}\nOn Date:- ${dayjs(
+                      selectedPDate,
+                    ).format(
+                      'DD-MMM-YYYY',
+                    )}\nAt Time:- ${selectedPSlotTime}\nMode:- ${mode}`,
+                  );
+              }}
             />
           </View>
         ) : null}
