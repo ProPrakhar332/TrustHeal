@@ -45,19 +45,6 @@ const RoleScreen = ({navigation}) => {
       }
     };
     onLoadSetData();
-    // console.log(
-    //   '======================= DEVICE INFO =====================================',
-    // );
-    // DeviceInfo.getDevice().then(device => {
-    //   console.log('Device : ', device);
-    // });
-    // console.log('DeviceInfo : ', DeviceInfo.getDeviceId());
-    // DeviceInfo.getIpAddress().then(ip => {
-    //   console.log('IP : ', ip); // "92.168.32.44"
-    // });
-    // DeviceInfo.getMacAddress().then(mac => {
-    //   console.log('MAC : ', mac);
-    // });
   }, []);
 
   const onPatient = () => {

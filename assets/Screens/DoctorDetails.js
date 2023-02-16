@@ -206,6 +206,9 @@ const dataClinic = [
 ];
 
 function DoctorDetails({navigation}) {
+  const [DocObj, setDocObj] = useState(null);
+  const [DocDet, setDocDet] = useState(null);
+
   const [showGenInfo, setShowGenInfo] = useState(false);
   const [GenInfo, setGenInfo] = useState([]);
   const [showLangDet, setshowLangDet] = useState(false);
@@ -233,6 +236,7 @@ function DoctorDetails({navigation}) {
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedSlotTime, setSelectedSlotTime] = useState(null);
   const [selectedSlotId, setselectedSlotId] = useState(null);
+  const [consultationType, setconsultationType] = useState(null);
   const [EDays, setEDays] = useState([]);
   const [ESlots, setESlots] = useState([]);
   const [selectedPDate, setSelectedPDate] = useState(null);
@@ -241,27 +245,91 @@ function DoctorDetails({navigation}) {
   const [PDays, setPDays] = useState([]);
   const [PSlots, setPSlots] = useState([]);
   const [ClinicsDropDown, setClinicsDropDown] = useState([]);
+  const [clinicId, setclinicId] = useState(null);
   const [clinicName, setclinicName] = useState('');
   const [clinicAddress, setclinicAddress] = useState('');
+
   const [mode, setMode] = useState(null);
   useEffect(() => {
-    setEDays(DayDateMaker(details.eslotDates));
-    setPDays(DayDateMaker(details.eslotDates));
-    setClinicsDropDown(clinicMaker(details.clinicInfo));
+    const getData = async () => {
+      let x = JSON.parse(await AsyncStorage.getItem('viewProfile'));
+      //console.log(x);
+
+      setDocDet(x);
+
+      axios
+        .get(
+          apiConfig.baseUrl + '/patient/doctor/details?doctorId=' + x.doctorId,
+        )
+        .then(response => {
+          //console.log(response.data);
+          if (response.status == 200) setDocObj(response.data);
+        })
+        .catch(error => {
+          Alert.alert('Error', `${error}`);
+        });
+    };
+
+    getData();
 
     // console.log(layout.width);
   }, []);
+
   useEffect(() => {
-    let p = [];
-    for (var i = 0; i < slotsresponse.length; ++i) {
-      if (selectedDate == slotsresponse[i].slotDate) p.push(slotsresponse[i]);
+    if (DocObj != null) {
+      let obj = {
+        availableDates: DocObj.eslotDates,
+      };
+      setEDays(DayDateMaker(obj));
+      // setPDays(DayDateMaker(DocObj.eslotDates));
+      setClinicsDropDown(clinicMaker(DocObj.clinicInfo));
     }
-    setESlots(p);
-  }, [selectedDate]);
-  useEffect(() => {
-    setPDays(DayDateMaker(details.eslotDates));
     // console.log(layout.width);
-  }, []);
+  }, [DocObj]);
+
+  useEffect(() => {
+    const getEslots = async () => {
+      axios
+        .get(
+          apiConfig.baseUrl +
+            '/slot/eslot/available?date=' +
+            selectedDate +
+            '&doctorId=' +
+            DocDet.doctorId,
+        )
+        .then(response => {
+          if (response.status == 200) setESlots(response.data);
+        })
+        .catch(error => {
+          Alert.alert('Error', `${error}`);
+        });
+    };
+    getEslots();
+  }, [selectedDate]);
+
+  useEffect(() => {
+    const getClinicDays = async () => {
+      axios
+        .get(
+          apiConfig.baseUrl +
+            '/slot/pslot/dates?doctorId=' +
+            DocDet.doctorId +
+            '&clinicId=' +
+            clinicId,
+        )
+        .then(response => {
+          if (response.status == 200) {
+            setPDays(DayDateMaker(response.data));
+          }
+        })
+        .catch(error => {
+          Alert.alert('Error', `${error}`);
+        });
+    };
+
+    if (clinicName != '') getClinicDays();
+  }, [clinicName]);
+
   useEffect(() => {
     let p = [];
     for (var i = 0; i < slotsresponse.length; ++i) {
@@ -278,13 +346,15 @@ function DoctorDetails({navigation}) {
   //   }, [showGenInfo]);
 
   useEffect(() => {
-    setMedRegDet(details.medicalInfo);
-    setEducation(details.educationInfo);
-    setExperience(details.exprienceInfo);
-    setClinicDet(details.clinicInfo);
-    setLanguages(details.languages);
-    setFees(details.feesInfo);
-  }, []);
+    if (DocObj != null) {
+      setMedRegDet(DocObj.medicalInfo);
+      setEducation(DocObj.educationInfo);
+      setExperience(DocObj.exprienceInfo);
+      setClinicDet(DocObj.clinicInfo);
+      setLanguages(DocObj.languages);
+      setFees(DocObj.feesInfo);
+    }
+  }, [DocObj]);
 
   const languages = [
     {
@@ -557,6 +627,7 @@ function DoctorDetails({navigation}) {
           setselectedPSlotId(null);
           setSelectedPSlotTime(null);
           setclinicName('');
+          setconsultationType(null);
         }}>
         <Text
           style={{
@@ -590,7 +661,8 @@ function DoctorDetails({navigation}) {
           setselectedSlotId(item.slotId);
           //setslots(item.slots);
           setSelectedSlotTime(timeformatter(item.startTime));
-          setMode('E-Consultation');
+          setMode('E_CONSULTATION');
+          setconsultationType(item.typeOfEConsultation);
         }}>
         <FAIcon
           name={
@@ -633,6 +705,7 @@ function DoctorDetails({navigation}) {
           setSelectedDate(null);
           setselectedSlotId(null);
           setSelectedSlotTime(null);
+          setconsultationType(null);
         }}>
         <Text
           style={{
@@ -665,7 +738,8 @@ function DoctorDetails({navigation}) {
           setselectedPSlotId(item.slotId);
           //setslots(item.slots);
           setSelectedPSlotTime(timeformatter(item.startTime));
-          setMode('P-Consultation');
+          setMode('P_CONSULTATION');
+          setconsultationType('PHYSICAL');
         }}>
         <Text
           style={{
@@ -707,7 +781,14 @@ function DoctorDetails({navigation}) {
           {/* Top */}
           <View style={{marginVertical: 10, alignSelf: 'center'}}>
             <Image
-              source={data.img}
+              // source={
+              //   DocObj.photoPath == undefined
+              //     ? doctor_m
+              //     : {
+              //         uri: `${apiConfig.baseUrl}/file/download?fileToken=${DocObj.photoPath}&userId=${DocObj.doctorId}`,
+              //       }
+              // }
+              source={doctor_m}
               style={{
                 width: 100,
                 height: 100,
@@ -722,7 +803,7 @@ function DoctorDetails({navigation}) {
                 alignSelf: 'center',
                 color: 'black',
               }}>
-              {data.name}
+              {DocDet != null ? DocDet.doctorName : null}
             </Text>
             <Text
               style={{
@@ -731,7 +812,14 @@ function DoctorDetails({navigation}) {
                 alignSelf: 'center',
                 marginBottom: 5,
               }}>
-              {data.spl}
+              {DocDet != null
+                ? DocDet.specialization.map(index => {
+                    return DocDet.specialization.indexOf(index) !=
+                      DocDet.specialization.length - 1
+                      ? index + ', '
+                      : index;
+                  })
+                : null}
             </Text>
             <Text
               style={{
@@ -742,7 +830,10 @@ function DoctorDetails({navigation}) {
                 padding: 3,
                 paddingHorizontal: 15,
               }}>
-              {data.exp}
+              {DocDet != null
+                ? Math.floor(DocDet.totalExprienceInMonths / 12)
+                : null}
+              {' years of experience'}
             </Text>
           </View>
           {/* Genreal Information Label*/}
@@ -794,7 +885,7 @@ function DoctorDetails({navigation}) {
             </View>
           </View>
           {/* Genreal Information Body*/}
-          {showGenInfo ? (
+          {/* {showGenInfo ? (
             <View style={{width: '90%', alignSelf: 'center'}}>
               <View style={styles.whiteBodyView}>
                 <View
@@ -828,7 +919,7 @@ function DoctorDetails({navigation}) {
                 </View>
               </View>
             </View>
-          ) : null}
+          ) : null} */}
 
           {/* Clinic Information Label*/}
           <View
@@ -1306,14 +1397,14 @@ function DoctorDetails({navigation}) {
                       <Text style={styles.subHeading}>Physical Fees</Text>
                       <Text style={{fontSize: 12}}>
                         {'₹ '}
-                        {details.feesInfo.phyiscalConsultationFees}
+                        {DocObj.feesInfo.phyiscalConsultationFees}
                       </Text>
                     </View>
                     <View style={{flexDirection: 'column'}}>
                       <Text style={styles.subHeading}>E-Consultation Fees</Text>
                       <Text style={{fontSize: 12}}>
                         {'₹ '}
-                        {details.feesInfo.econsultationFees}
+                        {DocObj.feesInfo.econsultationFees}
                       </Text>
                     </View>
                   </View>
@@ -1322,13 +1413,13 @@ function DoctorDetails({navigation}) {
                       <Text style={styles.subHeading}>Follow-Up Fees</Text>
                       <Text style={{fontSize: 12}}>
                         {'₹ '}
-                        {details.feesInfo.followUpFees}
+                        {DocObj.feesInfo.followUpFees}
                       </Text>
                     </View>
                     <View style={{flexDirection: 'column'}}>
                       <Text style={styles.subHeading}>Follow Up Duration</Text>
                       <Text style={{fontSize: 12}}>
-                        {details.feesInfo.followUpDuration}
+                        {DocObj.feesInfo.followUpDuration}
                         {' days'}
                       </Text>
                     </View>
@@ -1399,60 +1490,47 @@ function DoctorDetails({navigation}) {
                     width: '95%',
                     alignSelf: 'center',
                   }}>
-                  <Text
-                    style={{
-                      width: '95%',
-                      alignSelf: 'center',
-                      textAlign: 'left',
-                      fontSize: 14,
-                      fontWeight: 'bold',
-                      color: '#2b8ada',
-                      borderBottomColor: '#2b8ada',
-                      borderBottomWidth: 1,
-                    }}>
-                    Select Date
-                  </Text>
+                  <Text style={styles.subLabel}>Select Date</Text>
 
-                  <View
-                    style={{
-                      flex: 1,
-                      alignSelf: 'center',
-                      width: '95%',
-                      flexDirection: 'column',
-                      marginTop: 10,
-                      backgroundColor: 'white',
-                    }}>
-                    <FlatList
-                      data={EDays}
-                      renderItem={renderDays}
-                      keyExtractor={item => item.date}
-                      numColumns={Math.floor(layout.width / 100)}
-                      style={{alignSelf: 'center'}}
-                    />
-                  </View>
-                </View>
-
-                {ESlots != '' ? (
-                  <View
-                    style={{
-                      backgroundColor: 'white',
-                      width: '95%',
-                      alignSelf: 'center',
-                      marginVertical: 10,
-                    }}>
+                  {EDays != '' ? (
+                    <View
+                      style={{
+                        flex: 1,
+                        alignSelf: 'center',
+                        width: '95%',
+                        flexDirection: 'column',
+                        marginTop: 10,
+                        backgroundColor: 'white',
+                      }}>
+                      <FlatList
+                        data={EDays}
+                        renderItem={renderDays}
+                        keyExtractor={item => item.date}
+                        numColumns={Math.floor(layout.width / 100)}
+                        style={{alignSelf: 'center'}}
+                      />
+                    </View>
+                  ) : (
                     <Text
                       style={{
-                        width: '95%',
+                        marginVertical: 10,
                         alignSelf: 'center',
-                        textAlign: 'left',
-                        fontSize: 14,
-                        fontWeight: 'bold',
-                        color: '#2b8ada',
-                        borderBottomColor: '#2b8ada',
-                        borderBottomWidth: 1,
+                        fontSize: 12,
                       }}>
-                      Select Slot
+                      No Dates Available
                     </Text>
+                  )}
+                </View>
+
+                <View
+                  style={{
+                    backgroundColor: 'white',
+                    width: '95%',
+                    alignSelf: 'center',
+                    marginVertical: 10,
+                  }}>
+                  <Text style={styles.subLabel}>Select Slot</Text>
+                  {ESlots != '' ? (
                     <View
                       style={{
                         flex: 1,
@@ -1472,8 +1550,17 @@ function DoctorDetails({navigation}) {
                         }}
                       />
                     </View>
-                  </View>
-                ) : null}
+                  ) : (
+                    <Text
+                      style={{
+                        marginVertical: 10,
+                        alignSelf: 'center',
+                        fontSize: 12,
+                      }}>
+                      No E-Slots Available
+                    </Text>
+                  )}
+                </View>
               </View>
             </View>
           ) : null}
@@ -1540,26 +1627,25 @@ function DoctorDetails({navigation}) {
                     alignSelf: 'center',
                   }}>
                   <View style={{flexDirection: 'column'}}>
-                    <Text
-                      style={{
-                        width: '95%',
-                        alignSelf: 'center',
-                        color: '#2b8ada',
-                        fontWeight: 'bold',
-                        borderBottomColor: '#2b8ada',
-                        borderBottomWidth: 1,
-                        marginBottom: 10,
-                      }}>
-                      Select Clinic
-                    </Text>
+                    <Text style={styles.subLabel}>Select Clinic</Text>
                     <SelectList
                       defaultOption={ClinicsDropDown[0].key}
                       placeholder={' '}
-                      setSelected={val => setclinicName(val)}
+                      setSelected={val => {
+                        setclinicName(val);
+                        for (let i = 0; i < ClinicsDropDown.length; ++i) {
+                          if (val == ClinicsDropDown[0].value) {
+                            console.log(ClinicsDropDown[i].key);
+                            setclinicId(ClinicsDropDown[i].key);
+                            break;
+                          }
+                        }
+                      }}
                       // onSelect={setAddress}
                       data={ClinicsDropDown}
                       save={'value'}
                       boxStyles={{
+                        marginTop: 10,
                         width: '95%',
                         alignSelf: 'center',
                         backgroundColor: '#e8f0fe',
@@ -1594,40 +1680,41 @@ function DoctorDetails({navigation}) {
                         alignSelf: 'center',
                         marginVertical: 10,
                       }}>
-                      <Text
-                        style={{
-                          width: '95%',
-                          alignSelf: 'center',
-                          textAlign: 'left',
-                          fontSize: 14,
-                          fontWeight: 'bold',
-                          color: '#2b8ada',
-                          borderBottomColor: '#2b8ada',
-                          borderBottomWidth: 1,
-                        }}>
+                      <Text style={[styles.subLabel, {width: '100%'}]}>
                         Select Date
                       </Text>
 
-                      <View
-                        style={{
-                          flex: 1,
-                          alignSelf: 'center',
-                          width: '95%',
-                          flexDirection: 'column',
-                          marginTop: 10,
-                          backgroundColor: 'white',
-                        }}>
-                        <FlatList
-                          data={PDays}
-                          renderItem={renderPDays}
-                          keyExtractor={item => item.date}
-                          numColumns={Math.floor(layout.width / 100)}
+                      {PDays != '' ? (
+                        <View
                           style={{
+                            flex: 1,
                             alignSelf: 'center',
-                          }}
-                          scrollEnabled={false}
-                        />
-                      </View>
+                            width: '95%',
+                            flexDirection: 'column',
+                            marginTop: 10,
+                            backgroundColor: 'white',
+                          }}>
+                          <FlatList
+                            data={PDays}
+                            renderItem={renderPDays}
+                            keyExtractor={item => item.date}
+                            numColumns={Math.floor(layout.width / 100)}
+                            style={{
+                              alignSelf: 'center',
+                            }}
+                            scrollEnabled={false}
+                          />
+                        </View>
+                      ) : (
+                        <Text
+                          style={{
+                            marginVertical: 10,
+                            alignSelf: 'center',
+                            fontSize: 12,
+                          }}>
+                          No Dates Available
+                        </Text>
+                      )}
                     </View>
                   ) : null}
 
@@ -1642,36 +1729,35 @@ function DoctorDetails({navigation}) {
                         marginVertical: 10,
                         paddingVertical: 10,
                       }}>
-                      <Text
-                        style={{
-                          width: '95%',
-                          alignSelf: 'center',
-                          textAlign: 'left',
-                          fontSize: 14,
-                          fontWeight: 'bold',
-                          color: '#2b8ada',
-                          borderBottomColor: '#2b8ada',
-                          borderBottomWidth: 1,
-                        }}>
-                        Select Slot
-                      </Text>
-                      <View
-                        style={{
-                          flex: 1,
-                          alignSelf: 'center',
-                          width: '95%',
-                          flexDirection: 'row',
-                          marginTop: 10,
-                          backgroundColor: 'white',
-                        }}>
-                        <FlatList
-                          data={PSlots}
-                          renderItem={renderPSlots}
-                          keyExtractor={item => item.slotId}
-                          numColumns={Math.floor(layout.width / 150)}
-                          style={{alignSelf: 'center'}}
-                        />
-                      </View>
+                      <Text style={styles.subLabel}>Select Slot</Text>
+                      {PSlots != '' ? (
+                        <View
+                          style={{
+                            flex: 1,
+                            alignSelf: 'center',
+                            width: '95%',
+                            flexDirection: 'row',
+                            marginTop: 10,
+                            backgroundColor: 'white',
+                          }}>
+                          <FlatList
+                            data={PSlots}
+                            renderItem={renderPSlots}
+                            keyExtractor={item => item.slotId}
+                            numColumns={Math.floor(layout.width / 150)}
+                            style={{alignSelf: 'center'}}
+                          />
+                        </View>
+                      ) : (
+                        <Text
+                          style={{
+                            marginVertical: 10,
+                            alignSelf: 'center',
+                            fontSize: 12,
+                          }}>
+                          No Slots Available
+                        </Text>
+                      )}
                     </View>
                   ) : null}
                 </View>
@@ -1700,27 +1786,161 @@ function DoctorDetails({navigation}) {
                 width: 100,
                 padding: 3,
               }}
-              onPress={() => {
-                // console.log(selectedSlotTime);
+              onPress={async () => {
+                //slot prebook
+                console.log(mode, selectedPSlotId, selectedSlotId);
+                let slotId =
+                  mode == 'E_CONSULTATION' ? selectedSlotId : selectedPSlotId;
+                let flag = 0;
+                await axios
+                  .post(
+                    apiConfig.baseUrl +
+                      '/patient/slot/prebook?consultation=' +
+                      mode +
+                      '&slotId=' +
+                      slotId +
+                      '&userId=1',
+                  )
+                  .then(response => {
+                    if (response.status == 200) {
+                      flag = 1;
+                    } else {
+                      Alert.alert(
+                        'Sorry',
+                        'This Slot is under transaction.\nPlease select another time slot.',
+                      );
+                    }
+                  })
+                  .catch(error => {
+                    Alert.alert(
+                      'Sorry',
+                      'This Slot is under transaction.\nPlease select another time slot.',
+                    );
+                  });
 
-                if (selectedDate != null)
+                if (flag == 1) {
+                  let date =
+                    mode == 'E_CONSULTATION' ? selectedDate : selectedPDate;
+                  let time =
+                    mode == 'E_CONSULTATION'
+                      ? selectedSlotTime
+                      : selectedPSlotTime;
+                  let slotId =
+                    mode == 'E_CONSULTATION' ? selectedSlotId : selectedPSlotId;
+
                   Alert.alert(
                     'Confirm Booking',
-                    `Are you sure you want to book an appointment?\n\nOn Date:- ${dayjs(
-                      selectedDate,
-                    ).format(
-                      'DD-MMM-YYYY',
-                    )}\nAt Time:- ${selectedSlotTime}\nMode:- ${mode}`,
+                    `Are you sure you want to book an appointment?\n` +
+                      (mode == 'P_CONSULTATION'
+                        ? `\nClinic:- ${clinicName}`
+                        : ``) +
+                      `\nOn Date:- ${dayjs(date).format(
+                        'DD-MMM-YYYY',
+                      )}\nAt Time:- ${time}\nMode:- ${mode}`,
+                    [
+                      {
+                        text: 'Yes',
+                        onPress: () => {
+                          let x = {
+                            clinicId: clinicId,
+                            consultationType: consultationType,
+                            doctorId: 0,
+                            slotDate:
+                              mode == 'E_CONSULTATION'
+                                ? selectedDate
+                                : selectedPDate,
+                            slotEndTime:
+                              mode == 'E_CONSULTATION'
+                                ? selectedSlotId
+                                : selectedPSlotId,
+                            slotId:
+                              mode == 'E_CONSULTATION'
+                                ? selectedSlotId
+                                : selectedPSlotId,
+                            slotStartTime:
+                              mode == 'E_CONSULTATION'
+                                ? selectedSlotTime
+                                : selectedPSlotTime,
+                          };
+
+                          navigation.navigate('ConfirmBooking', {
+                            confirmBookingData: x,
+                          });
+                        },
+                      },
+                      {
+                        text: 'No',
+                        onPress: async () => {
+                          let slotId =
+                            mode == 'E_CONSULTATION'
+                              ? selectedSlotId
+                              : selectedPSlotId;
+                          axios
+                            .delete(
+                              apiConfig.baseUrl +
+                                '/patient/slot/prebook/delete?consultation=' +
+                                mode +
+                                '&slotId=' +
+                                slotId +
+                                '&userId=1',
+                            )
+                            .then(response => {
+                              if (response.status == 200) {
+                              }
+                            })
+                            .catch(error => {
+                              Alert.alert(
+                                'Error',
+                                `Error in Delete PreBook:-\n ${error}`,
+                              );
+                            });
+                        },
+                        style: 'cancel',
+                      },
+                    ],
                   );
-                else if (selectedPDate != null)
-                  Alert.alert(
-                    'Confirm Booking',
-                    `Are you sure you want to book an appointment?\n\nClinic:- ${clinicName}\nOn Date:- ${dayjs(
-                      selectedPDate,
-                    ).format(
-                      'DD-MMM-YYYY',
-                    )}\nAt Time:- ${selectedPSlotTime}\nMode:- ${mode}`,
-                  );
+                }
+
+                // if (selectedDate != null && flag ==1)
+                //   Alert.alert(
+                //     'Confirm Booking',
+                //     `Are you sure you want to book an appointment?\n\nOn Date:- ${dayjs(
+                //       selectedDate,
+                //     ).format(
+                //       'DD-MMM-YYYY',
+                //     )}\nAt Time:- ${selectedSlotTime}\nMode:- ${mode}`,
+                //     [
+                //       {
+                //         text: 'Yes',
+                //         onPress: () => {},
+                //       },
+                //       {
+                //         text: 'No',
+                //         onPress: () => {},
+                //         style: 'cancel',
+                //       },
+                //     ],
+                //   );
+                // else if (selectedPDate != null && flag == 1)
+                //   Alert.alert(
+                //     'Confirm Booking',
+                //     `Are you sure you want to book an appointment?\n\nClinic:- ${clinicName}\nOn Date:- ${dayjs(
+                //       selectedPDate,
+                //     ).format(
+                //       'DD-MMM-YYYY',
+                //     )}\nAt Time:- ${selectedPSlotTime}\nMode:- ${mode}`,
+                //     [
+                //       {
+                //         text: 'Yes',
+                //         onPress: () => {},
+                //       },
+                //       {
+                //         text: 'No',
+                //         onPress: () => {},
+                //         style: 'cancel',
+                //       },
+                //     ],
+                //   );
               }}
             />
           </View>
@@ -1885,6 +2105,20 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     flexDirection: 'column',
     alignItems: 'center',
+  },
+  subLabel: {
+    width: '95%',
+    alignSelf: 'center',
+    textAlign: 'left',
+    fontSize: 14,
+    fontWeight: 'bold',
+    backgroundColor: '#2b8ada',
+    color: 'white',
+    borderBottomColor: '#2b8ada',
+    borderBottomWidth: 1,
+    padding: 5,
+    paddingHorizontal: 10,
+    borderRadius: 5,
   },
 });
 

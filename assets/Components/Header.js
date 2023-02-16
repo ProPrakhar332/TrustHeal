@@ -159,7 +159,7 @@ const Header = ({title, showMenu}) => {
             doctorId,
         )
         .then(function (response) {
-          //console.log(response.data);
+          console.log(response.data);
           setviewESlots(response.data);
         })
         .catch(function (error) {
@@ -696,7 +696,7 @@ const Header = ({title, showMenu}) => {
                             alignSelf: 'center',
                             fontSize: 12,
                           }}>
-                          Loading Slots....
+                          No Slots Available
                         </Text>
                       )}
                     </View>

@@ -298,24 +298,33 @@ const PatientRegistration1 = ({navigation}) => {
                   borderBottomLeftRadius: 10,
                   marginBottom: 10,
                 }}>
-                <View style={{flexDirection: 'column', marginVertical: 10}}>
-                  <View style={{flexDirection: 'row', alignSelf: 'center'}}>
-                    <View style={{flex: 0.45, marginRight: '5%'}}>
-                      <Text style={styles.inputLabel}>Title</Text>
+                <View style={{flexDirection: 'column'}}>
+                  {/* Title and FullName */}
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignSelf: 'center',
+                      marginBottom: 5,
+                    }}>
+                    {/* Title Sub-Label */}
+                    <View style={{flex: 0.3, marginRight: '5%'}}>
+                      <View style={{flexDirection: 'row'}}>
+                        <Text style={styles.inputLabel}>Title</Text>
+                        <Text style={{color: 'red'}}>*</Text>
+                      </View>
 
                       <SelectList
-                        defaultOption={title}
-                        placeholder={title}
+                        placeholder={' '}
                         setSelected={val => setTitle(val)}
                         data={dataTitle}
                         save="value"
                         boxStyles={[
                           {
+                            padding: 0,
                             backgroundColor: 'white',
                             borderWidth: 0,
-                            backgroundColor: '#d0e0fc',
+                            backgroundColor: '#E8F0FE',
                           },
-                          {backgroundColor: '#E8F0FE'},
                         ]}
                         dropdownStyles={{backgroundColor: 'white'}}
                         dropdownTextStyles={{
@@ -325,32 +334,114 @@ const PatientRegistration1 = ({navigation}) => {
                         badgeStyles={{backgroundColor: '#2b8ada'}}
                       />
                     </View>
-                    <View style={{flex: 0.45}}>
-                      <Text style={styles.inputLabel}>Full Name</Text>
+                    {/* Full Name Sub-Label */}
+                    <View style={{flex: 0.6}}>
+                      <View style={{flexDirection: 'row'}}>
+                        <Text style={styles.inputLabel}>Full Name</Text>
+                        <Text style={{color: 'red'}}>*</Text>
+                      </View>
                       <TextInput
                         style={[styles.textInput, {backgroundColor: '#E8F0FE'}]}
                         placeholderTextColor={'black'}
+                        maxLength={50}
                         onChangeText={text => setName(text)}
                         value={name}></TextInput>
                     </View>
                   </View>
-                  <View style={{flexDirection: 'row', alignSelf: 'center'}}>
-                    <View style={{flex: 0.45, marginRight: '5%'}}>
-                      <Text style={styles.inputLabel}>Email</Text>
+                  {/* Email */}
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignSelf: 'center',
+                      marginBottom: 5,
+                    }}>
+                    <View style={{flex: 0.9}}>
+                      <View style={{flexDirection: 'row'}}>
+                        <Text style={styles.inputLabel}>Email</Text>
+                        <Text style={{color: 'red'}}>*</Text>
+                      </View>
                       <TextInput
                         style={[styles.textInput, {backgroundColor: '#E8F0FE'}]}
                         placeholderTextColor={'black'}
+                        maxLength={50}
                         onChangeText={text => setEmail(text)}
                         value={email}
                         keyboardType={'email-address'}></TextInput>
                     </View>
+                  </View>
+                  {/* DOB and Gender */}
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignSelf: 'center',
+                      marginBottom: 5,
+                    }}>
+                    <View style={{flex: 0.45, marginRight: '5%'}}>
+                      <View style={{flexDirection: 'row'}}>
+                        <Text style={styles.inputLabel}>Date Of Birth</Text>
+                        <Text style={{color: 'red'}}>*</Text>
+                      </View>
+                      <View style={{flexDirection: 'row'}}>
+                        <TextInput
+                          style={[
+                            styles.textInput,
+                            {backgroundColor: '#E8F0FE', flex: 1},
+                          ]}
+                          placeholderTextColor={'black'}
+                          value={
+                            dob != '' ? dayjs(dob).format('DD-MM-YYYY') : ''
+                          }
+                          editable={false}></TextInput>
+                        <FAIcon
+                          name="calendar-alt"
+                          color={'gray'}
+                          size={16}
+                          style={{
+                            position: 'absolute',
+                            right: '5%',
+                            // bottom: 0,
+                            // marginRight: '5%',
+                            // marginBottom: '5%',
+                            alignSelf: 'center',
+                          }}
+                          onPress={() => {
+                            showDatePicker();
+                          }}
+                        />
+                        <DateTimePickerModal
+                          isVisible={isDatePickerVisible}
+                          mode="date"
+                          display="spinner"
+                          onConfirm={handleConfirm}
+                          onCancel={hideDatePicker}
+                          maximumDate={new Date()}
+                          minimumDate={new Date('1940-01-01')}
+                        />
+                      </View>
+                    </View>
+                    {/* <View style={{flex: 0.45}}>
+                      <Text style={styles.inputLabel}>Age</Text>
+                      <Text
+                        style={[
+                          styles.textInput,
+                          {
+                            backgroundColor: '#E8F0FE',
+                            paddingVertical: 8,
+                            color: 'black',
+                          },
+                        ]}>
+                        {age}
+                      </Text>
+                    </View> */}
                     <View style={{flex: 0.45}}>
-                      <Text style={styles.inputLabel}>Gender</Text>
-
+                      <View style={{flexDirection: 'row'}}>
+                        <Text style={styles.inputLabel}>Gender</Text>
+                        <Text style={{color: 'red'}}>*</Text>
+                      </View>
                       <SelectList
                         setSelected={val => setGender(val)}
                         data={dataGender}
-                        placeholder={gender}
+                        placeholder={' '}
                         defaultOption={gender}
                         save="value"
                         boxStyles={[
@@ -369,78 +460,37 @@ const PatientRegistration1 = ({navigation}) => {
                       />
                     </View>
                   </View>
-
-                  <View style={{flexDirection: 'row', alignSelf: 'center'}}>
+                  {/* City and PIN */}
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignSelf: 'center',
+                      marginBottom: 5,
+                    }}>
                     <View style={{flex: 0.45, marginRight: '5%'}}>
-                      <Text style={styles.inputLabel}>City</Text>
+                      <View style={{flexDirection: 'row'}}>
+                        <Text style={styles.inputLabel}>City</Text>
+                        <Text style={{color: 'red'}}>*</Text>
+                      </View>
                       <TextInput
                         style={[styles.textInput, {backgroundColor: '#E8F0FE'}]}
                         placeholderTextColor={'black'}
                         onChangeText={text => setCity(text)}
+                        maxLength={50}
                         value={city}></TextInput>
                     </View>
                     <View style={{flex: 0.45}}>
-                      <Text style={styles.inputLabel}>Pin Code</Text>
+                      <View style={{flexDirection: 'row'}}>
+                        <Text style={styles.inputLabel}>Pin Code</Text>
+                        <Text style={{color: 'red'}}>*</Text>
+                      </View>
                       <TextInput
                         style={[styles.textInput, {backgroundColor: '#E8F0FE'}]}
                         placeholderTextColor={'black'}
+                        maxLength={6}
+                        keyboardType={'number-pad'}
                         onChangeText={text => setpincode(text)}
                         value={pincode}></TextInput>
-                    </View>
-                  </View>
-                  <View style={{flexDirection: 'row', alignSelf: 'center'}}>
-                    <View style={{flex: 0.45, marginRight: '5%'}}>
-                      <Text style={styles.inputLabel}>Date Of Birth</Text>
-                      <View>
-                        <TextInput
-                          style={[
-                            styles.textInput,
-                            {backgroundColor: '#E8F0FE'},
-                          ]}
-                          placeholderTextColor={'black'}
-                          value={
-                            dob != '' ? dayjs(dob).format('DD-MM-YYYY') : ''
-                          }
-                          editable={false}></TextInput>
-                        <FAIcon
-                          name="calendar-alt"
-                          color={'gray'}
-                          size={16}
-                          style={{
-                            position: 'absolute',
-                            right: 0,
-                            bottom: 0,
-                            marginRight: '5%',
-                            marginBottom: '5%',
-                          }}
-                          onPress={() => {
-                            showDatePicker();
-                          }}
-                        />
-                        <DateTimePickerModal
-                          isVisible={isDatePickerVisible}
-                          mode="date"
-                          display="spinner"
-                          onConfirm={handleConfirm}
-                          onCancel={hideDatePicker}
-                          maximumDate={new Date()}
-                          minimumDate={new Date('1940-01-01')}
-                        />
-                      </View>
-                    </View>
-                    <View style={{flex: 0.45}}>
-                      <Text style={styles.inputLabel}>Age</Text>
-                      <Text
-                        style={[
-                          styles.textInput,
-                          {
-                            backgroundColor: '#E8F0FE',
-                            paddingVertical: 8,
-                            color: 'black',
-                          },
-                        ]}>
-                        {age}
-                      </Text>
                     </View>
                   </View>
                 </View>
@@ -516,11 +566,12 @@ const PatientRegistration1 = ({navigation}) => {
                   borderBottomLeftRadius: 10,
                   marginBottom: 10,
                 }}>
-                <View style={{flexDirection: 'column', marginBottom: 10}}>
+                <View style={{flexDirection: 'column'}}>
                   <View
                     style={{
                       flexDirection: 'row',
                       alignSelf: 'center',
+                      marginBottom: 5,
                     }}>
                     <View style={{flex: 0.45, marginRight: '5%'}}>
                       <Text style={[styles.inputLabel, {marginTop: 0}]}>
@@ -562,9 +613,10 @@ const PatientRegistration1 = ({navigation}) => {
                     style={{
                       flexDirection: 'row',
                       alignSelf: 'center',
+                      marginBottom: 5,
                     }}>
                     <View style={{flex: 0.45, marginRight: '5%'}}>
-                      <Text style={styles.inputLabel}>Height ( in cm )</Text>
+                      <Text style={styles.inputLabel}>Height (in cm)</Text>
                       <TextInput
                         style={[styles.textInput, {backgroundColor: '#E8F0FE'}]}
                         placeholderTextColor={'black'}
@@ -574,7 +626,7 @@ const PatientRegistration1 = ({navigation}) => {
                         onChangeText={text => setHeight(text)}></TextInput>
                     </View>
                     <View style={{flex: 0.45}}>
-                      <Text style={styles.inputLabel}>Weight ( in kg )</Text>
+                      <Text style={styles.inputLabel}>Weight (in kg)</Text>
                       <TextInput
                         style={[styles.textInput, {backgroundColor: '#E8F0FE'}]}
                         placeholderTextColor={'black'}
@@ -726,18 +778,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#2B8ADA',
   },
   textInput: {
-    padding: 5,
+    paddingVertical: 5,
     backgroundColor: '#E8F0FE',
     borderRadius: 10,
     fontSize: 14,
     marginVertical: 5,
+
     color: 'black',
   },
   inputLabel: {
     fontSize: 12,
-    marginBottom: 2,
+    marginBottom: 5,
     fontWeight: 'bold',
-    marginTop: 10,
   },
   label: {
     alignSelf: 'center',

@@ -160,6 +160,18 @@ const dataUpcoming = [
     img: doctor_f,
   },
 ];
+const dataListOfDoctorsResponse = [
+  {
+    city: 'string',
+    degrees: ['string'],
+    dob: '2023-02-16',
+    doctorId: 0,
+    doctorName: 'string',
+    photoPath: 0,
+    specialization: ['string'],
+    totalExprienceInMonths: 0,
+  },
+];
 
 const {width} = Dimensions.get('window');
 const height = width * 0.5;
@@ -463,7 +475,13 @@ function PatientHome({navigation}) {
         }}>
         {/* Image */}
         <Image
-          source={item.img}
+          source={
+            item.photoPath == 0
+              ? doctor_m
+              : {
+                  uri: `${apiConfig.baseUrl}/file/download?fileToken=${item.photoPath}&userId=${item.doctorId}`,
+                }
+          }
           style={{
             width: 120,
             height: 120,
@@ -473,6 +491,7 @@ function PatientHome({navigation}) {
         />
         {/* Details */}
         <View>
+          {/* Name */}
           <Text
             style={{
               textAlign: 'left',
@@ -480,33 +499,46 @@ function PatientHome({navigation}) {
               fontSize: 14,
               color: 'black',
             }}>
-            {item.name}
+            {item.doctorName}
           </Text>
+          {/* Degree */}
           <Text
             style={{
               textAlign: 'left',
               fontWeight: 'bold',
-              fontSize: 10,
+              fontSize: 12,
+              color: 'gray',
+            }}>
+            {item.degrees.map(index => {
+              return item.degrees.indexOf(index) != item.degrees.length - 1
+                ? index + ', '
+                : index;
+            })}
+          </Text>
+          {/* Speciality */}
+          <Text
+            style={{
+              textAlign: 'left',
+              fontWeight: 'bold',
+              fontSize: 12,
               color: '#2b8ada',
             }}>
-            {item.spl}
+            {item.specialization.map(index => {
+              return item.specialization.indexOf(index) !=
+                item.specialization.length - 1
+                ? index + ', '
+                : index;
+            })}
           </Text>
+          {/* Experience */}
           <Text
             style={{
               textAlign: 'left',
-              fontWeight: 'bold',
-              fontSize: 12,
-            }}>
-            {item.exp}
-          </Text>
-          <Text
-            style={{
-              textAlign: 'left',
-              fontWeight: 'bold',
-              fontSize: 12,
               color: 'black',
+              fontSize: 12,
             }}>
-            {item.deg}
+            {Math.floor(item.totalExprienceInMonths / 12)}
+            {' years of experience'}
           </Text>
         </View>
         {/* Consult Now Button */}
@@ -518,8 +550,13 @@ function PatientHome({navigation}) {
             paddingVertical: 3,
             marginVertical: 5,
           }}
-          onPress={() => {
-            console.log(item.name);
+          onPress={async () => {
+            console.log(item.doctorName);
+            await AsyncStorage.setItem('viewProfile', JSON.stringify(item));
+            console.log(
+              '======================== DOCTOR HOME ====================================',
+              item,
+            );
             navigation.navigate('DoctorDetails');
           }}
         />
@@ -585,17 +622,19 @@ function PatientHome({navigation}) {
         });
     };
 
-    // const getDoctors = async()=>{
-    //   axios.get(apiConfig.baseUrl + '/suggest/patient/banner').then(function(response){
-    //     if(response.status == 200)
-    //     setBannerData(response.data.bannerPath);
-    //   });
-    // };
+    const getDoctors = async () => {
+      axios
+        .get(apiConfig.baseUrl + '/patient/doctors?max=5&min=0')
+        .then(function (response) {
+          if (response.status == 200) setDoctorsData(response.data);
+        });
+    };
 
     getBanner();
     getUpcoming();
     getSpeciality();
     getSymptoms();
+    getDoctors();
   }, []);
 
   return (
@@ -843,9 +882,9 @@ function PatientHome({navigation}) {
             {/* Transparent Box */}
             <View style={{alignSelf: 'center', flex: 1, flexDirection: 'row'}}>
               <FlatList
-                data={dataListOfDoctors}
+                data={DoctorsData}
                 horizontal={true}
-                keyExtractor={item => item.name}
+                keyExtractor={item => item.doctorId}
                 renderItem={renderListOfDoctors}
               />
             </View>
