@@ -18,6 +18,7 @@ LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
 import {StyleSheet} from 'react-native';
 import HeaderPatient from '../Components/HeaderPatient';
 import FAIcons from 'react-native-vector-icons/FontAwesome5';
+import MIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import IonIcons from 'react-native-vector-icons/Ionicons';
 import Entypo from 'react-native-vector-icons/Entypo';
 import axios from 'axios';
@@ -798,7 +799,13 @@ function PatientHome({navigation}) {
           {/* Select Via Speciality */}
           <View style={styles.transparentBox}>
             {/* Heading */}
-            <View style={styles.headingBox}>
+            <View style={[styles.headingBox, {justifyContent: 'flex-start'}]}>
+              <MIcons
+                name="medical-bag"
+                size={20}
+                color={'#2b8ada'}
+                style={{alignSelf: 'center', marginRight: 5}}
+              />
               <Text
                 style={{color: '#2B8ADA', fontWeight: 'bold', fontSize: 16}}>
                 Select Via Speciality
@@ -837,8 +844,13 @@ function PatientHome({navigation}) {
                 marginBottom: 10,
                 alignSelf: 'center',
               }}>
-              <View
-                style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+              <View style={{flexDirection: 'row'}}>
+                <MIcons
+                  name="emoticon-sick-outline"
+                  size={20}
+                  color={'#2b8ada'}
+                  style={{alignSelf: 'center', marginRight: 5}}
+                />
                 <Text
                   style={{color: '#2B8ADA', fontSize: 16, fontWeight: 'bold'}}>
                   Consult Doctor Via Symptom
@@ -872,32 +884,46 @@ function PatientHome({navigation}) {
           {/* List Of Doctors */}
           <View style={styles.transparentBox}>
             {/* Heading */}
-            <View style={styles.headingBox}>
+            <View style={[styles.headingBox, {justifyContent: 'flex-start'}]}>
+              <MIcons
+                name="doctor"
+                size={20}
+                color={'#2b8ada'}
+                style={{alignSelf: 'center', marginRight: 5}}
+              />
               <Text
                 style={{color: '#2B8ADA', fontWeight: 'bold', fontSize: 16}}>
                 List Of Doctors
               </Text>
+            </View>
+            {/* Transparent Box */}
+            <View
+              style={{
+                alignSelf: 'center',
+                flexDirection: 'row',
+                justifyContent: 'space-evenly',
+              }}>
+              <FlatList
+                data={DoctorsData}
+                horizontal={true}
+                keyExtractor={item => item.doctorId}
+                renderItem={renderListOfDoctors}
+                style={{marginRight: 5}}
+              />
               <Text
                 style={{
-                  color: '#2B8ADA',
-                  textDecorationLine: 'underline',
+                  backgroundColor: '#2b8ada',
+                  padding: 5,
+                  borderRadius: 10,
+                  color: 'white',
                   fontSize: 12,
                   alignSelf: 'center',
                 }}
                 onPress={() => {
                   navigation.navigate('Consult');
                 }}>
-                View All
+                More
               </Text>
-            </View>
-            {/* Transparent Box */}
-            <View style={{alignSelf: 'center', flex: 1, flexDirection: 'row'}}>
-              <FlatList
-                data={DoctorsData}
-                horizontal={true}
-                keyExtractor={item => item.doctorId}
-                renderItem={renderListOfDoctors}
-              />
             </View>
           </View>
         </ScrollView>

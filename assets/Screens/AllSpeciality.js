@@ -34,10 +34,11 @@ import CheckBoxIcon from 'react-native-elements/dist/checkbox/CheckBoxIcon';
 import CustomButton from '../Components/CustomButton';
 
 function AllSpeciality({navigation}) {
-  const [List, setList] = useState(null);
-  const [nextList, setnextList] = useState(null);
-  const [selected, setselected] = useState([]);
+  const [List, setList] = useState([]);
+  const [DoctorsList, setDoctorsList] = useState(null);
+  const [selectedSpeciality, setselectedSpeciality] = useState([]);
   const layout = useWindowDimensions();
+
   useEffect(() => {
     const getAllSpeciality = async () => {
       await axios
@@ -50,7 +51,6 @@ function AllSpeciality({navigation}) {
               return {
                 key: item.specializationImage,
                 value: item.specialization,
-                active: false,
               };
             });
             //Set Data Variable
@@ -62,6 +62,7 @@ function AllSpeciality({navigation}) {
           Alert.alert('Error', `${error}`);
         });
     };
+
     getAllSpeciality();
   }, []);
 
@@ -79,10 +80,12 @@ function AllSpeciality({navigation}) {
         <CheckBoxIcon
           size={20}
           iconType="font-awesome"
-          checked={item.active}
+          checked={selectedSpeciality.indexOf(item.value) != -1}
           onIconPress={() => {
             CheckBoxPressed(item);
           }}
+          checkedColor={'#2b8ada'}
+          uncheckedColor={'gray'}
         />
         <Image
           style={{
@@ -108,16 +111,158 @@ function AllSpeciality({navigation}) {
       </View>
     );
   };
+  const CheckBoxPressed = item => {
+    if (selectedSpeciality.indexOf(item.value) == -1)
+      setselectedSpeciality([...selectedSpeciality, item.value]);
+    else
+      setselectedSpeciality(
+        selectedSpeciality.filter(index => index != item.value),
+      );
+  };
 
-  CheckBoxPressed = item => {
-    console.log(
-      List.map(data => {
-        if (data.key == item.key) {
-          data.active = !data.active;
+  const getDoctors = () => {
+    let x = '';
+    selectedSpeciality.forEach(element => {
+      x += '&speciality=' + element;
+    });
+    axios
+      .get(apiConfig.baseUrl + '/patient/doctor/by/speciality?max=5&min=0' + x)
+      .then(response => {
+        if (response.status == 200) {
+          console.log(response.data);
+          setDoctorsList(response.data);
         }
-      }),
+      })
+      .catch(error => {
+        Alert.alert('Error', `${error}`);
+      });
+  };
+  const renderListOfDoctors = ({item}) => {
+    return (
+      <TouchableOpacity
+        style={{
+          backgroundColor: 'white',
+          padding: 10,
+          borderRadius: 15,
+          marginHorizontal: 5,
+          flexDirection: 'row',
+          flex: 1,
+          marginTop: 10,
+        }}
+        key={item.doctorId}
+        onPress={async () => {
+          console.log(item.doctorName);
+          await AsyncStorage.setItem('viewProfile', JSON.stringify(item));
+          console.log(
+            '======================== DOCTOR HOME ====================================',
+            item,
+          );
+          navigation.navigate('DoctorDetails');
+        }}>
+        {/* Image */}
+        <Image
+          source={
+            item.photoPath == 0
+              ? defaultDoctor
+              : {
+                  uri: `${apiConfig.baseUrl}/file/download?fileToken=${item.photoPath}&userId=${item.doctorId}`,
+                }
+          }
+          style={{
+            width: 100,
+            height: 100,
+            alignSelf: 'center',
+            marginVertical: 5,
+            borderRadius: 10,
+            marginRight: 10,
+            flex: 0.5,
+          }}
+        />
+        {/* Details */}
+        <View
+          style={{
+            alignSelf: 'center',
+            justifyContent: 'space-evenly',
+            marginBottom: 5,
+            flex: 1,
+          }}>
+          {/* Name */}
+          <Text
+            style={{
+              textAlign: 'left',
+              fontWeight: 'bold',
+              fontSize: 14,
+              color: 'black',
+              flex: 1,
+            }}>
+            {item.doctorName}
+          </Text>
+          {/* Degree */}
+          <Text
+            style={{
+              textAlign: 'left',
+              fontWeight: 'bold',
+              fontSize: 12,
+              color: 'gray',
+              flex: 1,
+            }}>
+            {item.degrees.map(index => {
+              return item.degrees.indexOf(index) != item.degrees.length - 1
+                ? index + ', '
+                : index;
+            })}
+          </Text>
+          {/* Speciality */}
+          <Text
+            style={{
+              textAlign: 'left',
+              fontWeight: 'bold',
+              fontSize: 12,
+              color: '#2b8ada',
+              flex: 1,
+            }}>
+            {item.specialization.map(index => {
+              return item.specialization.indexOf(index) !=
+                item.specialization.length - 1
+                ? index + ', '
+                : index;
+            })}
+          </Text>
+          {/* Experience */}
+          <Text
+            style={{
+              textAlign: 'left',
+              color: 'black',
+              fontSize: 12,
+              flex: 1,
+            }}>
+            {Math.floor(item.totalExprienceInMonths / 12)}
+            {' years of experience'}
+          </Text>
+          <View
+            style={{
+              flexDirection: 'row',
+              flex: 1,
+            }}>
+            <FAIcons
+              name="map-marker-alt"
+              size={15}
+              color={'black'}
+              style={{marginRight: 5, alignSelf: 'center'}}
+            />
+            <Text
+              style={{
+                textAlign: 'left',
+                color: 'black',
+                fontSize: 12,
+                flex: 1,
+              }}>
+              {item.city}
+            </Text>
+          </View>
+        </View>
+      </TouchableOpacity>
     );
-    //setList(x);
   };
 
   return (
@@ -139,19 +284,108 @@ function AllSpeciality({navigation}) {
           showsVerticalScrollIndicator={false}
           nestedScrollEnabled={true}>
           <HeaderPatient showMenu={false} title={'All Speciality'} />
-          <View style={{width: '95%', alignSelf: 'center'}}>
-            <FlatList
-              data={List}
-              key={item => item.key}
-              renderItem={renderSpeciality}
-              numColumns={Math.round(layout.width / 130)}
-            />
-            <Text>
-              {selected.map(index => {
-                return index + '\n';
-              })}
-            </Text>
-          </View>
+          {DoctorsList == null ? (
+            <View
+              style={{
+                width: '95%',
+                alignSelf: 'center',
+                height: layout.height - 100,
+              }}>
+              <View style={{marginTop: 20}}>
+                <FlatList
+                  data={List}
+                  key={item => item.key}
+                  renderItem={renderSpeciality}
+                  numColumns={Math.round(layout.width / 130)}
+                />
+              </View>
+              <CustomButton
+                text={'Find Doctors'}
+                textstyle={{color: 'white', fontWeight: 'bold'}}
+                style={{
+                  backgroundColor: '#2b8ada',
+                  padding: 7,
+                  paddingHorizontal: 15,
+                  borderRadius: 5,
+                  position: 'absolute',
+                  marginTop: layout.height - 150,
+                  alignSelf: 'center',
+                }}
+                onPress={() => {
+                  setDoctorsList(null);
+                  getDoctors();
+                }}
+              />
+            </View>
+          ) : (
+            <View
+              style={{
+                width: '95%',
+                alignSelf: 'center',
+                height: layout.height - 100,
+              }}>
+              <Text
+                style={{
+                  marginTop: 20,
+                  padding: 10,
+                  fontWeight: 'bold',
+                  color: 'white',
+                  backgroundColor: '#2b8ada',
+                  borderTopRightRadius: 10,
+                  borderTopLeftRadius: 10,
+                  fontSize: 15,
+                }}>
+                Showing results for{' '}
+                {selectedSpeciality.length == 1 ? 'speciality' : 'specialities'}
+              </Text>
+              <Text
+                style={{
+                  padding: 15,
+                  fontSize: 12,
+                  color: 'black',
+                  backgroundColor: 'white',
+                  borderBottomRightRadius: 10,
+                  borderBottomLeftRadius: 10,
+                }}>
+                {selectedSpeciality.map(index => {
+                  return selectedSpeciality.indexOf(index) !=
+                    selectedSpeciality.length - 1
+                    ? index + ', '
+                    : index;
+                })}
+              </Text>
+              {DoctorsList != '' ? (
+                <View>
+                  <FlatList
+                    data={DoctorsList}
+                    keyExtractor={item => item.doctorId}
+                    renderItem={renderListOfDoctors}
+                  />
+                </View>
+              ) : (
+                <Text
+                  style={{alignSelf: 'center', color: 'black', marginTop: 50}}>
+                  No Doctors available for the above speciality
+                </Text>
+              )}
+              <CustomButton
+                text={'Select Speciality'}
+                textstyle={{color: 'white', fontWeight: 'bold'}}
+                style={{
+                  backgroundColor: '#2b8ada',
+                  padding: 7,
+                  paddingHorizontal: 15,
+                  borderRadius: 5,
+                  position: 'absolute',
+                  marginTop: layout.height - 150,
+                  alignSelf: 'center',
+                }}
+                onPress={() => {
+                  setDoctorsList(null);
+                }}
+              />
+            </View>
+          )}
         </ScrollView>
       </SafeAreaView>
     </KeyboardAvoidingView>
