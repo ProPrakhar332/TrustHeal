@@ -208,14 +208,16 @@ const Header = ({title, showMenu}) => {
               flexDirection: 'row',
             }}
             onPress={() => {
-              navigation.goBack();
+              if (title != 'Confirm Booking') navigation.goBack();
             }}>
-            <FAIcon
-              style={styles.icon}
-              name="chevron-left"
-              size={20}
-              color="white"
-            />
+            {title != 'Confirm Booking' ? (
+              <FAIcon
+                style={styles.icon}
+                name="chevron-left"
+                size={20}
+                color="white"
+              />
+            ) : null}
             <Text
               style={{
                 color: 'white',
@@ -229,34 +231,36 @@ const Header = ({title, showMenu}) => {
         )}
       </View>
 
-      <View style={[{flexDirection: 'column', alignSelf: 'center'}]}>
-        <View style={{flexDirection: 'row'}}>
-          <TouchableOpacity onPress={() => navigation.navigate('PatientFav')}>
-            <Image style={styles.icon} source={heart} color="white" />
-          </TouchableOpacity>
+      {title != 'Confirm Booking' ? (
+        <View style={[{flexDirection: 'column', alignSelf: 'center'}]}>
+          <View style={{flexDirection: 'row'}}>
+            <TouchableOpacity onPress={() => navigation.navigate('PatientFav')}>
+              <Image style={styles.icon} source={heart} color="white" />
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            onPress={() => {
-              setLocationModal(true);
-            }}>
-            <Image style={styles.icon} source={location} color="white" />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => {
-              console.log('Share');
-              setShareModal(true);
-            }}>
-            <Image style={styles.icon} source={sharing} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => {
-              console.log('Notifications');
-              setNotificationModal(true);
-            }}>
-            <Image style={styles.icon} source={bell} color="white" />
-          </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                setLocationModal(true);
+              }}>
+              <Image style={styles.icon} source={location} color="white" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                console.log('Share');
+                setShareModal(true);
+              }}>
+              <Image style={styles.icon} source={sharing} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                console.log('Notifications');
+                setNotificationModal(true);
+              }}>
+              <Image style={styles.icon} source={bell} color="white" />
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
+      ) : null}
       {shareModal ? (
         <Modal
           animationType="slide"

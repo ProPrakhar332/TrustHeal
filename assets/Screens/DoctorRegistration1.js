@@ -167,13 +167,14 @@ const DoctorRegistrationStep1 = ({navigation}) => {
       docObj.contactVisibility = showMobNo == 'Yes' ? true : false;
       docObj.createdOn = dayjs().format('YYYY-MM-DD');
       docObj.countryName = await AsyncStorage.getItem('countryName');
+      docObj.digitalSignature = 0;
       docObj.dob = dob;
       docObj.email = email;
       docObj.fullName = title + ' ' + name;
       docObj.gender = gender;
       docObj.mobileNumber = mobile;
       docObj.pincode = PIN;
-
+      docObj.profilephoto = 0;
       docObj.termsAndCondition = checkTerms;
       console.log(JSON.stringify(docObj));
 

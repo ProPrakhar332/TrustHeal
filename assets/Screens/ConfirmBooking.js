@@ -14,6 +14,7 @@ import {
   ScrollView,
   StyleSheet,
   KeyboardAvoidingView,
+  BackHandler,
 } from 'react-native';
 import {CheckBox} from 'react-native-elements';
 import axios from 'axios';
@@ -21,8 +22,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Header from '../Components/Header';
 import HeaderPatient from '../Components/HeaderPatient';
 import FAIcons from 'react-native-vector-icons/FontAwesome5';
-//icons
+import apiConfig from '../API/apiConfig';
 
+//icons
+import defaultDoctor from '../Resources/doctor3x.png';
 import doctor_m from '../Resources/doctor_m.png';
 import CustomButton from '../Components/CustomButton';
 import {SelectList} from 'react-native-dropdown-select-list';
@@ -32,6 +35,8 @@ import DocumentPicker, {
   isInProgress,
   types,
 } from 'react-native-document-picker';
+import dayjs from 'dayjs';
+import timeformatter from '../API/timeformatter';
 
 const data = {
   name: 'Dr. Imran Singh',
@@ -108,6 +113,7 @@ const dataGender = [
 
 function ConfirmBoking({navigation}) {
   const [family, setfamily] = useState(false);
+  const [familyMembers, setfamilyMembers] = useState(null);
   const [selfp, setselfp] = useState(true);
   const [terms, setterms] = useState(false);
   const [symptoms, setsymptoms] = useState('');
@@ -121,6 +127,83 @@ function ConfirmBoking({navigation}) {
   const [formOccupation, setformOccupation] = useState('');
   const [formHeight, setformHeight] = useState('');
   const [formWeight, setformWeight] = useState('');
+  const [PrevPageData, setPrevPageData] = useState(null);
+
+  useEffect(() => {
+    const LoadData = async () => {
+      let x = JSON.parse(await AsyncStorage.getItem('ConfirmBookingDoctor'));
+      console.log(
+        '================ PREVIOUS PAGE DATA =========================\n',
+        x,
+      );
+      setPrevPageData(x);
+    };
+    LoadData();
+    const getFamily = async () => {
+      // let x = JSON.parse(await AsyncStorage.getItem('ConfirmBookingDoctor'));
+      axios
+        .get(apiConfig.baseUrl + '/patient/family?patientId=14')
+        .then(response => {
+          if (response.status == 200) {
+            setfamilyMembers(response.data);
+          }
+        })
+        .catch(error => {
+          Alert.alert('Error', `Error in fetching Family members.\n${error}`);
+        });
+    };
+    getFamily();
+  }, []);
+
+  useEffect(() => {
+    const backAction = () => {
+      Alert.alert('Hold on!', 'Are you sure you want to go back?', [
+        {
+          text: 'Cancel',
+          onPress: () => null,
+          style: 'cancel',
+        },
+        {
+          text: 'YES',
+          onPress: async () => {
+            let x = JSON.parse(
+              await AsyncStorage.getItem('ConfirmBookingDoctor'),
+            );
+            let mode =
+              x.consultationType == 'PHYSICAL'
+                ? 'P_CONSULTATION'
+                : 'E_CONSULTATION';
+            await axios
+              .delete(
+                apiConfig.baseUrl +
+                  '/patient/slot/prebook/delete?consultation=' +
+                  mode +
+                  '&slotId=' +
+                  x.slotId +
+                  '&userId=1',
+              )
+              .then(response => {
+                if (response.status == 200) {
+                  navigation.goBack();
+                }
+              })
+              .catch(error => {
+                Alert.alert('Error', `Error in Delete PreBook:-\n ${error}`);
+              });
+          },
+        },
+      ]);
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction,
+    );
+
+    return () => backHandler.remove();
+  }, []);
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -140,52 +223,86 @@ function ConfirmBoking({navigation}) {
           showsVerticalScrollIndicator={false}>
           <HeaderPatient showMenu={false} title="Confirm Booking" />
           {/* Top */}
-          <View
-            style={{
-              marginVertical: 10,
-              alignSelf: 'center',
-              width: '90%',
-              alignSelf: 'center',
-              paddingBottom: 20,
-              borderBottomWidth: 1,
-              borderColor: 'gray',
-            }}>
-            <Image
-              source={data.img}
+          <View style={{marginVertical: 10, alignSelf: 'center'}}>
+            <View
               style={{
-                width: 100,
-                height: 100,
                 alignSelf: 'center',
-                borderRadius: 5,
-              }}
-            />
+                padding: 3,
+                borderColor: '#2b8ada',
+                borderWidth: 5,
+                borderRadius: 100,
+              }}>
+              {PrevPageData == null ? (
+                <Image
+                  source={defaultDoctor}
+                  //source={doctor_m}
+                  style={{
+                    width: 100,
+                    height: 100,
+                    alignSelf: 'center',
+                    borderRadius: 100,
+                  }}
+                />
+              ) : (
+                <Image
+                  source={{
+                    uri: `${apiConfig.baseUrl}/file/download?fileToken=${PrevPageData.doctorObj.photoPath}&userId=${PrevPageData.doctorObj.doctorId}`,
+                  }}
+                  //source={doctor_m}
+                  style={{
+                    width: 100,
+                    height: 100,
+                    alignSelf: 'center',
+                    borderRadius: 100,
+                  }}
+                />
+              )}
+            </View>
             <Text
               style={{
                 fontSize: 20,
                 fontWeight: 'bold',
                 alignSelf: 'center',
+                color: 'black',
+                marginTop: 2,
               }}>
-              {data.name}
+              {PrevPageData != null ? PrevPageData.doctorObj.doctorName : null}
             </Text>
             <Text
               style={{
-                fontSize: 13,
-                color: 'gray',
-                alignSelf: 'center',
-                marginVertical: 3,
-              }}>
-              {data.spl}
-            </Text>
-            <Text
-              style={{
-                backgroundColor: '#2B8ADA',
+                fontSize: 15,
+                backgroundColor: '#2b8ada',
                 color: 'white',
+                alignSelf: 'center',
+                marginVertical: 5,
+                fontWeight: 'bold',
+                padding: 3,
+                paddingHorizontal: 10,
+                borderRadius: 5,
+              }}>
+              {PrevPageData != null
+                ? PrevPageData.doctorObj.specialization.map(index => {
+                    return PrevPageData.doctorObj.specialization.indexOf(
+                      index,
+                    ) !=
+                      PrevPageData.doctorObj.specialization.length - 1
+                      ? index + ', '
+                      : index;
+                  })
+                : null}
+            </Text>
+            <Text
+              style={{
+                // backgroundColor: '#2B8ADA',
+                color: 'gray',
                 borderRadius: 10,
                 alignSelf: 'center',
-                padding: 3,
-                paddingHorizontal: 15,
+                fontWeight: 'bold',
               }}>
-              {data.exp}
+              {PrevPageData != null
+                ? Math.floor(PrevPageData.doctorObj.totalExprienceInMonths / 12)
+                : null}
+              {' years of experience'}
             </Text>
           </View>
           {/* Middle Text */}
@@ -197,15 +314,47 @@ function ConfirmBoking({navigation}) {
               borderColor: 'gray',
             }}>
             <View style={{marginBottom: 10}}>
-              <Text style={{fontSize: 11, color: 'gray'}}>Type of Booking</Text>
-              <Text style={{fontSize: 15, fontWeight: 'bold'}}>
-                Video Consultation
+              <Text style={{fontSize: 12, color: 'black', fontWeight: 'bold'}}>
+                Mode of Consultation
               </Text>
+              <View style={{flexDirection: 'row'}}>
+                <FAIcons
+                  name={
+                    PrevPageData != null
+                      ? PrevPageData.consultationType == 'VIDEO_CALL'
+                        ? 'video'
+                        : PrevPageData.consultationType == 'PHONE_CALL'
+                        ? 'phone-alt'
+                        : 'users'
+                      : 'users'
+                  }
+                  size={15}
+                  color={'gray'}
+                  style={{alignSelf: 'center', marginRight: 5}}
+                />
+                <Text style={{fontSize: 15, color: 'gray', fontWeight: 'bold'}}>
+                  {PrevPageData != null
+                    ? PrevPageData.consultationType == 'VIDEO_CALL'
+                      ? 'Video Call'
+                      : PrevPageData.consultationType == 'PHONE_CALL'
+                      ? 'Phone Call'
+                      : 'Physical'
+                    : null}
+                </Text>
+              </View>
             </View>
             <View style={{marginBottom: 10}}>
-              <Text style={{fontSize: 11, color: 'gray'}}>Date & Time</Text>
+              <Text style={{fontSize: 12, color: 'black', fontWeight: 'bold'}}>
+                Date & Time
+              </Text>
               <Text style={{fontSize: 15, fontWeight: 'bold'}}>
-                13 Sep 2022, 4:12 PM
+                {PrevPageData != null
+                  ? dayjs(PrevPageData.slotDate).format('DD MMM, YYYY')
+                  : null}
+                {' at '}
+                {PrevPageData != null
+                  ? timeformatter(PrevPageData.slotStartTime)
+                  : null}
               </Text>
             </View>
           </View>
@@ -217,10 +366,12 @@ function ConfirmBoking({navigation}) {
               alignSelf: 'center',
               marginVertical: 10,
             }}>
-            <Text style={{fontSize: 11, color: 'gray'}}>Appointment For</Text>
+            <Text style={{fontSize: 12, color: 'black', fontWeight: 'bold'}}>
+              Appointment For
+            </Text>
             <View style={{flexDirection: 'row'}}>
               <CustomButton
-                text={'Add Family'}
+                text={'+ Add Family'}
                 textstyle={[
                   {fontSize: 12},
                   family ? {color: 'white'} : {color: 'black'},
@@ -264,22 +415,33 @@ function ConfirmBoking({navigation}) {
           {family ? (
             <View style={{width: '90%', alignSelf: 'center'}}>
               <Text
-                style={{fontSize: 13, fontWeight: 'bold', marginBottom: 10}}>
+                style={{
+                  fontSize: 13,
+                  fontWeight: 'bold',
+                  marginBottom: 10,
+                  color: 'black',
+                }}>
                 Provide general information about patient:
               </Text>
 
               {/* Form */}
               {/* Full Name */}
               <View style={{marginBottom: 10}}>
-                <Text style={styles.fomrHeading}>Full Name</Text>
-                <TextInput placeholder="Full Name" style={styles.formInput} />
+                <View style={{flexDirection: 'row'}}>
+                  <Text style={styles.fomrHeading}>Full Name</Text>
+                  <Text style={{color: 'red'}}>*</Text>
+                </View>
+                <TextInput style={styles.formInput} />
               </View>
               {/* Relation */}
               <View style={{marginBottom: 10}}>
-                <Text style={styles.fomrHeading}>Relation</Text>
+                <View style={{flexDirection: 'row'}}>
+                  <Text style={styles.fomrHeading}>Relation</Text>
+                  <Text style={{color: 'red'}}>*</Text>
+                </View>
                 <SelectList
                   defaultOption={formRelation}
-                  placeholder={'Relation'}
+                  placeholder={' '}
                   setSelected={val => setformRelation(val)}
                   data={dataRelation}
                   save="value"
@@ -303,11 +465,15 @@ function ConfirmBoking({navigation}) {
               </View>
               {/* Date of Birth */}
               <View style={{marginBottom: 10}}>
-                <Text style={styles.fomrHeading}>Date of Birth</Text>
+                <View style={{flexDirection: 'row'}}>
+                  <Text style={styles.fomrHeading}>Date of Birth</Text>
+                  <Text style={{color: 'red'}}>*</Text>
+                </View>
                 <View style={{flexDirection: 'row'}}>
                   <TextInput
-                    placeholder="DD/MM/YYYY*"
                     style={styles.formInput}
+                    value={formDob}
+                    editable={false}
                   />
                   <FAIcons
                     name="calendar-alt"
@@ -324,10 +490,13 @@ function ConfirmBoking({navigation}) {
               </View>
               {/* Gender */}
               <View style={{marginBottom: 10}}>
-                <Text style={styles.fomrHeading}>Gender</Text>
+                <View style={{flexDirection: 'row'}}>
+                  <Text style={styles.fomrHeading}>Gender</Text>
+                  <Text style={{color: 'red'}}>*</Text>
+                </View>
                 <SelectList
                   defaultOption={formGender}
-                  placeholder={'Gender*'}
+                  placeholder={' '}
                   setSelected={val => setformGender(val)}
                   data={dataGender}
                   save="value"
@@ -351,13 +520,20 @@ function ConfirmBoking({navigation}) {
               </View>
               {/* Mobile Number */}
               <View style={{marginBottom: 10}}>
-                <Text style={styles.fomrHeading}>Mobile Number</Text>
+                <View style={{flexDirection: 'row'}}>
+                  <Text style={styles.fomrHeading}>Mobile Number</Text>
+                  <Text style={{color: 'red'}}>*</Text>
+                </View>
                 <TextInput
-                  placeholder="Mobile Number (Include Country Code Like +91)"
+                  onChangeText={text => setformMob(text)}
+                  value={formMob}
+                  keyboardType={'number-pad'}
+                  maxLength={10}
                   style={styles.formInput}
                 />
               </View>
-              <Text style={{fontWeight: 'bold', marginBottom: 5}}>
+              <Text
+                style={{fontWeight: 'bold', marginBottom: 5, color: 'black'}}>
                 Other Details:
               </Text>
               <View style={{marginBottom: 10, flexDirection: 'column'}}>
@@ -422,29 +598,39 @@ function ConfirmBoking({navigation}) {
           ) : null}
           {/* Symptoms */}
           <View style={{width: '90%', alignSelf: 'center'}}>
-            <Text style={{fontSize: 11, color: 'black', marginBottom: 3}}>
+            <Text style={styles.fomrHeading}>
               Give a brief description of your symptoms
             </Text>
             <View
               style={{
-                height: 100,
-                backgroundColor: 'white',
                 marginTop: 2,
                 borderRadius: 5,
               }}>
               <TextInput
-                placeholder="Write something here"
+                placeholder="Write symptoms here"
                 multiline={true}
-                style={{fontSize: 12, padding: 10}}
+                style={{
+                  fontSize: 12,
+                  padding: 10,
+                  height: 90,
+                  backgroundColor: 'white',
+                  borderRadius: 5,
+                  marginBottom: 10,
+                  paddingHorizontal: 15,
+                }}
+                maxLength={50}
                 onChangeText={text => setsymptoms(text)}
                 value={symptoms}
               />
+              <Text style={{fontSize: 12, color: 'black'}}>
+                Characters {symptoms.length}/50
+              </Text>
             </View>
           </View>
 
           {/* Upload Documents */}
-          <View style={{width: '90%', alignSelf: 'center'}}>
-            <Text style={{fontSize: 11, color: 'gray'}}>
+          {/* <View style={{width: '90%', alignSelf: 'center', marginTop: 10}}>
+            <Text style={{fontSize: 12, color: 'black', fontWeight: 'bold'}}>
               Attach Related Document
             </Text>
             <View style={{flexDirection: 'row', marginVertical: 10}}>
@@ -457,7 +643,7 @@ function ConfirmBoking({navigation}) {
                   marginRight: 10,
                 }}>
                 <FAIcons name="id-card" color={'white'} size={20} />
-                <Text style={{fontSize: 11, color: 'white'}}>ID Proof</Text>
+                <Text style={{fontSize: 12, color: 'white'}}>ID Proof</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={{
@@ -467,30 +653,78 @@ function ConfirmBoking({navigation}) {
                   alignItems: 'center',
                 }}>
                 <FAIcons name="cloud-upload-alt" color={'white'} size={20} />
-                <Text style={{fontSize: 11, color: 'white'}}>
+                <Text style={{fontSize: 12, color: 'white'}}>
                   Upload Documents
                 </Text>
               </TouchableOpacity>
             </View>
-          </View>
+          </View> */}
           <CheckBox
             title={'I agree to terms and conditions'}
             containerStyle={styles.containerStyle}
-            textStyle={{width: '80%', fontSize: 11}}
+            textStyle={{width: '80%', fontSize: 12}}
             checkedColor={'#2b8ada'}
             checked={terms}
             onPress={() => setterms(!terms)}
           />
           <CustomButton
-            text={'Book your Appointment'}
+            text={'Proceed to Payment'}
             textstyle={{color: 'white', fontSize: 13}}
             style={{
               backgroundColor: '#2b8ada',
               width: '90%',
               alignSelf: 'center',
               borderRadius: 10,
+            }}
+          />
+          <CustomButton
+            text={'Cancel'}
+            textstyle={{color: '#2b8ada', fontSize: 13, formWeight: 'bold'}}
+            style={{
+              borderColor: '#2b8ada',
+              borderWidth: 2,
+              width: '90%',
+              alignSelf: 'center',
+              borderRadius: 10,
               marginVertical: 15,
-              marginBottom: 30,
+            }}
+            onPress={async () => {
+              let mode =
+                PrevPageData.consultationType == 'PHYSICAL'
+                  ? 'P_CONSULTATION'
+                  : 'E_CONSULTATION';
+
+              await axios
+                .delete(
+                  apiConfig.baseUrl +
+                    '/patient/slot/prebook/delete?consultation=' +
+                    mode +
+                    '&slotId=' +
+                    PrevPageData.slotId +
+                    '&userId=1',
+                )
+                .then(response => {
+                  if (response.status == 200) {
+                    navigation.goBack();
+                  }
+                })
+                .catch(error => {
+                  Alert.alert('Error', `Error in Delete PreBook:-\n ${error}`);
+                });
+            }}
+          />
+
+          <CustomButton
+            text={'Cache Keys'}
+            textstyle={{color: 'white', fontSize: 13}}
+            style={{
+              backgroundColor: 'limegreen',
+              width: '90%',
+              alignSelf: 'center',
+              borderRadius: 10,
+            }}
+            onPress={async () => {
+              console.log(await AsyncStorage.getAllKeys());
             }}
           />
         </ScrollView>
@@ -512,7 +746,12 @@ const styles = StyleSheet.create({
     marginVertical: 0,
     borderWidth: 0,
   },
-  fomrHeading: {fontSize: 12, marginBottom: 5},
+  fomrHeading: {
+    fontSize: 12,
+    marginBottom: 5,
+    color: '#2b8ada',
+    fontWeight: 'bold',
+  },
   formInput: {
     backgroundColor: 'white',
     borderRadius: 5,

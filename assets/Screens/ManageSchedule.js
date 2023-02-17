@@ -64,8 +64,8 @@ const ManageSchedule = () => {
   const [viewESlots, setviewESlots] = useState([]);
   //View P-consultation
   const [ViewPConsultations, setViewPConsultations] = useState(false);
-  const [viewPDates, setviewPDates] = useState([]);
-  const [viewPSlots, setviewPSlots] = useState([]);
+  const [viewPDates, setviewPDates] = useState(null);
+  const [viewPSlots, setviewPSlots] = useState(null);
   const [PCclinicId, setPCclinicId] = useState('');
   const [PCclinicName, setPCclinicName] = useState('');
   const [PCclinicAddress, setPCclinicAddress] = useState('');
@@ -282,7 +282,7 @@ const ManageSchedule = () => {
         '/slot/pslots/all?doctorId=' +
         doctorId +
         '&clinicId=' +
-        PCCreateClinicID +
+        PCclinicId +
         '&date=' +
         date,
     );
@@ -292,7 +292,7 @@ const ManageSchedule = () => {
           '/slot/pslots/all?doctorId=' +
           doctorId +
           '&clinicId=' +
-          PCCreateClinicID +
+          PCclinicId +
           '&date=' +
           date,
       )
@@ -700,13 +700,29 @@ const ManageSchedule = () => {
         onPress={() => {
           console.log(item.slotId);
         }}>
+        {item.typeOfEConsultation != null ? (
+          <FAIcon
+            name={
+              item.typeOfEConsultation == 'PHONE_CALL' ? 'phone-alt' : 'video'
+            }
+            size={12}
+            color={
+              item.slotStatus == 'BOOKED'
+                ? 'white'
+                : item.slotStatus == 'DELETED_BY_DOCTOR'
+                ? 'white'
+                : '#2b8ada'
+            }
+            style={{alignSelf: 'center', marginRight: 3}}
+          />
+        ) : null}
         <Text
           style={[
             item.slotStatus != 'CREATED'
               ? styles.slotTitleActive
               : styles.slotTitle,
           ]}>
-          {timeformatter(item.startTime)} to {timeformatter(item.endTime)}
+          {timeformatter(item.startTime)} - {timeformatter(item.endTime)}
         </Text>
       </TouchableOpacity>
     );
@@ -853,6 +869,7 @@ const ManageSchedule = () => {
                           fontWeight: 'bold',
                           fontSize: 16,
                           padding: 5,
+                          color: 'black',
                         }}>
                         Create Slots
                       </Text>
@@ -928,9 +945,7 @@ const ManageSchedule = () => {
                             marginBottom: 10,
                           }}>
                           <View style={{flex: 1}}>
-                            <Text style={styles.inputLabel}>
-                              Select Clinic Name
-                            </Text>
+                            <Text style={styles.inputLabel}>Select Clinic</Text>
                             <SelectList
                               //defaultOption={ClinicDet[0].key}
                               placeholder={' '}
@@ -1839,7 +1854,7 @@ const ManageSchedule = () => {
                                   marginVertical: 10,
                                   alignSelf: 'center',
                                 }}
-                                numColumns={3}
+                                numColumns={2}
                                 scrollEnabled={true}
                               />
                               <CustomButton
@@ -1867,7 +1882,9 @@ const ManageSchedule = () => {
                                   alignSelf: 'center',
                                   fontSize: 12,
                                 }}>
-                                No Slots Available
+                                {viewPSlots == null
+                                  ? ' No Slots Available'
+                                  : 'Please Select Date'}
                               </Text>
                               <CustomButton
                                 text="Create Slots"
@@ -1970,7 +1987,7 @@ const ManageSchedule = () => {
                                   marginVertical: 10,
                                   alignSelf: 'center',
                                 }}
-                                numColumns={3}
+                                numColumns={2}
                               />
                               <CustomButton
                                 text="Add More Slots"
@@ -2111,37 +2128,29 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   slotBackground: {
+    flexDirection: 'row',
     alignSelf: 'center',
     backgroundColor: '#E8F0FE',
     borderWidth: 1,
     borderColor: '#2b8ada',
-    padding: 2,
-    borderRadius: 10,
+    padding: 10,
+    borderRadius: 5,
     margin: 2,
-    width: 80,
   },
   slotTitle: {
-    fontSize: 12,
-    color: '#2b8ada',
+    fontSize: 11,
+    color: 'black',
     textAlign: 'center',
-    width: 50,
     alignSelf: 'center',
   },
   slotBackgroundActive: {
-    alignSelf: 'center',
     backgroundColor: '#2b8ada',
-    borderWidth: 1,
     borderColor: '#2b8ada',
-    padding: 2,
-    borderRadius: 10,
-    margin: 2,
-    width: 80,
   },
   slotTitleActive: {
-    fontSize: 12,
+    fontSize: 11,
     color: '#fff',
     textAlign: 'center',
-    width: 50,
     alignSelf: 'center',
   },
   WhiteLabel: {

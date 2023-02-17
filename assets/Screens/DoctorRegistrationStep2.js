@@ -2221,7 +2221,7 @@ const DoctorRegistration2 = ({navigation}) => {
                               Degree Passing Year
                             </Text>
                             <SelectList
-                              placeholder={DegreePassingYear}
+                              placeholder={' '}
                               boxStyles={{
                                 backgroundColor: '#e8f0fe',
                                 borderWidth: 0,

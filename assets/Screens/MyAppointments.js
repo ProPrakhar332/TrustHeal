@@ -381,7 +381,7 @@ function MyAppointment({navigation}) {
               {'  |  '}
               {dayjs(item.date).format('DD-MMM-YY')}
             </Text>
-            <View style={{flexDirection: 'row', marginVertical: 3}}>
+            {/* <View style={{flexDirection: 'row', marginVertical: 3}}>
               {item.slotStartTime == dayjs().format('HH:mm') ? (
                 <TouchableOpacity
                   style={{
@@ -395,7 +395,7 @@ function MyAppointment({navigation}) {
                   </Text>
                 </TouchableOpacity>
               ) : null}
-            </View>
+            </View> */}
           </View>
           {/* Options Button */}
           <TouchableOpacity style={{flex: 0.1, alignSelf: 'flex-start'}}>

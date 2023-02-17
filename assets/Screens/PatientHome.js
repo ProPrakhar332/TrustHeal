@@ -26,6 +26,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomButton from '../Components/CustomButton';
 
 import doctor_m from '../Resources/doctor_m.png';
+import defaultDoctor from '../Resources/doctor3x.png';
 import doctor_f from '../Resources/doctor_f.jpg';
 import waiting from '../Animations/waiting1.gif';
 
@@ -465,32 +466,36 @@ function PatientHome({navigation}) {
     return (
       <View
         style={{
-          alignSelf: 'center',
-          flex: 1,
           backgroundColor: 'white',
           padding: 10,
           borderRadius: 15,
-          width: 175,
+          width: 150,
           marginHorizontal: 5,
         }}>
         {/* Image */}
         <Image
           source={
             item.photoPath == 0
-              ? doctor_m
+              ? defaultDoctor
               : {
                   uri: `${apiConfig.baseUrl}/file/download?fileToken=${item.photoPath}&userId=${item.doctorId}`,
                 }
           }
           style={{
-            width: 120,
-            height: 120,
+            width: 100,
+            height: 100,
             alignSelf: 'center',
             marginVertical: 5,
+            borderRadius: 10,
           }}
         />
         {/* Details */}
-        <View>
+        <View
+          style={{
+            alignSelf: 'center',
+            justifyContent: 'space-around',
+            marginBottom: 5,
+          }}>
           {/* Name */}
           <Text
             style={{
@@ -541,14 +546,13 @@ function PatientHome({navigation}) {
             {' years of experience'}
           </Text>
         </View>
-        {/* Consult Now Button */}
+        {/* View Profile Button */}
         <CustomButton
-          text="Consult Now"
+          text="View Profile"
           textstyle={{color: 'white', fontSize: 12, fontWeight: 'bold'}}
           style={{
             backgroundColor: '#2B8ADA',
             paddingVertical: 3,
-            marginVertical: 5,
           }}
           onPress={async () => {
             console.log(item.doctorName);
@@ -626,6 +630,10 @@ function PatientHome({navigation}) {
       axios
         .get(apiConfig.baseUrl + '/patient/doctors?max=5&min=0')
         .then(function (response) {
+          console.log(
+            '\n=========================== LIST OF DOCTORS DATA ====================================\n',
+          );
+          console.log(response.data);
           if (response.status == 200) setDoctorsData(response.data);
         });
     };

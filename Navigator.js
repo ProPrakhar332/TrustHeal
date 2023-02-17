@@ -51,6 +51,8 @@ import MedicalRecord from './assets/Screens/MedicalRecord';
 import PConsultation from './assets/Screens/P-Consultation';
 import EConsultation from './assets/Screens/E-Consultation';
 
+import AllSpeciality from './assets/Screens/AllSpeciality';
+import AllSymptoms from './assets/Screens/AllSymptoms';
 import PatientConsult from './assets/Screens/PatientConsult';
 import PatientFav from './assets/Screens/PatientFav';
 import PatientHome from './assets/Screens/PatientHome';
@@ -1019,6 +1021,16 @@ function App() {
           />
         </Stack.Navigator> */}
       <Stack.Navigator initialRouteName="RoleScreen">
+        <Stack.Screen
+          name="AllSpeciality"
+          component={AllSpeciality}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="AllSymptoms"
+          component={AllSymptoms}
+          options={{headerShown: false}}
+        />
         <Stack.Screen
           name="CallPage"
           component={CallPage}

@@ -397,7 +397,7 @@ const Header = ({title, showMenu}) => {
               flexDirection: 'row',
             }}
             onPress={() => {
-              navigation.goBack();
+               navigation.goBack();
             }}>
             <FAIcon
               style={styles.icon}

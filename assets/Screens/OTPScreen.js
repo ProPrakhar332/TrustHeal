@@ -1095,7 +1095,7 @@ const FirstScreen = ({route, navigation}) => {
     else {
       setisLoading(true);
 
-      let x = parseInt(pin1 + pin2 + pin3 + pin4);
+      let x = '' + pin1 + pin2 + pin3 + pin4;
       // let no = await AsyncStorage.getItem("mobileNumber");
       // console.log(no);
       axios
