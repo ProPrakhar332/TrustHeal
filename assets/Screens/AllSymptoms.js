@@ -41,7 +41,9 @@ function AllSymptoms({navigation}) {
             backgroundColor: '#e8f0fe',
           }}
           showsVerticalScrollIndicator={false}
-          nestedScrollEnabled={true}></ScrollView>
+          nestedScrollEnabled={true}>
+          <HeaderPatient showMenu={false} title={'All Symptoms'} />
+        </ScrollView>
       </SafeAreaView>
     </KeyboardAvoidingView>
   );

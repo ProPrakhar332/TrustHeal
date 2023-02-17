@@ -820,6 +820,7 @@ function PatientHome({navigation}) {
               }}
               onPress={() => {
                 console.log(Math.floor(width / 90));
+                navigation.navigate('AllSpeciality');
               }}>
               View All
             </Text>
@@ -861,7 +862,9 @@ function PatientHome({navigation}) {
                 alignSelf: 'flex-end',
                 margin: 10,
               }}
-              onPress={() => {}}>
+              onPress={() => {
+                navigation.navigate('AllSymptoms');
+              }}>
               View All
             </Text>
           </View>

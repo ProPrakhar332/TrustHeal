@@ -85,6 +85,7 @@ const Header = ({title, showMenu}) => {
   const [onlyUsing, setonlyUsing] = useState(false);
   const [donAllow, setdonAllow] = useState(false);
   const navigation = useNavigation();
+  
   const removeHandler = e => {
     setNotificationList(NotificationList.filter(obj => obj.id !== e));
     // console.log(questionareList);
