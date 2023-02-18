@@ -45,6 +45,7 @@ function AllSYmptoms({navigation}) {
   const [showDoctorList, setshowDoctorList] = useState(false);
   const [consultationModeModal, setconsultationModeModal] = useState(false);
   const [DoctorItem, setDoctorItem] = useState(null);
+  const [showFilter, setshowFilter] = useState(true);
   const layout = useWindowDimensions();
 
   useEffect(() => {
@@ -299,21 +300,33 @@ function AllSYmptoms({navigation}) {
               })}
             </Text>
             {/* Speciality */}
-            <Text
-              style={{
-                textAlign: 'left',
-                fontWeight: 'bold',
-                fontSize: 12,
-                color: '#2b8ada',
-                flex: 1,
-              }}>
+            <View style={{flexDirection: 'row', flexWrap: 'wrap', flex: 1}}>
               {item.specialization.map(index => {
-                return item.specialization.indexOf(index) !=
-                  item.specialization.length - 1
-                  ? index + ', '
-                  : index;
+                return (
+                  <Text
+                    key={index}
+                    style={[
+                      {
+                        textAlign: 'left',
+                        color: '#2b8ada',
+                        fontSize: 12,
+                        flex: 1,
+                        fontWeight: 'bold',
+                      },
+                      SpecialitySearch.indexOf(index) != -1
+                        ? {color: '#17CC9C'}
+                        : null,
+                    ]}>
+                    {index}{' '}
+                    {item.specialization.indexOf(index) !=
+                    item.specialization.length - 1
+                      ? ' , '
+                      : null}
+                  </Text>
+                );
               })}
-            </Text>
+            </View>
+
             {/* Experience */}
             <Text
               style={{
@@ -549,14 +562,14 @@ function AllSYmptoms({navigation}) {
               {selectedSymptom != '' ? (
                 <TouchableOpacity
                   style={{
-                    backgroundColor: '#2b8ada',
+                    backgroundColor: '#17CC9C',
                     padding: 7,
                     paddingHorizontal: 15,
                     borderRadius: 5,
                     position: 'absolute',
                     marginTop: layout.height - 150,
                     alignSelf: 'center',
-                    flexDirection: 'row',
+                    flexDirection: 'column',
                   }}
                   onPress={async () => {
                     setSpecialitySearch([]);
@@ -670,6 +683,37 @@ function AllSYmptoms({navigation}) {
                   alignSelf: 'center',
                   justifyContent: 'space-evenly',
                 }}>
+                {SpecialitySearch != '' ? (
+                  <TouchableOpacity
+                    style={{
+                      backgroundColor: '#17CC9C',
+                      padding: 7,
+                      paddingHorizontal: 15,
+                      borderRadius: 5,
+                      alignSelf: 'center',
+                      flex: 0.45,
+                      flexDirection: 'column',
+                    }}
+                    onPress={async () => {
+                      // await getSpecialityFromSymptoms();
+                      await getDoctorsFromSpeciality();
+                    }}>
+                    <FAIcons
+                      name="search"
+                      size={15}
+                      color={'white'}
+                      style={{alignSelf: 'center', marginRight: 5}}
+                    />
+                    <Text
+                      style={{
+                        color: 'white',
+                        fontWeight: 'bold',
+                        alignSelf: 'center',
+                      }}>
+                      Find Doctors
+                    </Text>
+                  </TouchableOpacity>
+                ) : null}
                 <TouchableOpacity
                   style={{
                     backgroundColor: '#2b8ada',
@@ -704,37 +748,6 @@ function AllSYmptoms({navigation}) {
                     Change Symptoms
                   </Text>
                 </TouchableOpacity>
-                {SpecialitySearch != '' ? (
-                  <TouchableOpacity
-                    style={{
-                      backgroundColor: '#2b8ada',
-                      padding: 7,
-                      paddingHorizontal: 15,
-                      borderRadius: 5,
-                      alignSelf: 'center',
-                      flex: 0.45,
-                      flexDirection: 'column',
-                    }}
-                    onPress={async () => {
-                      // await getSpecialityFromSymptoms();
-                      await getDoctorsFromSpeciality();
-                    }}>
-                    <FAIcons
-                      name="search"
-                      size={15}
-                      color={'white'}
-                      style={{alignSelf: 'center', marginRight: 5}}
-                    />
-                    <Text
-                      style={{
-                        color: 'white',
-                        fontWeight: 'bold',
-                        alignSelf: 'center',
-                      }}>
-                      Find Doctors
-                    </Text>
-                  </TouchableOpacity>
-                ) : null}
               </View>
             </View>
           ) : null}
@@ -744,7 +757,6 @@ function AllSYmptoms({navigation}) {
               style={{
                 width: '95%',
                 alignSelf: 'center',
-                height: layout.height - 100,
               }}>
               <View
                 style={{
@@ -754,105 +766,214 @@ function AllSYmptoms({navigation}) {
                   alignSelf: 'center',
                   borderRadius: 10,
                 }}>
-                {/* Heading */}
-                <Text
-                  style={{
-                    textAlign: 'left',
-                    backgroundColor: '#2b8ada',
-                    color: 'white',
-                    fontWeight: 'bold',
-                    marginBottom: 10,
-                    padding: 10,
-                    borderTopRightRadius: 10,
-                    borderTopLeftRadius: 10,
-                    fontSize: 15,
-                  }}>
-                  Showing results for
-                </Text>
+                {/*Filters Label */}
 
-                {/* Symptoms */}
-                <Text
-                  style={{
-                    width: '90%',
-                    textAlign: 'center',
-                    alignSelf: 'center',
-                    color: '#2b8ada',
-                    borderBottomWidth: 3,
-                    paddingBottom: 2,
-                    fontSize: 14,
-                    borderColor: '#2b8ada',
-                    fontWeight: 'bold',
-                  }}>
-                  Symptoms
-                </Text>
+                <TouchableOpacity
+                  style={[
+                    {
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      backgroundColor: '#2b8ada',
+                      borderTopRightRadius: 10,
+                      borderTopLeftRadius: 10,
+                      padding: 10,
+                    },
+                    !showFilter ? {borderRadius: 10} : null,
+                  ]}
+                  onPress={() => setshowFilter(!showFilter)}>
+                  {/* Heading */}
+                  <Text
+                    style={{
+                      alignSelf: 'center',
+                      color: 'white',
+                      fontWeight: 'bold',
+                      fontSize: 15,
+                    }}>
+                    Filters
+                  </Text>
+                  <FAIcons
+                    name={showFilter ? 'chevron-down' : 'chevron-right'}
+                    size={20}
+                    color={'white'}
+                    style={{alignSelf: 'center', marginRight: 10}}
+                  />
+                </TouchableOpacity>
 
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    width: '95%',
-                    alignSelf: 'center',
-                    flexWrap: 'wrap',
-                    marginVertical: 5,
-                  }}>
-                  {selectedSymptom.map(index => {
-                    return (
-                      <Text
-                        key={index}
+                {/*Filters Body */}
+
+                {showFilter ? (
+                  <View>
+                    {/* Symptoms Heading*/}
+                    <Text
+                      style={{
+                        width: '90%',
+                        textAlign: 'center',
+                        alignSelf: 'center',
+                        color: '#2b8ada',
+                        borderBottomWidth: 3,
+                        paddingBottom: 2,
+                        fontSize: 14,
+                        borderColor: '#2b8ada',
+                        fontWeight: 'bold',
+                      }}>
+                      Symptoms
+                    </Text>
+
+                    {/* Symptoms Body*/}
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        width: '95%',
+                        alignSelf: 'center',
+                        flexWrap: 'wrap',
+                        marginVertical: 5,
+                      }}>
+                      {selectedSymptom.map(index => {
+                        return (
+                          <Text
+                            key={index}
+                            style={{
+                              padding: 5,
+                              paddingHorizontal: 7,
+                              backgroundColor: '#17CC9C',
+                              color: 'white',
+                              borderRadius: 10,
+                              fontSize: 12,
+                              margin: 3,
+                            }}>
+                            {index}
+                          </Text>
+                        );
+                      })}
+                    </View>
+                    {/* Speciality Heading*/}
+                    <Text
+                      style={{
+                        width: '90%',
+                        textAlign: 'center',
+                        alignSelf: 'center',
+                        color: '#2b8ada',
+                        borderBottomWidth: 3,
+                        paddingBottom: 2,
+                        fontSize: 14,
+                        borderColor: '#2b8ada',
+                        fontWeight: 'bold',
+                      }}>
+                      Speciality
+                    </Text>
+                    {/* Speciality Body*/}
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        width: '95%',
+                        alignSelf: 'center',
+                        flexWrap: 'wrap',
+                        marginVertical: 5,
+                      }}>
+                      {SpecialitySearch.map(index => {
+                        return (
+                          <Text
+                            key={index}
+                            style={{
+                              padding: 5,
+                              paddingHorizontal: 7,
+                              backgroundColor: '#17CC9C',
+                              color: 'white',
+                              borderRadius: 10,
+                              fontSize: 12,
+                              margin: 3,
+                            }}>
+                            {index}
+                          </Text>
+                        );
+                      })}
+                    </View>
+                    {/* Buttons */}
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        width: '95%',
+                        alignSelf: 'center',
+                        justifyContent: 'space-evenly',
+                        marginVertical: 10,
+                      }}>
+                      <TouchableOpacity
                         style={{
+                          flex: 0.4,
+                          backgroundColor: '#2b8ada',
                           padding: 5,
-                          paddingHorizontal: 7,
-                          backgroundColor: '#17CC9C',
-                          color: 'white',
-                          borderRadius: 10,
-                          fontSize: 13,
-                          margin: 3,
+                          paddingHorizontal: 15,
+                          borderRadius: 5,
+                          alignSelf: 'center',
+                          flexDirection: 'row',
+                          justifyContent: 'space-evenly',
+                        }}
+                        onPress={async () => {
+                          // await getSpecialityFromSymptoms();
+                          //await getDoctorsFromSpeciality();
+                          setshowSymptoms(false);
+                          setshowSpecialities(true);
+                          setshowDoctorList(false);
+                          setSpecialitySearch([]);
+                          setDoctorsList([]);
                         }}>
-                        {index}
-                      </Text>
-                    );
-                  })}
-                </View>
-                {/* Speciality */}
-                <Text
-                  style={{
-                    width: '90%',
-                    textAlign: 'center',
-                    alignSelf: 'center',
-                    color: '#2b8ada',
-                    borderBottomWidth: 3,
-                    paddingBottom: 2,
-                    fontSize: 14,
-                    borderColor: '#2b8ada',
-                    fontWeight: 'bold',
-                  }}>
-                  Speciality
-                </Text>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    width: '95%',
-                    alignSelf: 'center',
-                    flexWrap: 'wrap',
-                    marginVertical: 5,
-                  }}>
-                  {SpecialitySearch.map(index => {
-                    return (
-                      <Text
-                        key={index}
+                        <FAIcons
+                          name="stethoscope"
+                          size={15}
+                          color={'white'}
+                          style={{alignSelf: 'center', marginRight: 5}}
+                        />
+                        <Text
+                          style={{
+                            color: 'white',
+                            fontWeight: 'bold',
+                            fontSize: 12,
+                            alignSelf: 'center',
+                          }}>
+                          Edit Speciality
+                        </Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
                         style={{
+                          flex: 0.4,
+                          backgroundColor: '#2b8ada',
                           padding: 5,
-                          paddingHorizontal: 7,
-                          backgroundColor: '#17CC9C',
-                          color: 'white',
-                          borderRadius: 10,
-                          fontSize: 13,
-                          margin: 3,
+                          paddingHorizontal: 15,
+                          borderRadius: 5,
+                          alignSelf: 'center',
+                          flexDirection: 'row',
+                          justifyContent: 'space-evenly',
+                        }}
+                        onPress={async () => {
+                          // await getSpecialityFromSymptoms();
+                          //await getDoctorsFromSpeciality();
+                          setshowSymptoms(true);
+                          setshowSpecialities(false);
+                          setshowDoctorList(false);
+                          setSpeciality([]);
+                          setselectedSymptom([]);
+                          setSpecialitySearch([]);
+                          setDoctorsList([]);
                         }}>
-                        {index}
-                      </Text>
-                    );
-                  })}
-                </View>
+                        <MIcons
+                          name="emoticon-sick-outline"
+                          size={15}
+                          color={'white'}
+                          style={{alignSelf: 'center', marginRight: 5}}
+                        />
+                        <Text
+                          style={{
+                            color: 'white',
+                            fontWeight: 'bold',
+                            fontSize: 12,
+                            alignSelf: 'center',
+                          }}>
+                          Edit Symptoms
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                ) : null}
               </View>
 
               {DoctorsList != '' ? (
@@ -869,74 +990,6 @@ function AllSYmptoms({navigation}) {
                   No Doctors available for the above symptom
                 </Text>
               )}
-              <View
-                style={{
-                  position: 'absolute',
-                  marginTop: layout.height - 150,
-                  flexDirection: 'row',
-                  width: '95%',
-                  alignSelf: 'center',
-                  justifyContent: 'space-evenly',
-                }}>
-                <TouchableOpacity
-                  style={{
-                    backgroundColor: '#2b8ada',
-                    padding: 7,
-                    paddingHorizontal: 15,
-                    borderRadius: 5,
-                    alignSelf: 'center',
-                    flexDirection: 'column',
-                  }}
-                  onPress={async () => {
-                    // await getSpecialityFromSymptoms();
-                    //await getDoctorsFromSpeciality();
-                    setshowSymptoms(true);
-                    setshowSpecialities(false);
-                    setshowDoctorList(false);
-                    setSpeciality([]);
-                    setselectedSymptom([]);
-                    setSpecialitySearch([]);
-                    setDoctorsList([]);
-                  }}>
-                  <MIcons
-                    name="emoticon-sick-outline"
-                    size={15}
-                    color={'white'}
-                    style={{alignSelf: 'center', marginRight: 5}}
-                  />
-                  <Text style={{color: 'white', fontWeight: 'bold'}}>
-                    Change Symptoms
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={{
-                    backgroundColor: '#2b8ada',
-                    padding: 7,
-                    paddingHorizontal: 15,
-                    borderRadius: 5,
-                    alignSelf: 'center',
-                    flexDirection: 'column',
-                  }}
-                  onPress={async () => {
-                    // await getSpecialityFromSymptoms();
-                    //await getDoctorsFromSpeciality();
-                    setshowSymptoms(false);
-                    setshowSpecialities(true);
-                    setshowDoctorList(false);
-                    setSpecialitySearch([]);
-                    setDoctorsList([]);
-                  }}>
-                  <FAIcons
-                    name="stethoscope"
-                    size={15}
-                    color={'white'}
-                    style={{alignSelf: 'center', marginRight: 5}}
-                  />
-                  <Text style={{color: 'white', fontWeight: 'bold'}}>
-                    Change Speciality
-                  </Text>
-                </TouchableOpacity>
-              </View>
             </View>
           ) : null}
 

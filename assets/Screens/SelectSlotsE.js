@@ -402,82 +402,40 @@ function SelectSlotsE({navigation}) {
               {' years of experience'}
             </Text>
           </View>
-
-          {/* Date Label*/}
-          <View
-            style={{
-              backgroundColor: 'white',
-              width: '95%',
-              alignSelf: 'center',
-              marginVertical: 15,
-              borderRadius: 10,
-            }}>
-            <Text style={[styles.subLabel, {width: '100%'}]}>Select Date</Text>
-
-            {EDays != '' ? (
-              <View
-                style={{
-                  flex: 1,
-                  alignSelf: 'center',
-                  flexDirection: 'column',
-                  marginVertical: 10,
-                  backgroundColor: 'white',
-                  alignItems: 'center',
-                }}>
-                <FlatList
-                  data={EDays}
-                  renderItem={renderDays}
-                  keyExtractor={item => item.date}
-                  numColumns={Math.floor(layout.width / 100)}
-                  style={{
-                    alignSelf: 'center',
-                  }}
-                  scrollEnabled={false}
-                />
-              </View>
-            ) : (
-              <Text
-                style={{
-                  marginVertical: 20,
-                  alignSelf: 'center',
-                  fontSize: 13,
-                  color: 'black',
-                }}>
-                No Dates Available
-              </Text>
-            )}
-          </View>
-
-          {/* Slots Label*/}
-          {ESlots != null ? (
+          {/* Body */}
+          <View style={{width: '95%', alignSelf: 'center'}}>
+            {/* Date Label*/}
             <View
               style={{
                 backgroundColor: 'white',
                 width: '95%',
                 alignSelf: 'center',
-                marginVertical: 10,
+                marginVertical: 15,
                 borderRadius: 10,
               }}>
               <Text style={[styles.subLabel, {width: '100%'}]}>
-                Select Slot
+                Select Date
               </Text>
-              {ESlots != '' ? (
+
+              {EDays != '' ? (
                 <View
                   style={{
+                    flex: 1,
                     alignSelf: 'center',
-                    width: '85%',
-                    flexDirection: 'row',
+                    flexDirection: 'column',
                     marginVertical: 10,
                     backgroundColor: 'white',
+                    alignItems: 'center',
                   }}>
                   <FlatList
-                    data={ESlots}
-                    renderItem={renderSlots}
-                    keyExtractor={item => item.slotId}
-                    numColumns={Math.floor(layout.width / 150)}
+                    data={EDays}
+                    renderItem={renderDays}
+                    keyExtractor={item => item.date}
+                    numColumns={Math.floor(layout.width / 100)}
                     style={{
                       alignSelf: 'center',
                     }}
+                    scrollEnabled={false}
                   />
                 </View>
               ) : (
@@ -488,11 +446,57 @@ function SelectSlotsE({navigation}) {
                     fontSize: 13,
                     color: 'black',
                   }}>
-                  No Slots Available
+                  No Dates Available
                 </Text>
               )}
             </View>
-          ) : null}
+
+            {/* Slots Label*/}
+            {ESlots != null ? (
+              <View
+                style={{
+                  backgroundColor: 'white',
+                  width: '95%',
+                  alignSelf: 'center',
+                  marginVertical: 10,
+                  borderRadius: 10,
+                }}>
+                <Text style={[styles.subLabel, {width: '100%'}]}>
+                  Select Slot
+                </Text>
+                {ESlots != '' ? (
+                  <View
+                    style={{
+                      alignSelf: 'center',
+                      width: '85%',
+                      flexDirection: 'row',
+                      marginVertical: 10,
+                      backgroundColor: 'white',
+                    }}>
+                    <FlatList
+                      data={ESlots}
+                      renderItem={renderSlots}
+                      keyExtractor={item => item.slotId}
+                      numColumns={Math.floor(layout.width / 150)}
+                      style={{
+                        alignSelf: 'center',
+                      }}
+                    />
+                  </View>
+                ) : (
+                  <Text
+                    style={{
+                      marginVertical: 20,
+                      alignSelf: 'center',
+                      fontSize: 13,
+                      color: 'black',
+                    }}>
+                    No Slots Available
+                  </Text>
+                )}
+              </View>
+            ) : null}
+          </View>
         </ScrollView>
         {selectedSlotId != null && selectedDate != null ? (
           <View
