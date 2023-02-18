@@ -1321,6 +1321,7 @@ const ManageSchedule = () => {
                                 <TextInput
                                   placeholder="MM"
                                   style={styles.textInput}
+                                  keyboardType={'number-pad'}
                                   maxLength={2}
                                   onChangeText={text => setECduration(text)}
                                   value={ECduration}
@@ -1340,6 +1341,7 @@ const ManageSchedule = () => {
                                   placeholder="MM"
                                   maxLength={2}
                                   style={styles.textInput}
+                                  keyboardType={'number-pad'}
                                   onChangeText={text => setECGap(text)}
                                   value={ECGap}
                                 />
