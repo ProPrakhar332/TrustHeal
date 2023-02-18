@@ -139,7 +139,7 @@ function AllSpeciality({navigation}) {
   };
   const renderListOfDoctors = ({item}) => {
     return (
-      <TouchableOpacity
+      <View
         style={{
           backgroundColor: 'white',
           padding: 10,
@@ -154,7 +154,7 @@ function AllSpeciality({navigation}) {
           console.log(item.doctorName);
           await AsyncStorage.setItem('viewProfile', JSON.stringify(item));
           console.log(
-            '======================== DOCTOR HOME ====================================',
+            '======================== DOCTOR VIEW PROFILE ====================================',
             item,
           );
           navigation.navigate('DoctorDetails');
@@ -239,6 +239,7 @@ function AllSpeciality({navigation}) {
             {Math.floor(item.totalExprienceInMonths / 12)}
             {' years of experience'}
           </Text>
+          {/* City */}
           <View
             style={{
               flexDirection: 'row',
@@ -260,8 +261,30 @@ function AllSpeciality({navigation}) {
               {item.city}
             </Text>
           </View>
+          <View style={{flexDirection: 'row'}}>
+            {/* P-Fees */}
+            <Text
+              style={{
+                textAlign: 'left',
+                color: 'black',
+                fontSize: 12,
+                flex: 1,
+              }}>
+              500
+            </Text>
+            {/* E-Fees */}
+            <Text
+              style={{
+                textAlign: 'left',
+                color: 'black',
+                fontSize: 12,
+                flex: 1,
+              }}>
+              500
+            </Text>
+          </View>
         </View>
-      </TouchableOpacity>
+      </View>
     );
   };
 

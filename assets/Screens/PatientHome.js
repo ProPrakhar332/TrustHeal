@@ -410,9 +410,7 @@ function PatientHome({navigation}) {
             margin: 5,
           }}
           onPress={() => {
-            console.log(
-              `${apiConfig.baseUrl}/file/admin/download?fileToken=${data.specializationImage}`,
-            );
+            navigation.navigate('AllSpeciality');
           }}>
           {/* <Image/> */}
           <Image
@@ -444,9 +442,7 @@ function PatientHome({navigation}) {
             margin: 5,
           }}
           onPress={() => {
-            console.log(
-              `${apiConfig.baseUrl}/file/admin/download?fileToken=${data.symptomImage}`,
-            );
+            navigation.navigate('AllSymptoms');
           }}>
           {/* <Image/> */}
           <Image

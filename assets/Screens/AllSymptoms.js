@@ -76,13 +76,13 @@ function AllSYmptoms({navigation}) {
         style={[
           {
             width: 115,
-            backgroundColor: '#9898E6',
+            backgroundColor: '#2b8ada',
             borderRadius: 10,
             padding: 5,
             margin: 5,
           },
           selectedSymptom.indexOf(item.value) != -1
-            ? {backgroundColor: '#2b8ada'}
+            ? {backgroundColor: '#17CC9C'}
             : null,
         ]}
         onPress={() => {
@@ -431,6 +431,8 @@ function AllSYmptoms({navigation}) {
               }}>
               <Text
                 style={{
+                  width: '95%',
+                  alignSelf: 'center',
                   marginTop: 20,
                   padding: 10,
                   fontWeight: 'bold',
@@ -440,10 +442,12 @@ function AllSYmptoms({navigation}) {
                   borderTopLeftRadius: 10,
                   fontSize: 15,
                 }}>
-                Showing specialities for symptom(s)
+                Symptoms
               </Text>
               <Text
                 style={{
+                  width: '95%',
+                  alignSelf: 'center',
                   padding: 15,
                   fontSize: 12,
                   color: 'black',
@@ -566,6 +570,8 @@ function AllSYmptoms({navigation}) {
               }}>
               <Text
                 style={{
+                  width: '95%',
+                  alignSelf: 'center',
                   marginTop: 20,
                   padding: 10,
                   fontWeight: 'bold',
@@ -575,10 +581,12 @@ function AllSYmptoms({navigation}) {
                   borderTopLeftRadius: 10,
                   fontSize: 15,
                 }}>
-                Showing results for
+                Showing results for following symptoms
               </Text>
               <Text
                 style={{
+                  width: '95%',
+                  alignSelf: 'center',
                   padding: 15,
                   fontSize: 12,
                   color: 'black',
@@ -593,6 +601,47 @@ function AllSYmptoms({navigation}) {
                     : index;
                 })}
               </Text>
+
+              <View
+                style={{
+                  marginTop: 20,
+                  backgroundColor: 'white',
+                  width: '95%',
+                  alignSelf: 'center',
+                  borderRadius: 10,
+                }}>
+                <Text
+                  style={{
+                    textAlign: 'left',
+                    backgroundColor: '#2b8ada',
+                    color: 'white',
+                    fontWeight: 'bold',
+                    marginBottom: 10,
+                    padding: 10,
+                    borderTopRightRadius: 10,
+                    borderTopLeftRadius: 10,
+                    fontSize: 15,
+                  }}>
+                  Showing results for following speciality
+                </Text>
+                <Text
+                  style={{
+                    padding: 15,
+                    fontSize: 12,
+                    color: 'black',
+                    backgroundColor: 'white',
+                    borderBottomRightRadius: 10,
+                    borderBottomLeftRadius: 10,
+                  }}>
+                  {SpecialitySearch.map(index => {
+                    return SpecialitySearch.indexOf(index) !=
+                      SpecialitySearch.length - 1
+                      ? index + ', '
+                      : index;
+                  })}
+                </Text>
+              </View>
+
               {DoctorsList != '' ? (
                 <View>
                   <FlatList
