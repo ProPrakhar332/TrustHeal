@@ -172,7 +172,7 @@ function AllSYmptoms({navigation}) {
             borderColor: '#2b8ada',
           },
           SpecialitySearch.indexOf(item.value) != -1
-            ? {backgroundColor: '#2b8ada'}
+            ? {backgroundColor: '#17CC9C', borderWidth: 0}
             : {backgroundColor: 'white'},
         ]}
         onPress={() => {
@@ -377,7 +377,7 @@ function AllSYmptoms({navigation}) {
             }}
           />
           <CustomButton
-            text={'Consult Now'}
+            text={'Book Appointment'}
             textstyle={{color: 'white', fontSize: 12}}
             style={{
               backgroundColor: '#2b8ada',
@@ -599,24 +599,35 @@ function AllSYmptoms({navigation}) {
                 }}>
                 Symptoms
               </Text>
-              <Text
+              <View
                 style={{
+                  flexDirection: 'row',
                   width: '95%',
                   alignSelf: 'center',
-                  padding: 15,
-                  fontSize: 12,
-                  color: 'black',
+                  flexWrap: 'wrap',
                   backgroundColor: 'white',
+                  padding: 10,
                   borderBottomRightRadius: 10,
                   borderBottomLeftRadius: 10,
                 }}>
                 {selectedSymptom.map(index => {
-                  return selectedSymptom.indexOf(index) !=
-                    selectedSymptom.length - 1
-                    ? index + ', '
-                    : index;
+                  return (
+                    <Text
+                      key={index}
+                      style={{
+                        padding: 5,
+                        paddingHorizontal: 7,
+                        backgroundColor: '#17CC9C',
+                        color: 'white',
+                        borderRadius: 10,
+                        fontSize: 13,
+                        margin: 3,
+                      }}>
+                      {index}
+                    </Text>
+                  );
                 })}
-              </Text>
+              </View>
               <View
                 style={{
                   marginTop: 20,
@@ -774,26 +785,33 @@ function AllSYmptoms({navigation}) {
                   }}>
                   Symptoms
                 </Text>
-                <Text
+
+                <View
                   style={{
-                    marginVertical: 5,
+                    flexDirection: 'row',
                     width: '95%',
                     alignSelf: 'center',
-                    padding: 5,
-                    fontSize: 12,
-                    color: 'black',
-                    backgroundColor: 'white',
-                    borderBottomRightRadius: 10,
-                    borderBottomLeftRadius: 10,
+                    flexWrap: 'wrap',
+                    marginVertical: 5,
                   }}>
                   {selectedSymptom.map(index => {
-                    return selectedSymptom.indexOf(index) !=
-                      selectedSymptom.length - 1
-                      ? index + ', '
-                      : index;
+                    return (
+                      <Text
+                        key={index}
+                        style={{
+                          padding: 5,
+                          paddingHorizontal: 7,
+                          backgroundColor: '#17CC9C',
+                          color: 'white',
+                          borderRadius: 10,
+                          fontSize: 13,
+                          margin: 3,
+                        }}>
+                        {index}
+                      </Text>
+                    );
                   })}
-                </Text>
-
+                </View>
                 {/* Speciality */}
                 <Text
                   style={{
@@ -809,25 +827,32 @@ function AllSYmptoms({navigation}) {
                   }}>
                   Speciality
                 </Text>
-                <Text
+                <View
                   style={{
-                    marginVertical: 5,
+                    flexDirection: 'row',
                     width: '95%',
                     alignSelf: 'center',
-                    padding: 5,
-                    fontSize: 12,
-                    color: 'black',
-                    backgroundColor: 'white',
-                    borderBottomRightRadius: 10,
-                    borderBottomLeftRadius: 10,
+                    flexWrap: 'wrap',
+                    marginVertical: 5,
                   }}>
                   {SpecialitySearch.map(index => {
-                    return SpecialitySearch.indexOf(index) !=
-                      SpecialitySearch.length - 1
-                      ? index + ', '
-                      : index;
+                    return (
+                      <Text
+                        key={index}
+                        style={{
+                          padding: 5,
+                          paddingHorizontal: 7,
+                          backgroundColor: '#17CC9C',
+                          color: 'white',
+                          borderRadius: 10,
+                          fontSize: 13,
+                          margin: 3,
+                        }}>
+                        {index}
+                      </Text>
+                    );
                   })}
-                </Text>
+                </View>
               </View>
 
               {DoctorsList != '' ? (

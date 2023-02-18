@@ -217,7 +217,7 @@ function SelectSlotsE({navigation}) {
         style={[
           styles.SlotDate,
           {
-            backgroundColor: selectedDate == item.date ? '#2b8ada' : '#e8f0fe',
+            backgroundColor: selectedDate == item.date ? '#17CC9C' : '#e8f0fe',
           },
         ]}
         onPress={() => {
@@ -225,17 +225,27 @@ function SelectSlotsE({navigation}) {
           setselectedSlotId(null);
         }}>
         <Text
-          style={{
-            fontSize: 12,
-            color: selectedDate == item.date ? 'white' : 'black',
-          }}>
-          {dayjs(item.date).format('DD-MMM-YY')}
+          style={[
+            {
+              fontSize: 12,
+              color: selectedDate == item.date ? 'white' : 'black',
+            },
+            selectedDate == item.date
+              ? {fontSize: 14, fontWeight: 'bold'}
+              : null,
+          ]}>
+          {dayjs(item.date).format('DD MMM, YYYY')}
         </Text>
         <Text
-          style={{
-            fontSize: 12,
-            color: selectedDate == item.date ? 'white' : 'black',
-          }}>
+          style={[
+            {
+              fontSize: 12,
+              color: selectedDate == item.date ? 'white' : 'black',
+            },
+            selectedDate == item.date
+              ? {fontSize: 14, fontWeight: 'bold'}
+              : null,
+          ]}>
           {dayjs(item.date).format('dddd')}
         </Text>
       </TouchableOpacity>
@@ -248,7 +258,7 @@ function SelectSlotsE({navigation}) {
           styles.SlotTime,
           {
             backgroundColor:
-              selectedSlotId == item.slotId ? '#2b8ada' : '#e8f0fe',
+              selectedSlotId == item.slotId ? '#17CC9C' : '#e8f0fe',
             flexDirection: 'row',
           },
         ]}
@@ -265,13 +275,18 @@ function SelectSlotsE({navigation}) {
           }
           size={15}
           color={selectedSlotId == item.slotId ? 'white' : '#2b8ada'}
-          style={{marginRight: 3}}
+          style={{marginRight: 5}}
         />
         <Text
-          style={{
-            fontSize: 10,
-            color: selectedSlotId == item.slotId ? 'white' : 'black',
-          }}>
+          style={[
+            {
+              fontSize: 10,
+              color: selectedSlotId == item.slotId ? 'white' : 'black',
+            },
+            selectedSlotId == item.slotId
+              ? {fontSize: 12, fontWeight: 'bold'}
+              : null,
+          ]}>
           {timeformatter(item.startTime)}
           {' - '} {timeformatter(item.endTime)}
         </Text>
@@ -450,7 +465,7 @@ function SelectSlotsE({navigation}) {
                 <View
                   style={{
                     alignSelf: 'center',
-                    width: '75%',
+                    width: '85%',
                     flexDirection: 'row',
                     marginVertical: 10,
                     backgroundColor: 'white',
