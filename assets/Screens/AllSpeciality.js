@@ -68,7 +68,7 @@ function AllSpeciality({navigation}) {
 
   const renderSpeciality = ({item}) => {
     return (
-      <View
+      <TouchableOpacity
         style={{
           width: 115,
           backgroundColor: 'white',
@@ -76,14 +76,14 @@ function AllSpeciality({navigation}) {
           padding: 5,
           margin: 5,
         }}
-        key={item.key}>
+        key={item.key}
+        onPress={() => {
+          CheckBoxPressed(item);
+        }}>
         <CheckBoxIcon
           size={20}
           iconType="font-awesome"
           checked={selectedSpeciality.indexOf(item.value) != -1}
-          onIconPress={() => {
-            CheckBoxPressed(item);
-          }}
           checkedColor={'#2b8ada'}
           uncheckedColor={'gray'}
         />
@@ -108,7 +108,7 @@ function AllSpeciality({navigation}) {
           }}>
           {item.value}
         </Text>
-      </View>
+      </TouchableOpacity>
     );
   };
   const CheckBoxPressed = item => {
@@ -299,23 +299,31 @@ function AllSpeciality({navigation}) {
                   numColumns={Math.round(layout.width / 130)}
                 />
               </View>
-              <CustomButton
-                text={'Find Doctors'}
-                textstyle={{color: 'white', fontWeight: 'bold'}}
+              <TouchableOpacity
                 style={{
+                  position: 'absolute',
+                  marginTop: layout.height - 150,
                   backgroundColor: '#2b8ada',
                   padding: 7,
                   paddingHorizontal: 15,
                   borderRadius: 5,
-                  position: 'absolute',
-                  marginTop: layout.height - 150,
                   alignSelf: 'center',
+                  flexDirection: 'row',
                 }}
                 onPress={() => {
                   setDoctorsList(null);
                   getDoctors();
-                }}
-              />
+                }}>
+                <FAIcons
+                  name="search"
+                  size={15}
+                  color={'white'}
+                  style={{alignSelf: 'center', marginRight: 5}}
+                />
+                <Text style={{color: 'white', fontWeight: 'bold'}}>
+                  Find Doctors
+                </Text>
+              </TouchableOpacity>
             </View>
           ) : (
             <View
@@ -368,22 +376,30 @@ function AllSpeciality({navigation}) {
                   No Doctors available for the above speciality
                 </Text>
               )}
-              <CustomButton
-                text={'Select Speciality'}
-                textstyle={{color: 'white', fontWeight: 'bold'}}
+              <TouchableOpacity
                 style={{
+                  position: 'absolute',
+                  marginTop: layout.height - 150,
                   backgroundColor: '#2b8ada',
                   padding: 7,
                   paddingHorizontal: 15,
                   borderRadius: 5,
-                  position: 'absolute',
-                  marginTop: layout.height - 150,
                   alignSelf: 'center',
+                  flexDirection: 'row',
                 }}
-                onPress={() => {
+                onPress={async () => {
                   setDoctorsList(null);
-                }}
-              />
+                }}>
+                <FAIcons
+                  name="search"
+                  size={15}
+                  color={'white'}
+                  style={{alignSelf: 'center', marginRight: 5}}
+                />
+                <Text style={{color: 'white', fontWeight: 'bold'}}>
+                  Select Speciality
+                </Text>
+              </TouchableOpacity>
             </View>
           )}
         </ScrollView>

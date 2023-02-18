@@ -38,7 +38,11 @@ function AllSYmptoms({navigation}) {
   const [ListSymptoms, setListSymptoms] = useState(null);
   const [selectedSymptom, setselectedSymptom] = useState([]);
   const [Speciality, setSpeciality] = useState([]);
+  const [SpecialitySearch, setSpecialitySearch] = useState([]);
   const [DoctorsList, setDoctorsList] = useState(null);
+  const [showSymptoms, setshowSymptoms] = useState(true);
+  const [showSpecialities, setshowSpecialities] = useState(false);
+  const [showDoctorList, setshowDoctorList] = useState(false);
   const layout = useWindowDimensions();
 
   useEffect(() => {
@@ -68,22 +72,27 @@ function AllSYmptoms({navigation}) {
 
   const renderSymptom = ({item}) => {
     return (
-      <View
-        style={{
-          width: 115,
-          backgroundColor: '#9898E6',
-          borderRadius: 10,
-          padding: 5,
-          margin: 5,
+      <TouchableOpacity
+        style={[
+          {
+            width: 115,
+            backgroundColor: '#9898E6',
+            borderRadius: 10,
+            padding: 5,
+            margin: 5,
+          },
+          selectedSymptom.indexOf(item.value) != -1
+            ? {backgroundColor: '#2b8ada'}
+            : null,
+        ]}
+        onPress={() => {
+          CheckBoxPressedSymptoms(item);
         }}
         key={item.value}>
         <CheckBoxIcon
           size={20}
           iconType="font-awesome"
           checked={selectedSymptom.indexOf(item.value) != -1}
-          onIconPress={() => {
-            CheckBoxPressedSymptoms(item);
-          }}
           checkedColor={'white'}
           uncheckedColor={'white'}
         />
@@ -97,18 +106,17 @@ function AllSYmptoms({navigation}) {
             uri: `${apiConfig.baseUrl}/file/admin/download?fileToken=${item.key}`,
           }}
         />
-
         <Text
           style={{
             alignSelf: 'center',
             textAlign: 'center',
             color: 'white',
-            fontSize: 12,
+            fontSize: 14,
             marginVertical: 5,
           }}>
           {item.value}
         </Text>
-      </View>
+      </TouchableOpacity>
     );
   };
   const CheckBoxPressedSymptoms = item => {
@@ -123,21 +131,88 @@ function AllSYmptoms({navigation}) {
     selectedSymptom.forEach(element => {
       x += '&symptoms=' + element;
     });
+    x.substring(1);
+    console.log(x);
     axios
       .get(apiConfig.baseUrl + '/suggest/specialization/by/symptoms?' + x)
       .then(response => {
         if (response.status == 200) {
           console.log(response.data);
-          setSpeciality(response.data.speciality);
+
+          let newArray = response.data.speciality.map(item => {
+            return {
+              key: item,
+              value: item,
+            };
+          });
+          setSpeciality(newArray);
+
+          setshowSymptoms(false);
+          setshowSpecialities(true);
         }
       })
       .catch(error => {
         Alert.alert('Error', `${error}`);
       });
   };
+
+  const renderSpeciality = ({item}) => {
+    return (
+      <TouchableOpacity
+        style={[
+          {
+            width: 115,
+
+            borderRadius: 10,
+            padding: 5,
+            margin: 5,
+            borderWidth: 2,
+            borderColor: '#2b8ada',
+          },
+          SpecialitySearch.indexOf(item.value) != -1
+            ? {backgroundColor: '#2b8ada'}
+            : {backgroundColor: 'white'},
+        ]}
+        onPress={() => {
+          CheckBoxPressedSpeciality(item);
+        }}
+        key={item.value}>
+        <CheckBoxIcon
+          size={15}
+          iconType="font-awesome"
+          checked={SpecialitySearch.indexOf(item.value) != -1}
+          checkedColor={'white'}
+          uncheckedColor={'gray'}
+        />
+        <Text
+          style={[
+            {
+              alignSelf: 'center',
+              textAlign: 'center',
+              fontSize: 13,
+              marginVertical: 5,
+            },
+            SpecialitySearch.indexOf(item.value) == -1
+              ? {color: '#2b8ada'}
+              : {color: 'white'},
+          ]}>
+          {item.value}
+        </Text>
+      </TouchableOpacity>
+    );
+  };
+  const CheckBoxPressedSpeciality = item => {
+    if (SpecialitySearch.indexOf(item.value) == -1)
+      setSpecialitySearch([...SpecialitySearch, item.value]);
+    else
+      setSpecialitySearch(
+        SpecialitySearch.filter(index => index != item.value),
+      );
+  };
+
   const getDoctorsFromSpeciality = async () => {
     let x = '';
-    Speciality.forEach(element => {
+    SpecialitySearch.forEach(element => {
       x += '&speciality=' + element;
     });
     axios
@@ -146,6 +221,8 @@ function AllSYmptoms({navigation}) {
         if (response.status == 200) {
           console.log(response.data);
           setDoctorsList(response.data);
+          setshowSpecialities(false);
+          setshowDoctorList(true);
         }
       })
       .catch(error => {
@@ -298,8 +375,8 @@ function AllSYmptoms({navigation}) {
           }}
           showsVerticalScrollIndicator={false}
           nestedScrollEnabled={true}>
-          <HeaderPatient showMenu={false} title={'All Speciality'} />
-          {DoctorsList == null ? (
+          <HeaderPatient showMenu={false} title={'All Symptoms'} />
+          {showSymptoms ? (
             <View
               style={{
                 width: '95%',
@@ -314,33 +391,38 @@ function AllSYmptoms({navigation}) {
                   numColumns={Math.round(layout.width / 130)}
                 />
               </View>
-              <TouchableOpacity
-                style={{
-                  backgroundColor: '#2b8ada',
-                  padding: 7,
-                  paddingHorizontal: 15,
-                  borderRadius: 5,
-                  position: 'absolute',
-                  marginTop: layout.height - 150,
-                  alignSelf: 'center',
-                  flexDirection: 'row',
-                }}
-                onPress={async () => {
-                  await getSpecialityFromSymptoms();
-                  await getDoctorsFromSpeciality();
-                }}>
-                <FAIcons
-                  name="search"
-                  size={15}
-                  color={'white'}
-                  style={{alignSelf: 'center', marginRight: 5}}
-                />
-                <Text style={{color: 'white', fontWeight: 'bold'}}>
-                  Find Doctors
-                </Text>
-              </TouchableOpacity>
+              {selectedSymptom != '' ? (
+                <TouchableOpacity
+                  style={{
+                    backgroundColor: '#2b8ada',
+                    padding: 7,
+                    paddingHorizontal: 15,
+                    borderRadius: 5,
+                    position: 'absolute',
+                    marginTop: layout.height - 150,
+                    alignSelf: 'center',
+                    flexDirection: 'row',
+                  }}
+                  onPress={async () => {
+                    setSpecialitySearch([]);
+                    await getSpecialityFromSymptoms();
+                    // await getDoctorsFromSpeciality();
+                  }}>
+                  <FAIcons
+                    name="search"
+                    size={15}
+                    color={'white'}
+                    style={{alignSelf: 'center', marginRight: 5}}
+                  />
+                  <Text style={{color: 'white', fontWeight: 'bold'}}>
+                    Suggest Speciality
+                  </Text>
+                </TouchableOpacity>
+              ) : null}
             </View>
-          ) : (
+          ) : null}
+
+          {showSpecialities ? (
             <View
               style={{
                 width: '95%',
@@ -358,7 +440,142 @@ function AllSYmptoms({navigation}) {
                   borderTopLeftRadius: 10,
                   fontSize: 15,
                 }}>
-                Showing results for symptom(s)
+                Showing specialities for symptom(s)
+              </Text>
+              <Text
+                style={{
+                  padding: 15,
+                  fontSize: 12,
+                  color: 'black',
+                  backgroundColor: 'white',
+                  borderBottomRightRadius: 10,
+                  borderBottomLeftRadius: 10,
+                }}>
+                {selectedSymptom.map(index => {
+                  return selectedSymptom.indexOf(index) !=
+                    selectedSymptom.length - 1
+                    ? index + ', '
+                    : index;
+                })}
+              </Text>
+              <View
+                style={{
+                  marginTop: 20,
+                  backgroundColor: 'white',
+                  width: '95%',
+                  alignSelf: 'center',
+                  borderRadius: 10,
+                }}>
+                <Text
+                  style={{
+                    textAlign: 'left',
+                    backgroundColor: '#2b8ada',
+                    color: 'white',
+                    fontWeight: 'bold',
+                    marginBottom: 10,
+                    padding: 10,
+                    borderTopRightRadius: 10,
+                    borderTopLeftRadius: 10,
+                    fontSize: 15,
+                  }}>
+                  Select Speciality
+                </Text>
+                <FlatList
+                  data={Speciality}
+                  key={item => item.key}
+                  renderItem={renderSpeciality}
+                  numColumns={Math.round(layout.width / 200)}
+                  style={{
+                    alignSelf: 'center',
+                    backgroundColor: 'white',
+                  }}
+                />
+              </View>
+              <View
+                style={{
+                  position: 'absolute',
+                  marginTop: layout.height - 150,
+                  flexDirection: 'row',
+                  width: '95%',
+                  alignSelf: 'center',
+                  justifyContent: 'space-evenly',
+                }}>
+                <TouchableOpacity
+                  style={{
+                    backgroundColor: '#2b8ada',
+                    padding: 7,
+                    paddingHorizontal: 15,
+                    borderRadius: 5,
+                    alignSelf: 'center',
+                    flexDirection: 'row',
+                  }}
+                  onPress={async () => {
+                    // await getSpecialityFromSymptoms();
+                    //await getDoctorsFromSpeciality();
+                    setshowSpecialities(false);
+                    setSpeciality([]);
+                    setselectedSymptom([]);
+                    setSpecialitySearch([]);
+                    setshowSymptoms(true);
+                  }}>
+                  <MIcons
+                    name="emoticon-sick-outline"
+                    size={15}
+                    color={'white'}
+                    style={{alignSelf: 'center', marginRight: 5}}
+                  />
+                  <Text style={{color: 'white', fontWeight: 'bold'}}>
+                    Symptoms
+                  </Text>
+                </TouchableOpacity>
+                {SpecialitySearch != '' ? (
+                  <TouchableOpacity
+                    style={{
+                      backgroundColor: '#2b8ada',
+                      padding: 7,
+                      paddingHorizontal: 15,
+                      borderRadius: 5,
+                      alignSelf: 'center',
+                      flexDirection: 'row',
+                    }}
+                    onPress={async () => {
+                      // await getSpecialityFromSymptoms();
+                      await getDoctorsFromSpeciality();
+                    }}>
+                    <FAIcons
+                      name="search"
+                      size={15}
+                      color={'white'}
+                      style={{alignSelf: 'center', marginRight: 5}}
+                    />
+                    <Text style={{color: 'white', fontWeight: 'bold'}}>
+                      Find Doctors
+                    </Text>
+                  </TouchableOpacity>
+                ) : null}
+              </View>
+            </View>
+          ) : null}
+
+          {showDoctorList ? (
+            <View
+              style={{
+                width: '95%',
+                alignSelf: 'center',
+                height: layout.height - 100,
+              }}>
+              <Text
+                style={{
+                  marginTop: 20,
+                  padding: 10,
+                  fontWeight: 'bold',
+                  color: 'white',
+                  backgroundColor: '#2b8ada',
+                  borderTopRightRadius: 10,
+                  borderTopLeftRadius: 10,
+                  fontSize: 15,
+                }}>
+                Showing results for
               </Text>
               <Text
                 style={{
@@ -390,38 +607,76 @@ function AllSYmptoms({navigation}) {
                   No Doctors available for the above symptom
                 </Text>
               )}
-              <TouchableOpacity
+              <View
                 style={{
-                  backgroundColor: '#2b8ada',
-                  padding: 7,
-                  paddingHorizontal: 15,
-                  borderRadius: 5,
                   position: 'absolute',
                   marginTop: layout.height - 150,
-                  alignSelf: 'center',
                   flexDirection: 'row',
-                }}
-                onPress={() => {
-                  setDoctorsList(null);
+                  width: '95%',
+                  alignSelf: 'center',
+                  justifyContent: 'space-evenly',
                 }}>
-                {/* <FAIcons
-                  name="head-side-mask"
-                  size={15}
-                  color={'white'}
-                  style={{alignSelf: 'center', marginRight: 5}}
-                /> */}
-                <MIcons
-                  name="emoticon-sick-outline"
-                  size={20}
-                  color={'white'}
-                  style={{alignSelf: 'center', marginRight: 5}}
-                />
-                <Text style={{color: 'white', fontWeight: 'bold'}}>
-                  Select Symptom
-                </Text>
-              </TouchableOpacity>
+                <TouchableOpacity
+                  style={{
+                    backgroundColor: '#2b8ada',
+                    padding: 7,
+                    paddingHorizontal: 15,
+                    borderRadius: 5,
+                    alignSelf: 'center',
+                    flexDirection: 'row',
+                  }}
+                  onPress={async () => {
+                    // await getSpecialityFromSymptoms();
+                    //await getDoctorsFromSpeciality();
+                    setshowSymptoms(true);
+                    setshowSpecialities(false);
+                    setshowDoctorList(false);
+                    setSpeciality([]);
+                    setselectedSymptom([]);
+                    setSpecialitySearch([]);
+                    setDoctorsList([]);
+                  }}>
+                  <MIcons
+                    name="emoticon-sick-outline"
+                    size={15}
+                    color={'white'}
+                    style={{alignSelf: 'center', marginRight: 5}}
+                  />
+                  <Text style={{color: 'white', fontWeight: 'bold'}}>
+                    Symptoms
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={{
+                    backgroundColor: '#2b8ada',
+                    padding: 7,
+                    paddingHorizontal: 15,
+                    borderRadius: 5,
+                    alignSelf: 'center',
+                    flexDirection: 'row',
+                  }}
+                  onPress={async () => {
+                    // await getSpecialityFromSymptoms();
+                    //await getDoctorsFromSpeciality();
+                    setshowSymptoms(false);
+                    setshowSpecialities(true);
+                    setshowDoctorList(false);
+                    setSpecialitySearch([]);
+                    setDoctorsList([]);
+                  }}>
+                  <FAIcons
+                    name="search"
+                    size={15}
+                    color={'white'}
+                    style={{alignSelf: 'center', marginRight: 5}}
+                  />
+                  <Text style={{color: 'white', fontWeight: 'bold'}}>
+                    Select Speciality
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          )}
+          ) : null}
         </ScrollView>
       </SafeAreaView>
     </KeyboardAvoidingView>
