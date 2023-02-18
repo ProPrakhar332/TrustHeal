@@ -43,6 +43,8 @@ function AllSYmptoms({navigation}) {
   const [showSymptoms, setshowSymptoms] = useState(true);
   const [showSpecialities, setshowSpecialities] = useState(false);
   const [showDoctorList, setshowDoctorList] = useState(false);
+  const [consultationModeModal, setconsultationModeModal] = useState(false);
+  const [DoctorItem, setDoctorItem] = useState(null);
   const layout = useWindowDimensions();
 
   useEffect(() => {
@@ -231,117 +233,88 @@ function AllSYmptoms({navigation}) {
   };
   const renderListOfDoctors = ({item}) => {
     return (
-      <TouchableOpacity
+      <View
         style={{
           backgroundColor: 'white',
           padding: 10,
           borderRadius: 15,
           marginHorizontal: 5,
-          flexDirection: 'row',
-          flex: 1,
+          // flexDirection: 'row',
+          // flex: 1,
           marginTop: 10,
         }}
-        key={item.doctorId}
-        onPress={async () => {
-          console.log(item.doctorName);
-          await AsyncStorage.setItem('viewProfile', JSON.stringify(item));
-          console.log(
-            '======================== DOCTOR HOME ====================================',
-            item,
-          );
-          navigation.navigate('DoctorDetails');
-        }}>
-        {/* Image */}
-        <Image
-          source={
-            item.photoPath == 0
-              ? defaultDoctor
-              : {
-                  uri: `${apiConfig.baseUrl}/file/download?fileToken=${item.photoPath}&userId=${item.doctorId}`,
-                }
-          }
-          style={{
-            width: 100,
-            height: 100,
-            alignSelf: 'center',
-            marginVertical: 5,
-            borderRadius: 10,
-            marginRight: 10,
-            flex: 0.5,
-          }}
-        />
-        {/* Details */}
-        <View
-          style={{
-            alignSelf: 'center',
-            justifyContent: 'space-evenly',
-            marginBottom: 5,
-            flex: 1,
-          }}>
-          {/* Name */}
-          <Text
+        key={item.doctorId}>
+        <View style={{flexDirection: 'row', flex: 1}}>
+          {/* Image */}
+          <Image
+            source={
+              item.photoPath == 0
+                ? defaultDoctor
+                : {
+                    uri: `${apiConfig.baseUrl}/file/download?fileToken=${item.photoPath}&userId=${item.doctorId}`,
+                  }
+            }
             style={{
-              textAlign: 'left',
-              fontWeight: 'bold',
-              fontSize: 14,
-              color: 'black',
-              flex: 1,
-            }}>
-            {item.doctorName}
-          </Text>
-          {/* Degree */}
-          <Text
-            style={{
-              textAlign: 'left',
-              fontWeight: 'bold',
-              fontSize: 12,
-              color: 'gray',
-              flex: 1,
-            }}>
-            {item.degrees.map(index => {
-              return item.degrees.indexOf(index) != item.degrees.length - 1
-                ? index + ', '
-                : index;
-            })}
-          </Text>
-          {/* Speciality */}
-          <Text
-            style={{
-              textAlign: 'left',
-              fontWeight: 'bold',
-              fontSize: 12,
-              color: '#2b8ada',
-              flex: 1,
-            }}>
-            {item.specialization.map(index => {
-              return item.specialization.indexOf(index) !=
-                item.specialization.length - 1
-                ? index + ', '
-                : index;
-            })}
-          </Text>
-          {/* Experience */}
-          <Text
-            style={{
-              textAlign: 'left',
-              color: 'black',
-              fontSize: 12,
-              flex: 1,
-            }}>
-            {Math.floor(item.totalExprienceInMonths / 12)}
-            {' years of experience'}
-          </Text>
+              width: 100,
+              height: 100,
+              alignSelf: 'center',
+              marginVertical: 5,
+              borderRadius: 10,
+              marginRight: 10,
+              flex: 0.5,
+            }}
+          />
+          {/* Details */}
           <View
             style={{
-              flexDirection: 'row',
+              alignSelf: 'center',
+              justifyContent: 'space-evenly',
+              marginBottom: 5,
               flex: 1,
             }}>
-            <FAIcons
-              name="map-marker-alt"
-              size={15}
-              color={'black'}
-              style={{marginRight: 5, alignSelf: 'center'}}
-            />
+            {/* Name */}
+            <Text
+              style={{
+                textAlign: 'left',
+                fontWeight: 'bold',
+                fontSize: 14,
+                color: 'black',
+                flex: 1,
+              }}>
+              {item.doctorName}
+            </Text>
+            {/* Degree */}
+            <Text
+              style={{
+                textAlign: 'left',
+                fontWeight: 'bold',
+                fontSize: 12,
+                color: 'gray',
+                flex: 1,
+              }}>
+              {item.degrees.map(index => {
+                return item.degrees.indexOf(index) != item.degrees.length - 1
+                  ? index + ', '
+                  : index;
+              })}
+            </Text>
+            {/* Speciality */}
+            <Text
+              style={{
+                textAlign: 'left',
+                fontWeight: 'bold',
+                fontSize: 12,
+                color: '#2b8ada',
+                flex: 1,
+              }}>
+              {item.specialization.map(index => {
+                return item.specialization.indexOf(index) !=
+                  item.specialization.length - 1
+                  ? index + ', '
+                  : index;
+              })}
+            </Text>
+            {/* Experience */}
             <Text
               style={{
                 textAlign: 'left',
@@ -349,11 +322,193 @@ function AllSYmptoms({navigation}) {
                 fontSize: 12,
                 flex: 1,
               }}>
-              {item.city}
+              {Math.floor(item.totalExprienceInMonths / 12)}
+              {' years of experience'}
             </Text>
+            {/* City */}
+            <View
+              style={{
+                flexDirection: 'row',
+                flex: 1,
+              }}>
+              <FAIcons
+                name="map-marker-alt"
+                size={15}
+                color={'black'}
+                style={{marginRight: 5, alignSelf: 'center'}}
+              />
+              <Text
+                style={{
+                  textAlign: 'left',
+                  color: 'black',
+                  fontSize: 12,
+                  flex: 1,
+                }}>
+                {item.city}
+              </Text>
+            </View>
           </View>
         </View>
-      </TouchableOpacity>
+        {/* Buttons */}
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-around',
+            marginTop: 10,
+          }}>
+          <CustomButton
+            text={'View Profile'}
+            textstyle={{color: '#2b8ada', fontSize: 12}}
+            style={{
+              borderColor: '#2b8ada',
+              borderWidth: 2,
+              padding: 5,
+              borderRadius: 5,
+              flex: 0.45,
+            }}
+            onPress={async () => {
+              console.log(item.doctorName);
+              await AsyncStorage.setItem('viewProfile', JSON.stringify(item));
+              console.log(
+                '======================== All Symptoms ====================================',
+                item,
+              );
+              navigation.navigate('DoctorDetails');
+            }}
+          />
+          <CustomButton
+            text={'Consult Now'}
+            textstyle={{color: 'white', fontSize: 12}}
+            style={{
+              backgroundColor: '#2b8ada',
+              padding: 5,
+              borderRadius: 5,
+              flex: 0.45,
+            }}
+            onPress={() => {
+              setconsultationModeModal(true);
+              setDoctorItem(item);
+            }}
+          />
+        </View>
+      </View>
+    );
+  };
+  const RenderModal = () => {
+    return (
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={consultationModeModal}
+        onRequestClose={() => {
+          setconsultationModeModal(!consultationModeModal);
+        }}>
+        <View
+          style={{
+            height: '100%',
+            backgroundColor: 'rgba(0,0,0,0.8)',
+            flexDirection: 'row',
+            justifyContent: 'center',
+          }}>
+          <View
+            style={[
+              styles.modalView,
+              {
+                borderRadius: 10,
+              },
+            ]}>
+            <View
+              style={{
+                width: '100%',
+                alignSelf: 'center',
+                marginBottom: 20,
+                borderBottomWidth: 1,
+                borderBottomColor: 'gray',
+              }}>
+              <Text
+                style={{
+                  fontWeight: 'bold',
+                  fontSize: 20,
+                  padding: 5,
+                  alignSelf: 'center',
+                  color: 'black',
+                }}>
+                Consultation Mode
+              </Text>
+              <FAIcons
+                name="window-close"
+                color="black"
+                size={20}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  right: 0,
+                  alignSelf: 'center',
+                }}
+                onPress={() => {
+                  setconsultationModeModal(false);
+                }}
+              />
+            </View>
+            <TouchableOpacity
+              style={{
+                width: '90%',
+                alignSelf: 'center',
+                flex: 1,
+                backgroundColor: '#2B8ADA',
+                borderRadius: 30,
+                flexDirection: 'row',
+                justifyContent: 'space-around',
+                padding: 10,
+                marginBottom: 10,
+              }}
+              onPress={async () => {
+                await AsyncStorage.setItem(
+                  'bookSlot',
+                  JSON.stringify(DoctorItem),
+                );
+                console.log(
+                  '======================== All Symptoms ====================================',
+                  DoctorItem,
+                );
+                navigation.navigate('SelectSlotsE');
+                setconsultationModeModal(false);
+              }}>
+              <FAIcons name={'video'} color={'white'} size={16} />
+              <Text style={{color: 'white', fontSize: 14}}>E-Consultation</Text>
+              <Text style={{color: 'white', fontSize: 14}}>₹ 500</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{
+                width: '90%',
+                alignSelf: 'center',
+                flex: 1,
+                backgroundColor: '#17CC9C',
+                borderRadius: 30,
+                flexDirection: 'row',
+                justifyContent: 'space-around',
+                padding: 10,
+                marginBottom: 10,
+              }}
+              onPress={async () => {
+                await AsyncStorage.setItem(
+                  'bookSlot',
+                  JSON.stringify(DoctorItem),
+                );
+                console.log(
+                  '======================== All Symptoms ====================================',
+                  DoctorItem,
+                );
+                navigation.navigate('SelectSlotsP');
+                setconsultationModeModal(false);
+              }}>
+              <FAIcons name={'users'} color={'white'} size={16} />
+              <Text style={{color: 'white', fontSize: 14}}>P-Consultation</Text>
+              <Text style={{color: 'white', fontSize: 14}}>₹ 400</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     );
   };
 
@@ -511,7 +666,8 @@ function AllSYmptoms({navigation}) {
                     paddingHorizontal: 15,
                     borderRadius: 5,
                     alignSelf: 'center',
-                    flexDirection: 'row',
+                    flex: 0.45,
+                    flexDirection: 'column',
                   }}
                   onPress={async () => {
                     // await getSpecialityFromSymptoms();
@@ -528,8 +684,13 @@ function AllSYmptoms({navigation}) {
                     color={'white'}
                     style={{alignSelf: 'center', marginRight: 5}}
                   />
-                  <Text style={{color: 'white', fontWeight: 'bold'}}>
-                    Symptoms
+                  <Text
+                    style={{
+                      color: 'white',
+                      fontWeight: 'bold',
+                      alignSelf: 'center',
+                    }}>
+                    Change Symptoms
                   </Text>
                 </TouchableOpacity>
                 {SpecialitySearch != '' ? (
@@ -540,7 +701,8 @@ function AllSYmptoms({navigation}) {
                       paddingHorizontal: 15,
                       borderRadius: 5,
                       alignSelf: 'center',
-                      flexDirection: 'row',
+                      flex: 0.45,
+                      flexDirection: 'column',
                     }}
                     onPress={async () => {
                       // await getSpecialityFromSymptoms();
@@ -552,7 +714,12 @@ function AllSYmptoms({navigation}) {
                       color={'white'}
                       style={{alignSelf: 'center', marginRight: 5}}
                     />
-                    <Text style={{color: 'white', fontWeight: 'bold'}}>
+                    <Text
+                      style={{
+                        color: 'white',
+                        fontWeight: 'bold',
+                        alignSelf: 'center',
+                      }}>
                       Find Doctors
                     </Text>
                   </TouchableOpacity>
@@ -568,40 +735,6 @@ function AllSYmptoms({navigation}) {
                 alignSelf: 'center',
                 height: layout.height - 100,
               }}>
-              <Text
-                style={{
-                  width: '95%',
-                  alignSelf: 'center',
-                  marginTop: 20,
-                  padding: 10,
-                  fontWeight: 'bold',
-                  color: 'white',
-                  backgroundColor: '#2b8ada',
-                  borderTopRightRadius: 10,
-                  borderTopLeftRadius: 10,
-                  fontSize: 15,
-                }}>
-                Showing results for following symptoms
-              </Text>
-              <Text
-                style={{
-                  width: '95%',
-                  alignSelf: 'center',
-                  padding: 15,
-                  fontSize: 12,
-                  color: 'black',
-                  backgroundColor: 'white',
-                  borderBottomRightRadius: 10,
-                  borderBottomLeftRadius: 10,
-                }}>
-                {selectedSymptom.map(index => {
-                  return selectedSymptom.indexOf(index) !=
-                    selectedSymptom.length - 1
-                    ? index + ', '
-                    : index;
-                })}
-              </Text>
-
               <View
                 style={{
                   marginTop: 20,
@@ -610,6 +743,7 @@ function AllSYmptoms({navigation}) {
                   alignSelf: 'center',
                   borderRadius: 10,
                 }}>
+                {/* Heading */}
                 <Text
                   style={{
                     textAlign: 'left',
@@ -622,11 +756,65 @@ function AllSYmptoms({navigation}) {
                     borderTopLeftRadius: 10,
                     fontSize: 15,
                   }}>
-                  Showing results for following speciality
+                  Showing results for
+                </Text>
+
+                {/* Symptoms */}
+                <Text
+                  style={{
+                    width: '90%',
+                    textAlign: 'center',
+                    alignSelf: 'center',
+                    color: '#2b8ada',
+                    borderBottomWidth: 3,
+                    paddingBottom: 2,
+                    fontSize: 14,
+                    borderColor: '#2b8ada',
+                    fontWeight: 'bold',
+                  }}>
+                  Symptoms
                 </Text>
                 <Text
                   style={{
-                    padding: 15,
+                    marginVertical: 5,
+                    width: '95%',
+                    alignSelf: 'center',
+                    padding: 5,
+                    fontSize: 12,
+                    color: 'black',
+                    backgroundColor: 'white',
+                    borderBottomRightRadius: 10,
+                    borderBottomLeftRadius: 10,
+                  }}>
+                  {selectedSymptom.map(index => {
+                    return selectedSymptom.indexOf(index) !=
+                      selectedSymptom.length - 1
+                      ? index + ', '
+                      : index;
+                  })}
+                </Text>
+
+                {/* Speciality */}
+                <Text
+                  style={{
+                    width: '90%',
+                    textAlign: 'center',
+                    alignSelf: 'center',
+                    color: '#2b8ada',
+                    borderBottomWidth: 3,
+                    paddingBottom: 2,
+                    fontSize: 14,
+                    borderColor: '#2b8ada',
+                    fontWeight: 'bold',
+                  }}>
+                  Speciality
+                </Text>
+                <Text
+                  style={{
+                    marginVertical: 5,
+                    width: '95%',
+                    alignSelf: 'center',
+                    padding: 5,
                     fontSize: 12,
                     color: 'black',
                     backgroundColor: 'white',
@@ -672,7 +860,7 @@ function AllSYmptoms({navigation}) {
                     paddingHorizontal: 15,
                     borderRadius: 5,
                     alignSelf: 'center',
-                    flexDirection: 'row',
+                    flexDirection: 'column',
                   }}
                   onPress={async () => {
                     // await getSpecialityFromSymptoms();
@@ -692,7 +880,7 @@ function AllSYmptoms({navigation}) {
                     style={{alignSelf: 'center', marginRight: 5}}
                   />
                   <Text style={{color: 'white', fontWeight: 'bold'}}>
-                    Symptoms
+                    Change Symptoms
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -702,7 +890,7 @@ function AllSYmptoms({navigation}) {
                     paddingHorizontal: 15,
                     borderRadius: 5,
                     alignSelf: 'center',
-                    flexDirection: 'row',
+                    flexDirection: 'column',
                   }}
                   onPress={async () => {
                     // await getSpecialityFromSymptoms();
@@ -714,18 +902,20 @@ function AllSYmptoms({navigation}) {
                     setDoctorsList([]);
                   }}>
                   <FAIcons
-                    name="search"
+                    name="stethoscope"
                     size={15}
                     color={'white'}
                     style={{alignSelf: 'center', marginRight: 5}}
                   />
                   <Text style={{color: 'white', fontWeight: 'bold'}}>
-                    Select Speciality
+                    Change Speciality
                   </Text>
                 </TouchableOpacity>
               </View>
             </View>
           ) : null}
+
+          {consultationModeModal ? <RenderModal /> : null}
         </ScrollView>
       </SafeAreaView>
     </KeyboardAvoidingView>
@@ -739,6 +929,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#e8f0fe',
+  },
+  modalView: {
+    position: 'absolute',
+    alignItems: 'center',
+    alignSelf: 'center',
+    width: '90%',
+    backgroundColor: 'white',
+    padding: 10,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
   },
 });
 

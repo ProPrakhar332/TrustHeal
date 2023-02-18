@@ -1174,7 +1174,7 @@ function DoctorDetails({navigation}) {
                       setSelected={val => {
                         setclinicName(val);
                         for (let i = 0; i < ClinicsDropDown.length; ++i) {
-                          if (val == ClinicsDropDown[0].value) {
+                          if (val == ClinicsDropDown[i].value) {
                             console.log(ClinicsDropDown[i].key);
                             setclinicId(ClinicsDropDown[i].key);
                             break;
@@ -1265,11 +1265,11 @@ function DoctorDetails({navigation}) {
                         backgroundColor: 'white',
                         width: '95%',
                         alignSelf: 'center',
-                        borderRadius: 10,
                         marginVertical: 10,
-                        paddingVertical: 10,
                       }}>
-                      <Text style={styles.subLabel}>Select Slot</Text>
+                      <Text style={[styles.subLabel, {width: '100%'}]}>
+                        Select Slot
+                      </Text>
                       {PSlots != '' ? (
                         <View
                           style={{
@@ -1959,47 +1959,6 @@ function DoctorDetails({navigation}) {
                     ],
                   );
                 }
-
-                // if (selectedDate != null && flag ==1)
-                //   Alert.alert(
-                //     'Confirm Booking',
-                //     `Are you sure you want to book an appointment?\n\nOn Date:- ${dayjs(
-                //       selectedDate,
-                //     ).format(
-                //       'DD-MMM-YYYY',
-                //     )}\nAt Time:- ${selectedSlotTime}\nMode:- ${mode}`,
-                //     [
-                //       {
-                //         text: 'Yes',
-                //         onPress: () => {},
-                //       },
-                //       {
-                //         text: 'No',
-                //         onPress: () => {},
-                //         style: 'cancel',
-                //       },
-                //     ],
-                //   );
-                // else if (selectedPDate != null && flag == 1)
-                //   Alert.alert(
-                //     'Confirm Booking',
-                //     `Are you sure you want to book an appointment?\n\nClinic:- ${clinicName}\nOn Date:- ${dayjs(
-                //       selectedPDate,
-                //     ).format(
-                //       'DD-MMM-YYYY',
-                //     )}\nAt Time:- ${selectedPSlotTime}\nMode:- ${mode}`,
-                //     [
-                //       {
-                //         text: 'Yes',
-                //         onPress: () => {},
-                //       },
-                //       {
-                //         text: 'No',
-                //         onPress: () => {},
-                //         style: 'cancel',
-                //       },
-                //     ],
-                //   );
               }}
             />
           </View>
