@@ -37,7 +37,11 @@ import trash from '../Icons/delete.png';
 import right from '../Icons/right.png';
 import down from '../Icons/down.png';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import dayjs from 'dayjs';
+import axios from 'axios';
+import apiConfig from '../API/apiConfig';
 const dataBloodGroup = [
   {key: 'A+', value: 'A+'},
   {key: 'A-', value: 'A-'},
@@ -271,9 +275,74 @@ function PatientProfile({navigation}) {
   const [familyEditModal, setfamilyEditModal] = useState(false);
   const [addMore, setaddMore] = useState(false);
 
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const [dob, setdob] = useState('');
+
+  const hideDatePicker = () => {
+    setDatePickerVisibility(false);
+  };
+  const showDatePicker = () => {
+    //console.log("Pressed button");
+
+    setDatePickerVisibility(true);
+  };
+
+  const handleConfirm = date => {
+    setfamMemDob(date);
+    hideDatePicker();
+  };
+
   useEffect(() => {
-    setfamilyMembers(dataFamily);
+    // setfamilyMembers(dataFamily);
+
+    const getFamily = async () => {
+      axios
+        .get(apiConfig.baseUrl + '/patient/family?patientId=1')
+        .then(response => {
+          if (response.status == 200) {
+            setfamilyMembers(response.data);
+          }
+        })
+        .catch(error => {
+          Alert.alert('Error Family', `${error}`);
+        });
+    };
+    getFamily();
   }, []);
+
+  const postFamily = async () => {
+    let p = [
+      {
+        bloodGroup: famMemBloodGroup,
+        city: famMemCity,
+        createdOn: dayjs().format('YYYY-MM-DD'),
+        dob: dayjs(famMemDob).format('YYYY-MM-DD'),
+        email: famMemEmail,
+        gender: famMemGender,
+        height: Height,
+        mobileNumber: setfamMemMobile,
+        name: famMemName,
+        occupation: famMemOccupation,
+        patientId: 1,
+        relation: famMemRelation,
+        weight: Weight,
+        whatsAppNumber: famMemMobile,
+      },
+    ];
+
+    axios
+      .post(apiConfig.baseUrl + '/patient/family/save', p)
+      .then(response => {
+        if (response.status == 200) {
+          Alert.alert('Done', 'Family Member added successfully!');
+          reset();
+          setaddMore(false);
+        }
+      })
+      .catch(error => {
+        Alert.alert('Error Family Add', `${error}`);
+      });
+  };
 
   const logout = () => {
     console.log('Logging out');
@@ -1270,9 +1339,19 @@ function PatientProfile({navigation}) {
                       />
                     </View>
 
-                    {familyMembers != '' && !addMore ? (
+                    {familyMembers != '' ? (
                       <RenderFamily />
                     ) : (
+                      <Text
+                        style={{
+                          alignSelf: 'center',
+                          color: 'black',
+                          marginVertical: 10,
+                        }}>
+                        No Family Member Added
+                      </Text>
+                    )}
+                    {addMore ? (
                       <View
                         style={{
                           // borderWidth: 1,
@@ -1287,7 +1366,6 @@ function PatientProfile({navigation}) {
                             marginTop: 5,
                             fontWeight: 'bold',
                             fontSize: 15,
-
                             color: '#000080',
                             borderBottomWidth: 1,
                             borderBottomColor: '#000080',
@@ -1420,6 +1498,18 @@ function PatientProfile({navigation}) {
                                   size={20}
                                   color={'gray'}
                                   style={{flex: 0.3, alignSelf: 'center'}}
+                                  onPress={() => {
+                                    showDatePicker();
+                                  }}
+                                />
+                                <DateTimePickerModal
+                                  isVisible={isDatePickerVisible}
+                                  mode="date"
+                                  display="spinner"
+                                  onConfirm={handleConfirm}
+                                  onCancel={hideDatePicker}
+                                  maximumDate={new Date()}
+                                  minimumDate={new Date('1940-01-01')}
                                 />
                               </View>
                             </View>
@@ -1521,7 +1611,7 @@ function PatientProfile({navigation}) {
                           </View>
                         </View>
                       </View>
-                    )}
+                    ) : null}
 
                     {/* Buttons */}
                     {!addMore ? (
@@ -1532,7 +1622,7 @@ function PatientProfile({navigation}) {
                           alignSelf: 'flex-end',
                         }}>
                         <CustomButton
-                          text={'+ Add More'}
+                          text={'+ Add '}
                           textstyle={{color: 'white', fontSize: 12}}
                           style={{
                             alignSelf: 'flex-end',
@@ -1574,7 +1664,9 @@ function PatientProfile({navigation}) {
                             marginTop: 10,
                             marginRight: 5,
                           }}
-                          onPress={() => setaddMore(!addMore)}
+                          onPress={async () => {
+                            await postFamily();
+                          }}
                         />
                         <CustomButton
                           text={'Cancel'}
@@ -1791,7 +1883,11 @@ function PatientProfile({navigation}) {
                               <TextInput
                                 style={[styles.detailsTextInput, {flex: 0.7}]}
                                 placeholder="Date Of Birth"
-                                value={famMemDob}
+                                value={
+                                  famMemDob == ''
+                                    ? ''
+                                    : dayjs(famMemDob).format('DD-MM-YYYY')
+                                }
                                 editable={false}
                               />
                               <FAIcon

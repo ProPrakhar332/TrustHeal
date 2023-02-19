@@ -1,2 +1,3 @@
-# NewJArogyaApp
-New Arogya app for public
+# Trust Heal App GUI
+
+~ Made by Prakhar Mamgain
