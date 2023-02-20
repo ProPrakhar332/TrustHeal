@@ -1446,7 +1446,7 @@ function PatientConsult({navigation}) {
           </View>
 
           {/* Doctor Cards */}
-          <View>
+          <View style={{width: '95%', alignSelf: 'center'}}>
             <FlatList
               data={DoctorsList}
               key={item => item.doctorId}

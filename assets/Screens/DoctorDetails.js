@@ -32,43 +32,43 @@ import apiConfig from '../API/apiConfig';
 import {SelectList} from 'react-native-dropdown-select-list';
 import clinicMaker from '../API/ClincMaker';
 
-const data = {
-  name: 'Dr. Imran Singh',
-  spl: 'Psychiatry',
-  exp: '10 Years of experience',
-  deg: 'MBBS, MD, FID, CCLHA',
-  city: 'New Delhi',
-  email: 'Imran@gmail.com',
-  mobileNumber: '+945652154',
-  contactVisibility: true,
-  age: 36,
-  dob: '03/02/1973',
-  img: doctor_m,
-  doctorConsultationFeesDTO: {
-    eConsulationFees: 500,
-    followUpFees: 0,
-    physicalConsulationFees: 800,
-  },
-  doctorEducationsDTOs: [
-    {
-      degree: 'MBBS',
-      degreePath: 'string',
-      doctorEducationPkId: 0,
-      passingYear: '1986',
-      specialization: ['Psychiatry', 'Diabetologist', 'General Physician'],
-      totalExperiencedInMonths: 0,
-      university: 'IGNOU',
-    },
-  ],
-  doctorMedicalRegistrationDTOs: [
-    {
-      certificatePath: 'xyz',
-      registrationCouncil: 'Mumbai Medical College',
-      registrationNo: 'MH0234sb',
-      registrationYear: '1986',
-    },
-  ],
-};
+// const data = {
+//   name: 'Dr. Imran Singh',
+//   spl: 'Psychiatry',
+//   exp: '10 Years of experience',
+//   deg: 'MBBS, MD, FID, CCLHA',
+//   city: 'New Delhi',
+//   email: 'Imran@gmail.com',
+//   mobileNumber: '+945652154',
+//   contactVisibility: true,
+//   age: 36,
+//   dob: '03/02/1973',
+//   img: doctor_m,
+//   doctorConsultationFeesDTO: {
+//     eConsulationFees: 500,
+//     followUpFees: 0,
+//     physicalConsulationFees: 800,
+//   },
+//   doctorEducationsDTOs: [
+//     {
+//       degree: 'MBBS',
+//       degreePath: 'string',
+//       doctorEducationPkId: 0,
+//       passingYear: '1986',
+//       specialization: ['Psychiatry', 'Diabetologist', 'General Physician'],
+//       totalExperiencedInMonths: 0,
+//       university: 'IGNOU',
+//     },
+//   ],
+//   doctorMedicalRegistrationDTOs: [
+//     {
+//       certificatePath: 'xyz',
+//       registrationCouncil: 'Mumbai Medical College',
+//       registrationNo: 'MH0234sb',
+//       registrationYear: '1986',
+//     },
+//   ],
+// };
 const details = {
   clinicInfo: [
     {
@@ -808,8 +808,8 @@ function DoctorDetails({navigation}) {
               style={{
                 alignSelf: 'center',
                 padding: 3,
-                borderColor: '#2b8ada',
-                borderWidth: 5,
+                // borderColor: '#2b8ada',
+                // borderWidth: 5,
                 borderRadius: 100,
               }}>
               {DocDet == null ? (

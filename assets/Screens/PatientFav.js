@@ -27,9 +27,12 @@ import CustomButton from '../Components/CustomButton';
 import CheckBoxIcon from 'react-native-elements/dist/checkbox/CheckBoxIcon';
 
 import doctor_m from '../Resources/doctor_m.png';
+import defaultDoctor from '../Resources/doctor3x.png';
 import doctor_f from '../Resources/doctor_f.jpg';
+import waiting from '../Animations/waiting1.gif';
 
 function PatientFav({navigation}) {
+  const [isLoading, setisLoading] = useState(false);
   const [doctorDataList, setdoctorDataList] = useState([]);
   const [search, setsearch] = useState('');
   const [searchData, setsearchData] = useState([]);
@@ -61,6 +64,7 @@ function PatientFav({navigation}) {
 
   useEffect(() => {
     const getFavDoctor = async () => {
+      setisLoading(true);
       axios
         .get(apiConfig.baseUrl + '/patient/favourite/doctor?patientId=1')
         .then(function (response) {
@@ -69,13 +73,16 @@ function PatientFav({navigation}) {
           );
           console.log(response.data);
           if (response.status == 200) {
+            setisLoading(false);
             //setdoctorDataList(response.data);
             setdoctorDataList(serviceResponse);
           }
         })
         .catch(error => {
+          setisLoading(false);
           Alert.alert('Error Favourite', `${error}`);
         });
+      setisLoading(false);
     };
 
     getFavDoctor();
@@ -300,7 +307,7 @@ function PatientFav({navigation}) {
       dob: '1968-05-21',
       doctorId: 1,
       doctorName: 'Dr. Amit Jain',
-      photoPath: 31453410,
+      photoPath: 0,
       specialization: ['ENT', 'Dermatologist'],
       totalExprienceInMonths: 30,
     },
@@ -310,7 +317,7 @@ function PatientFav({navigation}) {
       dob: '1968-02-11',
       doctorId: 2,
       doctorName: 'Dr. Vishal Gupta',
-      photoPath: 46546540,
+      photoPath: 0,
       specialization: ['Pediatrics'],
       totalExprienceInMonths: 60,
     },
@@ -341,7 +348,15 @@ function PatientFav({navigation}) {
               alignSelf: 'center',
               justifyContent: 'center',
             }}
-            onPress={() => navigation.navigate('DoctorDetails')}>
+            onPress={async () => {
+              console.log(item.doctorName);
+              await AsyncStorage.setItem('viewProfile', JSON.stringify(item));
+              console.log(
+                '======================== All Upcoming ====================================',
+                item,
+              );
+              navigation.navigate('DoctorDetails');
+            }}>
             {/* Tag */}
             {/* <Text
               style={[
@@ -355,7 +370,13 @@ function PatientFav({navigation}) {
 
             {/* Image */}
             <Image
-              source={doctor_m}
+              source={
+                item.photoPath == 0
+                  ? defaultDoctor
+                  : {
+                      uri: `${apiConfig.baseUrl}/file/download?fileToken=${item.photoPath}&userId=${item.doctorId}`,
+                    }
+              }
               style={{
                 width: 90,
                 height: 90,
@@ -370,8 +391,7 @@ function PatientFav({navigation}) {
               flex: 0.6,
               flexDirection: 'column',
               justifyContent: 'space-around',
-            }}
-            onPress={() => navigation.navigate('DoctorDetails')}>
+            }}>
             {/* Doctor Name */}
             <Text
               style={{
@@ -455,21 +475,45 @@ function PatientFav({navigation}) {
   };
 
   const removeFavourite = async item => {
+    setisLoading(true);
     axios
       .delete(
         apiConfig.baseUrl +
-          '/patient/favourite/doctor/delete?doctorId=400&patientId=400',
+          '/patient/favourite/doctor/delete?doctorId=' +
+          item.doctorId +
+          '&patientId=400',
       )
-      .then(response => {
+      .then(async response => {
         if (response.status == 200) {
           Alert.alert(
             'Doctor Removed',
             `${item.doctorName} has been removed from Favourite List.`,
           );
+          await getFavDoctor();
+          setisLoading(false);
         }
       })
       .catch(error => {
+        setisLoading(false);
         console.log('Error Favourite', `${error}`);
+      });
+    setisLoading(false);
+  };
+  const getFavDoctor = async () => {
+    axios
+      .get(apiConfig.baseUrl + '/patient/favourite/doctor?patientId=1')
+      .then(function (response) {
+        console.log(
+          '\n=========================== FAVOURITE DOCTORS ====================================\n',
+        );
+        console.log(response.data);
+        if (response.status == 200) {
+          //setdoctorDataList(response.data);
+          setdoctorDataList(serviceResponse);
+        }
+      })
+      .catch(error => {
+        Alert.alert('Error Favourite', `${error}`);
       });
   };
 
@@ -1290,6 +1334,52 @@ function PatientFav({navigation}) {
             )}
           </View>
         </ScrollView>
+        {isLoading && (
+          <View
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: 'rgba(0,0,0,0.4)',
+            }}>
+            <View
+              style={{
+                backgroundColor: 'white',
+                alignSelf: 'center',
+                borderRadius: 20,
+                width: 150,
+                height: 150,
+                justifyContent: 'center',
+                flexDirection: 'column',
+              }}>
+              <Image
+                source={waiting}
+                style={{
+                  alignSelf: 'center',
+                  width: 80,
+                  height: 80,
+                  // borderRadius: 150,
+                }}
+              />
+              <Text
+                style={{
+                  alignSelf: 'center',
+                  textAlign: 'center',
+                  color: '#2B8ADA',
+                  fontSize: 15,
+                  fontWeight: 'bold',
+                  width: '100%',
+                  // padding: 10,
+                }}>
+                Loading...
+              </Text>
+            </View>
+          </View>
+        )}
       </SafeAreaView>
     </KeyboardAvoidingView>
   );

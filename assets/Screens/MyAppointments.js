@@ -25,10 +25,12 @@ import apiConfig from '../API/apiConfig';
 
 //images
 import doctor_m from '../Resources/doctor_m.png';
+import defaultDoctor from '../Resources/doctor3x.png';
 import doctor_f from '../Resources/doctor_f.jpg';
 import CustomButton from '../Components/CustomButton';
 import dayjs from 'dayjs';
 import timeformatter from '../API/timeformatter';
+import waiting from '../Animations/waiting1.gif';
 
 const dataUpcoming = [
   {
@@ -162,7 +164,7 @@ const UpcomingServiceResponse = [
     doctorEmail: 'abc@geu.ac.in',
     doctorId: 1,
     doctorName: 'Dr. Imran Khan',
-    doctorPhoto: 0,
+    photoPath: 0,
     familyId: 0,
     familyMemberName: '',
     feesAmout: 400,
@@ -183,7 +185,7 @@ const UpcomingServiceResponse = [
     doctorEmail: 'abc@geu.ac.in',
     doctorId: 2,
     doctorName: 'Dr. Wolfeschlegelsteinhausenbergerdorff Sr.',
-    doctorPhoto: 0,
+    photoPath: 0,
     familyId: 0,
     familyMemberName: '',
     feesAmout: 900,
@@ -204,7 +206,7 @@ const CompletedServiceResponse = [
     consultationType: 'PHYSICAL',
     doctorId: 1,
     doctorName: 'Dr. Amit Vaish',
-    doctorPhoto: 215448540,
+    photoPath: 0,
     //familyId: 0,
     //familyMemberName: 'string',
     feesAmout: 400,
@@ -223,7 +225,7 @@ const CompletedServiceResponse = [
     consultationType: 'VIDEO_CALL',
     doctorId: 2,
     doctorName: 'Dr. Sumit Kumar',
-    doctorPhoto: 1545464844,
+    photoPath: 0,
     //familyId: 0,
     //familyMemberName: 'string',
     feesAmout: 600,
@@ -239,6 +241,7 @@ const CompletedServiceResponse = [
 ];
 
 function MyAppointment({navigation}) {
+  const [isLoading, setisLoading] = useState(false);
   const [upcomingActive, setupcomingActive] = useState(true);
   const [completedActive, setcompletedActive] = useState(false);
   const [UpcomingData, setUpcomingData] = useState([]);
@@ -310,15 +313,30 @@ function MyAppointment({navigation}) {
             justifyContent: 'space-evenly',
           }}>
           {/* Image */}
-          <View
+          <TouchableOpacity
             style={{
               flexDirection: 'column',
               alignSelf: 'center',
               margin: 5,
               flex: 0.3,
+            }}
+            onPress={async () => {
+              console.log(item.doctorName);
+              await AsyncStorage.setItem('viewProfile', JSON.stringify(item));
+              console.log(
+                '======================== All Upcoming ====================================',
+                item,
+              );
+              navigation.navigate('DoctorDetails');
             }}>
             <Image
-              source={doctor_m}
+              source={
+                item.photoPath == 0
+                  ? defaultDoctor
+                  : {
+                      uri: `${apiConfig.baseUrl}/file/download?fileToken=${item.photoPath}&userId=${item.doctorId}`,
+                    }
+              }
               style={{
                 width: 100,
                 height: 100,
@@ -326,11 +344,11 @@ function MyAppointment({navigation}) {
                 alignSelf: 'center',
               }}
             />
-          </View>
+          </TouchableOpacity>
           {/* Details */}
           <View
             style={{flex: 0.6, justifyContent: 'space-evenly', marginLeft: 5}}>
-            <Text style={{fontSize: 17, fontWeight: 'bold', color: 'black'}}>
+            <Text style={{fontSize: 20, fontWeight: 'bold', color: 'black'}}>
               {item.doctorName}
             </Text>
             {/* <Text style={{fontSize: 12, color: 'gray'}}>
@@ -397,17 +415,100 @@ function MyAppointment({navigation}) {
               ) : null}
             </View> */}
           </View>
-          {/* Options Button */}
-          <TouchableOpacity style={{flex: 0.1, alignSelf: 'flex-start'}}>
-            <FAIcons
-              name="ellipsis-h"
-              color={'black'}
-              size={15}
+        </View>
+        {/* Buttons */}
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-evenly',
+            marginVertical: 5,
+            width: '95%',
+            alignSelf: 'center',
+          }}>
+          {/* Consult Now */}
+          {item.consultationType != 'PHYSICAL' ? (
+            <TouchableOpacity
               style={{
-                padding: 5,
-                borderRadius: 20,
+                flexDirection: 'row',
+                padding: 3,
+                paddingHorizontal: 5,
+                alignSelf: 'center',
+                borderWidth: 1,
+                borderColor: '#2b8ada',
+                backgroundColor: '#2b8ada',
+                borderRadius: 5,
               }}
+              onPress={() => {
+                // setConsult NowId(
+                //   item.familyId != null ? item.familyId : item.patientId,
+                // );
+                // setConsult NowModal(true);
+              }}>
+              <FAIcons
+                name={
+                  item.consultationType == 'PHYSICAL'
+                    ? 'users'
+                    : item.consultationType == 'PHONE_CALL'
+                    ? 'phone-alt'
+                    : 'video'
+                }
+                color={'white'}
+                size={15}
+                style={{marginRight: 5}}
+              />
+              <Text style={{fontSize: 13, color: 'white'}}>Consult Now</Text>
+            </TouchableOpacity>
+          ) : null}
+          {/* Reschedule */}
+          <TouchableOpacity
+            style={{
+              flexDirection: 'row',
+              padding: 3,
+              paddingHorizontal: 5,
+              alignSelf: 'center',
+              borderWidth: 1,
+              borderColor: '#17CC9C',
+              backgroundColor: '#17CC9C',
+              borderRadius: 5,
+            }}
+            onPress={() => {
+              // sethistoryId(
+              //   item.familyId != null ? item.familyId : item.patientId,
+              // );
+              // setHistoryModal(true);
+            }}>
+            <FAIcons
+              name="calendar-alt"
+              color={'white'}
+              size={15}
+              style={{marginRight: 5}}
             />
+            <Text style={{fontSize: 13, color: 'white'}}>Re-Schedule</Text>
+          </TouchableOpacity>
+          {/* History */}
+          <TouchableOpacity
+            style={{
+              flexDirection: 'row',
+              padding: 3,
+              paddingHorizontal: 5,
+              alignSelf: 'center',
+              borderWidth: 1,
+              borderColor: '#000080',
+              borderRadius: 5,
+            }}
+            onPress={() => {
+              // sethistoryId(
+              //   item.familyId != null ? item.familyId : item.patientId,
+              // );
+              // setHistoryModal(true);
+            }}>
+            <FAIcons
+              name="file-pdf"
+              color={'#000080'}
+              size={15}
+              style={{marginRight: 5}}
+            />
+            <Text style={{fontSize: 13, color: '#000080'}}>History</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -434,15 +535,30 @@ function MyAppointment({navigation}) {
             justifyContent: 'space-evenly',
           }}>
           {/* Image */}
-          <View
+          <TouchableOpacity
             style={{
               flexDirection: 'column',
               alignSelf: 'center',
               margin: 5,
               flex: 0.3,
+            }}
+            onPress={async () => {
+              console.log(item.doctorName);
+              await AsyncStorage.setItem('viewProfile', JSON.stringify(item));
+              console.log(
+                '======================== All Upcoming ====================================',
+                item,
+              );
+              navigation.navigate('DoctorDetails');
             }}>
             <Image
-              source={doctor_m}
+              source={
+                item.photoPath == 0
+                  ? defaultDoctor
+                  : {
+                      uri: `${apiConfig.baseUrl}/file/download?fileToken=${item.photoPath}&userId=${item.doctorId}`,
+                    }
+              }
               style={{
                 width: 100,
                 height: 100,
@@ -450,17 +566,17 @@ function MyAppointment({navigation}) {
                 alignSelf: 'center',
               }}
             />
-          </View>
+          </TouchableOpacity>
           {/* Details */}
           <View style={{flex: 0.6, justifyContent: 'space-evenly'}}>
-            <Text style={{fontSize: 17, fontWeight: 'bold', color: 'black'}}>
+            <Text style={{fontSize: 20, fontWeight: 'bold', color: 'black'}}>
               {item.doctorName}
             </Text>
             <Text style={{fontSize: 12, color: 'gray', fontWeight: 'bold'}}>
               {item.specialization.map(index => {
                 return item.specialization.indexOf(index) !=
                   item.specialization.length - 1
-                  ? index + ', '
+                  ? index + ' , '
                   : index;
               })}
             </Text>
@@ -504,59 +620,115 @@ function MyAppointment({navigation}) {
               style={{
                 flexDirection: 'row',
                 marginVertical: 3,
-                justifyContent: 'space-between',
               }}>
-              <TouchableOpacity
+              <Text
                 style={{
-                  padding: 5,
-                  backgroundColor: '#2B8ADA',
+                  fontSize: 12,
                   alignSelf: 'center',
-                  borderRadius: 5,
-                  borderWidth: 2,
-                  flex: 0.45,
-                  borderColor: '#2B8ADA',
+                  fontWeight: 'bold',
+                  color: 'black',
+                  marginRight: 3,
                 }}>
-                <Text
-                  style={{
-                    fontSize: 10,
-                    alignSelf: 'center',
-                    fontWeight: 'bold',
-                    color: 'white',
-                  }}>
-                  {dayjs(item.slotDate).format('DD-MMM-YYYY')}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
+                {dayjs(item.slotDate).format('DD MMM, YYYY')} {' | '}
+              </Text>
+
+              <Text
                 style={{
-                  borderWidth: 2,
-                  flex: 0.45,
-                  borderColor: '#2B8ADA',
-                  padding: 5,
-                  borderRadius: 5,
+                  fontSize: 12,
+                  alignSelf: 'center',
+                  fontWeight: 'bold',
+                  color: 'black',
                 }}>
-                <Text
-                  style={{
-                    fontSize: 10,
-                    alignSelf: 'center',
-                    fontWeight: 'bold',
-                    color: '#2B8ADA',
-                  }}>
-                  {timeformatter(item.slotStartTime)}
-                </Text>
-              </TouchableOpacity>
+                {timeformatter(item.slotStartTime)}
+              </Text>
             </View>
           </View>
-          {/* Options Button */}
-          <TouchableOpacity style={{flex: 0.1, alignSelf: 'flex-start'}}>
+        </View>
+        {/* Buttons */}
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-evenly',
+            marginVertical: 5,
+            width: '95%',
+            alignSelf: 'center',
+          }}>
+          {/* Prescription */}
+          <TouchableOpacity
+            style={{
+              flexDirection: 'row',
+              padding: 3,
+              paddingHorizontal: 5,
+              alignSelf: 'center',
+              borderWidth: 1,
+              borderColor: '#2b8ada',
+              backgroundColor: '#2b8ada',
+              borderRadius: 5,
+            }}
+            onPress={() => {
+              // sethistoryId(
+              //   item.familyId != null ? item.familyId : item.patientId,
+              // );
+              // setHistoryModal(true);
+            }}>
             <FAIcons
-              name="ellipsis-h"
-              color={'black'}
+              name="prescription"
+              color={'white'}
               size={15}
-              style={{
-                padding: 5,
-                borderRadius: 20,
-              }}
+              style={{marginRight: 5}}
             />
+            <Text style={{fontSize: 13, color: 'white'}}>Prescription</Text>
+          </TouchableOpacity>
+          {/* Invoice */}
+          <TouchableOpacity
+            style={{
+              flexDirection: 'row',
+              padding: 3,
+              paddingHorizontal: 5,
+              alignSelf: 'center',
+              borderWidth: 1,
+              borderColor: '#17CC9C',
+              backgroundColor: '#17CC9C',
+              borderRadius: 5,
+            }}
+            onPress={() => {
+              // sethistoryId(
+              //   item.familyId != null ? item.familyId : item.patientId,
+              // );
+              // setHistoryModal(true);
+            }}>
+            <FAIcons
+              name="file-invoice"
+              color={'white'}
+              size={15}
+              style={{marginRight: 5}}
+            />
+            <Text style={{fontSize: 13, color: 'white'}}>Invoices</Text>
+          </TouchableOpacity>
+          {/* History */}
+          <TouchableOpacity
+            style={{
+              flexDirection: 'row',
+              padding: 3,
+              paddingHorizontal: 5,
+              alignSelf: 'center',
+              borderWidth: 1,
+              borderColor: '#000080',
+              borderRadius: 5,
+            }}
+            onPress={() => {
+              // sethistoryId(
+              //   item.familyId != null ? item.familyId : item.patientId,
+              // );
+              // setHistoryModal(true);
+            }}>
+            <FAIcons
+              name="file-pdf"
+              color={'#000080'}
+              size={15}
+              style={{marginRight: 5}}
+            />
+            <Text style={{fontSize: 13, color: '#000080'}}>History</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -674,6 +846,52 @@ function MyAppointment({navigation}) {
             </View>
           )}
         </ScrollView>
+        {isLoading && (
+          <View
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: 'rgba(0,0,0,0.4)',
+            }}>
+            <View
+              style={{
+                backgroundColor: 'white',
+                alignSelf: 'center',
+                borderRadius: 20,
+                width: 150,
+                height: 150,
+                justifyContent: 'center',
+                flexDirection: 'column',
+              }}>
+              <Image
+                source={waiting}
+                style={{
+                  alignSelf: 'center',
+                  width: 80,
+                  height: 80,
+                  // borderRadius: 150,
+                }}
+              />
+              <Text
+                style={{
+                  alignSelf: 'center',
+                  textAlign: 'center',
+                  color: '#2B8ADA',
+                  fontSize: 15,
+                  fontWeight: 'bold',
+                  width: '100%',
+                  // padding: 10,
+                }}>
+                Loading...
+              </Text>
+            </View>
+          </View>
+        )}
       </SafeAreaView>
     </KeyboardAvoidingView>
   );
