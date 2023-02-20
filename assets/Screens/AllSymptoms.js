@@ -31,10 +31,13 @@ import {
 
 //icons
 import generalmedicine from '../SpecialityIcons/generalmedicine.jpg';
+
+import waiting from '../Animations/waiting1.gif';
 import CheckBoxIcon from 'react-native-elements/dist/checkbox/CheckBoxIcon';
 import CustomButton from '../Components/CustomButton';
 
 function AllSYmptoms({navigation}) {
+  const [isLoading, setisLoading] = useState(false);
   const [ListSymptoms, setListSymptoms] = useState(null);
   const [selectedSymptom, setselectedSymptom] = useState([]);
   const [Speciality, setSpeciality] = useState([]);
@@ -50,6 +53,7 @@ function AllSYmptoms({navigation}) {
 
   useEffect(() => {
     const getAllSymptoms = async () => {
+      setisLoading(true);
       await axios
         .get(apiConfig.baseUrl + '/suggest/symptom/dropdown?max=100&min=0')
         .then(response => {
@@ -61,11 +65,12 @@ function AllSYmptoms({navigation}) {
               };
             });
             //Set Data Variable
-
+            setisLoading(false);
             setListSymptoms(newArray);
           }
         })
         .catch(error => {
+          setisLoading(false);
           Alert.alert('Error', `${error}`);
         });
     };
@@ -130,6 +135,7 @@ function AllSYmptoms({navigation}) {
   };
 
   const getSpecialityFromSymptoms = async () => {
+    setisLoading(true);
     let x = '';
     selectedSymptom.forEach(element => {
       x += '&symptoms=' + element;
@@ -149,12 +155,13 @@ function AllSYmptoms({navigation}) {
             };
           });
           setSpeciality(newArray);
-
+          setisLoading(false);
           setshowSymptoms(false);
           setshowSpecialities(true);
         }
       })
       .catch(error => {
+        setisLoading(false);
         Alert.alert('Error', `${error}`);
       });
   };
@@ -165,12 +172,13 @@ function AllSYmptoms({navigation}) {
         style={[
           {
             width: 115,
-
             borderRadius: 10,
             padding: 5,
             margin: 5,
             borderWidth: 2,
             borderColor: '#2b8ada',
+            flexDirection: 'row',
+            justifyContent: 'space-evenly',
           },
           SpecialitySearch.indexOf(item.value) != -1
             ? {backgroundColor: '#17CC9C', borderWidth: 0}
@@ -180,27 +188,31 @@ function AllSYmptoms({navigation}) {
           CheckBoxPressedSpeciality(item);
         }}
         key={item.value}>
-        <CheckBoxIcon
-          size={15}
-          iconType="font-awesome"
-          checked={SpecialitySearch.indexOf(item.value) != -1}
-          checkedColor={'white'}
-          uncheckedColor={'gray'}
-        />
-        <Text
-          style={[
-            {
-              alignSelf: 'center',
-              textAlign: 'center',
-              fontSize: 13,
-              marginVertical: 5,
-            },
-            SpecialitySearch.indexOf(item.value) == -1
-              ? {color: '#2b8ada'}
-              : {color: 'white'},
-          ]}>
-          {item.value}
-        </Text>
+        {/* <View style={{flex: 0.1, alignSelf: 'center'}}>
+          <CheckBoxIcon
+            size={15}
+            iconType="font-awesome"
+            checked={SpecialitySearch.indexOf(item.value) != -1}
+            checkedColor={'white'}
+            uncheckedColor={'gray'}
+          />
+        </View> */}
+        <View style={{flex: 1, alignSelf: 'center'}}>
+          <Text
+            style={[
+              {
+                alignSelf: 'center',
+                textAlign: 'center',
+                fontSize: 13,
+                marginVertical: 5,
+              },
+              SpecialitySearch.indexOf(item.value) == -1
+                ? {color: '#2b8ada'}
+                : {color: 'white'},
+            ]}>
+            {item.value}
+          </Text>
+        </View>
       </TouchableOpacity>
     );
   };
@@ -214,6 +226,7 @@ function AllSYmptoms({navigation}) {
   };
 
   const getDoctorsFromSpeciality = async () => {
+    setisLoading(true);
     let x = '';
     SpecialitySearch.forEach(element => {
       x += '&speciality=' + element;
@@ -224,11 +237,13 @@ function AllSYmptoms({navigation}) {
         if (response.status == 200) {
           console.log(response.data);
           setDoctorsList(response.data);
+          setisLoading(false);
           setshowSpecialities(false);
           setshowDoctorList(true);
         }
       })
       .catch(error => {
+        setisLoading(false);
         Alert.alert('Error', `${error}`);
       });
   };
@@ -245,7 +260,13 @@ function AllSYmptoms({navigation}) {
           marginTop: 10,
         }}
         key={item.doctorId}>
-        <View style={{flexDirection: 'row', flex: 1}}>
+        <View
+          style={{
+            flexDirection: 'row',
+            flex: 1,
+            // borderBottomColor: 'gray',
+            // borderBottomWidth: 2,
+          }}>
           {/* Image */}
           <Image
             source={
@@ -278,7 +299,7 @@ function AllSYmptoms({navigation}) {
               style={{
                 textAlign: 'left',
                 fontWeight: 'bold',
-                fontSize: 14,
+                fontSize: 18,
                 color: 'black',
                 flex: 1,
               }}>
@@ -308,20 +329,20 @@ function AllSYmptoms({navigation}) {
                     style={[
                       {
                         textAlign: 'left',
-                        color: '#2b8ada',
+                        color: 'gray',
                         fontSize: 12,
                         flex: 1,
                         fontWeight: 'bold',
                       },
                       SpecialitySearch.indexOf(index) != -1
-                        ? {color: '#17CC9C'}
+                        ? {color: '#2b8ada'}
                         : null,
                     ]}>
                     {index}{' '}
                     {item.specialization.indexOf(index) !=
                     item.specialization.length - 1
-                      ? ' , '
-                      : null}
+                      ? ','
+                      : ''}
                   </Text>
                 );
               })}
@@ -359,6 +380,55 @@ function AllSYmptoms({navigation}) {
                 }}>
                 {item.city}
               </Text>
+            </View>
+          </View>
+        </View>
+        {/* Fees Details */}
+        <View
+          style={{
+            flexDirection: 'column',
+            justifyContent: 'space-evenly',
+            marginTop: 10,
+          }}>
+          <View style={{flexDirection: 'row', justifyContent: 'space-evenly'}}>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                flex: 0.45,
+              }}>
+              <Text style={styles.feesDetailsLabel}>P-Consultation</Text>
+              <Text style={styles.feesDetails}>₹ {item.pconsultationFees}</Text>
+            </View>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                flex: 0.45,
+              }}>
+              <Text style={styles.feesDetailsLabel}>E-Consultation</Text>
+              <Text style={styles.feesDetails}>₹ {item.econsultationFees}</Text>
+            </View>
+          </View>
+
+          <View style={{flexDirection: 'row', justifyContent: 'space-evenly'}}>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                flex: 0.45,
+              }}>
+              <Text style={styles.feesDetailsLabel}>Follow Up Fees</Text>
+              <Text style={styles.feesDetails}>₹ {item.followUpFees}</Text>
+            </View>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                flex: 0.45,
+              }}>
+              <Text style={styles.feesDetailsLabel}>Follow Up Days</Text>
+              <Text style={styles.feesDetails}>{item.followUpDuration}</Text>
             </View>
           </View>
         </View>
@@ -489,7 +559,9 @@ function AllSYmptoms({navigation}) {
               }}>
               <FAIcons name={'video'} color={'white'} size={16} />
               <Text style={{color: 'white', fontSize: 14}}>E-Consultation</Text>
-              <Text style={{color: 'white', fontSize: 14}}>₹ 500</Text>
+              <Text style={{color: 'white', fontSize: 14}}>
+                ₹ {DoctorItem.econsultationFees}
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={{
@@ -517,7 +589,9 @@ function AllSYmptoms({navigation}) {
               }}>
               <FAIcons name={'users'} color={'white'} size={16} />
               <Text style={{color: 'white', fontSize: 14}}>P-Consultation</Text>
-              <Text style={{color: 'white', fontSize: 14}}>₹ 400</Text>
+              <Text style={{color: 'white', fontSize: 14}}>
+                ₹ {DoctorItem.pconsultationFees}
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -551,7 +625,18 @@ function AllSYmptoms({navigation}) {
                 alignSelf: 'center',
                 height: layout.height - 100,
               }}>
-              <View style={{marginTop: 20}}>
+              <Text
+                style={{
+                  marginVertical: 20,
+                  backgroundColor: '#2b8ada',
+                  padding: 10,
+                  color: 'white',
+                  fontWeight: 'bold',
+                  borderRadius: 10,
+                }}>
+                Select Symptoms
+              </Text>
+              <View style={{alignSelf: 'center'}}>
                 <FlatList
                   data={ListSymptoms}
                   key={item => item.key}
@@ -810,7 +895,7 @@ function AllSYmptoms({navigation}) {
                         textAlign: 'center',
                         alignSelf: 'center',
                         color: '#2b8ada',
-                        borderBottomWidth: 3,
+                        // borderBottomWidth: 3,
                         paddingBottom: 2,
                         fontSize: 14,
                         borderColor: '#2b8ada',
@@ -853,7 +938,7 @@ function AllSYmptoms({navigation}) {
                         textAlign: 'center',
                         alignSelf: 'center',
                         color: '#2b8ada',
-                        borderBottomWidth: 3,
+                        //borderBottomWidth: 3,
                         paddingBottom: 2,
                         fontSize: 14,
                         borderColor: '#2b8ada',
@@ -914,7 +999,7 @@ function AllSYmptoms({navigation}) {
                           setshowSymptoms(false);
                           setshowSpecialities(true);
                           setshowDoctorList(false);
-                          setSpecialitySearch([]);
+                          //setSpecialitySearch([]);
                           setDoctorsList([]);
                         }}>
                         <FAIcons
@@ -951,7 +1036,7 @@ function AllSYmptoms({navigation}) {
                           setshowSpecialities(false);
                           setshowDoctorList(false);
                           setSpeciality([]);
-                          setselectedSymptom([]);
+                          //setselectedSymptom([]);
                           setSpecialitySearch([]);
                           setDoctorsList([]);
                         }}>
@@ -995,6 +1080,52 @@ function AllSYmptoms({navigation}) {
 
           {consultationModeModal ? <RenderModal /> : null}
         </ScrollView>
+        {isLoading && (
+          <View
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: 'rgba(0,0,0,0.4)',
+            }}>
+            <View
+              style={{
+                backgroundColor: 'white',
+                alignSelf: 'center',
+                borderRadius: 20,
+                width: 150,
+                height: 150,
+                justifyContent: 'center',
+                flexDirection: 'column',
+              }}>
+              <Image
+                source={waiting}
+                style={{
+                  alignSelf: 'center',
+                  width: 80,
+                  height: 80,
+                  // borderRadius: 150,
+                }}
+              />
+              <Text
+                style={{
+                  alignSelf: 'center',
+                  textAlign: 'center',
+                  color: '#2B8ADA',
+                  fontSize: 15,
+                  fontWeight: 'bold',
+                  width: '100%',
+                  // padding: 10,
+                }}>
+                Loading...
+              </Text>
+            </View>
+          </View>
+        )}
       </SafeAreaView>
     </KeyboardAvoidingView>
   );
@@ -1020,6 +1151,17 @@ const styles = StyleSheet.create({
       width: 0,
       height: 2,
     },
+  },
+  feesDetails: {
+    textAlign: 'left',
+    fontSize: 12,
+    color: 'gray',
+  },
+  feesDetailsLabel: {
+    textAlign: 'left',
+    fontSize: 13,
+    color: 'gray',
+    fontWeight: 'bold',
   },
 });
 
