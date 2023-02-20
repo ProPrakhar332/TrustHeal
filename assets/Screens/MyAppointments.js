@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import {
   Alert,
+  Modal,
   useWindowDimensions,
   View,
   Text,
@@ -246,6 +247,8 @@ function MyAppointment({navigation}) {
   const [completedActive, setcompletedActive] = useState(false);
   const [UpcomingData, setUpcomingData] = useState([]);
   const [CompletedData, setCompletedData] = useState([]);
+  const [rescheduleModal, setrescheduleModal] = useState(false);
+  const [doctorItem, setDoctorItem] = useState(null);
 
   useEffect(() => {
     const getUpcoming = async () => {
@@ -472,10 +475,8 @@ function MyAppointment({navigation}) {
               borderRadius: 5,
             }}
             onPress={() => {
-              // sethistoryId(
-              //   item.familyId != null ? item.familyId : item.patientId,
-              // );
-              // setHistoryModal(true);
+              setDoctorItem(item);
+              setrescheduleModal(true);
             }}>
             <FAIcons
               name="calendar-alt"
@@ -892,6 +893,64 @@ function MyAppointment({navigation}) {
             </View>
           </View>
         )}
+        {rescheduleModal ? (
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={rescheduleModal}
+            onRequestClose={() => {
+              setrescheduleModal(!rescheduleModal);
+            }}>
+            <View
+              style={{
+                height: '100%',
+                backgroundColor: 'rgba(0,0,0,0.8)',
+                flexDirection: 'row',
+                justifyContent: 'center',
+              }}>
+              <View
+                style={[
+                  styles.modalView,
+                  {
+                    borderRadius: 10,
+                    padding: 15,
+                  },
+                ]}>
+                <View
+                  style={{
+                    width: '100%',
+                    alignSelf: 'center',
+                    marginBottom: 20,
+                    borderBottomWidth: 1,
+                    borderBottomColor: 'gray',
+                  }}>
+                  <Text
+                    style={{
+                      fontWeight: 'bold',
+                      fontSize: 20,
+                      padding: 5,
+                      color: 'black',
+                    }}>
+                    Reschedule
+                  </Text>
+                  <FAIcons
+                    name="window-close"
+                    color="black"
+                    size={26}
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      right: 0,
+                    }}
+                    onPress={() => {
+                      setrescheduleModal(false);
+                    }}
+                  />
+                </View>
+              </View>
+            </View>
+          </Modal>
+        ) : null}
       </SafeAreaView>
     </KeyboardAvoidingView>
   );
@@ -904,6 +963,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#e8f0fe',
+  },
+  modalView: {
+    position: 'absolute',
+    width: '90%',
+    alignSelf: 'center',
+    backgroundColor: 'white',
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
   },
 });
 

@@ -582,17 +582,33 @@ function CustomDrawerContentPatient(props) {
                 alignSelf: 'center',
                 borderRadius: 100,
               }}>
-              <Image
-                style={{
-                  height: 80,
-                  width: 80,
-                  borderRadius: 80,
-                  alignSelf: 'center',
-                  backgroundColor: 'white',
-                  margin: 5,
-                }}
-                source={patient}
-              />
+              {props.patientObj == null ? (
+                <Image
+                  style={{
+                    height: 80,
+                    width: 80,
+                    borderRadius: 80,
+                    alignSelf: 'center',
+                    backgroundColor: 'white',
+                    margin: 5,
+                  }}
+                  source={patient}
+                />
+              ) : (
+                <Image
+                  style={{
+                    height: 80,
+                    width: 80,
+                    borderRadius: 80,
+                    alignSelf: 'center',
+                    backgroundColor: 'white',
+                    margin: 5,
+                  }}
+                  source={{
+                    uri: `${apiConfig.baseUrl}/file/download?fileToken=${props.patientObj.photoPath}&userId=${props.patientObj.patientId}`,
+                  }}
+                />
+              )}
             </View>
           </View>
           <TouchableOpacity
@@ -606,10 +622,14 @@ function CustomDrawerContentPatient(props) {
                 marginVertical: 5,
                 fontWeight: 'bold',
               }}>
-              Patient Name
+              {props.patientObj != null
+                ? props.patientObj.doctorName
+                : 'Patient Name'}
             </Text>
             <Text style={{color: 'white', fontSize: 10, marginBottom: 10}}>
-              +94563357874
+              {props.patientObj != null
+                ? props.patientObj.mobileNumber
+                : 'Mobile No'}
             </Text>
             <Text
               style={{color: 'white'}}

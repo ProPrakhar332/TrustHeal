@@ -1090,6 +1090,7 @@ const FirstScreen = ({route, navigation}) => {
   };
 
   const onSubmitPressed = async () => {
+    setwrongOTPMessage(false);
     if (pin1 == '' || pin2 == '' || pin3 == '' || pin4 == '')
       Alert.alert('Invalid OTP', 'Please feed in 4 digit OTP!');
     else {
@@ -1098,42 +1099,95 @@ const FirstScreen = ({route, navigation}) => {
       let x = '' + pin1 + pin2 + pin3 + pin4;
       // let no = await AsyncStorage.getItem("mobileNumber");
       // console.log(no);
-      axios
-        .post(apiConfig.baseUrl + '/login/doctor/otp/verify', {
-          mobileNumber: mob,
-          otp: x,
-        })
-        .then(async function (response) {
-          setisLoading(false);
-          console.log(response.status);
-          if (response.status == 204) {
-            setModalVisible(false);
-            reset();
-            navigation.navigate(nextScreen);
-          } else if (response.status == 200) {
-            setModalVisible(false);
-            reset();
-            //console.log(response.data);
-            let x = response.data;
-            // if (x.doctorConfigurationDTO != null) {
-            //   x.isLastStepComplete = true;
-            // }
 
-            await AsyncStorage.setItem('UserDoctorProfile', JSON.stringify(x));
+      if (nextScreen == 'RegisterDoctor') {
+        axios
+          .post(apiConfig.baseUrl + '/login/doctor/otp/verify', {
+            mobileNumber: mob,
+            otp: x,
+          })
+          .then(async function (response) {
+            setisLoading(false);
+            console.log(response.status);
+            if (response.status == 204) {
+              setModalVisible(false);
+              reset();
+              navigation.navigate(nextScreen);
+            } else if (response.status == 200) {
+              setModalVisible(false);
+              reset();
+              //console.log(response.data);
+              let x = response.data;
+              // if (x.doctorConfigurationDTO != null) {
+              //   x.isLastStepComplete = true;
+              // }
 
-            if (x.profileCompleted == true && x.verified == true)
-              navigation.navigate('DoctorHome', {doctorObj: x});
-            else navigation.navigate('DoctorRegistrationStep2');
-          }
-        })
-        .catch(function (error) {
-          setisLoading(false);
-          if (error == 'AxiosError: Request failed with status code 400') {
-            //console.log(error);
-            setwrongOTPMessage(true);
-            reset();
-          }
-        });
+              await AsyncStorage.setItem(
+                'UserDoctorProfile',
+                JSON.stringify(x),
+              );
+
+              if (x.profileCompleted == true && x.verified == true)
+                navigation.navigate('DoctorHome', {doctorObj: x});
+              else navigation.navigate('DoctorRegistrationStep2');
+            }
+          })
+          .catch(function (error) {
+            setisLoading(false);
+            if (error == 'AxiosError: Request failed with status code 400') {
+              //console.log(error);
+              setwrongOTPMessage(true);
+              reset();
+            }
+          });
+      } else {
+        axios
+          .post(apiConfig.baseUrl + '/login/patient/otp/verify', {
+            mobileNumber: mob,
+            otp: x,
+          })
+          .then(async function (response) {
+            setisLoading(false);
+            console.log(response.status);
+            if (response.status == 200) {
+              await AsyncStorage.setItem(
+                'UserPatientProfile',
+                JSON.stringify(response.data),
+              );
+              console.log(response.data);
+              if (response.data.profileComplete == true) {
+                Alert.alert(
+                  'Welcome to Arogya',
+                  `Lets get you quality and accessible health consultation`,
+                );
+                navigation.navigate('PatientHome', {
+                  patientObj: JSON.stringify(response.data),
+                });
+              } else {
+                Alert.alert(
+                  'Important',
+                  `Please complete your profile before continuing`,
+                );
+                navigation.navigate('PatientRegistration1');
+              }
+            } else if (response.status == 204) {
+              console.log(response.data);
+              Alert.alert(
+                'Important',
+                `Please complete your profile before continuing`,
+              );
+              navigation.navigate('PatientRegistration1');
+            }
+          })
+          .catch(function (error) {
+            setisLoading(false);
+            if (error == 'AxiosError: Request failed with status code 400') {
+              //console.log(error);
+              setwrongOTPMessage(true);
+              reset();
+            }
+          });
+      }
     }
   };
   const loginWithLinkedIn = () => {

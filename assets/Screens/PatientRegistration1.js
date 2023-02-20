@@ -86,6 +86,14 @@ const PatientRegistration1 = ({navigation}) => {
     {key: 'AB-', value: 'AB-'},
   ];
 
+  useEffect(() => {
+    const onLoadSetData = async () => {
+      setmobno(await AsyncStorage.getItem('mobileNumber'));
+    };
+
+    onLoadSetData();
+  }, []);
+
   //progress bar
   useEffect(() => {
     let c = 0;
@@ -120,7 +128,7 @@ const PatientRegistration1 = ({navigation}) => {
     setisLoading(true);
     let p = {
       age: age,
-      allowWhatsAppNotification: true,
+      allowWhatsAppNotification: false,
       bloodGroup: BloodGroup,
       city: city,
       dob: dayjs().format('YYYY-MM-DD'),
@@ -131,7 +139,6 @@ const PatientRegistration1 = ({navigation}) => {
       mobileNumber: mobno,
       occupation: Occupation,
       patientName: name,
-      //phoneIp: 'string',
       pincode: pincode,
       termsAndConditions: true,
       weight: Weight,
@@ -141,26 +148,64 @@ const PatientRegistration1 = ({navigation}) => {
       p.phoneIp = ip;
     });
 
+    let flag = 0;
+    let patient = null;
+
     axios
-      .post(apiConfig.baseUrl + '/patient/record/save', p)
+      .post(apiConfig.baseUrl + '/patient/save', p)
       .then(function (response) {
-        if (response.status == 200) {
-          setisLoading(false);
-          Alert.alert(
-            'Welcome to Arogya',
-            'Your details have been saved successfully',
-          );
+        if (response.status == 204 || response.status == 200) {
+          //setisLoading(false);
+          // patient = response.data;
+
+          // flag = 1;
+
           AsyncStorage.setItem(
             'UserPatientProfile',
             JSON.stringify(response.data),
           );
-          navigation.navigate('PatientHome');
+          setisLoading(false);
+          Alert.alert(
+            'Welcome to Arogya',
+            'Your details have been saved successfully.',
+          );
+          navigation.navigate('PatientHome', {
+            patientObj: JSON.stringify(response.data),
+          });
         }
       })
       .catch(error => {
+        setisLoading(false);
         console.log(error);
         Alert.alert('Error', `${error}`);
       });
+
+    console.log(patient);
+
+    // if (flag == 1) {
+    //   axios
+    //     .post(
+    //       apiConfig.baseUrl +
+    //         '/patient/profile/complete?patientId=' +
+    //         patient.patientId,
+    //     )
+    //     .then(response => {
+    //       if (response.status == 200) {
+    //         setisLoading(false);
+    //         Alert.alert(
+    //           'Welcome to Arogya',
+    //           'Your details have been saved successfully.',
+    //         );
+    //         navigation.navigate('PatientHome', {
+    //           patientObj: JSON.stringify(patient),
+    //         });
+    //       }
+    //     })
+    //     .catch(error => {
+    //       setisLoading(false);
+    //       Alert.alert('Error in Profile Complete', `${error}`);
+    //     });
+    // }
   };
 
   return (

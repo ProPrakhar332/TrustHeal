@@ -27,8 +27,10 @@ const RoleScreen = ({navigation}) => {
   useEffect(() => {
     const onLoadSetData = async () => {
       let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
-      console.log('X: ', x);
-      if (x != null) {
+      console.log('Doctor Object: ', x);
+      let y = JSON.parse(await AsyncStorage.getItem('UserPatientProfile'));
+      console.log('Patient Object: ', y);
+      if (x != null && y == null) {
         if (x.profileCompleted == true && x.verified == true)
           navigation.navigate('DoctorHome', {doctorObj: x});
         else if (x.profileCompleted) {
@@ -42,6 +44,10 @@ const RoleScreen = ({navigation}) => {
         // } else {
         //   navigation.dispatch(StackActions.replace('DoctorRegistrationStep2'));
         // }
+      } else if (x == null && y != null) {
+        if (y.profileCompleted == true)
+          navigation.navigate('PatientHome', {patientObj: y});
+        else navigation.navigate('PatientRegistration1');
       }
     };
     onLoadSetData();
@@ -175,9 +181,9 @@ const RoleScreen = ({navigation}) => {
                       : {backgroundColor: '#2b8ada', padding: 3}
                   }
                   onPress={() => {
-                    // navigation.push("OTPScreen", {
-                    //   nextScreen: "PatientRegistration",
-                    // });
+                    navigation.push('OTPScreen', {
+                      nextScreen: 'PatientRegistration',
+                    });
 
                     // navigation.navigate('CallPage', {
                     //   consultationType: 'VIDEO_CALL',
@@ -185,7 +191,9 @@ const RoleScreen = ({navigation}) => {
                     //   userID: 'Patient',
                     //   userName: 'Patient',
                     // });
-                    navigation.navigate('PatientRegistration1');
+
+                    //navigation.navigate('PatientRegistration1');
+
                     // Alert.alert(
                     //   'Coming Soon',
                     //   'This section would be available in next phase!',

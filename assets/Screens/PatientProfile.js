@@ -246,6 +246,7 @@ const ItemInvoice = ({no, date, doc}) => (
   </View>
 );
 function PatientProfile({navigation}) {
+  const [PatientDet, setPatientDet] = useState(null);
   const [HelpModal, setHelpModal] = useState(false);
   //other details
   const [OtherDetailsModal, setOtherDetailsModal] = useState(false);
@@ -295,6 +296,12 @@ function PatientProfile({navigation}) {
   useEffect(() => {
     // setfamilyMembers(dataFamily);
 
+    const getData = async () => {
+      let x = JSON.parse(await AsyncStorage.getItem('UserPatientProfile'));
+      console.log(x);
+      setPatientDet(x);
+    };
+
     const getFamily = async () => {
       axios
         .get(apiConfig.baseUrl + '/patient/family?patientId=1')
@@ -307,6 +314,7 @@ function PatientProfile({navigation}) {
           Alert.alert('Error Family', `${error}`);
         });
     };
+    getData();
     getFamily();
   }, []);
 
@@ -688,7 +696,7 @@ function PatientProfile({navigation}) {
                   borderColor: '#2B8ADA',
                   justifyContent: 'center',
                 }}>
-                <Image
+                {/* <Image
                   source={patient}
                   style={{
                     backgroundColor: '#2B8ADA',
@@ -697,11 +705,36 @@ function PatientProfile({navigation}) {
                     height: 70,
                     alignSelf: 'center',
                   }}
-                />
+                /> */}
+                {PatientDet.photoPath == null ? (
+                  <Image
+                    style={{
+                      backgroundColor: '#2B8ADA',
+                      borderRadius: 70,
+                      width: 70,
+                      height: 70,
+                      alignSelf: 'center',
+                    }}
+                    source={patient}
+                  />
+                ) : (
+                  <Image
+                    style={{
+                      backgroundColor: '#2B8ADA',
+                      borderRadius: 70,
+                      width: 70,
+                      height: 70,
+                      alignSelf: 'center',
+                    }}
+                    source={{
+                      uri: `${apiConfig.baseUrl}/file/download?fileToken=${PatientDet.photoPath}&userId=${PatientDet.patientId}`,
+                    }}
+                  />
+                )}
               </View>
               <View style={{alignSelf: 'center'}}>
                 <Text style={[styles.blueUnderText, {textAlign: 'center'}]}>
-                  Mr. Rohit Kumar
+                  {PatientDet != null ? PatientDet.patientName : 'Patient Name'}
                 </Text>
                 <Text
                   style={[
@@ -713,14 +746,14 @@ function PatientProfile({navigation}) {
                       marginBottom: 0,
                     },
                   ]}>
-                  Delhi
+                  {PatientDet != null ? PatientDet.city : 'Patient City'}
                 </Text>
                 <Text
                   style={[
                     styles.grayHeading,
                     {textAlign: 'center', marginBottom: 0},
                   ]}>
-                  rohit@gmail.com
+                  {PatientDet != null ? PatientDet.email : 'Patient Email'}
                 </Text>
               </View>
             </View>
@@ -737,17 +770,28 @@ function PatientProfile({navigation}) {
                     {borderRightWidth: 1, borderColor: 'gray'},
                   ]}>
                   <Text style={styles.grayHeading}>Age</Text>
-                  <Text style={styles.blueUnderText}>35 Years</Text>
+                  <Text style={styles.blueUnderText}>
+                    {PatientDet != null
+                      ? dayjs().diff(dayjs(PatientDet.dob), 'y')
+                      : 'Age'}
+                    Years
+                  </Text>
                 </View>
                 <View style={[styles.whiteInnerBox]}>
                   <Text style={styles.grayHeading}>Phone No.</Text>
-                  <Text style={styles.blueUnderText}>+91 123654789</Text>
+                  <Text style={styles.blueUnderText}>
+                    {PatientDet != null
+                      ? PatientDet.mobileNumber
+                      : '+91 123456789'}
+                  </Text>
                 </View>
               </View>
               <View style={styles.whiteOuterBox}>
                 <View style={[styles.whiteInnerBox]}>
                   <Text style={styles.grayHeading}>Date of Birth</Text>
-                  <Text style={styles.blueUnderText}>01-01-1997</Text>
+                  <Text style={styles.blueUnderText}>
+                    {PatientDet != null ? PatientDet.dob : '01-01-1997'}
+                  </Text>
                 </View>
                 <View
                   style={[
@@ -755,7 +799,9 @@ function PatientProfile({navigation}) {
                     {borderLeftWidth: 1, borderColor: 'gray'},
                   ]}>
                   <Text style={styles.grayHeading}>Gender</Text>
-                  <Text style={styles.blueUnderText}>Male</Text>
+                  <Text style={styles.blueUnderText}>
+                    {PatientDet != null ? PatientDet.gender : 'Male'}
+                  </Text>
                 </View>
               </View>
             </View>

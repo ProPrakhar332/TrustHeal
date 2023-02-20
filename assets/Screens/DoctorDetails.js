@@ -207,8 +207,8 @@ const dataClinic = [
 ];
 
 function DoctorDetails({navigation}) {
-  const [DocObj, setDocObj] = useState(null);
-  const [DocDet, setDocDet] = useState(null);
+  const [DocObj, setDocObj] = useState(null); //from service
+  const [DocDet, setDocDet] = useState(null); //from previous page
 
   const [showGenInfo, setShowGenInfo] = useState(false);
   const [GenInfo, setGenInfo] = useState([]);
@@ -388,6 +388,57 @@ function DoctorDetails({navigation}) {
       doctorId: null,
     },
   ];
+
+  const addFavourite = async () => {
+    setisLoading(true);
+    axios
+      .delete(
+        apiConfig.baseUrl +
+          '/patient/favourite/doctor/save?doctorId=' +
+          DocDet.doctorId +
+          '&patientId=400',
+      )
+      .then(async response => {
+        if (response.status == 200) {
+          Alert.alert(
+            'Favourite Added',
+            `${DocDet.doctorName} has been added to Favourite List.`,
+          );
+
+          setisLoading(false);
+        }
+      })
+      .catch(error => {
+        setisLoading(false);
+        console.log('Error Favourite Add', `${error}`);
+      });
+    setisLoading(false);
+  };
+  const removeFavourite = async () => {
+    setisLoading(true);
+    axios
+      .delete(
+        apiConfig.baseUrl +
+          '/patient/favourite/doctor/delete?doctorId=' +
+          DocDet.doctorId +
+          '&patientId=400',
+      )
+      .then(async response => {
+        if (response.status == 200) {
+          Alert.alert(
+            'Doctor Removed',
+            `${DocDet.doctorName} has been removed from Favourite List.`,
+          );
+
+          setisLoading(false);
+        }
+      })
+      .catch(error => {
+        setisLoading(false);
+        console.log('Error Favourite Remove', `${error}`);
+      });
+    setisLoading(false);
+  };
 
   const ViewEducation = () => {
     return Education.map((Education, index) => {
