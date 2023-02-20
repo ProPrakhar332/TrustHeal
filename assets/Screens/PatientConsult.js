@@ -28,8 +28,15 @@ import CheckBoxIcon from 'react-native-elements/dist/checkbox/CheckBoxIcon';
 
 import doctor_m from '../Resources/doctor_m.png';
 import doctor_f from '../Resources/doctor_f.jpg';
+import defaultDoctor from '../Resources/doctor3x.png';
+
+import waiting from '../Animations/waiting1.gif';
 
 function PatientConsult({navigation}) {
+  const [DoctorsList, setDoctorsList] = useState([]);
+  const [isLoading, setisLoading] = useState(false);
+  const [consultationModeModal, setconsultationModeModal] = useState(false);
+  const [DoctorItem, setDoctorItem] = useState(null);
   const [search, setsearch] = useState('');
   const [searchData, setsearchData] = useState([]);
   const [SortBy, setSortBy] = useState(false);
@@ -57,6 +64,27 @@ function PatientConsult({navigation}) {
   const [FilterGenderValue, setFilterGenderValue] = useState(null);
   const [FilterMode, setFilterMode] = useState(false);
   const [FilterModeValue, setFilterModeValue] = useState(null);
+
+  useEffect(() => {
+    const getDoctors = async () => {
+      setisLoading(true);
+
+      await axios
+        .get(apiConfig.baseUrl + '/patient/doctors?max=10&min=0')
+        .then(response => {
+          if (response.status == 200) {
+            setisLoading(false);
+            setDoctorsList(response.data);
+          }
+        })
+        .catch(error => {
+          setisLoading(false);
+          Alert.alert('Error', `Error in fetching doctors \n${error}`);
+        });
+      setisLoading(false);
+    };
+    getDoctors();
+  }, []);
 
   const dataExp = [
     {min: 0, max: 24},
@@ -193,152 +221,121 @@ function PatientConsult({navigation}) {
     );
   };
 
-  const doctorData = [
-    {
-      fees: 500,
-      doctorId: 1,
-      name: 'Dr. Ishita Singh',
-      spl: 'ENT',
-      exp: '20 Years',
-      deg: 'MBBS, MD, FID, CCLHA',
-      date: '03-11-2022',
-      mode: '',
-      type: 'P-Consultation',
-      time: '9:30 am',
-      loc: 'JSPL, Angul',
-      fav: false,
-      img: doctor_f,
-    },
-    {
-      fees: 530,
-      doctorId: 2,
-      name: 'Dr. Imran Ahmed',
-      spl: 'Dermotologist',
-      exp: '20 Years',
-      deg: 'MBBS, MD, FID, CCLHA',
-      date: '03-11-2022',
-      mode: 'phonecall',
-      type: 'E-Consultation',
-      time: '9:30 am',
-      loc: 'JSPL, Angul',
-      fav: true,
-      img: doctor_m,
-    },
-    {
-      fees: 520,
-      doctorId: 3,
-      name: 'Dr. Riya Negi',
-      spl: 'Physician',
-      exp: '20 Years',
-      deg: 'MBBS, MD, FID, CCLHA',
-      date: '03-11-2022',
-      mode: 'videocall',
-      type: 'E-Consultation',
-      time: '9:30 am',
-      loc: 'JSPL, Angul',
-      fav: false,
-      img: doctor_f,
-    },
-    {
-      fees: 540,
-      doctorId: 4,
-      name: 'Dr. Ishita Ahmed',
-      spl: 'Dermatologist, Gastroentrologist, Endocrinology',
-      exp: '20 Years',
-      deg: 'MBBS, MD, FID, CCLHA',
-      date: '03-11-2022',
-      mode: '',
-      type: 'P-Consultation',
-      time: '9:30 am',
-      loc: 'JSPL, Angul',
-      fav: true,
-      img: doctor_f,
-    },
-  ];
-
-  const renderDoctor = ({item}) => {
+  const renderListOfDoctors = ({item}) => {
     return (
       <View
         style={{
           backgroundColor: 'white',
-          width: '90%',
-          alignSelf: 'center',
-          borderRadius: 10,
-          marginVertical: 5,
-          justifyContent: 'space-evenly',
+          padding: 10,
+          borderRadius: 15,
+          marginHorizontal: 5,
+          // flexDirection: 'row',
+          // flex: 1,
           marginTop: 10,
-        }}>
+        }}
+        key={item.doctorId}>
         <View
           style={{
-            padding: 10,
             flexDirection: 'row',
+            flex: 1,
+            // borderBottomColor: 'gray',
+            // borderBottomWidth: 2,
           }}>
-          {/* Image Pressable */}
-          <TouchableOpacity
+          {/* Image */}
+          <Image
+            source={
+              item.photoPath == 0
+                ? defaultDoctor
+                : {
+                    uri: `${apiConfig.baseUrl}/file/download?fileToken=${item.photoPath}&userId=${item.doctorId}`,
+                  }
+            }
             style={{
-              flex: 0.3,
+              width: 100,
+              height: 100,
               alignSelf: 'center',
-              justifyContent: 'center',
+              marginVertical: 5,
+              borderRadius: 10,
+              marginRight: 10,
+              flex: 0.5,
             }}
-            onPress={() => navigation.navigate('DoctorDetails')}>
-            <Text
-              style={[
-                styles.tag,
-                {
-                  backgroundColor: '#4DB707',
-                },
-              ]}>
-              Active
-            </Text>
-            {/* Image */}
-            <Image
-              source={item.img}
-              style={{
-                width: 90,
-                height: 90,
-                borderRadius: 5,
-                marginRight: 10,
-              }}
-            />
-          </TouchableOpacity>
-          {/* Details Pressable */}
-          <TouchableOpacity
+          />
+          {/* Details */}
+          <View
             style={{
-              flex: 0.6,
-              flexDirection: 'column',
-              justifyContent: 'space-around',
-            }}
-            onPress={() => navigation.navigate('DoctorDetails')}>
-            {/* Doctor Name */}
+              alignSelf: 'center',
+              justifyContent: 'space-evenly',
+              marginBottom: 5,
+              flex: 1,
+            }}>
+            {/* Name */}
             <Text
               style={{
-                flexDirection: 'row',
-                fontSize: 20,
+                textAlign: 'left',
                 fontWeight: 'bold',
-                color: '#033158',
+                fontSize: 18,
+                color: 'black',
+                flex: 1,
               }}>
-              {item.name}
+              {item.doctorName}
             </Text>
-            {/* Doctor Specialization */}
+            {/* Degree */}
             <Text
-              style={[styles.CardText, {color: '#2b8ada', fontWeight: 'bold'}]}>
-              {item.spl}
+              style={{
+                textAlign: 'left',
+                fontWeight: 'bold',
+                fontSize: 12,
+                color: 'gray',
+                flex: 1,
+              }}>
+              {item.degrees.map(index => {
+                return item.degrees.indexOf(index) != item.degrees.length - 1
+                  ? index + ', '
+                  : index;
+              })}
             </Text>
-            {/* Doctor Experience */}
-            <View style={{flexDirection: 'row', marginVertical: 3}}>
-              <FAIcons
-                name="calendar-alt"
-                size={15}
-                color={'black'}
-                style={{marginRight: 5, alignSelf: 'center'}}
-              />
-              <Text style={styles.CardText}>{item.exp}</Text>
+            {/* Speciality */}
+            <View style={{flexDirection: 'row', flexWrap: 'wrap', flex: 1}}>
+              {item.specialization.map(index => {
+                return (
+                  <Text
+                    key={index}
+                    style={[
+                      {
+                        textAlign: 'left',
+                        color: 'gray',
+                        fontSize: 12,
+                        flex: 1,
+                        fontWeight: 'bold',
+                        color: '#2b8ada',
+                      },
+                    ]}>
+                    {index}{' '}
+                    {item.specialization.indexOf(index) !=
+                    item.specialization.length - 1
+                      ? ','
+                      : ''}
+                  </Text>
+                );
+              })}
             </View>
-            {/* Doctor Location */}
+
+            {/* Experience */}
+            <Text
+              style={{
+                textAlign: 'left',
+                color: 'black',
+                fontSize: 12,
+                flex: 1,
+              }}>
+              {Math.floor(item.totalExprienceInMonths / 12)}
+              {' years of experience'}
+            </Text>
+            {/* City */}
             <View
               style={{
                 flexDirection: 'row',
-                marginBottom: 3,
+                flex: 1,
               }}>
               <FAIcons
                 name="map-marker-alt"
@@ -346,37 +343,304 @@ function PatientConsult({navigation}) {
                 color={'black'}
                 style={{marginRight: 5, alignSelf: 'center'}}
               />
-              <Text style={[styles.CardText, {color: 'black'}]}>
-                {item.loc}
+              <Text
+                style={{
+                  textAlign: 'left',
+                  color: 'black',
+                  fontSize: 12,
+                  flex: 1,
+                }}>
+                {item.city}
               </Text>
             </View>
-            {/* Doctor Fees */}
-            {/* <View
+          </View>
+        </View>
+        {/* Fees Details */}
+        <View
+          style={{
+            flexDirection: 'column',
+            justifyContent: 'space-evenly',
+            marginTop: 10,
+          }}>
+          <View style={{flexDirection: 'row', justifyContent: 'space-evenly'}}>
+            <View
               style={{
                 flexDirection: 'row',
+                justifyContent: 'space-between',
+                flex: 0.45,
               }}>
-              <FAIcons
-                name="rupee-sign"
-                size={15}
-                color={'black'}
-                style={{marginRight: 5, alignSelf: 'center'}}
-              />
-              <Text style={[styles.CardText, {fontWeight: 'bold'}]}>
-                {item.fees}
-              </Text>
-            </View> */}
-          </TouchableOpacity>
-          {/* Like Button */}
-          <TouchableOpacity style={{flex: 0.1}}>
-            <FAIcons
-              name="heart"
-              color={'#2b8ada'}
-              solid={item.fav}
-              size={25}
-            />
-          </TouchableOpacity>
+              <Text style={styles.feesDetailsLabel}>P-Consultation</Text>
+              <Text style={styles.feesDetails}>₹ {item.pconsultationFees}</Text>
+            </View>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                flex: 0.45,
+              }}>
+              <Text style={styles.feesDetailsLabel}>E-Consultation</Text>
+              <Text style={styles.feesDetails}>₹ {item.econsultationFees}</Text>
+            </View>
+          </View>
+
+          <View style={{flexDirection: 'row', justifyContent: 'space-evenly'}}>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                flex: 0.45,
+              }}>
+              <Text style={styles.feesDetailsLabel}>Follow Up Fees</Text>
+              <Text style={styles.feesDetails}>₹ {item.followUpFees}</Text>
+            </View>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                flex: 0.45,
+              }}>
+              <Text style={styles.feesDetailsLabel}>Follow Up Days</Text>
+              <Text style={styles.feesDetails}>{item.followUpDuration}</Text>
+            </View>
+          </View>
+        </View>
+        {/* Buttons */}
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-around',
+            marginTop: 10,
+          }}>
+          <CustomButton
+            text={'View Profile'}
+            textstyle={{color: '#2b8ada', fontSize: 12}}
+            style={{
+              borderColor: '#2b8ada',
+              borderWidth: 2,
+              padding: 5,
+              borderRadius: 5,
+              flex: 0.45,
+            }}
+            onPress={async () => {
+              console.log(item.doctorName);
+              await AsyncStorage.setItem('viewProfile', JSON.stringify(item));
+              console.log(
+                '======================== All Symptoms ====================================',
+                item,
+              );
+              navigation.navigate('DoctorDetails');
+            }}
+          />
+          <CustomButton
+            text={'Book Appointment'}
+            textstyle={{color: 'white', fontSize: 12}}
+            style={{
+              backgroundColor: '#2b8ada',
+              padding: 5,
+              borderRadius: 5,
+              flex: 0.45,
+            }}
+            onPress={() => {
+              setconsultationModeModal(true);
+              setDoctorItem(item);
+            }}
+          />
         </View>
       </View>
+    );
+  };
+  const RenderModal = () => {
+    return (
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={consultationModeModal}
+        onRequestClose={() => {
+          setconsultationModeModal(!consultationModeModal);
+        }}>
+        <View
+          style={{
+            height: '100%',
+            backgroundColor: 'rgba(0,0,0,0.8)',
+            flexDirection: 'row',
+            justifyContent: 'center',
+          }}>
+          <View
+            style={[
+              styles.modalView,
+              {
+                borderRadius: 10,
+                padding: 15,
+              },
+            ]}>
+            <View
+              style={{
+                width: '100%',
+                alignSelf: 'center',
+                marginBottom: 20,
+                borderBottomWidth: 1,
+                borderBottomColor: 'gray',
+              }}>
+              <Text
+                style={{
+                  fontWeight: 'bold',
+                  fontSize: 20,
+                  padding: 5,
+                  color: 'black',
+                }}>
+                Consultation Mode
+              </Text>
+              <FAIcons
+                name="window-close"
+                color="black"
+                size={26}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  right: 0,
+                }}
+                onPress={() => {
+                  setconsultationModeModal(false);
+                }}
+              />
+            </View>
+            <View>
+              <View
+                style={{
+                  marginBottom: 10,
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                }}>
+                <Image
+                  source={
+                    DoctorItem.photoPath == 0
+                      ? defaultDoctor
+                      : {
+                          uri: `${apiConfig.baseUrl}/file/download?fileToken=${DoctorItem.photoPath}&userId=${DoctorItem.doctorId}`,
+                        }
+                  }
+                  style={{
+                    width: 100,
+                    height: 100,
+                    alignSelf: 'center',
+                    marginVertical: 5,
+                    borderRadius: 10,
+                    marginRight: 10,
+                  }}
+                />
+
+                <Text
+                  style={{color: 'black', fontWeight: 'bold', fontSize: 20}}>
+                  {DoctorItem.doctorName}
+                </Text>
+                {/* Degree */}
+                <Text
+                  style={{
+                    textAlign: 'left',
+                    fontWeight: 'bold',
+                    fontSize: 12,
+                    color: 'gray',
+                  }}>
+                  {DoctorItem.degrees.map(index => {
+                    return DoctorItem.degrees.indexOf(index) !=
+                      DoctorItem.degrees.length - 1
+                      ? index + ', '
+                      : index;
+                  })}
+                </Text>
+                {/* Speciality */}
+                <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
+                  {DoctorItem.specialization.map(index => {
+                    return (
+                      <Text
+                        key={index}
+                        style={[
+                          {
+                            textAlign: 'left',
+                            color: 'gray',
+                            fontSize: 12,
+                            fontWeight: 'bold',
+                            color: '#2b8ada',
+                          },
+                        ]}>
+                        {index}{' '}
+                        {DoctorItem.specialization.indexOf(index) !=
+                        DoctorItem.specialization.length - 1
+                          ? ','
+                          : ''}
+                      </Text>
+                    );
+                  })}
+                </View>
+              </View>
+              <View style={{}}>
+                <TouchableOpacity
+                  style={{
+                    width: '90%',
+                    alignSelf: 'center',
+                    backgroundColor: '#2B8ADA',
+                    borderRadius: 30,
+                    flexDirection: 'row',
+                    justifyContent: 'space-around',
+                    padding: 10,
+                    marginBottom: 10,
+                  }}
+                  onPress={async () => {
+                    await AsyncStorage.setItem(
+                      'bookSlot',
+                      JSON.stringify(DoctorItem),
+                    );
+                    console.log(
+                      '======================== All Symptoms ====================================',
+                      DoctorItem,
+                    );
+                    navigation.navigate('SelectSlotsE');
+                    setconsultationModeModal(false);
+                  }}>
+                  <FAIcons name={'video'} color={'white'} size={16} />
+                  <Text style={{color: 'white', fontSize: 14}}>
+                    E-Consultation
+                  </Text>
+                  <Text style={{color: 'white', fontSize: 14}}>
+                    ₹ {DoctorItem.econsultationFees}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={{
+                    width: '90%',
+                    alignSelf: 'center',
+                    backgroundColor: '#17CC9C',
+                    borderRadius: 30,
+                    flexDirection: 'row',
+                    justifyContent: 'space-around',
+                    padding: 10,
+                    marginBottom: 10,
+                  }}
+                  onPress={async () => {
+                    await AsyncStorage.setItem(
+                      'bookSlot',
+                      JSON.stringify(DoctorItem),
+                    );
+                    console.log(
+                      '======================== All Symptoms ====================================',
+                      DoctorItem,
+                    );
+                    navigation.navigate('SelectSlotsP');
+                    setconsultationModeModal(false);
+                  }}>
+                  <FAIcons name={'users'} color={'white'} size={16} />
+                  <Text style={{color: 'white', fontSize: 14}}>
+                    P-Consultation
+                  </Text>
+                  <Text style={{color: 'white', fontSize: 14}}>
+                    ₹ {DoctorItem.pconsultationFees}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </View>
+      </Modal>
     );
   };
 
@@ -1184,12 +1448,59 @@ function PatientConsult({navigation}) {
           {/* Doctor Cards */}
           <View>
             <FlatList
-              data={doctorData}
+              data={DoctorsList}
               key={item => item.doctorId}
-              renderItem={renderDoctor}
+              renderItem={renderListOfDoctors}
             />
           </View>
+          {consultationModeModal ? <RenderModal /> : null}
         </ScrollView>
+        {isLoading && (
+          <View
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: 'rgba(0,0,0,0.4)',
+            }}>
+            <View
+              style={{
+                backgroundColor: 'white',
+                alignSelf: 'center',
+                borderRadius: 20,
+                width: 150,
+                height: 150,
+                justifyContent: 'center',
+                flexDirection: 'column',
+              }}>
+              <Image
+                source={waiting}
+                style={{
+                  alignSelf: 'center',
+                  width: 80,
+                  height: 80,
+                  // borderRadius: 150,
+                }}
+              />
+              <Text
+                style={{
+                  alignSelf: 'center',
+                  textAlign: 'center',
+                  color: '#2B8ADA',
+                  fontSize: 15,
+                  fontWeight: 'bold',
+                  width: '100%',
+                  // padding: 10,
+                }}>
+                Loading...
+              </Text>
+            </View>
+          </View>
+        )}
       </SafeAreaView>
     </KeyboardAvoidingView>
   );
@@ -1294,6 +1605,17 @@ const styles = StyleSheet.create({
   CardText: {
     fontSize: 12,
     color: 'black',
+  },
+  feesDetails: {
+    textAlign: 'left',
+    fontSize: 12,
+    color: 'gray',
+  },
+  feesDetailsLabel: {
+    textAlign: 'left',
+    fontSize: 13,
+    color: 'gray',
+    fontWeight: 'bold',
   },
 });
 

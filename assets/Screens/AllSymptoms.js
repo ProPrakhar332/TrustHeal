@@ -331,7 +331,6 @@ function AllSYmptoms({navigation}) {
                         textAlign: 'left',
                         color: 'gray',
                         fontSize: 12,
-                        flex: 1,
                         fontWeight: 'bold',
                       },
                       SpecialitySearch.indexOf(index) != -1
@@ -498,6 +497,7 @@ function AllSYmptoms({navigation}) {
               styles.modalView,
               {
                 borderRadius: 10,
+                padding: 15,
               },
             ]}>
             <View
@@ -513,7 +513,6 @@ function AllSYmptoms({navigation}) {
                   fontWeight: 'bold',
                   fontSize: 20,
                   padding: 5,
-                  alignSelf: 'center',
                   color: 'black',
                 }}>
                 Consultation Mode
@@ -521,78 +520,151 @@ function AllSYmptoms({navigation}) {
               <FAIcons
                 name="window-close"
                 color="black"
-                size={20}
+                size={26}
                 style={{
                   position: 'absolute',
                   top: 0,
                   right: 0,
-                  alignSelf: 'center',
                 }}
                 onPress={() => {
                   setconsultationModeModal(false);
                 }}
               />
             </View>
-            <TouchableOpacity
-              style={{
-                width: '90%',
-                alignSelf: 'center',
-                flex: 1,
-                backgroundColor: '#2B8ADA',
-                borderRadius: 30,
-                flexDirection: 'row',
-                justifyContent: 'space-around',
-                padding: 10,
-                marginBottom: 10,
-              }}
-              onPress={async () => {
-                await AsyncStorage.setItem(
-                  'bookSlot',
-                  JSON.stringify(DoctorItem),
-                );
-                console.log(
-                  '======================== All Symptoms ====================================',
-                  DoctorItem,
-                );
-                navigation.navigate('SelectSlotsE');
-                setconsultationModeModal(false);
-              }}>
-              <FAIcons name={'video'} color={'white'} size={16} />
-              <Text style={{color: 'white', fontSize: 14}}>E-Consultation</Text>
-              <Text style={{color: 'white', fontSize: 14}}>
-                ₹ {DoctorItem.econsultationFees}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={{
-                width: '90%',
-                alignSelf: 'center',
-                flex: 1,
-                backgroundColor: '#17CC9C',
-                borderRadius: 30,
-                flexDirection: 'row',
-                justifyContent: 'space-around',
-                padding: 10,
-                marginBottom: 10,
-              }}
-              onPress={async () => {
-                await AsyncStorage.setItem(
-                  'bookSlot',
-                  JSON.stringify(DoctorItem),
-                );
-                console.log(
-                  '======================== All Symptoms ====================================',
-                  DoctorItem,
-                );
-                navigation.navigate('SelectSlotsP');
-                setconsultationModeModal(false);
-              }}>
-              <FAIcons name={'users'} color={'white'} size={16} />
-              <Text style={{color: 'white', fontSize: 14}}>P-Consultation</Text>
-              <Text style={{color: 'white', fontSize: 14}}>
-                ₹ {DoctorItem.pconsultationFees}
-              </Text>
-            </TouchableOpacity>
+            <View>
+              <View
+                style={{
+                  marginBottom: 10,
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                }}>
+                <Image
+                  source={
+                    DoctorItem.photoPath == 0
+                      ? defaultDoctor
+                      : {
+                          uri: `${apiConfig.baseUrl}/file/download?fileToken=${DoctorItem.photoPath}&userId=${DoctorItem.doctorId}`,
+                        }
+                  }
+                  style={{
+                    width: 100,
+                    height: 100,
+                    alignSelf: 'center',
+                    marginVertical: 5,
+                    borderRadius: 10,
+                    marginRight: 10,
+                  }}
+                />
+
+                <Text
+                  style={{color: 'black', fontWeight: 'bold', fontSize: 20}}>
+                  {DoctorItem.doctorName}
+                </Text>
+                {/* Degree */}
+                <Text
+                  style={{
+                    textAlign: 'left',
+                    fontWeight: 'bold',
+                    fontSize: 12,
+                    color: 'gray',
+                  }}>
+                  {DoctorItem.degrees.map(index => {
+                    return DoctorItem.degrees.indexOf(index) !=
+                      DoctorItem.degrees.length - 1
+                      ? index + ', '
+                      : index;
+                  })}
+                </Text>
+                {/* Speciality */}
+                <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
+                  {DoctorItem.specialization.map(index => {
+                    return (
+                      <Text
+                        key={index}
+                        style={[
+                          {
+                            textAlign: 'left',
+                            color: 'gray',
+                            fontSize: 12,
+                            fontWeight: 'bold',
+                            color: '#2b8ada',
+                          },
+                        ]}>
+                        {index}{' '}
+                        {DoctorItem.specialization.indexOf(index) !=
+                        DoctorItem.specialization.length - 1
+                          ? ','
+                          : ''}
+                      </Text>
+                    );
+                  })}
+                </View>
+              </View>
+              <View style={{}}>
+                <TouchableOpacity
+                  style={{
+                    width: '90%',
+                    alignSelf: 'center',
+                    backgroundColor: '#2B8ADA',
+                    borderRadius: 30,
+                    flexDirection: 'row',
+                    justifyContent: 'space-around',
+                    padding: 10,
+                    marginBottom: 10,
+                  }}
+                  onPress={async () => {
+                    await AsyncStorage.setItem(
+                      'bookSlot',
+                      JSON.stringify(DoctorItem),
+                    );
+                    console.log(
+                      '======================== All Symptoms ====================================',
+                      DoctorItem,
+                    );
+                    navigation.navigate('SelectSlotsE');
+                    setconsultationModeModal(false);
+                  }}>
+                  <FAIcons name={'video'} color={'white'} size={16} />
+                  <Text style={{color: 'white', fontSize: 14}}>
+                    E-Consultation
+                  </Text>
+                  <Text style={{color: 'white', fontSize: 14}}>
+                    ₹ {DoctorItem.econsultationFees}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={{
+                    width: '90%',
+                    alignSelf: 'center',
+                    backgroundColor: '#17CC9C',
+                    borderRadius: 30,
+                    flexDirection: 'row',
+                    justifyContent: 'space-around',
+                    padding: 10,
+                    marginBottom: 10,
+                  }}
+                  onPress={async () => {
+                    await AsyncStorage.setItem(
+                      'bookSlot',
+                      JSON.stringify(DoctorItem),
+                    );
+                    console.log(
+                      '======================== All Symptoms ====================================',
+                      DoctorItem,
+                    );
+                    navigation.navigate('SelectSlotsP');
+                    setconsultationModeModal(false);
+                  }}>
+                  <FAIcons name={'users'} color={'white'} size={16} />
+                  <Text style={{color: 'white', fontSize: 14}}>
+                    P-Consultation
+                  </Text>
+                  <Text style={{color: 'white', fontSize: 14}}>
+                    ₹ {DoctorItem.pconsultationFees}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
           </View>
         </View>
       </Modal>
