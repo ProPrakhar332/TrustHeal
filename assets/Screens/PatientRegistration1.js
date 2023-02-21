@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useCallback} from 'react';
 import {
   Text,
   Alert,
@@ -8,6 +8,7 @@ import {
   Image,
   TextInput,
   StyleSheet,
+  Linking,
   Modal,
   Pressable,
   TouchableOpacity,
@@ -123,6 +124,20 @@ const PatientRegistration1 = ({navigation}) => {
 
     hideDatePicker();
   };
+  const openURL = useCallback(async url => {
+    const supported = await Linking.canOpenURL(url);
+    if (supported) {
+      await Linking.openURL(url);
+    } else {
+      Alert.alert(`Don't know how to open this URL: ${url}`);
+    }
+  }, []);
+  const viewTermsConditions = () => {
+    openURL('https://www.google.com');
+  };
+  const viewPrivacyPolicy = () => {
+    openURL('https://www.google.com');
+  };
 
   const postData = async () => {
     setisLoading(true);
@@ -131,14 +146,14 @@ const PatientRegistration1 = ({navigation}) => {
       allowWhatsAppNotification: false,
       bloodGroup: BloodGroup,
       city: city,
-      dob: dayjs().format('YYYY-MM-DD'),
+      dob: dayjs(dob).format('YYYY-MM-DD'),
       email: email,
       gender: gender,
       height: Height,
       locationPermissions: 'DONT_ALLOW',
       mobileNumber: mobno,
       occupation: Occupation,
-      patientName: name,
+      patientName: title + ' ' + name,
       pincode: pincode,
       termsAndConditions: true,
       weight: Weight,
@@ -151,27 +166,27 @@ const PatientRegistration1 = ({navigation}) => {
     let flag = 0;
     let patient = null;
 
-    axios
+    await axios
       .post(apiConfig.baseUrl + '/patient/save', p)
       .then(function (response) {
-        if (response.status == 204 || response.status == 200) {
+        if (response.status == 200) {
           //setisLoading(false);
-          // patient = response.data;
+          patient = response.data;
 
-          // flag = 1;
-
-          AsyncStorage.setItem(
-            'UserPatientProfile',
-            JSON.stringify(response.data),
-          );
-          setisLoading(false);
-          Alert.alert(
-            'Welcome to Arogya',
-            'Your details have been saved successfully.',
-          );
-          navigation.navigate('PatientHome', {
-            patientObj: JSON.stringify(response.data),
-          });
+          flag = 1;
+          //response.data.profileComplete = true;
+          // AsyncStorage.setItem(
+          //   'UserPatientProfile',
+          //   JSON.stringify(response.data),
+          // );
+          // setisLoading(false);
+          // Alert.alert(
+          //   'Welcome to Arogya',
+          //   'Your details have been saved successfully.',
+          // );
+          // navigation.navigate('PatientHome', {
+          //   patientObj: JSON.stringify(response.data),
+          // });
         }
       })
       .catch(error => {
@@ -182,30 +197,35 @@ const PatientRegistration1 = ({navigation}) => {
 
     console.log(patient);
 
-    // if (flag == 1) {
-    //   axios
-    //     .post(
-    //       apiConfig.baseUrl +
-    //         '/patient/profile/complete?patientId=' +
-    //         patient.patientId,
-    //     )
-    //     .then(response => {
-    //       if (response.status == 200) {
-    //         setisLoading(false);
-    //         Alert.alert(
-    //           'Welcome to Arogya',
-    //           'Your details have been saved successfully.',
-    //         );
-    //         navigation.navigate('PatientHome', {
-    //           patientObj: JSON.stringify(patient),
-    //         });
-    //       }
-    //     })
-    //     .catch(error => {
-    //       setisLoading(false);
-    //       Alert.alert('Error in Profile Complete', `${error}`);
-    //     });
-    // }
+    if (flag == 1) {
+      await axios
+        .post(
+          apiConfig.baseUrl +
+            '/patient/profile/complete?patientId=' +
+            patient.patientId,
+        )
+        .then(async response => {
+          if (response.status == 200) {
+            setisLoading(false);
+            patient.profileComplete = true;
+            await AsyncStorage.setItem(
+              'UserPatientProfile',
+              JSON.stringify(patient),
+            );
+            Alert.alert(
+              'Welcome to Arogya',
+              'Your details have been saved successfully.',
+            );
+            navigation.navigate('PatientHome', {
+              patientObj: JSON.stringify(patient),
+            });
+          }
+        })
+        .catch(error => {
+          setisLoading(false);
+          Alert.alert('Error in Profile Complete', `${error}`);
+        });
+    }
   };
 
   return (
@@ -308,7 +328,7 @@ const PatientRegistration1 = ({navigation}) => {
                     : null,
                 ]}
                 onPress={() => {
-                  setShowGenInfo(!showGenInfo);
+                  // setShowGenInfo(!showGenInfo);
                 }}>
                 <FAIcon
                   name="address-card"
@@ -685,6 +705,48 @@ const PatientRegistration1 = ({navigation}) => {
               </View>
             </View>
           ) : null}
+
+          {/* Terms of usage */}
+          <View style={{width: '90%', justifyContent: 'flex-start'}}>
+            <CheckBox
+              title={
+                <Text>
+                  I agree to the{' '}
+                  <Text
+                    style={[styles.textLink]}
+                    onPress={() => {
+                      viewTermsConditions();
+                    }}>
+                    Terms & Conditions
+                  </Text>{' '}
+                  and{' '}
+                  <Text
+                    style={[styles.textLink]}
+                    onPress={() => {
+                      viewPrivacyPolicy();
+                    }}>
+                    Privacy Policy
+                  </Text>
+                </Text>
+              }
+              containerStyle={{
+                width: '100%',
+                backgroundColor: '#e8f0fe',
+                borderWidth: 0,
+                padding: 0,
+                margin: 0,
+              }}
+              textStyle={{
+                fontSize: 10,
+                textAlign: 'center',
+                fontWeight: 'bold',
+              }}
+              checkedColor={'#2b8ada'}
+              checked={checkTerms}
+              onPress={() => setCheckTerms(!checkTerms)}
+            />
+          </View>
+
           {/* Buttons */}
           <View
             style={{
@@ -708,8 +770,14 @@ const PatientRegistration1 = ({navigation}) => {
                 backgroundColor: '#2b8ada',
               }}
               onPress={() => {
-                if (complete == 1) postData();
-                else {
+                if (complete == 1) {
+                  if (checkTerms) postData();
+                  else
+                    Alert.alert(
+                      'Terms and Condition',
+                      'Please check Terms and Conditions and Privacy Policy before continuing',
+                    );
+                } else {
                   if (title == '')
                     Alert.alert(
                       'Incomplete Details',
@@ -821,6 +889,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#2B8ADA',
+  },
+  textLink: {
+    textDecorationLine: 'underline',
+    color: 'blue',
   },
   textInput: {
     paddingVertical: 5,

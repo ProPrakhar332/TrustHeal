@@ -44,6 +44,7 @@ import AddDocument from './assets/Screens/AddDocument';
 
 import PatientRegistration from './assets/Screens/PatientRegistration';
 import PatientRegistration1 from './assets/Screens/PatientRegistration1';
+import PatientProfileEdit from './assets/Screens/PatientProfileEdit';
 import PersonalDetailsDoctor from './assets/Screens/PersonalDetailsDoctor';
 import PersonalDetailsPatient from './assets/Screens/PersonalDetailsPatient';
 import FamilyMembers from './assets/Screens/FamilyMember';
@@ -67,6 +68,7 @@ import Support from './assets/Screens/Support';
 import SelectSlotsP from './assets/Screens/SelectSlotsP';
 import SelectSlotsE from './assets/Screens/SelectSlotsE';
 import ConfirmBooking from './assets/Screens/ConfirmBooking';
+import PreConsult from './assets/Screens/PreConsult';
 
 import SupportPatient from './assets/Screens/SupportPatient';
 import DoctorRegistration2 from './assets/Screens/DoctorRegistrationStep2';
@@ -1193,6 +1195,11 @@ function App() {
           options={{headerShown: false}}
         />
         <Stack.Screen
+          name="PatientProfileEdit"
+          component={PatientProfileEdit}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
           name="Profile"
           component={ProfileScreen}
           options={{headerShown: false}}
@@ -1257,6 +1264,11 @@ function App() {
         <Stack.Screen
           name="ConfirmBooking"
           component={ConfirmBooking}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="PreConsult"
+          component={PreConsult}
           options={{headerShown: false}}
         />
         <Stack.Screen

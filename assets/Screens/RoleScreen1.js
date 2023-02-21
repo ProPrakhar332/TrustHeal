@@ -45,7 +45,7 @@ const RoleScreen = ({navigation}) => {
         //   navigation.dispatch(StackActions.replace('DoctorRegistrationStep2'));
         // }
       } else if (x == null && y != null) {
-        if (y.profileCompleted == true)
+        if (y.profileComplete == true)
           navigation.navigate('PatientHome', {patientObj: y});
         else navigation.navigate('PatientRegistration1');
       }

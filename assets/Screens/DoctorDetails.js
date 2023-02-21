@@ -1949,7 +1949,9 @@ function DoctorDetails({navigation}) {
                           let x = {
                             clinicId: clinicId,
                             consultationType: consultationType,
-                            doctorObj: DocDet,
+                            doctorObj: DocObj,
+                            doctorDet: DocDet,
+                            mode:mode,
                             slotDate:
                               mode == 'E_CONSULTATION'
                                 ? selectedDate

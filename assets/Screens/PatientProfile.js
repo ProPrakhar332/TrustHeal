@@ -52,6 +52,22 @@ const dataBloodGroup = [
   {key: 'AB+', value: 'AB+'},
   {key: 'AB-', value: 'AB-'},
 ];
+const dataRelations = [
+  {key: 'Father', value: 'Father'},
+  {key: 'Mother', value: 'Mother'},
+  {key: 'Brother', value: 'Brother'},
+  {key: 'Sister', value: 'Sister'},
+  {key: 'Spouse', value: 'Spouse'},
+  {key: 'Grandfather', value: 'Grandfather'},
+  {key: 'Grandmother', value: 'Grandmother'},
+  {key: 'Son', value: 'Son'},
+  {key: 'Daughter', value: 'Daughter'},
+];
+const dataGender = [
+  {key: 'Male', value: 'Male'},
+  {key: 'Female', value: 'Female'},
+  {key: 'Other', value: 'Other'},
+];
 const dataInvoice = [
   {no: '0123', date: '11-11-2022', doc: ''},
   {no: '0124', date: '12-11-2022', doc: ''},
@@ -88,6 +104,7 @@ const datahelp = [
       "Lorem Ipsum Is Simply Dummy Text Of The Printing And Typesetting Industry. Lorem Ipsum Has Been The Industry's Standard Dummy Text Ever Since The 1500S, When An Unknown Printer Took A Galley Of Type And Scrambled It To Make A Type Specimen Book. It Has Survived.",
   },
 ];
+
 const dataFamily = [
   {
     bloodGroup: 'A+',
@@ -260,6 +277,7 @@ function PatientProfile({navigation}) {
   //family modal
   const [familyModal, setfamilyModal] = useState(false);
   const [familyMembers, setfamilyMembers] = useState([]);
+  const [famMemId, setfamMemId] = useState('');
   const [famMemName, setfamMemName] = useState('');
   const [famMemEmail, setfamMemEmail] = useState('');
   const [famMemCity, setfamMemCity] = useState('');
@@ -288,7 +306,7 @@ function PatientProfile({navigation}) {
     setDatePickerVisibility(true);
   };
 
-  const handleConfirm = date => {
+  const handleConfirm = async date => {
     setfamMemDob(date);
     hideDatePicker();
   };
@@ -300,22 +318,13 @@ function PatientProfile({navigation}) {
       let x = JSON.parse(await AsyncStorage.getItem('UserPatientProfile'));
       console.log(x);
       setPatientDet(x);
+      setBloodGroup(x.bloodGroup);
+      setOccupation(x.occupation);
+      setHeight(x.height);
+      setWeight(x.weight);
     };
 
-    const getFamily = async () => {
-      axios
-        .get(apiConfig.baseUrl + '/patient/family?patientId=1')
-        .then(response => {
-          if (response.status == 200) {
-            setfamilyMembers(response.data);
-          }
-        })
-        .catch(error => {
-          Alert.alert('Error Family', `${error}`);
-        });
-    };
     getData();
-    getFamily();
   }, []);
 
   const postFamily = async () => {
@@ -327,16 +336,18 @@ function PatientProfile({navigation}) {
         dob: dayjs(famMemDob).format('YYYY-MM-DD'),
         email: famMemEmail,
         gender: famMemGender,
-        height: Height,
-        mobileNumber: setfamMemMobile,
+        height: famMemHeight,
+        mobileNumber: famMemMobile,
         name: famMemName,
         occupation: famMemOccupation,
-        patientId: 1,
+        patientId: PatientDet.patientId,
         relation: famMemRelation,
-        weight: Weight,
+        weight: famMemWeight,
         whatsAppNumber: famMemMobile,
       },
     ];
+
+    if (famMemId != '') p[0].famMemId = famMemId;
 
     axios
       .post(apiConfig.baseUrl + '/patient/family/save', p)
@@ -352,6 +363,26 @@ function PatientProfile({navigation}) {
       });
   };
 
+  useEffect(() => {
+    const getFamily = async () => {
+      axios
+        .get(
+          apiConfig.baseUrl +
+            '/patient/family?patientId=' +
+            PatientDet.patientId,
+        )
+        .then(response => {
+          if (response.status == 200) {
+            setfamilyMembers(response.data);
+          }
+        })
+        .catch(error => {
+          Alert.alert('Error Family', `${error}`);
+        });
+    };
+    if (familyModal == true) getFamily();
+  }, [familyModal]);
+
   const logout = () => {
     console.log('Logging out');
     navigation.navigate('RoleScreen');
@@ -366,7 +397,7 @@ function PatientProfile({navigation}) {
     return familyMembers.map((item, index) => {
       return (
         <View key={index} style={{width: '95%', alignSelf: 'center'}}>
-          <View
+          <TouchableOpacity
             style={[
               {
                 backgroundColor: '#F3F7FE',
@@ -378,11 +409,16 @@ function PatientProfile({navigation}) {
                 marginTop: 10,
               },
               {borderWidth: 1.5, borderColor: '#2B8ADA'},
-            ]}>
+            ]}
+            onPress={() => {
+              if (activeFamilyId == item.familyId) setactiveFamilyId('');
+              else setactiveFamilyId(item.familyId);
+            }}>
             <FAIcon
               name={item.gender == 'Female' ? 'female' : 'male'}
               size={20}
               color={item.familyId == activeFamilyId ? '#2b8ada' : 'black'}
+              style={{alignSelf: 'center'}}
             />
             <Text
               style={[
@@ -403,6 +439,7 @@ function PatientProfile({navigation}) {
                   style={{}}
                   onPress={() => {
                     setfamilyModal(false);
+                    setfamMemId(item.familyId);
                     setfamMemName(item.name);
                     setfamMemEmail(item.email);
                     setfamMemMobile(item.mobileNumber);
@@ -435,12 +472,7 @@ function PatientProfile({navigation}) {
               </View>
             ) : null}
 
-            <TouchableOpacity
-              style={{right: 0}}
-              onPress={() => {
-                if (activeFamilyId == item.familyId) setactiveFamilyId('');
-                else setactiveFamilyId(item.familyId);
-              }}>
+            <TouchableOpacity style={{right: 0}}>
               <FAIcon
                 name={
                   item.familyId == activeFamilyId
@@ -452,7 +484,7 @@ function PatientProfile({navigation}) {
                 style={{alignSelf: 'center'}}
               />
             </TouchableOpacity>
-          </View>
+          </TouchableOpacity>
           {item.familyId == activeFamilyId ? (
             <ScrollView
               style={{
@@ -641,6 +673,7 @@ function PatientProfile({navigation}) {
   };
 
   const reset = () => {
+    setfamMemId('');
     setfamMemName('');
     setfamMemEmail('');
     setfamMemMobile('');
@@ -706,7 +739,7 @@ function PatientProfile({navigation}) {
                     alignSelf: 'center',
                   }}
                 /> */}
-                {PatientDet.photoPath == null ? (
+                {PatientDet == null || PatientDet.photoPath == null ? (
                   <Image
                     style={{
                       backgroundColor: '#2B8ADA',
@@ -790,7 +823,9 @@ function PatientProfile({navigation}) {
                 <View style={[styles.whiteInnerBox]}>
                   <Text style={styles.grayHeading}>Date of Birth</Text>
                   <Text style={styles.blueUnderText}>
-                    {PatientDet != null ? PatientDet.dob : '01-01-1997'}
+                    {PatientDet != null
+                      ? dayjs(PatientDet.dob).format('DD MMM, YYYY')
+                      : dayjs('01-01-1997').format('DD MMM, YYYY')}
                   </Text>
                 </View>
                 <View
@@ -899,7 +934,9 @@ function PatientProfile({navigation}) {
                 padding: 10,
                 justifyContent: 'center',
               }}
-              onPress={() => {}}>
+              onPress={() => {
+                navigation.navigate('PatientProfileEdit');
+              }}>
               <FAIcon name="user-edit" color={'#2B8ADA'} size={20} />
               <Text style={{color: '#2B8ADA', marginLeft: 10}}>
                 Edit Profile
@@ -1070,18 +1107,6 @@ function PatientProfile({navigation}) {
                           position: 'absolute',
                           right: 10,
                         }}>
-                        <Text
-                          style={{
-                            color: '#2B8ADA',
-                            fontSize: 14,
-                            alignSelf: 'center',
-                            marginRight: 5,
-                          }}
-                          onPress={() =>
-                            seteditOtherDetails(!editOtherDetails)
-                          }>
-                          Edit
-                        </Text>
                         <FAIClose
                           name="close"
                           color="black"
@@ -1120,8 +1145,7 @@ function PatientProfile({navigation}) {
                             </Text>
                             {editOtherDetails ? (
                               <SelectList
-                                defaultOption={BloodGroup}
-                                placeholder={' '}
+                                placeholder={BloodGroup}
                                 setSelected={val => setBloodGroup(val)}
                                 data={dataBloodGroup}
                                 save="value"
@@ -1179,7 +1203,9 @@ function PatientProfile({navigation}) {
                             alignSelf: 'center',
                           }}>
                           <View style={{flex: 0.45, marginRight: '5%'}}>
-                            <Text style={styles.inputLabel}>Height</Text>
+                            <Text style={styles.inputLabel}>
+                              Height (in cm)
+                            </Text>
                             <TextInput
                               editable={editOtherDetails}
                               style={[
@@ -1196,7 +1222,9 @@ function PatientProfile({navigation}) {
                               }></TextInput>
                           </View>
                           <View style={{flex: 0.45}}>
-                            <Text style={styles.inputLabel}>Weight</Text>
+                            <Text style={styles.inputLabel}>
+                              Weight (in kg)
+                            </Text>
                             <TextInput
                               editable={editOtherDetails}
                               style={[
@@ -1214,40 +1242,6 @@ function PatientProfile({navigation}) {
                           </View>
                         </View>
                       </View>
-                    </View>
-                    {/* Buttons */}
-                    <View
-                      style={{
-                        width: '100%',
-                        alignSelf: 'center',
-                        justifyContent: 'space-evenly',
-                        flexDirection: 'row',
-                      }}>
-                      <CustomButton
-                        text={editOtherDetails ? 'Update' : 'Add'}
-                        textstyle={{color: 'white', fontSize: 12}}
-                        style={{
-                          flex: 0.45,
-                          backgroundColor: '#2B8ADA',
-                          borderRadius: 5,
-                        }}
-                        onPress={() => {
-                          if (editOtherDetails) seteditOtherDetails(false);
-                        }}
-                      />
-
-                      <CustomButton
-                        text="Skip"
-                        textstyle={{color: '#2B8ADA', fontSize: 12}}
-                        style={{
-                          flex: 0.45,
-                          backgroundColor: 'white',
-                          borderRadius: 5,
-                          borderWidth: 1,
-                          borderColor: '#2B8ADA',
-                        }}
-                        onPress={() => setOtherDetailsModal(false)}
-                      />
                     </View>
                   </View>
                 </View>
@@ -1476,18 +1470,38 @@ function PatientProfile({navigation}) {
                           <View
                             style={{
                               flexDirection: 'row',
+
                               justifyContent: 'space-evenly',
+                              //flex: 1,
                             }}>
                             <View
                               style={[{flex: 0.45}, styles.detailsTextView]}>
                               <Text style={[styles.inputLabel, {marginTop: 0}]}>
                                 Relation
                               </Text>
-                              <TextInput
-                                style={styles.detailsTextInput}
-                                placeholder="Relation"
-                                onChangeText={text => setfamMemRelation(text)}
-                                value={famMemRelation}
+                              <SelectList
+                                placeholder={
+                                  famMemRelation == '' ? ' ' : famMemRelation
+                                }
+                                setSelected={val => setfamMemRelation(val)}
+                                data={dataRelations}
+                                save="value"
+                                boxStyles={[
+                                  {
+                                    backgroundColor: '#E8F0FE',
+                                    borderWidth: 0,
+                                    borderRadius: 5,
+                                  },
+                                ]}
+                                dropdownStyles={{
+                                  backgroundColor: 'white',
+                                  zIndex: 1,
+                                }}
+                                dropdownTextStyles={{
+                                  color: '#2b8ada',
+                                  fontWeight: 'bold',
+                                }}
+                                badgeStyles={{backgroundColor: '#2b8ada'}}
                               />
                             </View>
                             <View
@@ -1495,11 +1509,29 @@ function PatientProfile({navigation}) {
                               <Text style={[styles.inputLabel, {marginTop: 0}]}>
                                 Gender
                               </Text>
-                              <TextInput
-                                style={styles.detailsTextInput}
-                                placeholder="Gender"
-                                onChangeText={text => setfamMemGender(text)}
-                                value={famMemGender}
+                              <SelectList
+                                placeholder={
+                                  famMemGender == '' ? ' ' : famMemGender
+                                }
+                                setSelected={val => setfamMemGender(val)}
+                                data={dataGender}
+                                save="value"
+                                boxStyles={[
+                                  {
+                                    backgroundColor: '#E8F0FE',
+                                    borderWidth: 0,
+                                    borderRadius: 5,
+                                  },
+                                ]}
+                                dropdownStyles={{
+                                  backgroundColor: 'white',
+                                  zIndex: 1,
+                                }}
+                                dropdownTextStyles={{
+                                  color: '#2b8ada',
+                                  fontWeight: 'bold',
+                                }}
+                                badgeStyles={{backgroundColor: '#2b8ada'}}
                               />
                             </View>
                           </View>
@@ -1536,7 +1568,11 @@ function PatientProfile({navigation}) {
                                 <TextInput
                                   style={[styles.detailsTextInput, {flex: 0.7}]}
                                   placeholder="Date Of Birth"
-                                  value={famMemDob}
+                                  value={
+                                    famMemDob == ''
+                                      ? ''
+                                      : dayjs(famMemDob).format('DD-MM-YYYY')
+                                  }
                                   editable={false}
                                 />
                                 <FAIcon
@@ -1596,16 +1632,32 @@ function PatientProfile({navigation}) {
                                   style={[styles.inputLabel, {marginTop: 0}]}>
                                   Blood Group
                                 </Text>
-                                <TextInput
-                                  style={[
-                                    styles.otherDetailsTextInput,
-                                    {backgroundColor: '#E8F0FE'},
-                                  ]}
-                                  placeholderTextColor={'black'}
-                                  onChangeText={text =>
-                                    setfamMemBloodGroup(text)
+                                <SelectList
+                                  placeholder={
+                                    famMemBloodGroup == ''
+                                      ? ' '
+                                      : famMemBloodGroup
                                   }
-                                  value={famMemBloodGroup}></TextInput>
+                                  setSelected={val => setfamMemBloodGroup(val)}
+                                  data={dataBloodGroup}
+                                  save="value"
+                                  boxStyles={[
+                                    {
+                                      backgroundColor: '#E8F0FE',
+                                      borderWidth: 0,
+                                      borderRadius: 5,
+                                    },
+                                  ]}
+                                  dropdownStyles={{
+                                    backgroundColor: 'white',
+                                    zIndex: 1,
+                                  }}
+                                  dropdownTextStyles={{
+                                    color: '#2b8ada',
+                                    fontWeight: 'bold',
+                                  }}
+                                  badgeStyles={{backgroundColor: '#2b8ada'}}
+                                />
                               </View>
                               <View style={{flex: 0.45}}>
                                 <Text
@@ -2059,7 +2111,8 @@ function PatientProfile({navigation}) {
                           marginTop: 10,
                           marginRight: 5,
                         }}
-                        onPress={() => {
+                        onPress={async () => {
+                          await postFamily();
                           setfamilyEditModal(false);
                           setfamilyModal(true);
                         }}

@@ -112,7 +112,7 @@ const dataGender = [
   {key: 'Other', value: 'Other'},
 ];
 
-function ConfirmBoking({navigation}) {
+function PreConsult({navigation}) {
   const [family, setfamily] = useState(false);
   const [familyMembers, setfamilyMembers] = useState(null);
   const [selfp, setselfp] = useState(true);
@@ -217,36 +217,6 @@ function ConfirmBoking({navigation}) {
 
     return () => backHandler.remove();
   }, []);
-
-  const paymentOrderCreate = async () => {
-    await axios
-      .post(apiConfig.baseUrl + '/payment/order/create', {
-        amount:
-          PrevPageData.mode == 'PHYSICAL'
-            ? PrevPageData.doctorObj.feesInfo.phyiscalConsultationFees
-            : PrevPageData.doctorObj.feesInfo.econsultationFees,
-        currency: 'INR',
-        patientId: patientDet.patientId,
-      })
-      .then(response => {
-        if (response.status == 200) setOrder(response.data);
-      })
-      .catch(error => {
-        Alert.alert('Error', `${error}`);
-      });
-  };
-
-  const paymentStatusUpdate = async item => {
-    await axios.put(apiConfig.baseUrl + '/payment/status/update', {
-      amount: Order.amount,
-      gatewayOrderId: Order.gatewayOrderId,
-      paidAmount: Order.amount,
-      razorpayKey: Order.razorpayKey,
-      razorpaySecert: Order.razorpaySecert,
-      status: item == null ? 'Unsuccessful' : 'Success',
-      trustHealOrderId: Order.trustHealOrderId,
-    });
-  };
 
   return (
     <KeyboardAvoidingView
@@ -720,42 +690,7 @@ function ConfirmBoking({navigation}) {
               alignSelf: 'center',
               borderRadius: 10,
             }}
-            onPress={async () => {
-              await paymentOrderCreate();
-
-              if (Order != null) {
-                var options = {
-                  description: 'Credits towards consultation',
-                  image: 'http://trustheal.in/images/logo.png',
-                  currency: 'INR',
-                  key: Order.razorpayKey,
-                  amount: Order.amount,
-                  name: 'Acme Corp',
-                  order_id: Order.gatewayOrderId, //Replace this with an order_id created using Orders API.
-                  prefill: {
-                    email: patientDet.email,
-                    contact: patientDet.mobileNumber,
-                    name: patientDet.patientName,
-                  },
-                  theme: {color: '#53a20e'},
-                };
-                RazorpayCheckout.open(options)
-                  .then(async data => {
-                    // handle success
-                    await paymentStatusUpdate(data);
-                    Alert.alert(
-                      `Transaction Complete!`,
-                      'Please fill the Preconsultation Questionnaire and upload documents',
-                    );
-                    navigation.navigate('PreConsult');
-                  })
-                  .catch(async error => {
-                    // handle failure
-                    await paymentStatusUpdate(null);
-                    Alert.alert(`Error: ${error.code} | ${error.description}`);
-                  });
-              }
-            }}
+            onPress={() => {}}
           />
           <CustomButton
             text={'Cancel'}
@@ -768,30 +703,7 @@ function ConfirmBoking({navigation}) {
               borderRadius: 10,
               marginVertical: 15,
             }}
-            onPress={async () => {
-              let mode =
-                PrevPageData.consultationType == 'PHYSICAL'
-                  ? 'P_CONSULTATION'
-                  : 'E_CONSULTATION';
-
-              await axios
-                .delete(
-                  apiConfig.baseUrl +
-                    '/patient/slot/prebook/delete?consultation=' +
-                    mode +
-                    '&slotId=' +
-                    PrevPageData.slotId +
-                    '&userId=1',
-                )
-                .then(response => {
-                  if (response.status == 200) {
-                    navigation.goBack();
-                  }
-                })
-                .catch(error => {
-                  Alert.alert('Error', `Error in Delete PreBook:-\n ${error}`);
-                });
-            }}
+            onPress={() => {}}
           />
 
           <CustomButton
@@ -842,4 +754,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ConfirmBoking;
+export default PreConsult;
