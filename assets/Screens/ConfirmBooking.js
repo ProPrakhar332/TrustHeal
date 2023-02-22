@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {
   Alert,
   useWindowDimensions,
@@ -7,6 +7,7 @@ import {
   Text,
   TextInput,
   Button,
+  Linking,
   SafeAreaView,
   Image,
   FlatList,
@@ -26,6 +27,7 @@ import apiConfig from '../API/apiConfig';
 
 //icons
 import defaultDoctor from '../Resources/doctor3x.png';
+import defaultDoctor_female from '../Resources/doctor_female.png';
 import doctor_m from '../Resources/doctor_m.png';
 import CustomButton from '../Components/CustomButton';
 import {SelectList} from 'react-native-dropdown-select-list';
@@ -38,6 +40,7 @@ import DocumentPicker, {
 import dayjs from 'dayjs';
 import timeformatter from '../API/timeformatter';
 import RazorpayCheckout from 'react-native-razorpay';
+import DoctorBasicDetails from '../Components/DoctorBasicDetails';
 
 const data = {
   name: 'Dr. Imran Singh',
@@ -116,7 +119,7 @@ function ConfirmBoking({navigation}) {
   const [family, setfamily] = useState(false);
   const [familyMembers, setfamilyMembers] = useState(null);
   const [selfp, setselfp] = useState(true);
-  const [terms, setterms] = useState(false);
+  const [privatePolicy, setprivatePolicy] = useState(false);
   const [symptoms, setsymptoms] = useState('');
   //form data
   const [formname, setformname] = useState('');
@@ -129,8 +132,15 @@ function ConfirmBoking({navigation}) {
   const [formHeight, setformHeight] = useState('');
   const [formWeight, setformWeight] = useState('');
   const [PrevPageData, setPrevPageData] = useState(null);
+  const [DocDet, setDocDet] = useState(null);
   const [patientDet, setpatientDet] = useState(null);
   const [Order, setOrder] = useState(null);
+  const [paymentDone, setpaymentDone] = useState(false);
+  const [SpecialUser, setSpecialUser] = useState(false);
+  const [FamilyList, setFamilyList] = useState([]);
+  const [AppointmentFor, setAppointmentFor] = useState([]);
+  const [THOrderId, setTHOrderId] = useState(0);
+  const [PayonClinic, setPayonClinic] = useState(false);
 
   useEffect(() => {
     const LoadData = async () => {
@@ -140,32 +150,17 @@ function ConfirmBoking({navigation}) {
         x,
       );
       setPrevPageData(x);
+      setDocDet(x.doctorDet);
       let y = JSON.parse(await AsyncStorage.getItem('UserPatientProfile'));
       console.log(
         '================ Patient Data =========================\n',
-        x,
+        y,
       );
       setpatientDet(y);
+      setpaymentDone(y.isSpecialPatient);
+      setSpecialUser(y.isSpecialPatient);
     };
     LoadData();
-    const getFamily = async () => {
-      // let x = JSON.parse(await AsyncStorage.getItem('ConfirmBookingDoctor'));
-      axios
-        .get(
-          apiConfig.baseUrl +
-            '/patient/family?patientId=' +
-            patientDet.patientId,
-        )
-        .then(response => {
-          if (response.status == 200) {
-            setfamilyMembers(response.data);
-          }
-        })
-        .catch(error => {
-          Alert.alert('Error', `Error in fetching Family members.\n${error}`);
-        });
-    };
-    getFamily();
   }, []);
 
   useEffect(() => {
@@ -218,18 +213,146 @@ function ConfirmBoking({navigation}) {
     return () => backHandler.remove();
   }, []);
 
+  useEffect(() => {
+    const getFamily = async () => {
+      // let x = JSON.parse(await AsyncStorage.getItem('ConfirmBookingDoctor'));
+      axios
+        .get(
+          apiConfig.baseUrl +
+            '/patient/family?patientId=' +
+            patientDet.patientId,
+        )
+        .then(response => {
+          if (response.status == 200) {
+            console.log(
+              '============ Family members  ===================',
+              response.data,
+            );
+            setFamilyList(response.data);
+          }
+        })
+        .catch(error => {
+          Alert.alert('Error', `Error in fetching Family members.\n${error}`);
+        });
+    };
+    if (patientDet != null) getFamily();
+  }, [patientDet]);
+
+  const RenderFamily = ({item}) => {
+    return (
+      <TouchableOpacity
+        key={item.familyId}
+        style={[
+          {
+            backgroundColor: 'white',
+            padding: 5,
+            margin: 5,
+            borderRadius: 10,
+          },
+          AppointmentFor.familyId == item.familyId
+            ? {backgroundColor: '#2b8ada'}
+            : null,
+        ]}
+        onPress={() => {
+          setAppointmentFor(item);
+          setselfp(false);
+          setfamily(false);
+        }}>
+        <Text
+          style={[
+            {color: 'black', fontSize: 12},
+            AppointmentFor.familyId == item.familyId ? {color: 'white'} : null,
+          ]}>
+          {item.name}
+        </Text>
+      </TouchableOpacity>
+    );
+  };
+
+  const openURL = useCallback(async url => {
+    const supported = await Linking.canOpenURL(url);
+    if (supported) {
+      await Linking.openURL(url);
+    } else {
+      Alert.alert(`Don't know how to open this URL: ${url}`);
+    }
+  }, []);
+  const viewTermsConditions = () => {
+    openURL('https://www.google.com');
+  };
+  const viewPrivacyPolicy = () => {
+    openURL('https://www.google.com');
+  };
+
   const paymentOrderCreate = async () => {
+    console.log('============= CREATE ORDER=================\n', {
+      amount:
+        PrevPageData.mode != 'E_CONSULTATION'
+          ? PrevPageData.doctorDet.phyiscalConsultationFees
+          : PrevPageData.doctorDet.econsultationFees,
+      currency: 'INR',
+      patientId: patientDet.patientId,
+    });
+
     await axios
       .post(apiConfig.baseUrl + '/payment/order/create', {
         amount:
           PrevPageData.mode == 'PHYSICAL'
-            ? PrevPageData.doctorObj.feesInfo.phyiscalConsultationFees
-            : PrevPageData.doctorObj.feesInfo.econsultationFees,
+            ? PrevPageData.doctorDet.phyiscalConsultationFees
+            : PrevPageData.doctorDet.econsultationFees,
         currency: 'INR',
         patientId: patientDet.patientId,
       })
-      .then(response => {
-        if (response.status == 200) setOrder(response.data);
+      .then(async response => {
+        if (response.status == 200) {
+          await AsyncStorage.setItem('Order', JSON.stringify(response.data));
+          setOrder(response.data);
+          console.log(
+            '============= Proceeding for Payment ======================\n',
+            response.data,
+          );
+          setTHOrderId(response.data.trustHealOrderId);
+          if (response.data != null) {
+            var options = {
+              description: 'Credits towards consultation',
+              //image: '',
+              currency: 'INR',
+              key: response.data.razorpayKey,
+              amount: response.data.amount,
+              name: 'Arogya',
+              order_id: response.data.gatewayOrderId, //Replace this with an order_id created using Orders API.
+              prefill: {
+                email: patientDet.email,
+                contact: patientDet.mobileNumber,
+                name: patientDet.patientName,
+              },
+              theme: {color: '#2b8ada'},
+            };
+            RazorpayCheckout.open(options)
+              .then(async data => {
+                // handle success
+                console.log(
+                  '===================== PAYMENT SUCCESS ===============================',
+                );
+                console.log(data);
+                setpaymentDone(true);
+                await paymentStatusUpdate(data);
+                // Alert.alert(
+                //   `Transaction Complete!`,
+                //   'Please fill the Preconsultation Questionnaire and upload documents',
+                // );
+                // navigation.navigate('PreConsult');
+              })
+              .catch(async error => {
+                // handle failure
+                console.log(
+                  '===================== PAYMENT FAILED ===============================',
+                );
+                await paymentStatusUpdate(null);
+                Alert.alert(`Error: ${error.code} | ${error.description}`);
+              });
+          }
+        }
       })
       .catch(error => {
         Alert.alert('Error', `${error}`);
@@ -237,15 +360,80 @@ function ConfirmBoking({navigation}) {
   };
 
   const paymentStatusUpdate = async item => {
-    await axios.put(apiConfig.baseUrl + '/payment/status/update', {
+    let Order = JSON.parse(await AsyncStorage.getItem('Order'));
+
+    let p = {
       amount: Order.amount,
       gatewayOrderId: Order.gatewayOrderId,
       paidAmount: Order.amount,
       razorpayKey: Order.razorpayKey,
       razorpaySecert: Order.razorpaySecert,
-      status: item == null ? 'Unsuccessful' : 'Success',
+      status: item == null ? 'Unsuccessful' : 'Successful',
       trustHealOrderId: Order.trustHealOrderId,
-    });
+    };
+
+    console.log(
+      '=====================  PAYMENT STATUS UPDATE =========================',
+      p,
+    );
+    await axios
+      .put(apiConfig.baseUrl + '/payment/status/update', p)
+      .then(async response => {})
+      .catch(error => {
+        Alert.alert('Error in Update', `${error}`);
+      });
+    await AsyncStorage.removeItem('Order');
+  };
+
+  const bookConsultation = async () => {
+    let p = {
+      // clinicId: 0,
+      consultationType: PrevPageData.consultationType,
+      doctorId: DocDet.doctorId,
+      // familyId: 0,
+      //feesAmount: 0,
+      doctorName: DocDet.doctorName,
+      isSpecialUser: SpecialUser,
+      patientId: patientDet.patientId,
+      patientName: patientDet.patientName,
+      patientSymtoms: symptoms,
+      paymentStatus: SpecialUser
+        ? 'SPECIAL_USER'
+        : PayonClinic
+        ? 'PAY_ON_CLINIC'
+        : 'PRE_PAID',
+      slotDate: PrevPageData.slotDate,
+      slotEndTime: PrevPageData.slotEndTime.substring(0, 5),
+      slotId: PrevPageData.slotId,
+      slotStartTime: PrevPageData.slotStartTime.substring(0, 5),
+      trustHealOrderid: THOrderId,
+    };
+
+    if (PrevPageData.consultationType == 'PHYSICAL') {
+      p.feesAmount = DocDet.pconsultationFees;
+      p.clinicId = PrevPageData.clinicId;
+    } else {
+      p.feesAmount = DocDet.econsultationFees;
+    }
+
+    if (AppointmentFor != '') {
+      p.familyId = AppointmentFor.familyId;
+      p.patientName = AppointmentFor.name;
+    }
+
+    console.log('========== Book Appointment ================\n', p);
+
+    axios
+      .post(apiConfig.baseUrl + '/patient/consultation/book', p)
+      .then(response => {
+        if (response.status == 200) {
+          Alert.alert(
+            'Success',
+            `Your consultation with ${PrevPageData.doctorDet.doctorName} is booked. Now fill preconsultation questionnaire and upload documents to help doctor consult you better.`,
+          );
+          navigation.navigate('PreConsult');
+        }
+      });
   };
 
   return (
@@ -267,88 +455,7 @@ function ConfirmBoking({navigation}) {
           showsVerticalScrollIndicator={false}>
           <HeaderPatient showMenu={false} title="Confirm Booking" />
           {/* Top */}
-          <View style={{marginVertical: 10, alignSelf: 'center'}}>
-            <View
-              style={{
-                alignSelf: 'center',
-                padding: 3,
-                borderColor: '#2b8ada',
-                borderWidth: 5,
-                borderRadius: 100,
-              }}>
-              {PrevPageData == null ? (
-                <Image
-                  source={defaultDoctor}
-                  //source={doctor_m}
-                  style={{
-                    width: 100,
-                    height: 100,
-                    alignSelf: 'center',
-                    borderRadius: 100,
-                  }}
-                />
-              ) : (
-                <Image
-                  source={{
-                    uri: `${apiConfig.baseUrl}/file/download?fileToken=${PrevPageData.doctorDet.photoPath}&userId=${PrevPageData.doctorDet.doctorId}`,
-                  }}
-                  //source={doctor_m}
-                  style={{
-                    width: 100,
-                    height: 100,
-                    alignSelf: 'center',
-                    borderRadius: 100,
-                  }}
-                />
-              )}
-            </View>
-            <Text
-              style={{
-                fontSize: 20,
-                fontWeight: 'bold',
-                alignSelf: 'center',
-                color: 'black',
-                marginTop: 2,
-              }}>
-              {PrevPageData != null ? PrevPageData.doctorDet.doctorName : null}
-            </Text>
-            <Text
-              style={{
-                fontSize: 15,
-                backgroundColor: '#2b8ada',
-                color: 'white',
-                alignSelf: 'center',
-                marginVertical: 5,
-                fontWeight: 'bold',
-                padding: 3,
-                paddingHorizontal: 10,
-                borderRadius: 5,
-              }}>
-              {PrevPageData != null
-                ? PrevPageData.doctorDet.specialization.map(index => {
-                    return PrevPageData.doctorDet.specialization.indexOf(
-                      index,
-                    ) !=
-                      PrevPageData.doctorDet.specialization.length - 1
-                      ? index + ', '
-                      : index;
-                  })
-                : null}
-            </Text>
-            <Text
-              style={{
-                // backgroundColor: '#2B8ADA',
-                color: 'gray',
-                borderRadius: 10,
-                alignSelf: 'center',
-                fontWeight: 'bold',
-              }}>
-              {PrevPageData != null
-                ? Math.floor(PrevPageData.doctorDet.totalExprienceInMonths / 12)
-                : null}
-              {' years of experience'}
-            </Text>
-          </View>
+          <DoctorBasicDetails DocDet={DocDet} />
           {/* Middle Text */}
           <View
             style={{
@@ -358,7 +465,7 @@ function ConfirmBoking({navigation}) {
               borderColor: 'gray',
             }}>
             <View style={{marginBottom: 10}}>
-              <Text style={{fontSize: 12, color: 'black', fontWeight: 'bold'}}>
+              <Text style={{fontSize: 15, color: 'black', fontWeight: 'bold'}}>
                 Mode of Consultation
               </Text>
               <View style={{flexDirection: 'row'}}>
@@ -388,7 +495,7 @@ function ConfirmBoking({navigation}) {
               </View>
             </View>
             <View style={{marginBottom: 10}}>
-              <Text style={{fontSize: 12, color: 'black', fontWeight: 'bold'}}>
+              <Text style={{fontSize: 15, color: 'black', fontWeight: 'bold'}}>
                 Date & Time
               </Text>
               <Text style={{fontSize: 15, fontWeight: 'bold'}}>
@@ -402,199 +509,119 @@ function ConfirmBoking({navigation}) {
               </Text>
             </View>
           </View>
-          {/* Appointment For */}
-          <View
-            style={{
-              marginBottom: 10,
-              width: '90%',
-              alignSelf: 'center',
-              marginVertical: 10,
-            }}>
-            <Text style={{fontSize: 12, color: 'black', fontWeight: 'bold'}}>
-              Appointment For
-            </Text>
-            <View style={{flexDirection: 'row'}}>
-              <CustomButton
-                text={'+ Add Family'}
-                textstyle={[
-                  {fontSize: 12},
-                  family ? {color: 'white'} : {color: 'black'},
-                ]}
-                style={[
-                  {
-                    backgroundColor: 'white',
-                    padding: 5,
-                    paddingHorizontal: 20,
-                    margin: 5,
-                  },
-                  family ? {backgroundColor: '#2B8ADA'} : null,
-                ]}
-                onPress={() => {
-                  setfamily(!family);
-                  setselfp(false);
-                }}
-              />
-              <CustomButton
-                text={'Rohit'}
-                textstyle={[
-                  {fontSize: 12},
-                  selfp ? {color: 'white'} : {color: 'black'},
-                ]}
-                style={[
-                  {
-                    backgroundColor: 'white',
-                    padding: 5,
-                    paddingHorizontal: 20,
-                    margin: 5,
-                  },
-                  selfp ? {backgroundColor: '#2B8ADA'} : null,
-                ]}
-                onPress={() => {
-                  setselfp(!selfp);
-                  setfamily(false);
-                }}
-              />
-            </View>
-          </View>
-          {family ? (
-            <View style={{width: '90%', alignSelf: 'center'}}>
-              <Text
-                style={{
-                  fontSize: 13,
-                  fontWeight: 'bold',
-                  marginBottom: 10,
-                  color: 'black',
-                }}>
-                Provide general information about patient:
-              </Text>
 
-              {/* Form */}
-              {/* Full Name */}
-              <View style={{marginBottom: 10}}>
-                <View style={{flexDirection: 'row'}}>
-                  <Text style={styles.fomrHeading}>Full Name</Text>
-                  <Text style={{color: 'red'}}>*</Text>
-                </View>
-                <TextInput style={styles.formInput} />
-              </View>
-              {/* Relation */}
-              <View style={{marginBottom: 10}}>
-                <View style={{flexDirection: 'row'}}>
-                  <Text style={styles.fomrHeading}>Relation</Text>
-                  <Text style={{color: 'red'}}>*</Text>
-                </View>
-                <SelectList
-                  defaultOption={formRelation}
-                  placeholder={' '}
-                  setSelected={val => setformRelation(val)}
-                  data={dataRelation}
-                  save="value"
-                  boxStyles={[
-                    {
-                      backgroundColor: 'white',
-                      borderWidth: 0,
-                      borderRadius: 5,
-                    },
-                  ]}
-                  dropdownStyles={{
-                    backgroundColor: 'white',
-                    zIndex: 1,
-                  }}
-                  dropdownTextStyles={{
-                    color: '#2b8ada',
-                    fontWeight: 'bold',
-                  }}
-                  badgeStyles={{backgroundColor: '#2b8ada'}}
-                />
-              </View>
-              {/* Date of Birth */}
-              <View style={{marginBottom: 10}}>
-                <View style={{flexDirection: 'row'}}>
-                  <Text style={styles.fomrHeading}>Date of Birth</Text>
-                  <Text style={{color: 'red'}}>*</Text>
-                </View>
-                <View style={{flexDirection: 'row'}}>
-                  <TextInput
-                    style={styles.formInput}
-                    value={formDob}
-                    editable={false}
-                  />
-                  <FAIcons
-                    name="calendar-alt"
-                    size={15}
-                    color={'gray'}
-                    style={{
-                      position: 'absolute',
-                      right: 0,
-                      margin: 10,
-                      alignSelf: 'center',
-                    }}
-                  />
-                </View>
-              </View>
-              {/* Gender */}
-              <View style={{marginBottom: 10}}>
-                <View style={{flexDirection: 'row'}}>
-                  <Text style={styles.fomrHeading}>Gender</Text>
-                  <Text style={{color: 'red'}}>*</Text>
-                </View>
-                <SelectList
-                  defaultOption={formGender}
-                  placeholder={' '}
-                  setSelected={val => setformGender(val)}
-                  data={dataGender}
-                  save="value"
-                  boxStyles={[
-                    {
-                      backgroundColor: 'white',
-                      borderWidth: 0,
-                      borderRadius: 5,
-                    },
-                  ]}
-                  dropdownStyles={{
-                    backgroundColor: 'white',
-                    zIndex: 1,
-                  }}
-                  dropdownTextStyles={{
-                    color: '#2b8ada',
-                    fontWeight: 'bold',
-                  }}
-                  badgeStyles={{backgroundColor: '#2b8ada'}}
-                />
-              </View>
-              {/* Mobile Number */}
-              <View style={{marginBottom: 10}}>
-                <View style={{flexDirection: 'row'}}>
-                  <Text style={styles.fomrHeading}>Mobile Number</Text>
-                  <Text style={{color: 'red'}}>*</Text>
-                </View>
-                <TextInput
-                  onChangeText={text => setformMob(text)}
-                  value={formMob}
-                  keyboardType={'number-pad'}
-                  maxLength={10}
-                  style={styles.formInput}
-                />
-              </View>
-              <Text
-                style={{fontWeight: 'bold', marginBottom: 5, color: 'black'}}>
-                Other Details:
-              </Text>
-              <View style={{marginBottom: 10, flexDirection: 'column'}}>
+          {/* Appointment For */}
+          {paymentDone ? (
+            <View>
+              {/* Appointment For */}
+              <View
+                style={{
+                  marginBottom: 10,
+                  width: '90%',
+                  alignSelf: 'center',
+                  marginVertical: 10,
+                }}>
+                <Text
+                  style={{fontSize: 15, color: 'black', fontWeight: 'bold'}}>
+                  Appointment For
+                </Text>
                 <View
                   style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-evenly',
-                    marginBottom: 5,
+                    flexDirection: 'column',
+                    flexWrap: 'wrap',
                   }}>
-                  {/* Blood Group */}
-                  <View style={{flexDirection: 'column', flex: 0.45}}>
-                    <Text style={styles.fomrHeading}>Blood Group</Text>
+                  <View style={{flexDirection: 'row'}}>
+                    <CustomButton
+                      text={'Self'}
+                      textstyle={[
+                        {fontSize: 12},
+                        selfp ? {color: 'white'} : {color: 'black'},
+                      ]}
+                      style={[
+                        {
+                          backgroundColor: 'white',
+                          padding: 5,
+                          paddingHorizontal: 20,
+                          margin: 5,
+                        },
+                        selfp ? {backgroundColor: '#2B8ADA'} : null,
+                      ]}
+                      onPress={() => {
+                        setselfp(true);
+                        setfamily(false);
+                        setAppointmentFor(patientDet);
+                      }}
+                    />
+                  </View>
+                  <Text
+                    style={{color: 'black', fontSize: 12, fontWeight: 'bold'}}>
+                    Family Member
+                  </Text>
+                  <View style={{flexDirection: 'column', flexWrap: 'wrap'}}>
+                    <FlatList
+                      data={FamilyList}
+                      renderItem={RenderFamily}
+                      key={item => item.familyId}
+                      horizontal={true}
+                      style={{flexDirection: 'row'}}
+                    />
+
+                    <CustomButton
+                      text={'+ Add Family Member'}
+                      textstyle={[
+                        {fontSize: 12},
+                        family ? {color: 'white'} : {color: 'black'},
+                      ]}
+                      style={[
+                        {
+                          backgroundColor: 'white',
+                          padding: 5,
+                          paddingHorizontal: 20,
+                          margin: 5,
+                        },
+                        family ? {backgroundColor: '#2B8ADA'} : null,
+                      ]}
+                      onPress={() => {
+                        setfamily(true);
+                        setselfp(false);
+                        setAppointmentFor([]);
+                      }}
+                    />
+                  </View>
+                </View>
+              </View>
+              {family ? (
+                <View style={{width: '90%', alignSelf: 'center'}}>
+                  <Text
+                    style={{
+                      fontSize: 13,
+                      fontWeight: 'bold',
+                      marginBottom: 10,
+                      color: 'black',
+                    }}>
+                    Provide general information about patient:
+                  </Text>
+
+                  {/* Form */}
+                  {/* Full Name */}
+                  <View style={{marginBottom: 10}}>
+                    <View style={{flexDirection: 'row'}}>
+                      <Text style={styles.fomrHeading}>Full Name</Text>
+                      <Text style={{color: 'red'}}>*</Text>
+                    </View>
+                    <TextInput style={styles.formInput} />
+                  </View>
+                  {/* Relation */}
+                  <View style={{marginBottom: 10}}>
+                    <View style={{flexDirection: 'row'}}>
+                      <Text style={styles.fomrHeading}>Relation</Text>
+                      <Text style={{color: 'red'}}>*</Text>
+                    </View>
                     <SelectList
-                      defaultOption={formBloodGroup}
+                      defaultOption={formRelation}
                       placeholder={' '}
-                      setSelected={val => setformBloodGroup(val)}
-                      data={dataBloodGroup}
+                      setSelected={val => setformRelation(val)}
+                      data={dataRelation}
                       save="value"
                       boxStyles={[
                         {
@@ -614,149 +641,239 @@ function ConfirmBoking({navigation}) {
                       badgeStyles={{backgroundColor: '#2b8ada'}}
                     />
                   </View>
-                  {/* Occupation */}
-                  <View style={{flexDirection: 'column', flex: 0.45}}>
-                    <Text style={styles.fomrHeading}>Occupation</Text>
-                    <TextInput style={styles.formInput} />
+                  {/* Date of Birth */}
+                  <View style={{marginBottom: 10}}>
+                    <View style={{flexDirection: 'row'}}>
+                      <Text style={styles.fomrHeading}>Date of Birth</Text>
+                      <Text style={{color: 'red'}}>*</Text>
+                    </View>
+                    <View style={{flexDirection: 'row'}}>
+                      <TextInput
+                        style={styles.formInput}
+                        value={formDob}
+                        editable={false}
+                      />
+                      <FAIcons
+                        name="calendar-alt"
+                        size={15}
+                        color={'gray'}
+                        style={{
+                          position: 'absolute',
+                          right: 0,
+                          margin: 10,
+                          alignSelf: 'center',
+                        }}
+                      />
+                    </View>
+                  </View>
+                  {/* Gender */}
+                  <View style={{marginBottom: 10}}>
+                    <View style={{flexDirection: 'row'}}>
+                      <Text style={styles.fomrHeading}>Gender</Text>
+                      <Text style={{color: 'red'}}>*</Text>
+                    </View>
+                    <SelectList
+                      defaultOption={formGender}
+                      placeholder={' '}
+                      setSelected={val => setformGender(val)}
+                      data={dataGender}
+                      save="value"
+                      boxStyles={[
+                        {
+                          backgroundColor: 'white',
+                          borderWidth: 0,
+                          borderRadius: 5,
+                        },
+                      ]}
+                      dropdownStyles={{
+                        backgroundColor: 'white',
+                        zIndex: 1,
+                      }}
+                      dropdownTextStyles={{
+                        color: '#2b8ada',
+                        fontWeight: 'bold',
+                      }}
+                      badgeStyles={{backgroundColor: '#2b8ada'}}
+                    />
+                  </View>
+                  {/* Mobile Number */}
+                  <View style={{marginBottom: 10}}>
+                    <View style={{flexDirection: 'row'}}>
+                      <Text style={styles.fomrHeading}>Mobile Number</Text>
+                      <Text style={{color: 'red'}}>*</Text>
+                    </View>
+                    <TextInput
+                      onChangeText={text => setformMob(text)}
+                      value={formMob}
+                      keyboardType={'number-pad'}
+                      maxLength={10}
+                      style={styles.formInput}
+                    />
+                  </View>
+                  <Text
+                    style={{
+                      fontWeight: 'bold',
+                      marginBottom: 5,
+                      color: 'black',
+                    }}>
+                    Other Details:
+                  </Text>
+                  <View style={{marginBottom: 10, flexDirection: 'column'}}>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-evenly',
+                        marginBottom: 5,
+                      }}>
+                      {/* Blood Group */}
+                      <View style={{flexDirection: 'column', flex: 0.45}}>
+                        <Text style={styles.fomrHeading}>Blood Group</Text>
+                        <SelectList
+                          defaultOption={formBloodGroup}
+                          placeholder={' '}
+                          setSelected={val => setformBloodGroup(val)}
+                          data={dataBloodGroup}
+                          save="value"
+                          boxStyles={[
+                            {
+                              backgroundColor: 'white',
+                              borderWidth: 0,
+                              borderRadius: 5,
+                            },
+                          ]}
+                          dropdownStyles={{
+                            backgroundColor: 'white',
+                            zIndex: 1,
+                          }}
+                          dropdownTextStyles={{
+                            color: '#2b8ada',
+                            fontWeight: 'bold',
+                          }}
+                          badgeStyles={{backgroundColor: '#2b8ada'}}
+                        />
+                      </View>
+                      {/* Occupation */}
+                      <View style={{flexDirection: 'column', flex: 0.45}}>
+                        <Text style={styles.fomrHeading}>Occupation</Text>
+                        <TextInput style={styles.formInput} />
+                      </View>
+                    </View>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-evenly',
+                        marginBottom: 5,
+                      }}>
+                      {/* Height */}
+                      <View style={{flexDirection: 'column', flex: 0.45}}>
+                        <Text style={styles.fomrHeading}>Height</Text>
+                        <TextInput style={styles.formInput} />
+                      </View>
+                      {/* Weight */}
+                      <View style={{flexDirection: 'column', flex: 0.45}}>
+                        <Text style={styles.fomrHeading}>Weight</Text>
+                        <TextInput style={styles.formInput} />
+                      </View>
+                    </View>
                   </View>
                 </View>
+              ) : null}
+              {/* Symptoms */}
+              <View style={{width: '90%', alignSelf: 'center'}}>
+                <Text style={styles.fomrHeading}>
+                  Give a brief description of your symptoms
+                </Text>
                 <View
                   style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-evenly',
-                    marginBottom: 5,
+                    marginTop: 2,
+                    borderRadius: 5,
                   }}>
-                  {/* Height */}
-                  <View style={{flexDirection: 'column', flex: 0.45}}>
-                    <Text style={styles.fomrHeading}>Height</Text>
-                    <TextInput style={styles.formInput} />
-                  </View>
-                  {/* Weight */}
-                  <View style={{flexDirection: 'column', flex: 0.45}}>
-                    <Text style={styles.fomrHeading}>Weight</Text>
-                    <TextInput style={styles.formInput} />
-                  </View>
+                  <TextInput
+                    placeholder="Write symptoms here"
+                    multiline={true}
+                    style={{
+                      fontSize: 12,
+                      padding: 10,
+                      height: 90,
+                      backgroundColor: 'white',
+                      borderRadius: 5,
+                      marginBottom: 10,
+                      paddingHorizontal: 15,
+                    }}
+                    maxLength={50}
+                    onChangeText={text => setsymptoms(text)}
+                    value={symptoms}
+                  />
+                  <Text style={{fontSize: 12, color: 'black'}}>
+                    Characters {symptoms.length}/50
+                  </Text>
                 </View>
               </View>
             </View>
           ) : null}
-          {/* Symptoms */}
-          <View style={{width: '90%', alignSelf: 'center'}}>
-            <Text style={styles.fomrHeading}>
-              Give a brief description of your symptoms
-            </Text>
-            <View
-              style={{
-                marginTop: 2,
-                borderRadius: 5,
-              }}>
-              <TextInput
-                placeholder="Write symptoms here"
-                multiline={true}
-                style={{
-                  fontSize: 12,
-                  padding: 10,
-                  height: 90,
-                  backgroundColor: 'white',
-                  borderRadius: 5,
-                  marginBottom: 10,
-                  paddingHorizontal: 15,
-                }}
-                maxLength={50}
-                onChangeText={text => setsymptoms(text)}
-                value={symptoms}
-              />
-              <Text style={{fontSize: 12, color: 'black'}}>
-                Characters {symptoms.length}/50
-              </Text>
-            </View>
-          </View>
 
-          {/* Upload Documents */}
-          {/* <View style={{width: '90%', alignSelf: 'center', marginTop: 10}}>
-            <Text style={{fontSize: 12, color: 'black', fontWeight: 'bold'}}>
-              Attach Related Document
-            </Text>
-            <View style={{flexDirection: 'row', marginVertical: 10}}>
-              <TouchableOpacity
-                style={{
-                  backgroundColor: 'gray',
-                  padding: 5,
-                  paddingHorizontal: 15,
-                  alignItems: 'center',
-                  marginRight: 10,
-                }}>
-                <FAIcons name="id-card" color={'white'} size={20} />
-                <Text style={{fontSize: 12, color: 'white'}}>ID Proof</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={{
-                  backgroundColor: 'gray',
-                  padding: 5,
-                  paddingHorizontal: 15,
-                  alignItems: 'center',
-                }}>
-                <FAIcons name="cloud-upload-alt" color={'white'} size={20} />
-                <Text style={{fontSize: 12, color: 'white'}}>
-                  Upload Documents
+          {/* CheckBox */}
+          <View style={{width: '95%', alignSelf: 'center'}}>
+            <CheckBox
+              title={
+                <Text style={{fontSize: 12, fontWeight: 'bold'}}>
+                  I agree to Aarogya{' '}
+                  <Text
+                    style={[styles.textLink]}
+                    onPress={() => {
+                      viewTermsConditions();
+                    }}>
+                    Terms and Conditions
+                  </Text>{' '}
+                  and{' '}
+                  <Text
+                    style={[styles.textLink]}
+                    onPress={() => {
+                      viewPrivacyPolicy();
+                    }}>
+                    Privacy Policy
+                  </Text>
                 </Text>
-              </TouchableOpacity>
-            </View>
-          </View> */}
-          <CheckBox
-            title={'I agree to terms and conditions'}
-            containerStyle={styles.containerStyle}
-            textStyle={{width: '80%', fontSize: 12}}
-            checkedColor={'#2b8ada'}
-            checked={terms}
-            onPress={() => setterms(!terms)}
-          />
-          <CustomButton
-            text={'Proceed to Payment'}
-            textstyle={{color: 'white', fontSize: 13}}
-            style={{
-              backgroundColor: '#2b8ada',
-              width: '90%',
-              alignSelf: 'center',
-              borderRadius: 10,
-            }}
-            onPress={async () => {
-              await paymentOrderCreate();
-
-              if (Order != null) {
-                var options = {
-                  description: 'Credits towards consultation',
-                  image: 'http://trustheal.in/images/logo.png',
-                  currency: 'INR',
-                  key: Order.razorpayKey,
-                  amount: Order.amount,
-                  name: 'Acme Corp',
-                  order_id: Order.gatewayOrderId, //Replace this with an order_id created using Orders API.
-                  prefill: {
-                    email: patientDet.email,
-                    contact: patientDet.mobileNumber,
-                    name: patientDet.patientName,
-                  },
-                  theme: {color: '#53a20e'},
-                };
-                RazorpayCheckout.open(options)
-                  .then(async data => {
-                    // handle success
-                    await paymentStatusUpdate(data);
-                    Alert.alert(
-                      `Transaction Complete!`,
-                      'Please fill the Preconsultation Questionnaire and upload documents',
-                    );
-                    navigation.navigate('PreConsult');
-                  })
-                  .catch(async error => {
-                    // handle failure
-                    await paymentStatusUpdate(null);
-                    Alert.alert(`Error: ${error.code} | ${error.description}`);
-                  });
               }
-            }}
-          />
+              containerStyle={styles.containerStyle}
+              textStyle={{width: '90%', fontSize: 11, alignSelf: 'center'}}
+              checkedColor={'#2b8ada'}
+              checked={privatePolicy}
+              iconType={''}
+              onPress={() => setprivatePolicy(!privatePolicy)}
+            />
+          </View>
+          {!paymentDone ? (
+            <CustomButton
+              text={'Proceed to Payment'}
+              textstyle={{color: 'white', fontSize: 13}}
+              style={{
+                backgroundColor: '#2b8ada',
+                width: '90%',
+                alignSelf: 'center',
+                borderRadius: 10,
+              }}
+              onPress={async () => {
+                await paymentOrderCreate();
+                //await bookConsultation();
+              }}
+            />
+          ) : (
+            <CustomButton
+              text={'Book Appointment'}
+              textstyle={{color: 'white', fontSize: 13}}
+              style={{
+                backgroundColor: 'limegreen',
+                width: '90%',
+                alignSelf: 'center',
+                borderRadius: 10,
+              }}
+              onPress={async () => {
+                // await paymentOrderCreate();
+                await bookConsultation();
+              }}
+            />
+          )}
           <CustomButton
             text={'Cancel'}
             textstyle={{color: '#2b8ada', fontSize: 13, formWeight: 'bold'}}
@@ -781,7 +898,8 @@ function ConfirmBoking({navigation}) {
                     mode +
                     '&slotId=' +
                     PrevPageData.slotId +
-                    '&userId=1',
+                    '&userId=' +
+                    patientDet.patientId,
                 )
                 .then(response => {
                   if (response.status == 200) {
@@ -839,6 +957,10 @@ const styles = StyleSheet.create({
     fontSize: 12,
     paddingHorizontal: 10,
     width: '100%',
+  },
+  textLink: {
+    textDecorationLine: 'underline',
+    color: 'blue',
   },
 });
 

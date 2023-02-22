@@ -29,6 +29,7 @@ import RNFS from 'react-native-fs';
 import {useCallback} from 'react';
 //icons
 import doctor from '../Resources/doctor.png';
+import doctor_female from '../Resources/doctor_female.png';
 import downloading from '../Animations/downloading.gif';
 import upload from '../Animations/upload.gif';
 import waiting from '../Animations/waiting1.gif';
@@ -1420,7 +1421,7 @@ const EditProfile = ({navigation}) => {
                   alignSelf: 'center',
                   marginVertical: 20,
                 }}>
-                {profilePhotoPath == null ? (
+                {profilePhotoPath == null || profilePhotoPath == 0 ? (
                   <Image
                     style={{
                       alignSelf: 'center',
@@ -1430,7 +1431,7 @@ const EditProfile = ({navigation}) => {
                       height: 100,
                       borderRadius: 100,
                     }}
-                    source={doctor}></Image>
+                    source={gender == 'Male' ? doctor : doctor_female}></Image>
                 ) : (
                   <Image
                     style={{
@@ -2862,6 +2863,8 @@ const EditProfile = ({navigation}) => {
                             styles.textInput,
                             {backgroundColor: '#d0e0fc'},
                           ]}
+                          keyboardType={'number-pad'}
+                          maxLength={2}
                           onChangeText={text => setshowFollowUp(text)}
                           value={showFollowUp + ''}
                           editable={ConsultFeesEdit}

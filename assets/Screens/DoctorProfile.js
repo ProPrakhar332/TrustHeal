@@ -25,6 +25,7 @@ import FAIcon from 'react-native-vector-icons/FontAwesome5';
 
 //icons
 import doctor from '../Resources/doctor2x.png';
+import doctor_female from '../Resources/doctor_female.png';
 import earnings from '../Icons/earnings.png';
 import notification from '../Icons/notification.png';
 import appointment from '../Icons/appointment.png';
@@ -184,9 +185,9 @@ function BasicDesign({navigation}) {
                   borderColor: '#2B8ADA',
                   justifyContent: 'center',
                 }}>
-                {profilePhotoPath == null ? (
+                {profilePhotoPath == null || profilePhotoPath == 0 ? (
                   <Image
-                    source={doctor}
+                    source={gender == 'Male' ? doctor : doctor_female}
                     style={{
                       backgroundColor: '#2B8ADA',
                       borderRadius: 70,
@@ -250,7 +251,9 @@ function BasicDesign({navigation}) {
               <View style={styles.whiteOuterBox}>
                 <View style={[styles.whiteInnerBox]}>
                   <Text style={styles.grayHeading}>Date of Birth</Text>
-                  <Text style={styles.blueUnderText}>{dateformatter(dob)}</Text>
+                  <Text style={styles.blueUnderText}>
+                    {dayjs(dob).format('DD MMM, YYYY')}
+                  </Text>
                 </View>
                 <View
                   style={[

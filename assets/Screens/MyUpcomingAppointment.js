@@ -26,6 +26,7 @@ import FAIcon from 'react-native-vector-icons/FontAwesome5';
 import CustomButton from '../Components/CustomButton';
 //images
 import pfp1 from '../Resources/patient.png';
+import pfp_female from '../Resources/patient_female.png';
 import payonclinic from '../Icons/payonclinic1.png';
 import prepaid from '../Icons/paid.png';
 // import pfp2 from "../Resources/pfp2.jpg";

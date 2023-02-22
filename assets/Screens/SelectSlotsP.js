@@ -23,6 +23,7 @@ import FAIcons from 'react-native-vector-icons/FontAwesome5';
 
 import doctor_m from '../Resources/doctor_m.png';
 import defaultDoctor from '../Resources/doctor3x.png';
+import defaultDoctor_female from '../Resources/doctor_female.png';
 import {SelectList} from 'react-native-dropdown-select-list';
 import CustomButton from '../Components/CustomButton';
 import DayDateMaker from '../API/DayDateMaker';
@@ -30,6 +31,7 @@ import dayjs from 'dayjs';
 import timeformatter from '../API/timeformatter';
 import apiConfig from '../API/apiConfig';
 import clinicMaker from '../API/ClincMaker';
+import DoctorBasicDetails from '../Components/DoctorBasicDetails';
 
 const data = {
   name: 'Dr. Imran Singh',
@@ -360,7 +362,7 @@ function SelectSlotsP({navigation}) {
           setselectedPSlotId(item.slotId);
           //setslots(item.slots);
           setSelectedPSlotEndTime(item.endTime);
-          setSelectedPSlotTime(timeformatter(item.startTime));
+          setSelectedPSlotTime(item.startTime);
         }}>
         <Text
           style={{
@@ -402,86 +404,7 @@ function SelectSlotsP({navigation}) {
           showsVerticalScrollIndicator={false}>
           <HeaderPatient showMenu={false} title="Select Slots" />
           {/* Top */}
-          <View style={{marginVertical: 10, alignSelf: 'center'}}>
-            <View
-              style={{
-                alignSelf: 'center',
-                padding: 3,
-                borderColor: '#2b8ada',
-                borderWidth: 5,
-                borderRadius: 100,
-              }}>
-              {DocDet == null ? (
-                <Image
-                  source={defaultDoctor}
-                  //source={doctor_m}
-                  style={{
-                    width: 100,
-                    height: 100,
-                    alignSelf: 'center',
-                    borderRadius: 100,
-                  }}
-                />
-              ) : (
-                <Image
-                  source={{
-                    uri: `${apiConfig.baseUrl}/file/download?fileToken=${DocDet.photoPath}&userId=${DocDet.doctorId}`,
-                  }}
-                  //source={doctor_m}
-                  style={{
-                    width: 100,
-                    height: 100,
-                    alignSelf: 'center',
-                    borderRadius: 100,
-                  }}
-                />
-              )}
-            </View>
-            <Text
-              style={{
-                fontSize: 20,
-                fontWeight: 'bold',
-                alignSelf: 'center',
-                color: 'black',
-                marginTop: 2,
-              }}>
-              {DocDet != null ? DocDet.doctorName : null}
-            </Text>
-            <Text
-              style={{
-                fontSize: 15,
-                backgroundColor: '#2b8ada',
-                color: 'white',
-                alignSelf: 'center',
-                marginVertical: 5,
-                fontWeight: 'bold',
-                padding: 3,
-                paddingHorizontal: 10,
-                borderRadius: 5,
-              }}>
-              {DocDet != null
-                ? DocDet.specialization.map(index => {
-                    return DocDet.specialization.indexOf(index) !=
-                      DocDet.specialization.length - 1
-                      ? index + ', '
-                      : index;
-                  })
-                : null}
-            </Text>
-            <Text
-              style={{
-                // backgroundColor: '#2B8ADA',
-                color: 'gray',
-                borderRadius: 10,
-                alignSelf: 'center',
-                fontWeight: 'bold',
-              }}>
-              {DocDet != null
-                ? Math.floor(DocDet.totalExprienceInMonths / 12)
-                : null}
-              {' years of experience'}
-            </Text>
-          </View>
+          <DoctorBasicDetails DocDet={DocDet} />
 
           <View style={{width: '95%', alignSelf: 'center'}}>
             {/* Clinic Selection */}
@@ -694,7 +617,9 @@ function SelectSlotsP({navigation}) {
                           let x = {
                             clinicId: clinicId,
                             consultationType: 'PHYSICAL',
-                            doctorObj: DocDet,
+                            doctorObj: DocObj,
+                            doctorDet: DocDet,
+                            mode: 'PHYSICAL',
                             slotDate: selectedPDate,
                             slotEndTime: selectedPSlotId,
                             slotId: selectedPSlotId,

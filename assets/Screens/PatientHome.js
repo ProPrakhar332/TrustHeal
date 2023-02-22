@@ -25,9 +25,11 @@ import axios from 'axios';
 import apiConfig from '../API/apiConfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomButton from '../Components/CustomButton';
-
+import timeformatter from '../API/timeformatter';
+import dayjs from 'dayjs';
 import doctor_m from '../Resources/doctor_m.png';
 import defaultDoctor from '../Resources/doctor3x.png';
+import defaultDoctor_female from '../Resources/doctor_female.png';
 import doctor_f from '../Resources/doctor_f.jpg';
 import waiting from '../Animations/waiting1.gif';
 
@@ -343,7 +345,8 @@ function PatientHome({navigation}) {
         flexDirection: 'column',
         width: 290,
         height: 80,
-      }}>
+      }}
+      key={item.consultationId}>
       <View
         style={{
           flexDirection: 'row',
@@ -357,7 +360,13 @@ function PatientHome({navigation}) {
             margin: 5,
           }}>
           <Image
-            source={item.img}
+            source={
+              item.photoPath == 0
+                ? defaultDoctor
+                : {
+                    uri: `${apiConfig.baseUrl}/file/download?fileToken=${item.photoPath}&userId=${item.doctorId}`,
+                  }
+            }
             style={{
               width: 60,
               height: 60,
@@ -368,13 +377,44 @@ function PatientHome({navigation}) {
         </View>
         {/* Details */}
         <View style={{width: 160, justifyContent: 'space-evenly'}}>
-          <Text style={{fontSize: 15, fontWeight: 'bold'}}>{item.name}</Text>
-          <Text style={{fontSize: 10, color: 'gray'}}>{item.spl}</Text>
-          <Text style={{fontSize: 10, color: '#2B8ADA'}}>{item.mode}</Text>
+          <Text style={{fontSize: 15, fontWeight: 'bold', color: 'black'}}>
+            {item.doctorName}
+          </Text>
+          <Text style={{fontSize: 10, color: 'gray'}}>
+            {item.specialization.map(index => {
+              return item.specialization.indexOf(index) !=
+                item.specialization.length - 1
+                ? index + ', '
+                : index;
+            })}
+          </Text>
+          <View style={{flexDirection: 'row'}}>
+            <FAIcons
+              name={
+                item.consultationType == 'PHYSICAL'
+                  ? 'users'
+                  : item.consultationType == 'PHONE_CALL'
+                  ? 'phone-alt'
+                  : 'video'
+              }
+              color={'#2b8ada'}
+              size={12}
+              solid={false}
+              style={{
+                alignSelf: 'center',
+                marginRight: 5,
+              }}
+            />
+            <Text style={{fontSize: 10, color: '#2B8ADA'}}>
+              {item.consultationType == 'PHYSICAL'
+                ? 'P-Consultation'
+                : 'E-Consultation'}
+            </Text>
+          </View>
           <Text style={{fontSize: 12, fontWeight: 'bold'}}>
-            {item.time}
-            {'-'}
-            {item.date}
+            {timeformatter(item.slotStartTime)}
+            {'  |  '}
+            {dayjs(item.date).format('DD-MMM-YY')}
           </Text>
         </View>
         {/* Chat Button */}
@@ -784,8 +824,8 @@ function PatientHome({navigation}) {
               {/* Transparent Box */}
 
               <FlatList
-                data={dataUpcoming}
-                keyExtractor={item => item.name}
+                data={UpcomingData}
+                keyExtractor={item => item.consultationId}
                 renderItem={renderUpcomingConsultations}
                 horizontal={true}
               />

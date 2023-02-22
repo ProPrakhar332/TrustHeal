@@ -27,6 +27,7 @@ import apiConfig from '../API/apiConfig';
 //images
 import doctor_m from '../Resources/doctor_m.png';
 import defaultDoctor from '../Resources/doctor3x.png';
+import defaultDoctor_female from '../Resources/doctor_female.png';
 import doctor_f from '../Resources/doctor_f.jpg';
 import CustomButton from '../Components/CustomButton';
 import dayjs from 'dayjs';
@@ -260,8 +261,8 @@ function MyAppointment({navigation}) {
           );
           console.log(response.data);
           if (response.status == 200) {
-            //setUpcomingData(response.data);
-            setUpcomingData(UpcomingServiceResponse);
+            setUpcomingData(response.data);
+            //setUpcomingData(UpcomingServiceResponse);
           }
         })
         .catch(error => {
@@ -463,29 +464,31 @@ function MyAppointment({navigation}) {
             </TouchableOpacity>
           ) : null}
           {/* Reschedule */}
-          <TouchableOpacity
-            style={{
-              flexDirection: 'row',
-              padding: 3,
-              paddingHorizontal: 5,
-              alignSelf: 'center',
-              borderWidth: 1,
-              borderColor: '#17CC9C',
-              backgroundColor: '#17CC9C',
-              borderRadius: 5,
-            }}
-            onPress={() => {
-              setDoctorItem(item);
-              setrescheduleModal(true);
-            }}>
-            <FAIcons
-              name="calendar-alt"
-              color={'white'}
-              size={15}
-              style={{marginRight: 5}}
-            />
-            <Text style={{fontSize: 13, color: 'white'}}>Re-Schedule</Text>
-          </TouchableOpacity>
+          {item.consultationType != 'PHYSICAL' ? (
+            <TouchableOpacity
+              style={{
+                flexDirection: 'row',
+                padding: 3,
+                paddingHorizontal: 5,
+                alignSelf: 'center',
+                borderWidth: 1,
+                borderColor: '#17CC9C',
+                backgroundColor: '#17CC9C',
+                borderRadius: 5,
+              }}
+              onPress={() => {
+                setDoctorItem(item);
+                setrescheduleModal(true);
+              }}>
+              <FAIcons
+                name="calendar-alt"
+                color={'white'}
+                size={15}
+                style={{marginRight: 5}}
+              />
+              <Text style={{fontSize: 13, color: 'white'}}>Re-Schedule</Text>
+            </TouchableOpacity>
+          ) : null}
           {/* History */}
           <TouchableOpacity
             style={{

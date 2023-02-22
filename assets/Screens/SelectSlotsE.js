@@ -22,11 +22,13 @@ import FAIcons from 'react-native-vector-icons/FontAwesome5';
 
 import doctor_m from '../Resources/doctor_m.png';
 import defaultDoctor from '../Resources/doctor3x.png';
+import defaultDoctor_female from '../Resources/doctor_female.png';
 import CustomButton from '../Components/CustomButton';
 import DayDateMaker from '../API/DayDateMaker';
 import dayjs from 'dayjs';
 import timeformatter from '../API/timeformatter';
 import apiConfig from '../API/apiConfig';
+import DoctorBasicDetails from '../Components/DoctorBasicDetails';
 const data = {
   name: 'Dr. Imran Singh',
   spl: 'Psychiatry',
@@ -217,7 +219,7 @@ function SelectSlotsE({navigation}) {
         style={[
           styles.SlotDate,
           {
-            backgroundColor: selectedDate == item.date ? '#17CC9C' : '#e8f0fe',
+            backgroundColor: selectedDate == item.date ? '#2b8ada' : '#e8f0fe',
           },
         ]}
         onPress={() => {
@@ -231,7 +233,7 @@ function SelectSlotsE({navigation}) {
               color: selectedDate == item.date ? 'white' : 'black',
             },
             selectedDate == item.date
-              ? {fontSize: 14, fontWeight: 'bold'}
+              ? {fontSize: 12, fontWeight: 'bold'}
               : null,
           ]}>
           {dayjs(item.date).format('DD MMM, YYYY')}
@@ -243,7 +245,7 @@ function SelectSlotsE({navigation}) {
               color: selectedDate == item.date ? 'white' : 'black',
             },
             selectedDate == item.date
-              ? {fontSize: 14, fontWeight: 'bold'}
+              ? {fontSize: 12, fontWeight: 'bold'}
               : null,
           ]}>
           {dayjs(item.date).format('dddd')}
@@ -258,7 +260,7 @@ function SelectSlotsE({navigation}) {
           styles.SlotTime,
           {
             backgroundColor:
-              selectedSlotId == item.slotId ? '#17CC9C' : '#e8f0fe',
+              selectedSlotId == item.slotId ? '#2b8ada' : '#e8f0fe',
             flexDirection: 'row',
           },
         ]}
@@ -283,9 +285,6 @@ function SelectSlotsE({navigation}) {
               fontSize: 10,
               color: selectedSlotId == item.slotId ? 'white' : 'black',
             },
-            selectedSlotId == item.slotId
-              ? {fontSize: 12, fontWeight: 'bold'}
-              : null,
           ]}>
           {timeformatter(item.startTime)}
           {' - '} {timeformatter(item.endTime)}
@@ -321,87 +320,7 @@ function SelectSlotsE({navigation}) {
           }}
           showsVerticalScrollIndicator={false}>
           <HeaderPatient showMenu={false} title="Select Slots" />
-          {/* Top */}
-          <View style={{marginVertical: 10, alignSelf: 'center'}}>
-            <View
-              style={{
-                alignSelf: 'center',
-                padding: 3,
-                borderColor: '#2b8ada',
-                borderWidth: 5,
-                borderRadius: 100,
-              }}>
-              {DocDet == null ? (
-                <Image
-                  source={defaultDoctor}
-                  //source={doctor_m}
-                  style={{
-                    width: 100,
-                    height: 100,
-                    alignSelf: 'center',
-                    borderRadius: 100,
-                  }}
-                />
-              ) : (
-                <Image
-                  source={{
-                    uri: `${apiConfig.baseUrl}/file/download?fileToken=${DocDet.photoPath}&userId=${DocDet.doctorId}`,
-                  }}
-                  //source={doctor_m}
-                  style={{
-                    width: 100,
-                    height: 100,
-                    alignSelf: 'center',
-                    borderRadius: 100,
-                  }}
-                />
-              )}
-            </View>
-            <Text
-              style={{
-                fontSize: 20,
-                fontWeight: 'bold',
-                alignSelf: 'center',
-                color: 'black',
-                marginTop: 2,
-              }}>
-              {DocDet != null ? DocDet.doctorName : null}
-            </Text>
-            <Text
-              style={{
-                fontSize: 15,
-                backgroundColor: '#2b8ada',
-                color: 'white',
-                alignSelf: 'center',
-                marginVertical: 5,
-                fontWeight: 'bold',
-                padding: 3,
-                paddingHorizontal: 10,
-                borderRadius: 5,
-              }}>
-              {DocDet != null
-                ? DocDet.specialization.map(index => {
-                    return DocDet.specialization.indexOf(index) !=
-                      DocDet.specialization.length - 1
-                      ? index + ', '
-                      : index;
-                  })
-                : null}
-            </Text>
-            <Text
-              style={{
-                // backgroundColor: '#2B8ADA',
-                color: 'gray',
-                borderRadius: 10,
-                alignSelf: 'center',
-                fontWeight: 'bold',
-              }}>
-              {DocDet != null
-                ? Math.floor(DocDet.totalExprienceInMonths / 12)
-                : null}
-              {' years of experience'}
-            </Text>
-          </View>
+          <DoctorBasicDetails DocDet={DocDet} />
           {/* Body */}
           <View style={{width: '95%', alignSelf: 'center'}}>
             {/* Date Label*/}
@@ -570,7 +489,9 @@ function SelectSlotsE({navigation}) {
                         onPress: async () => {
                           let x = {
                             consultationType: consultationType,
-                            doctorObj: DocDet,
+                            doctorObj: DocObj,
+                            doctorDet: DocDet,
+                            mode: consultationType,
                             slotDate: selectedDate,
                             slotEndTime: selectedSlotId,
                             slotId: selectedSlotId,

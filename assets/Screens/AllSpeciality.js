@@ -32,6 +32,8 @@ import {
 import waiting from '../Animations/waiting1.gif';
 import generalmedicine from '../SpecialityIcons/generalmedicine.jpg';
 import CheckBoxIcon from 'react-native-elements/dist/checkbox/CheckBoxIcon';
+import defaultDoctor from '../Resources/doctor3x.png';
+import defaultDoctor_female from '../Resources/doctor_female.png';
 import CustomButton from '../Components/CustomButton';
 
 function AllSpeciality({navigation}) {

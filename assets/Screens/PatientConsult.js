@@ -305,7 +305,6 @@ function PatientConsult({navigation}) {
                         textAlign: 'left',
                         color: 'gray',
                         fontSize: 12,
-                        flex: 1,
                         fontWeight: 'bold',
                         color: '#2b8ada',
                       },

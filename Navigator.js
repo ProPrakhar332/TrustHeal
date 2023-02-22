@@ -29,6 +29,8 @@ import {useNavigation} from '@react-navigation/native';
 import CallPage from './assets/Screens/CallPage';
 import doctor from './assets/Resources/doctor2x.png';
 import patient from './assets/Resources/patient2x.png';
+import doctor_female from './assets/Resources/doctor_female.png';
+import patient_female from './assets/Resources/patient_female.png';
 
 import RoleScreen from './assets/Screens/RoleScreen1';
 import OTPScreen from './assets/Screens/OTPScreen';
@@ -388,7 +390,9 @@ function CustomDrawerContent(props) {
                 alignSelf: 'center',
                 borderRadius: 100,
               }}>
-              {props.doctorObj.profilePhotoPath == null ? (
+              {props.doctorObj == null ||
+              props.doctorObj.profilePhotoPath == null ||
+              props.doctorObj.profilePhotoPath == 0 ? (
                 <Image
                   style={{
                     height: 80,
@@ -398,7 +402,12 @@ function CustomDrawerContent(props) {
                     backgroundColor: 'white',
                     margin: 5,
                   }}
-                  source={doctor}
+                  source={
+                    props.doctorObj.gender == null ||
+                    props.doctorObj.gender == 'Male'
+                      ? doctor
+                      : doctor_female
+                  }
                 />
               ) : (
                 <Image
@@ -584,7 +593,9 @@ function CustomDrawerContentPatient(props) {
                 alignSelf: 'center',
                 borderRadius: 100,
               }}>
-              {props.patientObj == null ? (
+              {props.patientObj == null ||
+              props.patientObj.photoPath == null ||
+              props.patientObj.photoPath == 0 ? (
                 <Image
                   style={{
                     height: 80,
@@ -594,7 +605,12 @@ function CustomDrawerContentPatient(props) {
                     backgroundColor: 'white',
                     margin: 5,
                   }}
-                  source={patient}
+                  source={
+                    props.patientObj == null ||
+                    props.patientObj.gender == 'Male'
+                      ? patient
+                      : patient_female
+                  }
                 />
               ) : (
                 <Image

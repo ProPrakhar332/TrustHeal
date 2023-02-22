@@ -33,6 +33,8 @@ import {
 import generalmedicine from '../SpecialityIcons/generalmedicine.jpg';
 
 import waiting from '../Animations/waiting1.gif';
+import defaultDoctor from '../Resources/doctor3x.png';
+import defaultDoctor_female from '../Resources/doctor_female.png';
 import CheckBoxIcon from 'react-native-elements/dist/checkbox/CheckBoxIcon';
 import CustomButton from '../Components/CustomButton';
 
