@@ -285,24 +285,19 @@ function ConfirmBoking({navigation}) {
   };
 
   const paymentOrderCreate = async () => {
-    console.log('============= CREATE ORDER=================\n', {
+    let createOrder = {
       amount:
         PrevPageData.mode != 'E_CONSULTATION'
-          ? PrevPageData.doctorDet.phyiscalConsultationFees
+          ? PrevPageData.doctorDet.pconsultationFees
           : PrevPageData.doctorDet.econsultationFees,
       currency: 'INR',
       patientId: patientDet.patientId,
-    });
+    };
+
+    console.log('============= CREATE ORDER=================\n', createOrder);
 
     await axios
-      .post(apiConfig.baseUrl + '/payment/order/create', {
-        amount:
-          PrevPageData.mode == 'PHYSICAL'
-            ? PrevPageData.doctorDet.phyiscalConsultationFees
-            : PrevPageData.doctorDet.econsultationFees,
-        currency: 'INR',
-        patientId: patientDet.patientId,
-      })
+      .post(apiConfig.baseUrl + '/payment/order/create', createOrder)
       .then(async response => {
         if (response.status == 200) {
           await AsyncStorage.setItem('Order', JSON.stringify(response.data));
@@ -355,6 +350,7 @@ function ConfirmBoking({navigation}) {
         }
       })
       .catch(error => {
+        console.log('Erron in create order');
         Alert.alert('Error', `${error}`);
       });
   };

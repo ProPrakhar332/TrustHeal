@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {
   Alert,
   useWindowDimensions,
@@ -11,6 +11,7 @@ import {
   SafeAreaView,
   Image,
   FlatList,
+  PermissionsAndroid,
   TouchableOpacity,
   ScrollView,
   StyleSheet,
