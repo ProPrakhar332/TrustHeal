@@ -579,7 +579,7 @@ function PatientHome({navigation}) {
               color: 'black',
               fontSize: 12,
             }}>
-            {Math.floor(item.totalExprienceInMonths / 12)}
+            {Math.floor(item.totalExperienceInMonths / 12)}
             {' years of experience'}
           </Text>
         </View>
@@ -631,10 +631,10 @@ function PatientHome({navigation}) {
       axios
         .get(apiConfig.baseUrl + '/patient/upcoming/consultations?patientId=1')
         .then(function (response) {
-          console.log(
-            '\n=========================== UPCOMING CONSULTATIONS ====================================\n',
-          );
-          console.log(response.data);
+          // console.log(
+          //   '\n=========================== UPCOMING CONSULTATIONS ====================================\n',
+          // );
+          // console.log(response.data);
           if (response.status == 200) setUpcomingData(response.data);
         });
     };

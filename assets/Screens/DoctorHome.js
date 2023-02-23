@@ -115,12 +115,19 @@ const DoctorHome = ({navigation}) => {
   };
 
   const nav = useNavigation();
-  const onJoinPress = (consultationType, callID, userID, userName) => {
+  const onJoinPress = (
+    consultationType,
+    callID,
+    userID,
+    userName,
+    userType,
+  ) => {
     nav.navigate('CallPage', {
       consultationType: consultationType,
       callID: callID,
       userID: userID,
       userName: userName,
+      userType: userType,
     });
   };
 
@@ -490,6 +497,7 @@ const DoctorHome = ({navigation}) => {
                   item.consultationId + '',
                   doctorObj.doctorId + '',
                   doctorObj.doctorName,
+                  'Doctor',
                 );
               }}>
               <FAIcon

@@ -278,9 +278,9 @@ const PatientProfileEdit = ({navigation}) => {
       locationPermissions: 'DONT_ALLOW',
       mobileNumber: mobno,
       occupation: Occupation,
-      patientName: name,
       patientId: patientId,
-      photoPath: photoPath,
+      patientName: name,
+      patientPhoto: photoPath,
       pincode: pincode,
       termsAndConditions: true,
       weight: Weight,
@@ -291,7 +291,7 @@ const PatientProfileEdit = ({navigation}) => {
     });
 
     axios
-      .post(apiConfig.baseUrl + '/patient/save', p)
+      .post(apiConfig.baseUrl + '/patient/update', p)
       .then(async function (response) {
         if (response.status == 200) {
           await AsyncStorage.setItem(

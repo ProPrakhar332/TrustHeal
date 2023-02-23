@@ -26,6 +26,7 @@ import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
 //icons
 import patient from '../Resources/patient.png';
+import patient_female from '../Resources/patient_female.png';
 import upload from '../Resources/upload.png';
 import waiting from '../Animations/waiting1.gif';
 import {CheckBox} from 'react-native-elements';
@@ -153,6 +154,7 @@ const PatientRegistration1 = ({navigation}) => {
       locationPermissions: 'DONT_ALLOW',
       mobileNumber: mobno,
       occupation: Occupation,
+      patientPhoto: 0,
       patientName: title + ' ' + name,
       pincode: pincode,
       termsAndConditions: true,
@@ -298,7 +300,7 @@ const PatientRegistration1 = ({navigation}) => {
                   height: 75,
                   marginVertical: 5,
                 }}
-                source={patient}></Image>
+                source={gender == 'Female' ? patient_female : patient}></Image>
             </View>
           </View>
           {/* General Info Label */}

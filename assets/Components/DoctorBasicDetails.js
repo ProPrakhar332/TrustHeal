@@ -89,7 +89,9 @@ function DoctorBasicDetails({DocDet}) {
           padding: 3,
           paddingHorizontal: 15,
         }}>
-        {DocDet != null ? Math.floor(DocDet.totalExprienceInMonths / 12) : null}
+        {DocDet != null
+          ? Math.floor(DocDet.totalExperienceInMonths / 12)
+          : null}
         {' years of experience'}
       </Text>
       {/* Specialization */}

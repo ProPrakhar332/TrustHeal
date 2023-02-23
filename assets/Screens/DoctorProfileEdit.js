@@ -3756,7 +3756,7 @@ const EditProfile = ({navigation}) => {
                             );
                             Alert.alert(
                               'Downloaded',
-                              `Prescription has been downloaded under the name of:- ${fileName}`,
+                              `Document has been downloaded under the name of:- ${fileName}`,
                             );
                           }}
                         />
