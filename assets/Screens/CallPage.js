@@ -7,11 +7,27 @@ import ZegoUIKitPrebuiltCall, {
   ONE_ON_ONE_VOICE_CALL_CONFIG,
 } from '@zegocloud/zego-uikit-prebuilt-call-rn';
 import apiConfig from '../API/apiConfig';
+import axios from 'axios';
 
 export default function CallPage(props) {
   const {route} = props;
   const {params} = route;
   const {consultationType, callID, userID, userName, userType} = params;
+
+  useEffect(() => {
+    const statusUpdate = async () => {
+      axios
+        .post(apiConfig.baseUrl + '')
+        .then(response => {
+          if (response.status == 200)
+            console.log('Meeting going on status updated');
+        })
+        .catch(response => {
+          console.log(response);
+        });
+    };
+    if (userType == 'Doctor') statusUpdate();
+  }, []);
 
   return (
     <View style={styles.container}>
