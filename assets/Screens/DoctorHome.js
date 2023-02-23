@@ -155,7 +155,7 @@ const DoctorHome = ({navigation}) => {
       clinicAddress: item.clinicAddress != null ? item.clinicAddress : '',
     };
     await AsyncStorage.setItem('PrescriptionFor', JSON.stringify(p));
-    navigation.navigate('CheifComplaints');
+    // navigation.navigate('CheifComplaints');
   };
 
   const download = async (fileToken, userId, fileName) => {
@@ -491,7 +491,8 @@ const DoctorHome = ({navigation}) => {
                 borderColor: '#2B8ADA',
                 borderRadius: 5,
               }}
-              onPress={() => {
+              onPress={async () => {
+                await onPressPrescription(item);
                 onJoinPress(
                   item.consultationType,
                   item.consultationId + '',

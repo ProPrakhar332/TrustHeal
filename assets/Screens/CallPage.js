@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react';
 import {useId} from 'react';
 
-import {StyleSheet, View, Text, Button} from 'react-native';
+import {StyleSheet, View, Text, Button, Alert} from 'react-native';
 import ZegoUIKitPrebuiltCall, {
   ONE_ON_ONE_VIDEO_CALL_CONFIG,
   ONE_ON_ONE_VOICE_CALL_CONFIG,
@@ -11,7 +11,7 @@ import apiConfig from '../API/apiConfig';
 export default function CallPage(props) {
   const {route} = props;
   const {params} = route;
-  const {consultationType, callID, userID, userName} = params;
+  const {consultationType, callID, userID, userName, userType} = params;
 
   return (
     <View style={styles.container}>
@@ -26,7 +26,10 @@ export default function CallPage(props) {
             ...ONE_ON_ONE_VOICE_CALL_CONFIG,
             // ...ONE_ON_ONE_VIDEO_CALL_CONFIG,
             onHangUp: () => {
-              props.navigation.navigate('DoctorHome');
+              Alert.alert('Done', 'Consultation Completed');
+              if (userType == 'Doctor')
+                props.navigation.navigate('CheifComplaints');
+              else props.navigation.navigate('PatientHome');
             },
           }}
         />
@@ -41,7 +44,10 @@ export default function CallPage(props) {
             // ...ONE_ON_ONE_VOICE_CALL_CONFIG,
             ...ONE_ON_ONE_VIDEO_CALL_CONFIG,
             onHangUp: () => {
-              props.navigation.navigate('DoctorHome');
+              Alert.alert('Done', 'Consultation Completed');
+              if (userType == 'Doctor')
+                props.navigation.navigate('CheifComplaints');
+              else props.navigation.navigate('PatientHome');
             },
           }}
         />
