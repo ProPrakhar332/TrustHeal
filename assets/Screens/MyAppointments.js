@@ -286,8 +286,8 @@ function MyAppointment({navigation}) {
           );
           console.log(response.data);
           if (response.status == 200) {
-            // setCompletedData(response.data);
-            setCompletedData(CompletedServiceResponse);
+            setCompletedData(response.data);
+            //setCompletedData(CompletedServiceResponse);
           }
         })
         .catch(error => {
@@ -477,8 +477,35 @@ function MyAppointment({navigation}) {
                 borderRadius: 5,
               }}
               onPress={() => {
+                //item.consultationType == 'PHONE_CALL' ? 'phone-alt' : 'video';
                 setDoctorItem(item);
-                setrescheduleModal(true);
+                Alert.alert(
+                  'Reschedule',
+                  `Are you sure you want to reschedule your consultation with ${item.doctorName}`,
+                  [
+                    {
+                      text: 'Yes',
+                      onPress: async () => {
+                        let temp = item;
+                        temp.isReschedule = true;
+                        console.log(
+                          '============GOING FOR RESCHEDULE=============\n',
+                          temp,
+                        );
+                        await AsyncStorage.setItem(
+                          'bookSlot',
+                          JSON.stringify(temp),
+                        );
+                        navigation.navigate('SelectSlotsE');
+                      },
+                    },
+                    {
+                      text: 'No',
+                      style: 'cancel',
+                    },
+                  ],
+                );
+                //setrescheduleModal(true);
               }}>
               <FAIcons
                 name="calendar-alt"

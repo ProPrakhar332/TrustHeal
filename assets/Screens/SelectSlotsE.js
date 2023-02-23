@@ -168,15 +168,17 @@ function SelectSlotsE({navigation}) {
   const [DocDet, setDocDet] = useState(null); //Previous page data
   const [DocObj, setDocObj] = useState(null); //Service response data
   const [patientDet, setpatientDet] = useState(null);
+  const [isReschedule, setisReschedule] = useState(false);
 
   useEffect(() => {
     const getData = async () => {
       let x = JSON.parse(await AsyncStorage.getItem('bookSlot'));
       let y = JSON.parse(await AsyncStorage.getItem('UserPatientProfile'));
-
-      //console.log(x);
       setpatientDet(y);
       setDocDet(x);
+      if (x.isReschedule != null) {
+        setisReschedule(true);
+      }
 
       axios
         .get(apiConfig.baseUrl + '/slot/eslot/dates?doctorId=' + x.doctorId)
@@ -491,22 +493,76 @@ function SelectSlotsE({navigation}) {
                       {
                         text: 'Yes',
                         onPress: async () => {
-                          let x = {
-                            consultationType: consultationType,
-                            doctorObj: DocObj,
-                            doctorDet: DocDet,
-                            mode: consultationType,
-                            slotDate: selectedDate,
-                            slotEndTime: selectedSlotId,
-                            slotId: selectedSlotId,
-                            slotStartTime: selectedSlotTime,
-                            slotEndTime: selectedSlotEndTime,
-                          };
-                          await AsyncStorage.setItem(
-                            'ConfirmBookingDoctor',
-                            JSON.stringify(x),
-                          );
-                          navigation.navigate('ConfirmBooking');
+                          if (isReschedule) {
+                            let temp = {
+                              consultationId: DocDet.consultationId,
+                              consultationType: DocDet.consultationType,
+                              doctorEmail: DocDet.doctorEmail,
+                              doctorId: DocDet.doctorId,
+                              doctorName: DocDet.doctorName,
+                              newEndTime: selectedSlotEndTime.substring(0, 5),
+                              newSlotDate: selectedDate,
+                              newSlotId: selectedSlotId,
+                              newStartTime: selectedSlotTime.substring(0, 5),
+                              oldEndTime: DocDet.slotEndTime.substring(0, 5),
+                              oldSlotDate: DocDet.slotDate,
+                              oldStartTime: DocDet.slotStartTime.substring(
+                                0,
+                                5,
+                              ),
+                              patientEmail: patientDet.email,
+                              patientId: patientDet.patientId,
+                              patientName: patientDet.patientName,
+                            };
+                            console.log('=====RESCHEDULING SLOT======', temp);
+
+                            axios
+                              .post(
+                                apiConfig.baseUrl +
+                                  '/patient/consultation/reschedule',
+                                temp,
+                              )
+                              .then(response => {
+                                if (response.status == 200) {
+                                  Alert.alert(
+                                    'Done',
+                                    `Your appointment with ${
+                                      DocDet.doctorName
+                                    } has been rescheduled to
+                                Date:- ${dayjs(selectedDate).format(
+                                  'DD MMM, YYYY',
+                                )}
+                                From:- ${timeformatter(selectedSlotTime)}
+                                To:-  ${timeformatter(selectedSlotEndTime)}
+                                Mode :- ${consultationType}
+                                `,
+                                  );
+                                  navigation.navigate('PatientHome');
+                                }
+                              })
+                              .catch(error => {
+                                Alert.alert(
+                                  'Error',
+                                  `Please try again later.\n${error}`,
+                                );
+                              });
+                          } else {
+                            let x = {
+                              consultationType: consultationType,
+                              doctorObj: DocObj,
+                              doctorDet: DocDet,
+                              mode: consultationType,
+                              slotDate: selectedDate,
+                              slotId: selectedSlotId,
+                              slotStartTime: selectedSlotTime,
+                              slotEndTime: selectedSlotEndTime,
+                            };
+                            await AsyncStorage.setItem(
+                              'ConfirmBookingDoctor',
+                              JSON.stringify(x),
+                            );
+                            navigation.navigate('ConfirmBooking');
+                          }
                         },
                       },
                       {

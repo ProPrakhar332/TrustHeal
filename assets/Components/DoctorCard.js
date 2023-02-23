@@ -156,7 +156,7 @@ function DoctorCard({DoctorsList}) {
                 fontSize: 12,
                 flex: 1,
               }}>
-              {Math.floor(item.totalExprienceInMonths / 12)}
+              {Math.floor(item.totalExperienceInMonths / 12)}
               {' years of experience'}
             </Text>
             {/* City */}
