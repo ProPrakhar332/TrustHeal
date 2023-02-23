@@ -31,6 +31,7 @@ import doctor_f from '../Resources/doctor_f.jpg';
 import defaultDoctor from '../Resources/doctor3x.png';
 
 import waiting from '../Animations/waiting1.gif';
+import DoctorCard from '../Components/DoctorCard';
 
 function PatientConsult({navigation}) {
   const [DoctorsList, setDoctorsList] = useState([]);
@@ -1445,14 +1446,16 @@ function PatientConsult({navigation}) {
           </View>
 
           {/* Doctor Cards */}
-          <View style={{width: '95%', alignSelf: 'center'}}>
+          {/* <View style={{width: '95%', alignSelf: 'center'}}>
             <FlatList
               data={DoctorsList}
               key={item => item.doctorId}
               renderItem={renderListOfDoctors}
             />
           </View>
-          {consultationModeModal ? <RenderModal /> : null}
+          {consultationModeModal ? <RenderModal /> : null} */}
+
+          <DoctorCard DoctorsList={DoctorsList} />
         </ScrollView>
         {isLoading && (
           <View

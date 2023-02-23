@@ -243,13 +243,16 @@ function SelectSlotsP({navigation}) {
 
   const [DocDet, setDocDet] = useState(null); //Previous page data
   const [DocObj, setDocObj] = useState(null); //Service response data
+  const [patientDet, setpatientDet] = useState(null);
 
   useEffect(() => {
     const getData = async () => {
       let x = JSON.parse(await AsyncStorage.getItem('bookSlot'));
+      let y = JSON.parse(await AsyncStorage.getItem('UserPatientProfile'));
       //console.log(x);
 
       setDocDet(x);
+      setpatientDet(y);
 
       axios
         .get(apiConfig.baseUrl + '/slot/clinic/details?doctorId=' + x.doctorId)
@@ -579,7 +582,8 @@ function SelectSlotsP({navigation}) {
                       '/patient/slot/prebook?consultation=P_CONSULTATION' +
                       '&slotId=' +
                       slotId +
-                      '&userId=1',
+                      '&userId=' +
+                      patientDet.patientId,
                   )
                   .then(response => {
                     if (response.status == 200) {
@@ -643,7 +647,8 @@ function SelectSlotsP({navigation}) {
                                 '/patient/slot/prebook/delete?consultation=P_CONSULTATION' +
                                 '&slotId=' +
                                 slotId +
-                                '&userId=1',
+                                '&userId=' +
+                                patientDet.patientId,
                             )
                             .then(response => {
                               if (response.status == 200) {

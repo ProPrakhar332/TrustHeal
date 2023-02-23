@@ -303,6 +303,7 @@ const Header = ({title, showMenu}) => {
     let p = {
       consultationType: mode,
       doctorId: doctorId,
+      doctorMobileNumber: x.mobileNumber,
       eslotsId: eslotsId,
       fees: fees,
       patientMobileNumber: mob,
@@ -397,7 +398,7 @@ const Header = ({title, showMenu}) => {
               flexDirection: 'row',
             }}
             onPress={() => {
-               navigation.goBack();
+              navigation.goBack();
             }}>
             <FAIcon
               style={styles.icon}

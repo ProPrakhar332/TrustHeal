@@ -34,6 +34,7 @@ import DocumentPicker, {
   isInProgress,
   types,
 } from 'react-native-document-picker';
+import CustomButton from '../Components/CustomButton';
 
 const sampleQuesList = [
   {
@@ -58,12 +59,18 @@ const sampleQuesList = [
   },
 ];
 
-function BasicDesign({navigation}) {
+function PreConsult({navigation}) {
   const [PrevPageData, setPrevPageData] = useState(null);
   const [patientDet, setpatientDet] = useState(null);
   const [DocDet, setDocDet] = useState(null);
   const [QuestionList, setQuestionList] = useState([]);
   const [documentPath, setdocumentPath] = useState(null);
+  const [DocList, setDocList] = useState([]);
+  const [answerUploadedButton, setanswerUploadedButton] = useState(false);
+  const [answersUploaded, setanswersUploaded] = useState(false);
+  const [DocsUploaded, setDocsUploaded] = useState(false);
+  const [showUploadDocsButton, setshowUploadDocsButton] = useState(false);
+  const [consultationId, setconsultationId] = useState(null);
 
   const openURL = useCallback(async url => {
     const supported = await Linking.canOpenURL(url);
@@ -79,6 +86,7 @@ function BasicDesign({navigation}) {
   const viewPrivacyPolicy = () => {
     openURL('https://www.google.com');
   };
+
   useEffect(() => {
     const LoadData = async () => {
       let x = JSON.parse(await AsyncStorage.getItem('ConfirmBookingDoctor'));
@@ -87,6 +95,16 @@ function BasicDesign({navigation}) {
         x,
       );
       setPrevPageData(x);
+      setconsultationId(x.booked.consultationId);
+      let temp = x.booked.preConsultationQues;
+      temp.forEach(element => {
+        element.answers = '';
+        element.consultationId = x.booked.consultationId;
+      });
+
+      console.log('========Queslist==========\n', temp);
+
+      setQuestionList(temp);
       setDocDet(x.doctorDet);
       let y = JSON.parse(await AsyncStorage.getItem('UserPatientProfile'));
       console.log(
@@ -94,32 +112,30 @@ function BasicDesign({navigation}) {
         y,
       );
       setpatientDet(y);
+      setanswerUploadedButton(false);
     };
     LoadData();
   }, []);
 
-  useEffect(() => {
-    const getPreconsultationQuestions = async () => {
-      console.log(
-        '==================FETCHING PRECONSULT QUESTIONS==========================',
-      );
+  useState(() => {
+    if (DocList.length > 0) setshowUploadDocsButton(true);
+    else setshowUploadDocsButton(false);
+  }, [DocList]);
 
-      setQuestionList(sampleQuesList);
+  // useState(() => {
+  //   const checkanswers = () => {
+  //     console.log('======== checking answers typed============');
+  //     let flag = false;
+  //     QuestionList.forEach(element => {
+  //       console.log(element);
+  //       if (element.answers == '') flag = flag || false;
+  //       else flag = flag || true;
+  //     });
+  //     setanswerUploadedButton(flag);
+  //   };
 
-      //   await axios
-      //     .get(apiConfig.baseUrl + '/patient/preconsultation/questions')
-      //     .then(response => {
-      //       if (response.status == 200) {
-      //         // setQuestionList(response.data);
-      //       }
-      //     })
-      //     .catch(error => {
-      //       Alert.alert('Error', `Error in fetching preconsult ques.\n${error}`);
-      //     });
-      // };
-    };
-    if (DocDet != null) getPreconsultationQuestions();
-  }, [DocDet]);
+  //   checkanswers();
+  // }, [QuestionList]);
 
   const chooseProfileImage = async () => {
     Alert.alert(
@@ -297,22 +313,101 @@ function BasicDesign({navigation}) {
     }
   };
 
-  const renderQues = ({item}) => {
+  const renderQues = ({item, index}) => {
     return (
       <View
         style={{
-          padding: 10,
-          backgroundColor: 'white',
+          padding: 3,
           flex: 1,
           margin: 5,
           borderRadius: 10,
         }}
         key={item.questionId}>
-        <Text style={{fontSize: 12, color: 'gray', paddingHorizontal: 10}}>
+        <Text
+          style={{
+            fontSize: 13,
+            color: 'gray',
+            paddingHorizontal: 10,
+            color: '#2b8ada',
+            fontWeight: 'bold',
+            marginBottom: 5,
+          }}>
           {item.question}
         </Text>
+        <TextInput
+          style={{
+            backgroundColor: '#e8f0fe',
+            padding: 0,
+            fontSize: 12,
+            borderRadius: 10,
+            paddingHorizontal: 15,
+          }}
+          onChangeText={text => handleInput(text, index)}
+          editable={!answersUploaded}
+        />
       </View>
     );
+  };
+
+  const renderDocs = ({item}) => {
+    return (
+      <View
+        style={{
+          flexDirection: 'row',
+          backgroundColor: '#e8f0fe',
+          padding: 5,
+          borderRadius: 10,
+          margin: 3,
+          flex: 1,
+        }}>
+        <Text
+          style={{
+            fontSize: 12,
+            color: 'black',
+            alignSelf: 'center',
+            flex: 0.9,
+          }}>
+          {item.fileName}
+        </Text>
+        <TouchableOpacity
+          style={{marginLeft: 5, flex: 0.1}}
+          onPress={() => {
+            removeDocsHandler(item.fileName);
+          }}>
+          <Text style={{alignSelf: 'center', color: 'red'}}>X</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
+  const handleInput = (text, index) => {
+    let temp = [...QuestionList];
+    temp[index].answers = text;
+    setQuestionList(temp);
+  };
+
+  const uploadAnswers = async () => {
+    let p = QuestionList;
+
+    p.forEach(element => {
+      delete element.question;
+    });
+    console.log('=============  Ques answer save  =====================\n', p);
+
+    await axios
+      .post(apiConfig.baseUrl + '/patient/consultation/question/answer/save', p)
+      .then(response => {
+        if (response.status == 200)
+          Alert.alert('Done', 'PreConsultation Questionnaire filled!');
+        setanswersUploaded(true);
+      })
+      .catch(error => {
+        Alert.alert('Error', `${error}`);
+      });
+  };
+
+  const removeDocsHandler = i => {
+    setDocList(DocList.filter(e => i != e.fileName));
   };
 
   return (
@@ -335,42 +430,180 @@ function BasicDesign({navigation}) {
           nestedScrollEnabled={true}>
           <HeaderPatient showMenu={false} title={'PreConsult'} />
           {/* Top */}
+
           <DoctorBasicDetails DocDet={DocDet} />
+
+          {/* Mid Body */}
+
           <View
             style={{
-              width: '95%',
+              width: '90%',
               alignSelf: 'center',
             }}>
-            <View style={{marginTop: 20}}>
-              <FlatList
-                data={sampleQuesList}
-                renderItem={renderQues}
-                keyExtractor={item => item.questionId}
-              />
-            </View>
+            {/* Step 1 */}
 
             <View
               style={{
-                marginTop: 10,
-                borderStyle: 'dotted',
-                borderWidth: 2,
-                borderColor: '#2b8ada',
-                padding: 20,
-                borderRadius: 20,
+                marginVertical: 20,
+                backgroundColor: 'white',
+                borderRadius: 10,
               }}>
-              <TouchableOpacity
-                style={{justifyContent: 'center', flexDirection: 'row'}}
-                onPress={chooseProfileImage}>
-                <FAIcons
-                  name="file-upload"
-                  size={20}
-                  style={{alignSelf: 'center', marginRight: 5}}
+              <Text
+                style={{
+                  fontSize: 14,
+                  color: 'white',
+                  backgroundColor: '#2b8ada',
+                  padding: 10,
+                  borderTopRightRadius: 10,
+                  borderTopLeftRadius: 10,
+                }}>
+                Step 1 (Please Fill Preconsultation Questionnaire)
+              </Text>
+              <View style={{padding: 10}}>
+                <FlatList
+                  data={QuestionList}
+                  renderItem={renderQues}
+                  keyExtractor={item => item.questionId}
                 />
-                <Text style={{fontSize: 15, alignSelf: 'center'}}>
-                  Upload Documents
-                </Text>
-              </TouchableOpacity>
+              </View>
+
+              {!answersUploaded ? (
+                <CustomButton
+                  text={'Upload Answers'}
+                  textstyle={{
+                    color: 'white',
+                    fontWeight: 'bold',
+                    fontSize: 12,
+                    alignSelf: 'center',
+                  }}
+                  style={{
+                    flex: 0.45,
+                    padding: 5,
+                    paddingHorizontal: 10,
+                    backgroundColor: '#2b8ada',
+                    borderRadius: 10,
+                    marginVertical: 10,
+                    //width: '50%',
+                    alignSelf: 'center',
+                  }}
+                  onPress={async () => {
+                    await uploadAnswers();
+                  }}
+                />
+              ) : null}
             </View>
+
+            {/* Step 2 */}
+
+            <View
+              style={{
+                marginVertical: 20,
+                backgroundColor: 'white',
+                borderRadius: 10,
+              }}>
+              <Text
+                style={{
+                  fontSize: 14,
+                  color: 'white',
+                  backgroundColor: '#2b8ada',
+                  padding: 10,
+                  borderTopRightRadius: 10,
+                  borderTopLeftRadius: 10,
+                }}>
+                Step 2 (Please Upload Documents)
+              </Text>
+              <View style={{padding: 10}}>
+                <FlatList
+                  data={DocList}
+                  renderItem={renderDocs}
+                  keyExtractor={item => item.fileName}
+                />
+              </View>
+
+              <View
+                style={{
+                  flexDirection: 'row',
+                  width: '90%',
+                  alignSelf: 'center',
+                  justifyContent: 'space-evenly',
+                  marginVertical: 10,
+                }}>
+                {showUploadDocsButton ? (
+                  <CustomButton
+                    text={'Upload Docs'}
+                    textstyle={{
+                      color: 'white',
+                      fontWeight: 'bold',
+                      fontSize: 12,
+                    }}
+                    style={{
+                      flex: 0.45,
+                      padding: 5,
+                      paddingHorizontal: 10,
+                      backgroundColor: '#2b8ada',
+                      borderRadius: 10,
+                      marginVertical: 10,
+                      //width: '50%',
+                      alignSelf: 'center',
+                    }}
+                    onPress={() => {}}
+                  />
+                ) : null}
+                <TouchableOpacity
+                  style={{
+                    flex: 0.45,
+                    justifyContent: 'center',
+                    flexDirection: 'row',
+                    borderWidth: 1,
+                    alignSelf: 'center',
+                    borderRadius: 10,
+                    padding: 3,
+                    paddingHorizontal: 10,
+                  }}
+                  onPress={() => {
+                    if (DocList.length < 3) {
+                      let arr = DocList;
+                      arr = [...arr, {fileName: 'abc_' + Math.random()}];
+                      setshowUploadDocsButton(true);
+                      setDocList(arr);
+                    } else
+                      Alert.alert(
+                        'Warning',
+                        'You can only upload maximum of 3 documents.',
+                      );
+                  }}>
+                  <FAIcons
+                    name="file-pdf"
+                    size={15}
+                    style={{alignSelf: 'center', marginRight: 5}}
+                  />
+                  <Text style={{fontSize: 12, alignSelf: 'center'}}>
+                    Add File
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* Done Button */}
+
+            <CustomButton
+              text={'Done'}
+              textstyle={{fontSize: 15, color: 'white', fontWeight: 'bold'}}
+              style={{backgroundColor: '#17CC9C', marginVertical: 20}}
+              onPress={async () => {
+                console.log(QuestionList);
+                Alert.alert(
+                  'Done',
+                  'All details have been uploaded successfully',
+                );
+                await AsyncStorage.multiRemove([
+                  'ConfirmBookingDoctor',
+                  'bookSlot',
+                  'viewProfile',
+                ]);
+                navigation.navigate('PatientHome');
+              }}
+            />
           </View>
         </ScrollView>
       </SafeAreaView>
@@ -388,4 +621,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default BasicDesign;
+export default PreConsult;

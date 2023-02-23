@@ -85,7 +85,7 @@ const Header = ({title, showMenu}) => {
   const [onlyUsing, setonlyUsing] = useState(false);
   const [donAllow, setdonAllow] = useState(false);
   const navigation = useNavigation();
-  
+
   const removeHandler = e => {
     setNotificationList(NotificationList.filter(obj => obj.id !== e));
     // console.log(questionareList);
@@ -211,7 +211,7 @@ const Header = ({title, showMenu}) => {
             onPress={() => {
               if (title != 'Confirm Booking') navigation.goBack();
             }}>
-            {title != 'Confirm Booking' ? (
+            {title != 'Confirm Booking' && title != 'PreConsult' ? (
               <FAIcon
                 style={styles.icon}
                 name="chevron-left"
@@ -232,7 +232,7 @@ const Header = ({title, showMenu}) => {
         )}
       </View>
 
-      {title != 'Confirm Booking' ? (
+      {title != 'Confirm Booking' && title != 'PreConsult' ? (
         <View style={[{flexDirection: 'column', alignSelf: 'center'}]}>
           <View style={{flexDirection: 'row'}}>
             <TouchableOpacity onPress={() => navigation.navigate('PatientFav')}>

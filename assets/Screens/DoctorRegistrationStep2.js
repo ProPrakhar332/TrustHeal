@@ -909,19 +909,19 @@ const DoctorRegistration2 = ({navigation}) => {
               margin: 0,
               padding: 0,
             }}>
-            {/* Practice At */}
+            {/* S No. */}
             <View style={[styles.cellStyle, {flex: 0.3}]}>
               <Text style={{textAlign: 'center', fontSize: 10}}>
                 {index + 1}
               </Text>
             </View>
-            {/* Start Date */}
-            <View style={styles.cellStyle}>
+            {/* Speciality */}
+            {/* <View style={styles.cellStyle}>
               <Text style={{textAlign: 'center', fontSize: 10}}>
                 {questionareList.specialization}
               </Text>
-            </View>
-            {/* End Date */}
+            </View> */}
+            {/* Question */}
             <View style={styles.cellStyle}>
               <Text style={{textAlign: 'center', fontSize: 10}}>
                 {questionareList.questions}
@@ -3896,11 +3896,11 @@ const DoctorRegistration2 = ({navigation}) => {
                                   S.No.
                                 </Text>
                               </View>
-                              <View style={styles.cellHeading}>
+                              {/* <View style={styles.cellHeading}>
                                 <Text style={styles.cellHeadingText}>
                                   Speciality
                                 </Text>
-                              </View>
+                              </View> */}
                               <View style={styles.cellHeading}>
                                 <Text style={styles.cellHeadingText}>
                                   Question
@@ -3914,6 +3914,7 @@ const DoctorRegistration2 = ({navigation}) => {
                                   justifyContent: 'center',
                                   paddingHorizontal: 1,
                                   paddingVertical: 1,
+                                  backgroundColor: '#2b8ada',
                                 }}>
                                 <Text style={styles.cellHeadingText}>
                                   Actions
@@ -3928,7 +3929,7 @@ const DoctorRegistration2 = ({navigation}) => {
                       {questionareList.length == 0 ||
                       addMorePreConsultationQuestionaire ? (
                         <View>
-                          <View>
+                          {/* <View>
                             <Text style={[styles.inputLabel, {marginTop: 0}]}>
                               Select Speciality
                             </Text>
@@ -3944,7 +3945,7 @@ const DoctorRegistration2 = ({navigation}) => {
                               setSelected={setquestionSpl}
                               data={splArray}
                             />
-                          </View>
+                          </View> */}
                           <View
                             style={{
                               width: '100%',
@@ -4003,29 +4004,36 @@ const DoctorRegistration2 = ({navigation}) => {
                               borderRadius: 5,
                             }}
                             onPress={() => {
-                              if (questionSpl == '')
-                                Alert.alert(
-                                  'Incomplete Details!',
-                                  'Please select speciality before saving.',
-                                );
-                              else if (consultationQuestion == '')
+                              // if (questionSpl == '')
+                              //   Alert.alert(
+                              //     'Incomplete Details!',
+                              //     'Please select speciality before saving.',
+                              //   );
+                              if (consultationQuestion == '')
                                 Alert.alert(
                                   'Incomplete Details!',
                                   'Please fill question before saving.',
                                 );
-                              else {
+                              else if (
+                                consultationQuestion != '' &&
+                                questionareList.length < 4
+                              ) {
                                 // questionareList.push({
                                 //   questions: consultationQuestion,
                                 //   speciality: questionSpl,
                                 // });
                                 let p = {
                                   questions: consultationQuestion,
-                                  specialization: questionSpl,
+                                  //specialization: questionSpl,
                                 };
                                 let arr = [...questionareList];
                                 arr.push(p);
                                 setQuestionareList(arr);
-                              }
+                              } else if (questionareList.length == 4)
+                                Alert.alert(
+                                  'Warning',
+                                  'You can only add max of 5 questions',
+                                );
                               setConsultationQuestion('');
                             }}
                           />

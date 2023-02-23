@@ -211,6 +211,7 @@ const dataClinic = [
 function DoctorDetails({navigation}) {
   const [DocObj, setDocObj] = useState(null); //from service
   const [DocDet, setDocDet] = useState(null); //from previous page
+  const [patientDet, setpatientDet] = useState(null);
 
   const [showGenInfo, setShowGenInfo] = useState(false);
   const [GenInfo, setGenInfo] = useState([]);
@@ -260,9 +261,11 @@ function DoctorDetails({navigation}) {
   useEffect(() => {
     const getData = async () => {
       let x = JSON.parse(await AsyncStorage.getItem('viewProfile'));
+      let y = JSON.parse(await AsyncStorage.getItem('UserPatientProfile'));
       //console.log(x);
 
       setDocDet(x);
+      setpatientDet(y);
 
       axios
         .get(
@@ -1811,7 +1814,12 @@ function DoctorDetails({navigation}) {
               }}
               onPress={async () => {
                 //slot prebook
-                console.log(mode, selectedPSlotId, selectedSlotId);
+                console.log(
+                  mode,
+                  selectedPSlotId,
+                  selectedSlotId,
+                  patientDet.patientId,
+                );
                 let slotId =
                   mode == 'E_CONSULTATION' ? selectedSlotId : selectedPSlotId;
                 let flag = 0;
@@ -1822,7 +1830,8 @@ function DoctorDetails({navigation}) {
                       mode +
                       '&slotId=' +
                       slotId +
-                      '&userId=1',
+                      '&userId=' +
+                      patientDet.patientId,
                   )
                   .then(response => {
                     if (response.status == 200) {
@@ -1918,7 +1927,8 @@ function DoctorDetails({navigation}) {
                                 mode +
                                 '&slotId=' +
                                 slotId +
-                                '&userId=1',
+                                '&userId=' +
+                                patientDet.patientId,
                             )
                             .then(response => {
                               if (response.status == 200) {

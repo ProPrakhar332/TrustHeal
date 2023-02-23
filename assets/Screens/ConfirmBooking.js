@@ -421,11 +421,22 @@ function ConfirmBoking({navigation}) {
 
     axios
       .post(apiConfig.baseUrl + '/patient/consultation/book', p)
-      .then(response => {
+      .then(async response => {
         if (response.status == 200) {
+          console.log(
+            '================== CONSULTATION BOOKED ==================\n',
+            response.data,
+          );
+
+          PrevPageData.booked = response.data;
+
+          await AsyncStorage.setItem(
+            'ConfirmBookingDoctor',
+            JSON.stringify(PrevPageData),
+          );
           Alert.alert(
             'Success',
-            `Your consultation with ${PrevPageData.doctorDet.doctorName} is booked. Now fill preconsultation questionnaire and upload documents to help doctor consult you better.`,
+            `Your consultation with ${PrevPageData.doctorDet.doctorName} is booked.\n Now fill preconsultation questionnaire and upload documents to help doctor consult you better.`,
           );
           navigation.navigate('PreConsult');
         }
@@ -850,7 +861,12 @@ function ConfirmBoking({navigation}) {
                 borderRadius: 10,
               }}
               onPress={async () => {
-                await paymentOrderCreate();
+                if (privatePolicy == true) await paymentOrderCreate();
+                else
+                  Alert.alert(
+                    'Attention',
+                    'Please agree to T&C and Privacy Policy before continuing',
+                  );
                 //await bookConsultation();
               }}
             />

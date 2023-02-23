@@ -167,12 +167,15 @@ function SelectSlotsE({navigation}) {
   const [ESlots, setESlots] = useState(null);
   const [DocDet, setDocDet] = useState(null); //Previous page data
   const [DocObj, setDocObj] = useState(null); //Service response data
+  const [patientDet, setpatientDet] = useState(null);
 
   useEffect(() => {
     const getData = async () => {
       let x = JSON.parse(await AsyncStorage.getItem('bookSlot'));
-      //console.log(x);
+      let y = JSON.parse(await AsyncStorage.getItem('UserPatientProfile'));
 
+      //console.log(x);
+      setpatientDet(y);
       setDocDet(x);
 
       axios
@@ -447,7 +450,8 @@ function SelectSlotsE({navigation}) {
                       mode +
                       '&slotId=' +
                       slotId +
-                      '&userId=1',
+                      '&userId=' +
+                      patientDet.patientId,
                   )
                   .then(response => {
                     if (response.status == 200) {
@@ -515,7 +519,8 @@ function SelectSlotsE({navigation}) {
                                 '/patient/slot/prebook/delete?consultation=E_CONSULTATION' +
                                 '&slotId=' +
                                 slotId +
-                                '&userId=1',
+                                '&userId=' +
+                                patientDet.patientId,
                             )
                             .then(response => {
                               if (response.status == 200) {

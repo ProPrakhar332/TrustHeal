@@ -35,6 +35,7 @@ import CheckBoxIcon from 'react-native-elements/dist/checkbox/CheckBoxIcon';
 import defaultDoctor from '../Resources/doctor3x.png';
 import defaultDoctor_female from '../Resources/doctor_female.png';
 import CustomButton from '../Components/CustomButton';
+import DoctorCard from '../Components/DoctorCard';
 
 function AllSpeciality({navigation}) {
   const [isLoading, setisLoading] = useState(false);
@@ -735,11 +736,12 @@ function AllSpeciality({navigation}) {
 
               {DoctorsList != '' ? (
                 <View>
-                  <FlatList
+                  {/* <FlatList
                     data={DoctorsList}
                     keyExtractor={item => item.doctorId}
                     renderItem={renderListOfDoctors}
-                  />
+                  /> */}
+                  <DoctorCard DoctorsList={DoctorsList} />
                 </View>
               ) : (
                 <Text
@@ -749,7 +751,7 @@ function AllSpeciality({navigation}) {
               )}
             </View>
           )}
-          {consultationModeModal ? <RenderModal /> : null}
+          {/* {consultationModeModal ? <RenderModal /> : null} */}
         </ScrollView>
         {isLoading && (
           <View
