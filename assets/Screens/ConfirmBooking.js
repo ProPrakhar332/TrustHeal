@@ -389,6 +389,9 @@ function ConfirmBoking({navigation}) {
       // familyId: 0,
       //feesAmount: 0,
       doctorName: DocDet.doctorName,
+      followUpFeesEligible: dayjs()
+        .add(DocDet.followUpDuration, 'day')
+        .format('YYYY-MM-DD'),
       isSpecialUser: SpecialUser,
       patientId: patientDet.patientId,
       patientName: patientDet.patientName,

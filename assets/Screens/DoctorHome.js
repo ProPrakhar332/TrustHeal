@@ -25,6 +25,7 @@ import {CheckBox} from 'react-native-elements';
 import FAIcon from 'react-native-vector-icons/FontAwesome5';
 import Entypo from 'react-native-vector-icons/Entypo';
 import MIcons from 'react-native-vector-icons/MaterialIcons';
+import MCIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import CustomButton from '../Components/CustomButton';
 //images
 import pfp1 from '../Resources/patient.png';
@@ -149,47 +150,14 @@ const DoctorHome = ({navigation}) => {
 
     let p = {
       patientDet: obj,
-      patientId: item.patientNumber,
+      patientId: item.patientId,
+      patientNo: item.patientNumber,
       consultationId: item.consultationId,
       clinicName: item.clinicName != null ? item.clinicName : '',
       clinicAddress: item.clinicAddress != null ? item.clinicAddress : '',
     };
     await AsyncStorage.setItem('PrescriptionFor', JSON.stringify(p));
     // navigation.navigate('CheifComplaints');
-  };
-
-  const download = async (fileToken, userId, fileName) => {
-    // let op = {};
-    // if (Platform.OS == 'ios') op = {NSURLIsExcludedFromBackupKey: true};
-    // await RNFS.mkdir(`file://${RNFS.DownloadDirectoryPath}/Arogya`, op);
-    let filePath = `file://${RNFS.DownloadDirectoryPath}/`;
-    let options = {
-      fromUrl:
-        apiConfig.baseUrl +
-        '/file/download?fileToken=' +
-        fileToken +
-        '&userId=' +
-        userId,
-      toFile: filePath + fileName,
-    };
-    await RNFS.downloadFile(options)
-      .promise.then(response => {
-        //console.log(response);
-        if (response.statusCode == 200) {
-          Alert.alert(
-            'File Downloaded',
-            `The file is downloaded. File name is ${fileName}.`,
-          );
-          // setprescriptionId(filePath + fileName);
-        } else
-          Alert.alert(
-            'Download Fail',
-            `Unable to download file. ${response.statusCode}`,
-          );
-      })
-      .catch(e => {
-        Alert.alert('Error', `${e}`);
-      });
   };
 
   const downloadCache = async (fileToken, userId, fileName) => {
@@ -208,7 +176,7 @@ const DoctorHome = ({navigation}) => {
     };
     await RNFS.downloadFile(options)
       .promise.then(response => {
-        //console.log(response);
+        console.log(response);
         if (response.statusCode == 200) {
           //  Alert.alert(
           //   'File Downloaded',
@@ -287,15 +255,16 @@ const DoctorHome = ({navigation}) => {
               flex: 0.5,
               alignSelf: 'flex-end',
             }}>
-            <FAIcon
+            {/* <FAIcon
               name="prescription"
               size={20}
               style={{marginHorizontal: 5, alignSelf: 'center'}}
               onPress={() => {
                 onPressPrescription(item);
               }}
-            />
-            <CustomButton
+            /> */}
+
+            {/* <CustomButton
               text="Pre Consultation"
               textstyle={{color: 'white', fontSize: 10, alignSelf: 'center'}}
               style={{
@@ -309,7 +278,8 @@ const DoctorHome = ({navigation}) => {
                 setUpcomingId(item.consultationId);
                 setConsultationQuestionnaire(true);
               }}
-            />
+            /> */}
+
             {/* <CustomButton
               text="Manage Status"
               textstyle={{color: '#2B8ADA', fontSize: 10}}
@@ -479,20 +449,26 @@ const DoctorHome = ({navigation}) => {
             marginVertical: 10,
             flexDirection: 'row',
             justifyContent: 'space-evenly',
+            width: '95%',
+            alignSelf: 'center',
           }}>
           {item.consultationType !== 'PHYSICAL' ? (
             <TouchableOpacity
               style={{
+                flex: 0.45,
+                justifyContent: 'center',
                 flexDirection: 'row',
                 padding: 3,
                 paddingHorizontal: 5,
                 alignSelf: 'center',
+                backgroundColor: '#2B8ADA',
                 borderWidth: 1,
                 borderColor: '#2B8ADA',
                 borderRadius: 5,
               }}
               onPress={async () => {
                 await onPressPrescription(item);
+                console.log(item);
                 onJoinPress(
                   item.consultationType,
                   item.consultationId + '',
@@ -505,17 +481,17 @@ const DoctorHome = ({navigation}) => {
                 name={
                   item.consultationType == 'VIDEO_CALL' ? 'video' : 'phone-alt'
                 }
-                color={'#2B8ADA'}
+                color={'white'}
                 size={15}
                 style={{marginRight: 5}}
               />
-              <Text style={{fontSize: 13, color: '#2B8ADA'}}>
-                E-Consultation
-              </Text>
+              <Text style={{fontSize: 12, color: 'white'}}>Consult Now</Text>
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
               style={{
+                flex: 0.45,
+                justifyContent: 'center',
                 flexDirection: 'row',
                 padding: 3,
                 paddingHorizontal: 5,
@@ -531,10 +507,10 @@ const DoctorHome = ({navigation}) => {
                 color={'white'}
                 style={{marginRight: 5}}
               />
-              <Text style={{fontSize: 13, color: 'white'}}>P-Consultation</Text>
+              <Text style={{fontSize: 12, color: 'white'}}>P-Consultation</Text>
             </TouchableOpacity>
           )}
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={{
               flexDirection: 'row',
               padding: 3,
@@ -556,10 +532,13 @@ const DoctorHome = ({navigation}) => {
               size={15}
               style={{marginRight: 5}}
             />
-            <Text style={{fontSize: 13, color: '#000080'}}>History</Text>
-          </TouchableOpacity>
+            <Text style={{fontSize: 12, color: '#000080'}}>History</Text>
+          </TouchableOpacity> */}
+
           <TouchableOpacity
             style={{
+              flex: 0.2,
+              justifyContent: 'center',
               flexDirection: 'row',
               padding: 3,
               paddingHorizontal: 5,
@@ -578,7 +557,34 @@ const DoctorHome = ({navigation}) => {
               size={15}
               style={{marginRight: 5}}
             />
-            <Text style={{fontSize: 13}}>Today's Doc</Text>
+            <Text style={{fontSize: 12}}>Files</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              {
+                flex: 0.1,
+                justifyContent: 'center',
+                flexDirection: 'row',
+                padding: 3,
+                paddingHorizontal: 5,
+                borderWidth: 1,
+                borderColor: '#2b8ada',
+                borderRadius: 5,
+              },
+            ]}
+            onPress={async () => {
+              // setconsultationId(item.consultationId);
+              // await getFiles(item.consultationId);
+              // setquesAnsModal(true);
+              //setdocsModal(true);
+            }}>
+            <MCIcons
+              name="message-reply-text-outline"
+              color={'#2b8ada'}
+              size={15}
+              style={{alignSelf: 'center'}}
+            />
+            {/* <Text style={{fontSize: 12, color: '#2b8ada'}}>Questionnaire</Text> */}
           </TouchableOpacity>
         </View>
       </View>
@@ -768,26 +774,27 @@ const DoctorHome = ({navigation}) => {
                 paddingHorizontal: 15,
                 alignSelf: 'center',
                 borderWidth: 1,
-                borderColor: '#2B8ADA',
+                borderColor: '#2b8ada',
+                backgroundColor: '#2B8ADA',
                 borderRadius: 5,
               }}>
               <FAIcon
                 name={
                   item.consultationType == 'VIDEO_CALL' ? 'video' : 'phone-alt'
                 }
-                color={'#2B8ADA'}
+                color={'white'}
                 size={15}
                 style={{marginRight: 5}}
               />
-              <Text style={{fontSize: 13, color: '#2B8ADA'}}>
-                E-Consultation
-              </Text>
+              <Text style={{fontSize: 13, color: 'white'}}>E-Consultation</Text>
             </TouchableOpacity>
           ) : (
             <CustomButton
               text="P-Consultation"
               textstyle={{fontSize: 13, color: 'white'}}
               style={{
+                borderWidth: 1,
+                borderColor: '#2b8ada',
                 backgroundColor: '#2B8ADA',
                 padding: 3,
                 alignSelf: 'center',
@@ -1040,31 +1047,32 @@ const DoctorHome = ({navigation}) => {
                 paddingHorizontal: 15,
                 alignSelf: 'center',
                 borderWidth: 1,
-                borderColor: '#2B8ADA',
+                borderColor: '#2b8ada',
+                backgroundColor: '#2B8ADA',
                 borderRadius: 5,
               }}>
               <FAIcon
                 name={
                   item.consultationType == 'VIDEO_CALL' ? 'video' : 'phone-alt'
                 }
-                color={'#2B8ADA'}
+                color={'white'}
                 size={15}
                 style={{marginRight: 5}}
               />
-              <Text style={{fontSize: 13, color: '#2B8ADA'}}>
-                E-Consultation
-              </Text>
+              <Text style={{fontSize: 13, color: 'white'}}>E-Consultation</Text>
             </TouchableOpacity>
           ) : (
             <CustomButton
               text="P-Consultation"
               textstyle={{fontSize: 13, color: 'white'}}
               style={{
+                borderWidth: 1,
+                borderColor: '#2b8ada',
                 backgroundColor: '#2B8ADA',
                 padding: 3,
                 alignSelf: 'center',
                 borderRadius: 5,
-                paddingHorizontal: 5,
+                paddingHorizontal: 15,
               }}
             />
           )}

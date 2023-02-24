@@ -35,6 +35,7 @@ import DocumentPicker, {
   types,
 } from 'react-native-document-picker';
 import CustomButton from '../Components/CustomButton';
+import dayjs from 'dayjs';
 
 const sampleQuesList = [
   {
@@ -113,6 +114,10 @@ function PreConsult({navigation}) {
       );
       setpatientDet(y);
       setanswerUploadedButton(false);
+      console.log(
+        '===============DOCS LIST========================\n',
+        DocList,
+      );
     };
     LoadData();
   }, []);
@@ -138,42 +143,38 @@ function PreConsult({navigation}) {
   // }, [QuestionList]);
 
   const chooseProfileImage = async () => {
-    Alert.alert(
-      'Upload Profile Picture',
-      'Select option for uploading profile picture',
-      [
-        {
-          text: 'Open Library',
-          onPress: () => {
-            launchImageLibrary({mediaType: 'photo'}, async response => {
-              console.log(response);
-              if (response.didCancel) console.log('Cancel');
-              else if (response.errorCode) {
-                Alert.alert('Error', response.errorMessage);
-              } else {
-                if (response.assets[0].fileSize <= 2097152) {
-                  await postpfp(response.assets[0]);
-                } else
-                  Alert.alert(
-                    'Max Size',
-                    'The file exceeds the maximum limit of 2MB.',
-                  );
-              }
-            });
-          },
+    Alert.alert('Select Files', 'Select option for uploading files', [
+      {
+        text: 'Open Library',
+        onPress: () => {
+          launchImageLibrary({mediaType: 'photo'}, async response => {
+            console.log(response);
+            if (response.didCancel) console.log('Cancel');
+            else if (response.errorCode) {
+              Alert.alert('Error', response.errorMessage);
+            } else {
+              if (response.assets[0].fileSize <= 2097152) {
+                await postpfp(response.assets[0]);
+              } else
+                Alert.alert(
+                  'Max Size',
+                  'The file exceeds the maximum limit of 2MB.',
+                );
+            }
+          });
         },
-        {
-          text: 'Open Camera',
-          onPress: () => {
-            requestCameraPermission();
-          },
+      },
+      {
+        text: 'Open Camera',
+        onPress: () => {
+          requestCameraPermission();
         },
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-      ],
-    );
+      },
+      {
+        text: 'Cancel',
+        style: 'cancel',
+      },
+    ]);
   };
 
   const requestCameraPermission = async () => {
@@ -224,19 +225,22 @@ function PreConsult({navigation}) {
       let ext = '.' + pickerResult.fileName.split('.').pop();
 
       //delete pickerResult.fileName;
-      // pickerResult.size = pickerResult.fileSize;
-      // delete pickerResult.fileSize;
+      pickerResult.size = pickerResult.fileSize;
+      delete pickerResult.fileSize;
 
       // pickerResult.name = doctorId + '_ProfilePhoto' + ext;
-      console.log(pickerResult.name);
-      console.log(pickerResult);
+      //console.log(pickerResult.fileName);
+
+      pickerResult.name = pickerResult.fileName;
+      delete pickerResult.fileName;
+
+      console.log('===========  FILE ==============\n', pickerResult);
+      console.log('===========  USERID ==============\n', patientDet.patientId);
 
       let formData = new FormData();
       formData.append('directoryNames', 'PATIENT_DOCUMENT');
       formData.append('file', pickerResult);
       formData.append('userId', patientDet.patientId);
-      if (profilePhotoPath != null)
-        formData.append('fileToken', profilePhotoPath);
       const {error, response} = await fileUpload(formData);
 
       if (error != null) {
@@ -249,21 +253,28 @@ function PreConsult({navigation}) {
       } else {
         console.log('======response======');
         console.log(response.fileToken);
-        setdocumentPath(response.fileToken);
+
+        let temp = {
+          consultationId: consultationId,
+          documentName: pickerResult.name,
+          documentPath: response.fileToken,
+          uploadedDate: dayjs().format('YYYY-MM-DD'),
+        };
+        let arr = [...DocList, temp];
+        setDocList(arr);
       }
     } catch (e) {
       console.log(e);
     }
   };
 
-  const uploadDocs = async () => {
+  const selectDocs = async () => {
     try {
       console.log('==============Inside select Docs==========');
 
       const pickerResult = await DocumentPicker.pickSingle({
         presentationStyle: 'fullScreen',
         copyTo: 'cachesDirectory',
-        type: types.pdf,
       });
 
       if (pickerResult.size > 2097152)
@@ -291,7 +302,16 @@ function PreConsult({navigation}) {
           console.log('======response======');
           console.log(response.fileToken);
           if (response.fileToken != null) {
-            setdocumentPath(response.fileToken);
+            console.log(response.fileToken);
+
+            let temp = {
+              consultationId: consultationId,
+              documentName: pickerResult.name,
+              documentPath: response.fileToken,
+              uploadedDate: dayjs().format('YYYY-MM-DD'),
+            };
+            let arr = [...DocList, temp];
+            setDocList(arr);
           } else Alert.alert('Error', 'Please try again.');
         }
       }
@@ -349,7 +369,7 @@ function PreConsult({navigation}) {
     );
   };
 
-  const renderDocs = ({item}) => {
+  const renderDocs = ({item, index}) => {
     return (
       <View
         style={{
@@ -359,25 +379,48 @@ function PreConsult({navigation}) {
           borderRadius: 10,
           margin: 3,
           flex: 1,
-        }}>
-        <Text
+          justifyContent: 'center',
+        }}
+        key={item.documentPath}>
+        <TextInput
           style={{
-            fontSize: 12,
-            color: 'black',
-            alignSelf: 'center',
             flex: 0.9,
-          }}>
-          {item.fileName}
-        </Text>
-        <TouchableOpacity
-          style={{marginLeft: 5, flex: 0.1}}
-          onPress={() => {
-            removeDocsHandler(item.fileName);
-          }}>
-          <Text style={{alignSelf: 'center', color: 'red'}}>X</Text>
-        </TouchableOpacity>
+            backgroundColor: '#e8f0fe',
+            padding: 0,
+            fontSize: 12,
+            borderRadius: 10,
+            paddingHorizontal: 15,
+          }}
+          onChangeText={text => handleRename(text, index)}
+          value={item.documentName}
+          editable={!DocsUploaded}
+          placeholderTextColor={'black'}
+        />
+        {!DocsUploaded ? (
+          <TouchableOpacity
+            style={{marginLeft: 5, flex: 0.1, justifyContent: 'center'}}
+            onPress={() => {
+              removeDocsHandler(item.documentPath);
+            }}>
+            <FAIcons
+              name="trash"
+              size={15}
+              style={{
+                alignSelf: 'center',
+
+                color: 'red',
+              }}
+            />
+          </TouchableOpacity>
+        ) : null}
       </View>
     );
+  };
+
+  const handleRename = (text, index) => {
+    let temp = [...DocList];
+    temp[index].documentName = text;
+    setDocList(temp);
   };
 
   const handleInput = (text, index) => {
@@ -406,8 +449,26 @@ function PreConsult({navigation}) {
       });
   };
 
+  const uploadDocs = async () => {
+    console.log(
+      '=============  Uploading Docs  =====================\n',
+      DocList,
+    );
+
+    await axios
+      .post(apiConfig.baseUrl + '/patient/consultation/document/save', DocList)
+      .then(response => {
+        if (response.status == 200)
+          Alert.alert('Done', 'Documents uploaded successfully');
+        setDocsUploaded(true);
+      })
+      .catch(error => {
+        Alert.alert('Error', `${error}`);
+      });
+  };
+
   const removeDocsHandler = i => {
-    setDocList(DocList.filter(e => i != e.fileName));
+    setDocList(DocList.filter(e => i != e.documentPath));
   };
 
   return (
@@ -516,19 +577,19 @@ function PreConsult({navigation}) {
                 <FlatList
                   data={DocList}
                   renderItem={renderDocs}
-                  keyExtractor={item => item.fileName}
+                  keyExtractor={item => item.documentPath}
                 />
               </View>
 
-              <View
-                style={{
-                  flexDirection: 'row',
-                  width: '90%',
-                  alignSelf: 'center',
-                  justifyContent: 'space-evenly',
-                  marginVertical: 10,
-                }}>
-                {showUploadDocsButton ? (
+              {!DocsUploaded ? (
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    width: '90%',
+                    alignSelf: 'center',
+                    justifyContent: 'space-evenly',
+                    marginVertical: 10,
+                  }}>
                   <CustomButton
                     text={'Upload Docs'}
                     textstyle={{
@@ -546,42 +607,44 @@ function PreConsult({navigation}) {
                       //width: '50%',
                       alignSelf: 'center',
                     }}
-                    onPress={() => {}}
+                    onPress={async () => {
+                      await uploadDocs();
+                    }}
                   />
-                ) : null}
-                <TouchableOpacity
-                  style={{
-                    flex: 0.45,
-                    justifyContent: 'center',
-                    flexDirection: 'row',
-                    borderWidth: 1,
-                    alignSelf: 'center',
-                    borderRadius: 10,
-                    padding: 3,
-                    paddingHorizontal: 10,
-                  }}
-                  onPress={() => {
-                    if (DocList.length < 3) {
-                      let arr = DocList;
-                      arr = [...arr, {fileName: 'abc_' + Math.random()}];
-                      setshowUploadDocsButton(true);
-                      setDocList(arr);
-                    } else
-                      Alert.alert(
-                        'Warning',
-                        'You can only upload maximum of 3 documents.',
-                      );
-                  }}>
-                  <FAIcons
-                    name="file-pdf"
-                    size={15}
-                    style={{alignSelf: 'center', marginRight: 5}}
-                  />
-                  <Text style={{fontSize: 12, alignSelf: 'center'}}>
-                    Add File
-                  </Text>
-                </TouchableOpacity>
-              </View>
+                  <TouchableOpacity
+                    style={{
+                      flex: 0.45,
+                      justifyContent: 'center',
+                      flexDirection: 'row',
+                      borderWidth: 1,
+                      alignSelf: 'center',
+                      borderRadius: 10,
+                      padding: 3,
+                      paddingHorizontal: 10,
+                    }}
+                    onPress={async () => {
+                      if (DocList.length < 3) {
+                        // await chooseProfileImage();
+
+                        await selectDocs();
+                        // setshowUploadDocsButton(true);
+                      } else
+                        Alert.alert(
+                          'Warning',
+                          'You can only upload maximum of 3 documents.',
+                        );
+                    }}>
+                    <FAIcons
+                      name="file-pdf"
+                      size={15}
+                      style={{alignSelf: 'center', marginRight: 5}}
+                    />
+                    <Text style={{fontSize: 12, alignSelf: 'center'}}>
+                      Add File
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              ) : null}
             </View>
 
             {/* Done Button */}
@@ -591,17 +654,23 @@ function PreConsult({navigation}) {
               textstyle={{fontSize: 15, color: 'white', fontWeight: 'bold'}}
               style={{backgroundColor: '#17CC9C', marginVertical: 20}}
               onPress={async () => {
-                console.log(QuestionList);
-                Alert.alert(
-                  'Done',
-                  'All details have been uploaded successfully',
-                );
-                await AsyncStorage.multiRemove([
-                  'ConfirmBookingDoctor',
-                  'bookSlot',
-                  'viewProfile',
-                ]);
-                navigation.navigate('PatientHome');
+                if (answersUploaded == false)
+                  Alert.alert(
+                    'Warning',
+                    'Please answer preconsultation questionnaire',
+                  );
+                else {
+                  Alert.alert(
+                    'Done',
+                    'All details have been uploaded successfully',
+                  );
+                  await AsyncStorage.multiRemove([
+                    'ConfirmBookingDoctor',
+                    'bookSlot',
+                    'viewProfile',
+                  ]);
+                  navigation.navigate('PatientHome');
+                }
               }}
             />
           </View>

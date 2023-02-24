@@ -605,12 +605,7 @@ function CustomDrawerContentPatient(props) {
                     backgroundColor: 'white',
                     margin: 5,
                   }}
-                  source={
-                    props.patientObj == null ||
-                    props.patientObj.gender == 'Male'
-                      ? patient
-                      : patient_female
-                  }
+                  source={patient}
                 />
               ) : (
                 <Image

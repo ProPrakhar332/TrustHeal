@@ -66,6 +66,7 @@ function PrescriptionPreview({navigation}) {
   const [patientName, setpatientName] = useState('');
   const [consultationId, setconsultationId] = useState(null);
   const [patientID, setpatientID] = useState('');
+  const [patientNumber, setpatientNumber] = useState('');
   const [prescriptionPath, setprescriptionPath] = useState(null);
   const [patientObj, setpatientObj] = useState([]);
   const [patientAge, setpatientAge] = useState('');
@@ -93,6 +94,7 @@ function PrescriptionPreview({navigation}) {
         setclinicName(h.clinicName);
         setclinicAddress(h.clinicAddress);
         setpatientID(h.patientId);
+        setpatientNumber(h.patientNo);
         setconsultationId(h.consultationId);
         setpatientName(h.patientDet.patientName);
         setpatientAge(h.patientDet.age);
@@ -400,7 +402,7 @@ th{
                         <p class="p-nme mb-0"><b>Date :</b>` +
     dayjs(new Date()).format('DD-MM-YYYY') +
     `</p>
-                        <p class="p-nme mb-0"><b>Mobile Number:</b> ${patientID}</p>
+                        <p class="p-nme mb-0"><b>Mobile Number:</b> ${patientNumber}</p>
                     </div>
                 </div>
                 <p class="mb-0 complaints"><b><u>Chief Complaints</u> :-  </b>` +
@@ -592,7 +594,8 @@ th{
     setisLoading(true);
     let options = {
       html: html,
-      fileName: patientID + '_prescription_' + dayjs().format('YYYYMMDDHHmmss'),
+      fileName:
+        patientNumber + '_prescription_' + dayjs().format('YYYYMMDDHHmmss'),
       directory: 'docs',
     };
 
@@ -691,26 +694,18 @@ th{
   const completeConsultationStatusUpdate = async path => {
     //console.log(FollowUpDate);
 
-    console.log(
-      'header call\n\n',
-      apiConfig.baseUrl +
-        '/doctor/consultation/status/complete?consultationid=' +
-        consultationId +
-        '&reVisitDate=' +
-        dayjs(FollowUpDate).format('YYYY-MM-DD') +
-        '&prescription=' +
-        encodeURI(path),
-    );
+    let p = {
+      consultationId: consultationId,
+      doctorName: doctorName,
+      followUpDate: dayjs(FollowUpDate).format('YYYY-MM-DD'),
+      patientId: patientID,
+      patientName: patientName,
+      prescription: path,
+    };
+
+    console.log();
     axios
-      .post(
-        apiConfig.baseUrl +
-          '/doctor/consultation/status/complete?consultationid=' +
-          consultationId +
-          '&reVisitDate=' +
-          dayjs(FollowUpDate).format('YYYY-MM-DD') +
-          '&prescription=' +
-          encodeURI(path),
-      )
+      .post(apiConfig.baseUrl + '/doctor/consultation/status/complete', p)
       .then(function (response) {
         setisUploading(false);
         if (response.status == 200) {
