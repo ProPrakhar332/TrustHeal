@@ -364,7 +364,7 @@ function ConfirmBoking({navigation}) {
       paidAmount: Order.amount,
       razorpayKey: Order.razorpayKey,
       razorpaySecert: Order.razorpaySecert,
-      status: item == null ? 'Unsuccessful' : 'Successful',
+      status: item == null ? 'Failed' : 'Paid',
       trustHealOrderId: Order.trustHealOrderId,
     };
 

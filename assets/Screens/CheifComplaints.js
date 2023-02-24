@@ -267,7 +267,7 @@ function CheifComplaints({navigation}) {
                         </View>
                         <View style={styles.cellHeading}>
                           <Text style={styles.cellHeadingText}>
-                            Cheif Complaint
+                            Chief Complaint
                           </Text>
                         </View>
 

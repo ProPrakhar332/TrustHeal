@@ -866,7 +866,7 @@ function PatientProfile({navigation}) {
                   <Text style={styles.whiteBoxRowText}>Other Details</Text>
                 </View>
               </TouchableOpacity>
-              <TouchableOpacity
+              {/* <TouchableOpacity
                 style={styles.whiteBoxRow}
                 onPress={() => {
                   setinvoiceModal(true);
@@ -877,7 +877,7 @@ function PatientProfile({navigation}) {
                 <View style={{flex: 0.6}}>
                   <Text style={styles.whiteBoxRowText}>Invoices</Text>
                 </View>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
               <TouchableOpacity style={styles.whiteBoxRow} onPress={() => {}}>
                 <View style={{flex: 0.3}}>
                   <Image source={notification} style={styles.whiteBoxRowIcon} />

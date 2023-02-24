@@ -188,6 +188,7 @@ function PatientHome({navigation}) {
   const [DoctorsData, setDoctorsData] = useState([]);
   const [states, setStates] = useState(0);
   const [isLoading, setisLoading] = useState(false);
+  const [patientDet, setpatientDet] = useState(null);
 
   // const renderRecentConsultations = ({item}) => (
   //   <TouchableOpacity
@@ -615,6 +616,11 @@ function PatientHome({navigation}) {
 
   //Load Data
   useEffect(() => {
+    const getPatientDet = async () => {
+      let x = JSON.parse(await AsyncStorage.getItem('UserPatientProfile'));
+      setpatientDet(x);
+    };
+
     const getBanner = async () => {
       axios
         .get(apiConfig.baseUrl + '/suggest/patient/banner')
@@ -624,18 +630,6 @@ function PatientHome({navigation}) {
           );
           console.log(response.data);
           if (response.status == 200) setBannerData(response.data.bannerPath);
-        });
-    };
-
-    const getUpcoming = async () => {
-      axios
-        .get(apiConfig.baseUrl + '/patient/upcoming/consultations?patientId=1')
-        .then(function (response) {
-          // console.log(
-          //   '\n=========================== UPCOMING CONSULTATIONS ====================================\n',
-          // );
-          // console.log(response.data);
-          if (response.status == 200) setUpcomingData(response.data);
         });
     };
 
@@ -674,13 +668,32 @@ function PatientHome({navigation}) {
           if (response.status == 200) setDoctorsData(response.data);
         });
     };
-
+    getPatientDet();
     getBanner();
-    getUpcoming();
     getSpeciality();
     getSymptoms();
     getDoctors();
   }, []);
+
+  useEffect(() => {
+    const getUpcoming = async () => {
+      axios
+        .get(
+          apiConfig.baseUrl +
+            '/patient/upcoming/consultations?patientId=' +
+            patientDet.patientId,
+        )
+        .then(function (response) {
+          // console.log(
+          //   '\n=========================== UPCOMING CONSULTATIONS ====================================\n',
+          // );
+          // console.log(response.data);
+          if (response.status == 200) setUpcomingData(response.data);
+        });
+    };
+
+    if (patientDet != null) getUpcoming();
+  }, [patientDet]);
 
   return (
     <KeyboardAvoidingView

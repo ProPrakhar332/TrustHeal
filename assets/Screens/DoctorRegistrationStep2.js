@@ -858,7 +858,7 @@ const DoctorRegistration2 = ({navigation}) => {
               <Text style={{textAlign: 'center', fontSize: 10}}>
                 {dayjs(Experience.endDate).isValid()
                   ? dayjs(Experience.endDate).format('DD-MM-YYYY')
-                  : 'DD-MM-YYYY'}
+                  : ''}
               </Text>
             </View>
             {/* Total Experience */}

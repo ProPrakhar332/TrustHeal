@@ -17,6 +17,7 @@ import {
 import {StyleSheet} from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import RNFS from 'react-native-fs';
 import HeaderPatient from '../Components/HeaderPatient';
 import FAIcons from 'react-native-vector-icons/FontAwesome5';
 import MIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -33,214 +34,7 @@ import dayjs from 'dayjs';
 import timeformatter from '../API/timeformatter';
 import waiting from '../Animations/waiting1.gif';
 import DocumentViewer from '../Components/DocumentViewer';
-
-const dataUpcoming = [
-  {
-    name: 'Dr. Ishita Singh',
-    spl: 'Cardiology',
-    exp: '20 Years Exp.',
-    deg: 'MBBS, MD, FID, CCLHA',
-    date: '03-11-2022',
-    mode: '',
-    type: 'P-Consultation',
-    time: '9:30 am',
-    loc: 'JSPL, Angul',
-    pres: '',
-    img: doctor_f,
-  },
-  {
-    name: 'Dr. Imran Ahmed',
-    spl: 'Cardiology',
-    exp: '20 Years Exp.',
-    deg: 'MBBS, MD, FID, CCLHA',
-    date: '03-11-2022',
-    mode: 'phonecall',
-    type: 'E-Consultation',
-    time: '9:30 am',
-    loc: 'JSPL, Angul',
-    pres: '',
-    img: doctor_m,
-  },
-  {
-    name: 'Dr. Riya Negi',
-    spl: 'Cardiology',
-    exp: '20 Years Exp.',
-    deg: 'MBBS, MD, FID, CCLHA',
-    date: '03-11-2022',
-    mode: 'videocall',
-    type: 'E-Consultation',
-    time: '9:30 am',
-    loc: 'JSPL, Angul',
-    pres: '',
-    img: doctor_f,
-  },
-  {
-    name: 'Dr. Ishita Ahmed',
-    spl: 'Cardiology',
-    exp: '20 Years Exp.',
-    deg: 'MBBS, MD, FID, CCLHA',
-    date: '03-11-2022',
-    mode: '',
-    type: 'P-Consultation',
-    time: '9:30 am',
-    loc: 'JSPL, Angul',
-    pres: '',
-    img: doctor_f,
-  },
-];
-const dataCompleted = [
-  {
-    name: 'Dr. Ishita Singh',
-    spl: 'Cardiology',
-    fees: '500/-',
-    slottime: '9:00-10:00am',
-    exp: '20 Years Exp.',
-    deg: 'MBBS, MD, FID, CCLHA',
-    date: '03-11-2022',
-    mode: '',
-    type: 'P-Consultation',
-    time: '9:30 am',
-    loc: 'JSPL, Angul',
-    pres: '',
-    history: '',
-    img: doctor_f,
-  },
-  {
-    name: 'Dr. Imran Ahmed',
-    spl: 'Cardiology',
-    fees: '500/-',
-    slottime: '9:00-10:00am',
-    exp: '20 Years Exp.',
-    deg: 'MBBS, MD, FID, CCLHA',
-    date: '03-11-2022',
-    mode: 'phonecall',
-    type: 'E-Consultation',
-    time: '9:30 am',
-    loc: 'JSPL, Angul',
-    pres: '',
-    history: '',
-    img: doctor_m,
-  },
-  {
-    name: 'Dr. Riya Negi',
-    spl: 'Cardiology',
-    fees: '500/-',
-    slottime: '9:00-10:00am',
-    exp: '20 Years Exp.',
-    deg: 'MBBS, MD, FID, CCLHA',
-    date: '03-11-2022',
-    mode: 'videocall',
-    type: 'E-Consultation',
-    time: '9:30 am',
-    loc: 'JSPL, Angul',
-    pres: '',
-    history: '',
-    img: doctor_f,
-  },
-  {
-    name: 'Dr. Ishita Ahmed',
-    spl: 'Cardiology',
-    fees: '500/-',
-    slottime: '9:00-10:00am',
-    exp: '20 Years Exp.',
-    deg: 'MBBS, MD, FID, CCLHA',
-    date: '03-11-2022',
-    mode: '',
-    type: 'P-Consultation',
-    time: '9:30 am',
-    loc: 'JSPL, Angul',
-    pres: '',
-    history: '',
-    img: doctor_f,
-  },
-];
-const UpcomingServiceResponse = [
-  {
-    city: 'Delhi',
-    clinicAddress: 'Rajpur Road',
-    clinicName: 'Max Hospital',
-    consultationId: 1,
-    consultationStatus: 'BOOKED',
-    consultationType: 'PHONE_CALL',
-    doctorDob: '1947-06-14',
-    doctorEmail: 'abc@geu.ac.in',
-    doctorId: 1,
-    doctorName: 'Dr. Imran Khan',
-    photoPath: 0,
-    familyId: 0,
-    familyMemberName: '',
-    feesAmout: 400,
-    paymentStatus: 'PAY_ON_CLINIC',
-    slotDate: '2023-02-07',
-    slotEndTime: '11:30',
-    slotStartTime: '11:00',
-    specialization: ['ENT', 'Dermatology', 'Physician'],
-  },
-  {
-    city: 'Delhi',
-    clinicAddress: 'Lal Pul Road',
-    clinicName: 'Mahant Indresh',
-    consultationId: 2,
-    consultationStatus: 'BOOKED',
-    consultationType: 'PHYSICAL',
-    doctorDob: '1947-06-14',
-    doctorEmail: 'abc@geu.ac.in',
-    doctorId: 2,
-    doctorName: 'Dr. Wolfeschlegelsteinhausenbergerdorff Sr.',
-    photoPath: 0,
-    familyId: 0,
-    familyMemberName: '',
-    feesAmout: 900,
-    paymentStatus: 'PAY_ON_CLINIC',
-    slotDate: '2023-02-07',
-    slotEndTime: '20:30',
-    slotStartTime: '20:27',
-    specialization: ['Physician'],
-  },
-];
-
-const CompletedServiceResponse = [
-  {
-    clinicAddress: 'DL Road',
-    clinicName: 'Vaish Nursing Home',
-    consultationId: 1,
-    consultationStatus: 'COMPLETED',
-    consultationType: 'PHYSICAL',
-    doctorId: 1,
-    doctorName: 'Dr. Amit Vaish',
-    photoPath: 0,
-    //familyId: 0,
-    //familyMemberName: 'string',
-    feesAmout: 400,
-    followUpEligible: '2023-02-21',
-    paymentStatus: 'PAY_ON_CLINIC',
-    prescriptionPath: 2154564614,
-    reVisitDate: '2023-04-11',
-    slotDate: '2023-02-11',
-    slotEndTime: '11:00',
-    slotStartTime: '10:00',
-    specialization: ['ENT,Dematology'],
-  },
-  {
-    consultationId: 2,
-    consultationStatus: 'COMPLETED',
-    consultationType: 'VIDEO_CALL',
-    doctorId: 2,
-    doctorName: 'Dr. Sumit Kumar',
-    photoPath: 0,
-    //familyId: 0,
-    //familyMemberName: 'string',
-    feesAmout: 600,
-    followUpEligible: '2023-02-16',
-    paymentStatus: 'PAY_ON_CLINIC',
-    prescriptionPath: 1548468680,
-    reVisitDate: '2023-03-11',
-    slotDate: '2023-02-09',
-    slotEndTime: '23:00',
-    slotStartTime: '22:00',
-    specialization: ['Orthopedics,Dermatology'],
-  },
-];
+import Pdf from 'react-native-pdf';
 
 function MyAppointment({navigation}) {
   const [isLoading, setisLoading] = useState(false);
@@ -260,6 +54,17 @@ function MyAppointment({navigation}) {
   const [consultationId, setconsultationId] = useState(null);
   const [documentPath, setdocumentPath] = useState(null);
   const [documentName, setdocumentName] = useState(null);
+
+  const [PrescriptionModal, setPrescriptionModal] = useState(false);
+  const [prescriptionId, setprescriptionId] = useState(false);
+  const [zoom, setZoom] = useState(1);
+
+  const onZoomIn = () => {
+    if (zoom < 2.5) setZoom(zoom + 0.25);
+  };
+  const onZoomOut = () => {
+    if (zoom > 1) setZoom(zoom - 0.25);
+  };
 
   useEffect(() => {
     const LoadData = async () => {
@@ -320,6 +125,91 @@ function MyAppointment({navigation}) {
 
     if (completedActive == true) getCompleted();
   }, [completedActive]);
+
+  const onJoinPress = (
+    consultationType,
+    callID,
+    userID,
+    userName,
+    userType,
+  ) => {
+    nav.navigate('CallPage', {
+      consultationType: consultationType,
+      callID: callID,
+      userID: userID,
+      userName: userName,
+      userType: userType,
+    });
+  };
+
+  const downloadCache = async (fileToken, userId, fileName) => {
+    // let op = {};
+    // if (Platform.OS == 'ios') op = {NSURLIsExcludedFromBackupKey: true};
+    // await RNFS.mkdir(`file://${RNFS.DownloadDirectoryPath}/Arogya`, op);
+    let filePath = `file://${RNFS.CachesDirectoryPath}/`;
+    let options = {
+      fromUrl:
+        apiConfig.baseUrl +
+        '/file/download?fileToken=' +
+        fileToken +
+        '&userId=' +
+        userId,
+      toFile: filePath + fileName,
+    };
+    await RNFS.downloadFile(options)
+      .promise.then(response => {
+        console.log(response);
+        if (response.statusCode == 200) {
+          //  Alert.alert(
+          //   'File Downloaded',
+          //   `The file is downloaded. File name is ${fileName}.`,
+          // );
+          setprescriptionId(filePath + fileName);
+          setdocumentName(fileName);
+        } else if (response.statusCode == 204)
+          Alert.alert('Sorry', 'The file does not exist');
+        else
+          Alert.alert(
+            'Download Fail',
+            `Unable to download file. ${response.statusCode}`,
+          );
+      })
+      .catch(e => {
+        Alert.alert('Error', `${e}`);
+      });
+  };
+  const getFiles = async id => {
+    await axios
+      .get(apiConfig.baseUrl + '/docs/current/uploaded?consultationId=' + id)
+      .then(response => {
+        console.log(response.data);
+        if (response.status == 200) {
+          setdocsList(response.data.documents);
+          setQuestionnaireList(response.data.quesAns);
+        }
+      })
+      .catch(error => {
+        Alert.alert('Error', `Error in fetching docs and ques.\n${error}`);
+      });
+  };
+
+  const getHistory = async () => {
+    await axios
+      .get(
+        apiConfig.baseUrl +
+          '/docs/last/uploaded?patientId=' +
+          props.navigation.patientObj.patientId,
+      )
+      .then(response => {
+        console.log(response.data);
+        if (response.status == 200) {
+          setdocsList(response.data.documents);
+        }
+      })
+      .catch(error => {
+        Alert.alert('Error', `Error in fetching docs and ques.\n${error}`);
+      });
+  };
 
   const renderUpcomingConsultations = ({item}) => {
     return (
@@ -769,11 +659,13 @@ function MyAppointment({navigation}) {
               borderRadius: 5,
               justifyContent: 'center',
             }}
-            onPress={() => {
-              // sethistoryId(
-              //   item.familyId != null ? item.familyId : item.patientId,
-              // );
-              // setHistoryModal(true);
+            onPress={async () => {
+              await downloadCache(
+                item.prescriptionPath,
+                item.doctorId,
+                item.consultationId + '_Prescription_' + item.slotDate + '.pdf',
+              );
+              setPrescriptionModal(true);
             }}>
             <FAIcons
               name="prescription"
@@ -823,11 +715,10 @@ function MyAppointment({navigation}) {
               borderRadius: 5,
               justifyContent: 'center',
             }}
-            onPress={() => {
-              // sethistoryId(
-              //   item.familyId != null ? item.familyId : item.patientId,
-              // );
-              // setHistoryModal(true);
+            onPress={async () => {
+              setconsultationId(item.consultationId);
+              await getFiles(item.consultationId);
+              setdocsModal(true);
             }}>
             <FAIcons
               name="file-pdf"
@@ -835,7 +726,7 @@ function MyAppointment({navigation}) {
               size={15}
               style={{marginRight: 5}}
             />
-            <Text style={{fontSize: 13, color: '#000080'}}>History</Text>
+            <Text style={{fontSize: 13, color: '#000080'}}>Files</Text>
           </TouchableOpacity>
           {/* Questionnaire */}
           <TouchableOpacity
@@ -869,39 +760,6 @@ function MyAppointment({navigation}) {
     );
   };
 
-  const getFiles = async id => {
-    await axios
-      .get(apiConfig.baseUrl + '/docs/current/uploaded?consultationId=' + id)
-      .then(response => {
-        console.log(response.data);
-        if (response.status == 200) {
-          setdocsList(response.data.documents);
-          setQuestionnaireList(response.data.quesAns);
-        }
-      })
-      .catch(error => {
-        Alert.alert('Error', `Error in fetching docs and ques.\n${error}`);
-      });
-  };
-
-  const getHistory = async () => {
-    await axios
-      .get(
-        apiConfig.baseUrl +
-          '/docs/last/uploaded?patientId=' +
-          props.navigation.patientObj.patientId,
-      )
-      .then(response => {
-        console.log(response.data);
-        if (response.status == 200) {
-          setdocsList(response.data.documents);
-        }
-      })
-      .catch(error => {
-        Alert.alert('Error', `Error in fetching docs and ques.\n${error}`);
-      });
-  };
-
   const renderDocsList = ({item}) => {
     return (
       <TouchableOpacity
@@ -914,11 +772,13 @@ function MyAppointment({navigation}) {
           margin: 5,
         }}
         key={item.documentPath}
-        onPress={() => {
-          setdocumentName(item.documentName);
-          setdocumentPath(item.documentPath);
-          // setshowDocumentViewer(false);
-          // setshowDocumentViewer(true);
+        onPress={async () => {
+          await downloadCache(
+            item.documentPath,
+            patientDet.patientId,
+            item.documentName,
+          );
+          setPrescriptionModal(true);
         }}>
         <FAIcons
           name="file-pdf"
@@ -968,22 +828,6 @@ function MyAppointment({navigation}) {
         </Text>
       </View>
     );
-  };
-
-  const onJoinPress = (
-    consultationType,
-    callID,
-    userID,
-    userName,
-    userType,
-  ) => {
-    nav.navigate('CallPage', {
-      consultationType: consultationType,
-      callID: callID,
-      userID: userID,
-      userName: userName,
-      userType: userType,
-    });
   };
 
   return (
@@ -1363,6 +1207,149 @@ function MyAppointment({navigation}) {
                       </Text>
                     </View>
                   )}
+                </View>
+              </View>
+            </View>
+          </Modal>
+        ) : null}
+        {PrescriptionModal ? (
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={PrescriptionModal}
+            onRequestClose={() => {
+              setPrescriptionModal(!PrescriptionModal);
+            }}>
+            <View
+              style={{
+                height: '100%',
+                backgroundColor: 'rgba(0,0,0,0.8)',
+                flexDirection: 'row',
+                justifyContent: 'center',
+              }}>
+              <View
+                style={[
+                  styles.modalView,
+                  {
+                    borderRadius: 10,
+                  },
+                ]}>
+                <View
+                  style={{
+                    width: '100%',
+                    alignSelf: 'center',
+                    borderBottomWidth: 1,
+                    borderBottomColor: 'gray',
+                  }}>
+                  <Text
+                    style={{
+                      fontWeight: 'bold',
+                      fontSize: 16,
+                      padding: 5,
+                      color: 'black',
+                    }}>
+                    Viewer
+                  </Text>
+                  <FAIcons
+                    name="window-close"
+                    color="black"
+                    size={26}
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      right: 0,
+                    }}
+                    onPress={() => {
+                      setPrescriptionModal(false);
+                      setprescriptionId(null);
+                      setZoom(1);
+                    }}
+                  />
+                </View>
+                <View style={{minHeight: 150, width: '100%'}}>
+                  <View
+                    style={{
+                      padding: 10,
+                      width: '100%',
+                      alignSelf: 'center',
+                      borderRadius: 7,
+                      marginVertical: 10,
+                      borderWidth: 2,
+                      borderColor: 'gray',
+                    }}>
+                    <Pdf
+                      source={{
+                        uri: prescriptionId,
+                      }}
+                      style={{
+                        width: '100%',
+                        height: 275,
+                        alignSelf: 'center',
+                      }}
+                      //onLoadComplete={() => console.log('fully loaded')}
+                      scale={zoom}
+                    />
+                  </View>
+                  <View style={{alignSelf: 'center', flexDirection: 'column'}}>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignContent: 'center',
+                        justifyContent: 'space-evenly',
+                        width: '95%',
+                      }}>
+                      <TouchableOpacity>
+                        <FAIcons
+                          name="minus-circle"
+                          size={20}
+                          color={'gray'}
+                          onPress={onZoomOut}
+                        />
+                      </TouchableOpacity>
+                      <Text>
+                        {zoom * 100}
+                        {' %'}
+                      </Text>
+                      <TouchableOpacity>
+                        <FAIcons
+                          name="plus-circle"
+                          size={20}
+                          color={'gray'}
+                          onPress={onZoomIn}
+                        />
+                      </TouchableOpacity>
+                    </View>
+
+                    <Text
+                      style={{
+                        color: 'black',
+                        fontSize: 12,
+                        alignSelf: 'center',
+                        marginVertical: 5,
+                      }}>
+                      File Name:- {documentName}
+                    </Text>
+                    <CustomButton
+                      textstyle={{color: 'white', fontSize: 12}}
+                      text={'Download'}
+                      style={{
+                        backgroundColor: 'limegreen',
+                        borderRadius: 10,
+                      }}
+                      onPress={async () => {
+                        let fileName = prescriptionId.split('/').pop();
+                        //console.log(fileName);
+                        await RNFS.copyFile(
+                          prescriptionId,
+                          `file://${RNFS.DownloadDirectoryPath}/` + fileName,
+                        );
+                        Alert.alert(
+                          'Downloaded',
+                          `Prescription has been downloaded under the name of:- ${fileName}`,
+                        );
+                      }}
+                    />
+                  </View>
                 </View>
               </View>
             </View>

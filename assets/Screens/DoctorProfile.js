@@ -288,7 +288,7 @@ function BasicDesign({navigation}) {
               <TouchableOpacity
                 style={styles.whiteBoxRow}
                 onPress={() => {
-                  navigation.navigate('MyUpcomingAppointment');
+                  navigation.navigate('DoctorHome');
                 }}>
                 <View style={{flex: 0.3}}>
                   <Image source={appointment} style={styles.whiteBoxRowIcon} />

@@ -1187,9 +1187,9 @@ const EditProfile = ({navigation}) => {
             {/* End Date */}
             <View style={styles.cellStyle}>
               <Text style={styles.cellText}>
-                {dayjs(Exp.endDate).isValid()
+                {dayjs(Exp.endDate).isValid() && Exp.endDate != null
                   ? dayjs(Exp.endDate).format('DD-MM-YYYY')
-                  : 'DD-MM-YYYY'}
+                  : '-'}
               </Text>
             </View>
             {/* Total Experience */}

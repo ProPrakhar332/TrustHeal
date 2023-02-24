@@ -28,6 +28,44 @@ import defaultDoctor from '../Resources/doctor3x.png';
 import defaultDoctor_female from '../Resources/doctor_female.png';
 
 function DoctorBasicDetails({DocDet}) {
+  // const[favDocList,setfavDocList]=useState(null);
+  // const [isFav,setisFav] = useState(false);
+
+  // useEffect(() => {
+  //   const getFavDoctor = async () => {
+
+  //     let x = JSON.parse(await AsyncStorage.getItem('UserPatientProfile'));
+
+  //     //setisLoading(true);
+  //     axios
+  //       .get(apiConfig.baseUrl + '/patient/favourite/doctor?patientId='x.patientId);
+  //       .then(function (response) {
+  //         console.log(
+  //           '\n=========================== FAVOURITE DOCTORS ====================================\n',
+  //         );
+  //         console.log(response.data);
+  //         if (response.status == 200) {
+  //          // setisLoading(false);
+  //           //setdoctorDataList(response.data);
+  //           setfavDocList(response.data);
+
+  //           response.data.forEach(element => {
+  //             if(element.doctorId == DocDet.doctorId)
+  //             setisFav(true);
+  //           });
+
+  //         }
+  //       })
+  //       .catch(error => {
+  //         //setisLoading(false);
+  //         Alert.alert('Error Favourite', `${error}`);
+  //       });
+  //     //setisLoading(false);
+  //   };
+
+  //   getFavDoctor();
+  // }, []);
+
   return (
     <View style={{marginVertical: 10, alignSelf: 'center'}}>
       <View

@@ -183,7 +183,10 @@ const DoctorHome = ({navigation}) => {
           //   `The file is downloaded. File name is ${fileName}.`,
           // );
           setprescriptionId(filePath + fileName);
-        } else
+          setPrescriptionModal(true);
+        } else if (response.statusCode == 204)
+          Alert.alert('Sorry', 'The file does not exist');
+        else
           Alert.alert(
             'Download Fail',
             `Unable to download file. ${response.statusCode}`,
@@ -239,12 +242,20 @@ const DoctorHome = ({navigation}) => {
           }}>
           <View styles={{flex: 0.5}}>
             <Image
-              source={item.paymentStatus != 'PRE_PAID' ? payonclinic : prepaid}
+              source={
+                item.paymentStatus != 'PRE_PAID' &&
+                item.paymentStatus != 'SPECIAL_USER'
+                  ? payonclinic
+                  : prepaid
+              }
               style={{
                 width: 30,
                 height: 30,
                 tintColor:
-                  item.paymentStatus != 'PRE_PAID' ? '#2b8ada' : '#51e80c',
+                  item.paymentStatus != 'PRE_PAID' &&
+                  item.paymentStatus != 'SPECIAL_USER'
+                    ? '#2b8ada'
+                    : '#51e80c',
                 marginLeft: 10,
               }}
             />
@@ -315,7 +326,10 @@ const DoctorHome = ({navigation}) => {
             }}
           />
           <View
-            style={{flexDirection: 'column', justifyContent: 'space-around'}}>
+            style={{
+              flexDirection: 'column',
+              justifyContent: 'space-around',
+            }}>
             <Text
               style={{
                 flexDirection: 'row',
@@ -400,12 +414,16 @@ const DoctorHome = ({navigation}) => {
                 <View
                   style={{
                     flexDirection: 'column',
-                    width: '20%',
+                    flex: 0.2,
                     marginRight: '5%',
                   }}>
                   <Text style={styles.cardText}>Symtoms</Text>
                 </View>
-                <View style={{flexDirection: 'column', width: '60%'}}>
+                <View
+                  style={{
+                    flexDirection: 'column',
+                    flex: 0.6,
+                  }}>
                   <Text style={styles.cardText}>{item.symptoms}</Text>
                 </View>
               </View>
@@ -436,8 +454,9 @@ const DoctorHome = ({navigation}) => {
               </View>
               <View style={{flexDirection: 'column', width: '60%'}}>
                 <Text style={styles.cardText}>
-                  {dayjs(item.slotTime).format('HH:mm')}{' '}
-                  {dayextractor(item.slotDate)}
+                  {timeformatter(item.slotStartTime)}
+                  {' | '}
+                  {dayjs(item.slotDate).format('DD MMM, YYYY')}
                 </Text>
               </View>
             </View>
@@ -500,6 +519,10 @@ const DoctorHome = ({navigation}) => {
                 borderWidth: 1,
                 borderColor: '#2B8ADA',
                 borderRadius: 5,
+              }}
+              onPress={async () => {
+                await onPressPrescription(item);
+                navigation.navigate('CheifComplaints');
               }}>
               <FAIcon
                 name="hospital"
@@ -547,7 +570,7 @@ const DoctorHome = ({navigation}) => {
               borderColor: 'gray',
               borderRadius: 5,
             }}
-            onPress={() => {
+            onPress={async () => {
               settodayId(item.consultationId);
               setTodaysModal(true);
             }}>
@@ -573,10 +596,8 @@ const DoctorHome = ({navigation}) => {
               },
             ]}
             onPress={async () => {
-              // setconsultationId(item.consultationId);
-              // await getFiles(item.consultationId);
-              // setquesAnsModal(true);
-              //setdocsModal(true);
+              settodayId(item.consultationId);
+              setConsultationQuestionnaire(true);
             }}>
             <MCIcons
               name="message-reply-text-outline"
@@ -752,8 +773,9 @@ const DoctorHome = ({navigation}) => {
               </View>
               <View style={{flexDirection: 'column', width: '60%'}}>
                 <Text style={styles.cardText}>
-                  {dayjs(item.slotTime).format('HH:mm')}{' '}
-                  {dayextractor(item.slotDate)}
+                  {timeformatter(item.slotStartTime)}
+                  {' | '}
+                  {dayjs(item.slotDate).format('DD MMM, YYYY')}
                 </Text>
               </View>
             </View>
@@ -815,7 +837,7 @@ const DoctorHome = ({navigation}) => {
             }}
             onPress={() => {
               settodayId(item.consultationId);
-              setHistoryModal(true);
+              setTodaysModal(true);
             }}>
             <FAIcon
               name="file-pdf"
@@ -850,7 +872,7 @@ const DoctorHome = ({navigation}) => {
                 doctorId,
                 item.consultationId + '_Prescription_' + item.slotDate + '.pdf',
               );
-              setPrescriptionModal(true);
+              // setPrescriptionModal(true);
               //console.log(apiConfig.baseUrl + item.prescriptionPath);
               // openURL(apiConfig.baseUrl + item.prescriptionPath);
             }}>
@@ -1025,8 +1047,9 @@ const DoctorHome = ({navigation}) => {
               </View>
               <View style={{flexDirection: 'column', width: '60%'}}>
                 <Text style={styles.cardText}>
-                  {dayjs(item.slotTime).format('HH:mm')}{' '}
-                  {dayextractor(item.slotDate)}
+                  {timeformatter(item.slotStartTime)}
+                  {' | '}
+                  {dayjs(item.slotDate).format('DD MMM, YYYY')}
                 </Text>
               </View>
             </View>
@@ -1108,7 +1131,7 @@ const DoctorHome = ({navigation}) => {
               borderColor: 'gray',
               borderRadius: 5,
             }}
-            onPress={() => {
+            onPress={async () => {
               // openURL(
               //   `${apiConfig.baseUrl}/file/download?fileToken=${item.prescriptionPath}&userId=${doctorId}`,
               // );
@@ -1118,7 +1141,6 @@ const DoctorHome = ({navigation}) => {
                 doctorId,
                 item.consultationId + '_Prescription_' + item.slotDate + '.pdf',
               );
-              setPrescriptionModal(true);
             }}>
             <FAIcon
               name="prescription"
@@ -1133,49 +1155,37 @@ const DoctorHome = ({navigation}) => {
 
   const renderQuestionAnswers = ({item}) => {
     return (
-      <View style={{width: '95%', alignSelf: 'center', marginBottom: 10}}>
-        <TouchableOpacity
-          style={[
-            styles.WhiteLabel,
-            {
-              borderWidth: 1,
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              marginBottom: 0,
-              backgroundColor: '#2B8ADA',
-            },
-          ]}>
-          <Text
-            style={[
-              {
-                fontWeight: 'bold',
-                fontSize: 14,
-                color: 'white',
-              },
-            ]}>
-            {item.question}
-          </Text>
-        </TouchableOpacity>
-        <View
+      <View
+        style={{
+          margin: 5,
+          backgroundColor: '#e8f0fe',
+          borderRadius: 10,
+        }}
+        key={item.question}>
+        <Text
           style={{
-            marginTop: -6,
             padding: 5,
-            borderWidth: 1,
-            borderTopWidth: 0,
-            width: '95%',
-            alignSelf: 'center',
-            borderBottomRightRadius: 5,
-            borderBottomLeftRadius: 5,
+            paddingHorizontal: 10,
+            backgroundColor: '#2b8ada',
+            fontSize: 13,
+            color: 'white',
+            fontWeight: 'bold',
+            borderTopRightRadius: 10,
+            borderTopLeftRadius: 10,
+            textTransform: 'capitalize',
           }}>
-          <Text
-            style={{
-              fontSize: 12,
-              padding: 5,
-              textAlign: 'justify',
-            }}>
-            {item.answers}
-          </Text>
-        </View>
+          {item.question}
+        </Text>
+        <Text
+          style={{
+            padding: 5,
+            paddingHorizontal: 10,
+            fontSize: 12,
+            color: '#2b8ada',
+            fontWeight: 'bold',
+          }}>
+          {item.answer}
+        </Text>
       </View>
     );
   };
@@ -1435,9 +1445,16 @@ const DoctorHome = ({navigation}) => {
     const getTodaysDocs = async () => {
       console.log(todayId);
       axios
-        .get(apiConfig.baseUrl + '/docs/current?consultationId=' + todayId)
+        .get(
+          apiConfig.baseUrl +
+            '/docs/current/uploaded?consultationId=' +
+            todayId,
+        )
         .then(function (response) {
-          if (response.status == 200) setTodaysDocs(response.data);
+          if (response.status == 200) {
+            setTodaysDocs(response.data.documents);
+            setPreconsultaionQuestionData(response.data.quesAns);
+          }
           //console.log(TodaysDocs);
         })
         .catch(function (error) {
@@ -1791,23 +1808,13 @@ const DoctorHome = ({navigation}) => {
                           borderRadius: 7,
                           marginVertical: 10,
                         }}>
-                        {TodaysDocs != '' ? (
+                        {TodaysDocs != '' && TodaysDocs != null ? (
                           <View style={{width: '95%', alignSelf: 'center'}}>
                             <FlatList
                               data={TodaysDocs}
                               keyExtractor={item => item.documentName}
                               renderItem={renderToday}
                               scrollEnabled={true}
-                            />
-                            <CustomButton
-                              text="Download All"
-                              textstyle={{color: 'white'}}
-                              style={{
-                                backgroundColor: '#2B8ADA',
-                                width: '95%',
-                                alignSelf: 'center',
-                                paddingVertical: 5,
-                              }}
                             />
                           </View>
                         ) : (
