@@ -237,9 +237,6 @@ function SelectSlotsE({navigation}) {
               fontSize: 12,
               color: selectedDate == item.date ? 'white' : 'black',
             },
-            selectedDate == item.date
-              ? {fontSize: 12, fontWeight: 'bold'}
-              : null,
           ]}>
           {dayjs(item.date).format('DD MMM, YYYY')}
         </Text>
@@ -249,9 +246,6 @@ function SelectSlotsE({navigation}) {
               fontSize: 12,
               color: selectedDate == item.date ? 'white' : 'black',
             },
-            selectedDate == item.date
-              ? {fontSize: 12, fontWeight: 'bold'}
-              : null,
           ]}>
           {dayjs(item.date).format('dddd')}
         </Text>
@@ -270,6 +264,7 @@ function SelectSlotsE({navigation}) {
           },
         ]}
         onPress={() => {
+          //console.log(item);
           setselectedSlotId(item.slotId);
           //setslots(item.slots);
           setSelectedSlotTime(item.startTime);
@@ -488,7 +483,10 @@ function SelectSlotsE({navigation}) {
                         'DD MMM, YYYY',
                       )}\nFrom:- ${timeformatter(time)}\nTo:-${timeformatter(
                         endtime,
-                      )}\nMode:- ${mode}`,
+                      )}\nMode:- ` +
+                      (consultationType == 'PHONE_CALL'
+                        ? `Phone Call`
+                        : `Video Call`),
                     [
                       {
                         text: 'Yes',
@@ -496,7 +494,7 @@ function SelectSlotsE({navigation}) {
                           if (isReschedule) {
                             let temp = {
                               consultationId: DocDet.consultationId,
-                              consultationType: DocDet.consultationType,
+                              consultationType: consultationType,
                               doctorEmail: DocDet.doctorEmail,
                               doctorId: DocDet.doctorId,
                               doctorName: DocDet.doctorName,
@@ -528,14 +526,18 @@ function SelectSlotsE({navigation}) {
                                     'Done',
                                     `Your appointment with ${
                                       DocDet.doctorName
-                                    } has been rescheduled to
-                                Date:- ${dayjs(selectedDate).format(
-                                  'DD MMM, YYYY',
-                                )}
-                                From:- ${timeformatter(selectedSlotTime)}
-                                To:-  ${timeformatter(selectedSlotEndTime)}
-                                Mode :- ${consultationType}
-                                `,
+                                    } has been rescheduled to\nDate:- ${dayjs(
+                                      selectedDate,
+                                    ).format(
+                                      'DD MMM, YYYY',
+                                    )}\nFrom:- ${timeformatter(
+                                      selectedSlotTime,
+                                    )}\nTo:-  ${timeformatter(
+                                      selectedSlotEndTime,
+                                    )}\nMode :- ` +
+                                      (consultationType == 'PHONE_CALL'
+                                        ? `Phone Call`
+                                        : `Video Call`),
                                   );
                                   navigation.navigate('PatientHome');
                                 }
@@ -572,7 +574,7 @@ function SelectSlotsE({navigation}) {
                           axios
                             .delete(
                               apiConfig.baseUrl +
-                                '/patient/slot/prebook/delete?consultation=E_CONSULTATION' +
+                                '/patient/slot/prebooked/delete?consultation=E_CONSULTATION' +
                                 '&slotId=' +
                                 slotId +
                                 '&userId=' +

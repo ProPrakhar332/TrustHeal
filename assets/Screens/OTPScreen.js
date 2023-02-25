@@ -1117,18 +1117,18 @@ const FirstScreen = ({route, navigation}) => {
               setModalVisible(false);
               reset();
               //console.log(response.data);
-              let x = response.data;
+              let y = response.data;
               // if (x.doctorConfigurationDTO != null) {
               //   x.isLastStepComplete = true;
               // }
 
               await AsyncStorage.setItem(
                 'UserDoctorProfile',
-                JSON.stringify(x),
+                JSON.stringify(y),
               );
 
-              if (x.profileCompleted == true && x.verified == true)
-                navigation.navigate('DoctorHome', {doctorObj: x});
+              if (y.profileCompleted == true && y.verified == true)
+                navigation.navigate('DoctorHome', {doctorObj: y});
               else navigation.navigate('DoctorRegistrationStep2');
             }
           })
@@ -1148,7 +1148,7 @@ const FirstScreen = ({route, navigation}) => {
           })
           .then(async function (response) {
             setisLoading(false);
-            console.log(response.status);
+            console.log(response.data);
             if (response.status == 200) {
               await AsyncStorage.setItem(
                 'UserPatientProfile',
@@ -1161,7 +1161,7 @@ const FirstScreen = ({route, navigation}) => {
                   `Lets get you quality and accessible health consultation`,
                 );
                 navigation.navigate('PatientHome', {
-                  patientObj: JSON.stringify(response.data),
+                  patientObj: response.data,
                 });
               } else {
                 Alert.alert(

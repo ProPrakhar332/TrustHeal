@@ -644,7 +644,7 @@ function SelectSlotsP({navigation}) {
                           axios
                             .delete(
                               apiConfig.baseUrl +
-                                '/patient/slot/prebook/delete?consultation=P_CONSULTATION' +
+                                '/patient/slot/prebooked/delete?consultation=P_CONSULTATION' +
                                 '&slotId=' +
                                 slotId +
                                 '&userId=' +

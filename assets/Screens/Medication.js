@@ -288,7 +288,6 @@ function Medication({navigation}) {
                   <View style={{marginBottom: 3}}>
                     <Text style={styles.label}>Medicine Type</Text>
                     <SelectList
-                      placeholder={medicineType}
                       labelStyles={{height: 0}}
                       setSelected={val => setmedicineType(val)}
                       data={dataType}

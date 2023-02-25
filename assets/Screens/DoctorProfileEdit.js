@@ -703,7 +703,7 @@ const EditProfile = ({navigation}) => {
 
     axios
       .post(apiConfig.baseUrl + '/doctor/generalinfo/update', mainOnj)
-      .then(function (response) {
+      .then(async function (response) {
         setisUploading(false);
         if (response.status == 200) {
           //store the changes made in details to UserDoctorProfile
@@ -715,6 +715,9 @@ const EditProfile = ({navigation}) => {
           x.email = email;
           x.profilePhotoPath = profilePhotoPath;
           x.pinCode = pinCode;
+
+          await AsyncStorage.setItem('UserDoctorProfile', JSON.stringify(x));
+
           Alert.alert(
             'Updated',
             'All changes made in Genreal Information have been updated.',

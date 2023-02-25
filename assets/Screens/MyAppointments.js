@@ -133,7 +133,7 @@ function MyAppointment({navigation}) {
     userName,
     userType,
   ) => {
-    nav.navigate('CallPage', {
+    navigation.navigate('CallPage', {
       consultationType: consultationType,
       callID: callID,
       userID: userID,

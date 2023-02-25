@@ -684,10 +684,10 @@ function PatientHome({navigation}) {
             patientDet.patientId,
         )
         .then(function (response) {
-          // console.log(
-          //   '\n=========================== UPCOMING CONSULTATIONS ====================================\n',
-          // );
-          // console.log(response.data);
+          console.log(
+            '\n=========================== UPCOMING CONSULTATIONS ====================================\n',
+          );
+          console.log(response.data);
           if (response.status == 200) setUpcomingData(response.data);
         });
     };
@@ -778,6 +778,9 @@ function PatientHome({navigation}) {
                 borderRadius: 30,
                 marginBottom: 10,
               }}
+              onPress={() => {
+                navigation.navigate('Consult');
+              }}
             />
             <CustomButton
               text="P-Consultation"
@@ -786,6 +789,9 @@ function PatientHome({navigation}) {
                 backgroundColor: '#17CC9C',
                 borderRadius: 30,
                 marginBottom: 10,
+              }}
+              onPress={() => {
+                navigation.navigate('Consult');
               }}
             />
           </View>
@@ -957,23 +963,24 @@ function PatientHome({navigation}) {
                 horizontal={true}
                 keyExtractor={item => item.doctorId}
                 renderItem={renderListOfDoctors}
-                style={{marginRight: 5}}
+                style={{marginRight: 5, flex: 1}}
               />
-              <Text
-                style={{
-                  backgroundColor: '#2b8ada',
-                  padding: 5,
-                  borderRadius: 10,
-                  color: 'white',
-                  fontSize: 12,
-                  alignSelf: 'center',
-                }}
-                onPress={() => {
-                  navigation.navigate('Consult');
-                }}>
-                More
-              </Text>
             </View>
+            <Text
+              style={{
+                flex: 1,
+                color: '#2B8ADA',
+                fontSize: 12,
+                alignSelf: 'flex-end',
+                margin: 10,
+                alignSelf: 'flex-end',
+                marginVertical: 10,
+              }}
+              onPress={() => {
+                navigation.navigate('Consult');
+              }}>
+              View All
+            </Text>
           </View>
         </ScrollView>
         {isLoading ? (

@@ -430,7 +430,7 @@ const Header = ({title, showMenu}) => {
               navigation.navigate('Profile');
             }}
           />
-          <IonIcons
+          {/* <IonIcons
             style={styles.icon}
             name="ios-location-outline"
             size={20}
@@ -438,7 +438,7 @@ const Header = ({title, showMenu}) => {
             onPress={() => {
               setLocationModal(true);
             }}
-          />
+          /> */}
 
           <FAIcon
             style={styles.icon}
@@ -451,7 +451,7 @@ const Header = ({title, showMenu}) => {
             }}
           />
 
-          <FAIcon
+          {/* <FAIcon
             style={styles.icon}
             name="bell"
             size={20}
@@ -460,7 +460,7 @@ const Header = ({title, showMenu}) => {
               console.log('Notifications');
               setNotificationModal(true);
             }}
-          />
+          /> */}
         </View>
       </View>
       {shareModal ? (

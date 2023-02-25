@@ -455,8 +455,6 @@ const DoctorHome = ({navigation}) => {
               <View style={{flexDirection: 'column', width: '60%'}}>
                 <Text style={styles.cardText}>
                   {timeformatter(item.slotStartTime)}
-                  {' | '}
-                  {dayjs(item.slotDate).format('DD MMM, YYYY')}
                 </Text>
               </View>
             </View>
@@ -572,6 +570,7 @@ const DoctorHome = ({navigation}) => {
             }}
             onPress={async () => {
               settodayId(item.consultationId);
+              await getTodaysDocs(item.consultationId);
               setTodaysModal(true);
             }}>
             <FAIcon
@@ -597,6 +596,7 @@ const DoctorHome = ({navigation}) => {
             ]}
             onPress={async () => {
               settodayId(item.consultationId);
+              await getTodaysDocs(item.consultationId);
               setConsultationQuestionnaire(true);
             }}>
             <MCIcons
@@ -835,8 +835,9 @@ const DoctorHome = ({navigation}) => {
               borderColor: 'gray',
               borderRadius: 5,
             }}
-            onPress={() => {
+            onPress={async () => {
               settodayId(item.consultationId);
+              await getTodaysDocs(item.consultationId);
               setTodaysModal(true);
             }}>
             <FAIcon
@@ -845,7 +846,7 @@ const DoctorHome = ({navigation}) => {
               size={15}
               style={{marginRight: 5}}
             />
-            <Text style={{fontSize: 13}}>History</Text>
+            <Text style={{fontSize: 13}}>Files</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={{
@@ -1109,8 +1110,10 @@ const DoctorHome = ({navigation}) => {
               borderColor: 'gray',
               borderRadius: 5,
             }}
-            onPress={() => {
+            onPress={async () => {
               settodayId(item.consultationId);
+              setpatientId(item.patientId);
+              await getTodaysDocs(item.consultationId);
               setTodaysModal(true);
             }}>
             <FAIcon
@@ -1119,7 +1122,7 @@ const DoctorHome = ({navigation}) => {
               size={15}
               style={{marginRight: 5}}
             />
-            <Text style={{fontSize: 13}}>History</Text>
+            <Text style={{fontSize: 13}}>Files</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={{
@@ -1273,6 +1276,12 @@ const DoctorHome = ({navigation}) => {
             onPress={() => {
               //console.log(apiConfig.baseUrl + item.documentPath);
               // openURL(apiConfig.baseUrl + item.documentPath);
+              downloadCache(
+                item.documentPath,
+                patientId,
+                item.documentName + '.pdf',
+              );
+              setPrescriptionModal(true);
             }}
           />
         </View>
@@ -1393,32 +1402,6 @@ const DoctorHome = ({navigation}) => {
   }, [Status]);
 
   useEffect(() => {
-    const getPreconsultationQuestions = async () => {
-      console.log(UpcomingId);
-      axios
-        .get(
-          apiConfig.baseUrl +
-            '/docs/question/answers?consultationId =' +
-            UpcomingId,
-        )
-        .then(function (response) {
-          if (response.status == 200)
-            setPreconsultaionQuestionData(response.data);
-          // console.log(PreconsultaionQuestionData);
-        })
-        .catch(function (error) {
-          Alert.alert(
-            'Error',
-            'An error occured while fetching preconsultation questions. Please try again later.',
-          );
-          console.log('=====Error in fetching preconsultation questions=====');
-          console.log(error);
-        });
-    };
-    if (ConsultationQuestionnaire == true) getPreconsultationQuestions();
-  }, [ConsultationQuestionnaire]);
-
-  useEffect(() => {
     const getHistoryDocs = async () => {
       console.log(historyId);
       axios
@@ -1441,35 +1424,60 @@ const DoctorHome = ({navigation}) => {
     if (HistoryModal == true) getHistoryDocs();
   }, [HistoryModal]);
 
-  useEffect(() => {
-    const getTodaysDocs = async () => {
-      console.log(todayId);
-      axios
-        .get(
-          apiConfig.baseUrl +
-            '/docs/current/uploaded?consultationId=' +
-            todayId,
-        )
-        .then(function (response) {
-          if (response.status == 200) {
-            setTodaysDocs(response.data.documents);
-            setPreconsultaionQuestionData(response.data.quesAns);
-          }
-          //console.log(TodaysDocs);
-        })
-        .catch(function (error) {
-          Alert.alert(
-            'Error',
-            'An error occured while fetching previous documents of patient. Please try again later.',
-          );
-          console.log(
-            '=====Error in fetching previous documents of patient=====',
-          );
-          console.log(error);
-        });
-    };
-    if (TodaysModal == true) getTodaysDocs();
-  }, [TodaysModal]);
+  // useEffect(() => {
+  //   const getTodaysDocs = async () => {
+  //     console.log(todayId);
+  //     axios
+  //       .get(
+  //         apiConfig.baseUrl +
+  //           '/docs/current/uploaded?consultationId=' +
+  //           todayId,
+  //       )
+  //       .then(function (response) {
+  //         if (response.status == 200) {
+  //           setTodaysDocs(response.data.documents);
+  //           setPreconsultaionQuestionData(response.data.quesAns);
+  //         }
+  //         //console.log(TodaysDocs);
+  //       })
+  //       .catch(function (error) {
+  //         Alert.alert(
+  //           'Error',
+  //           'An error occured while fetching previous documents of patient. Please try again later.',
+  //         );
+  //         console.log(
+  //           '=====Error in fetching previous documents of patient=====',
+  //         );
+  //         console.log(error);
+  //       });
+  //   };
+  //   if (TodaysModal == true) getTodaysDocs();
+  // }, [TodaysModal]);
+
+  const getTodaysDocs = async todayId => {
+    console.log(todayId);
+    axios
+      .get(
+        apiConfig.baseUrl + '/docs/current/uploaded?consultationId=' + todayId,
+      )
+      .then(function (response) {
+        if (response.status == 200) {
+          setTodaysDocs(response.data.documents);
+          setPreconsultaionQuestionData(response.data.quesAns);
+        }
+        //console.log(TodaysDocs);
+      })
+      .catch(function (error) {
+        Alert.alert(
+          'Error',
+          'An error occured while fetching previous documents of patient. Please try again later.',
+        );
+        console.log(
+          '=====Error in fetching previous documents of patient=====',
+        );
+        console.log(error);
+      });
+  };
 
   const onPrev = () => {
     setendCC(strtCC - 1);
@@ -1785,7 +1793,7 @@ const DoctorHome = ({navigation}) => {
                           padding: 5,
                           color: 'black',
                         }}>
-                        Today's Document
+                        Files
                       </Text>
                       <FAIcon
                         name="window-close"
@@ -2010,13 +2018,21 @@ const DoctorHome = ({navigation}) => {
                         onPress={() => setConsultationQuestionnaire(false)}
                       />
                     </View>
-                    <View style={{width: '100%', height: 200}}>
-                      <FlatList
-                        data={PreconsultaionQuestionData}
-                        keyExtractor={item => item.ques}
-                        renderItem={renderQuestionAnswers}
-                        scrollEnabled={true}
-                      />
+                    <View
+                      style={{width: '100%', minHeight: 100, maxHeight: 300}}>
+                      {PreconsultaionQuestionData != '' ||
+                      PreconsultaionQuestionData != null ? (
+                        <FlatList
+                          data={PreconsultaionQuestionData}
+                          keyExtractor={item => item.question}
+                          renderItem={renderQuestionAnswers}
+                          scrollEnabled={true}
+                        />
+                      ) : (
+                        <Text style={{justifyContent: 'center'}}>
+                          Not answered by patient
+                        </Text>
+                      )}
                     </View>
                   </View>
                 </View>
@@ -2058,7 +2074,7 @@ const DoctorHome = ({navigation}) => {
                           padding: 5,
                           color: 'black',
                         }}>
-                        Prescription
+                        Document
                       </Text>
                       <FAIcon
                         name="window-close"

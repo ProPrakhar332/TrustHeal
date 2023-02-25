@@ -383,8 +383,15 @@ function PatientProfile({navigation}) {
     if (familyModal == true) getFamily();
   }, [familyModal]);
 
-  const logout = () => {
+  const logout = async () => {
     console.log('Logging out');
+    console.log(await AsyncStorage.getAllKeys());
+    await AsyncStorage.multiRemove(await AsyncStorage.getAllKeys());
+    // await AsyncStorage.removeItem('UserPatientProfile');
+    // await AsyncStorage.removeItem('mobileNumber');
+    // await AsyncStorage.removeItem('countryName');
+    // await AsyncStorage.removeItem('viewProfile');
+    console.log(await AsyncStorage.getAllKeys());
     navigation.navigate('RoleScreen');
   };
   const renderInvoice = ({item}) => (
@@ -878,14 +885,14 @@ function PatientProfile({navigation}) {
                   <Text style={styles.whiteBoxRowText}>Invoices</Text>
                 </View>
               </TouchableOpacity> */}
-              <TouchableOpacity style={styles.whiteBoxRow} onPress={() => {}}>
+              {/* <TouchableOpacity style={styles.whiteBoxRow} onPress={() => {}}>
                 <View style={{flex: 0.3}}>
                   <Image source={notification} style={styles.whiteBoxRowIcon} />
                 </View>
                 <View style={{flex: 0.6}}>
                   <Text style={styles.whiteBoxRowText}>Notifications</Text>
                 </View>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
               <TouchableOpacity
                 style={styles.whiteBoxRow}
                 onPress={() => {

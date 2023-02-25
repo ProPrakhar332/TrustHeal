@@ -25,6 +25,7 @@ import {
 
 //icons
 import doctor from '../Resources/doctor.png';
+import doctor_female from '../Resources/doctor_female.png';
 import upload from '../Resources/upload.png';
 import waiting from '../Animations/waiting1.gif';
 import uploading from '../Animations/uploading.gif';
@@ -47,6 +48,8 @@ import {fileUpload} from '../API/apiConfig';
 import apiConfig from '../API/apiConfig';
 import {checkAlphabetOnly, checkAlphanumicOnly} from '../API/Validations';
 import {CheckBox} from 'react-native-elements';
+import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import {PermissionsAndroid} from 'react-native';
 
 const dataTitle = [
   {key: 'Dr.', value: 'Dr.'},
@@ -97,7 +100,7 @@ const DoctorRegistration2 = ({navigation}) => {
     useState(false);
   const [selectedDateFromModal, setselectedDateFromModal] =
     useState('YYYY-MM-DD');
-  const [completePercentage, setCompletePercentage] = useState('13%');
+  const [completePercentage, setCompletePercentage] = useState('10%');
 
   //General Information Field
   const [showGenInfo, setShowGenInfo] = useState(false);
@@ -115,6 +118,7 @@ const DoctorRegistration2 = ({navigation}) => {
   const [profileCompleted, setprofileCompleted] = useState(null);
   const [verified, setverified] = useState(null);
   const [mobileNumber, setmobileNumber] = useState('');
+  const [photoPath, setphotoPath] = useState(0);
 
   //Medical Registration Feild
   const [showMedReg, setShowMedReg] = useState(false);
@@ -198,6 +202,185 @@ const DoctorRegistration2 = ({navigation}) => {
   const [isLoading, setisLoading] = useState(false);
   const [isSentForValidation, setisSentForValidation] = useState(false);
   const [isUploading, setisUploading] = useState(false);
+
+  //post pfp
+  const chooseProfileImage = async () => {
+    Alert.alert(
+      'Upload Profile Picture',
+      'Select option for uploading profile picture',
+      [
+        {
+          text: 'Open Library',
+          onPress: () => {
+            launchImageLibrary({mediaType: 'photo'}, async response => {
+              console.log(response);
+              if (response.didCancel) console.log('Cancel');
+              else if (response.errorCode) {
+                Alert.alert('Error', response.errorMessage);
+              } else {
+                if (response.assets[0].fileSize <= 2097152) {
+                  await postpfp(response.assets[0]);
+                } else
+                  Alert.alert(
+                    'Max Size',
+                    'The file exceeds the maximum limit of 2MB.',
+                  );
+              }
+            });
+          },
+        },
+        {
+          text: 'Open Camera',
+          onPress: () => {
+            requestCameraPermission();
+          },
+        },
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+      ],
+    );
+  };
+
+  const requestCameraPermission = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.CAMERA,
+        {
+          title: 'App Camera Permission',
+          message: 'App needs access to your camera ',
+          buttonNeutral: 'Ask Me Later',
+          buttonNegative: 'Cancel',
+          buttonPositive: 'OK',
+        },
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        await launchcamera();
+      } else {
+        console.log('Camera permission denied');
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+
+  const launchcamera = async () => {
+    launchCamera(
+      {mediaType: 'photo', cameraType: 'front', saveToPhotos: true},
+      async response => {
+        console.log(response);
+        if (response.didCancel) console.log('Cancel');
+        else if (response.errorCode) {
+          Alert.alert('Error', response.errorMessage);
+        } else {
+          if (response.assets[0].fileSize <= 2097152) {
+            await postpfp(response.assets[0]);
+          } else
+            Alert.alert(
+              'Max Size',
+              'The file exceeds the maximum limit of 2MB.',
+            );
+        }
+      },
+    );
+  };
+  const postpfp = async pickerResult => {
+    try {
+      console.log('==============Inside post pfp==========');
+
+      let ext = '.' + pickerResult.fileName.split('.').pop();
+
+      delete pickerResult.fileName;
+      pickerResult.size = pickerResult.fileSize;
+      delete pickerResult.fileSize;
+
+      pickerResult.name = doctorId + '_ProfilePhoto' + ext;
+      console.log(pickerResult.name);
+      console.log(pickerResult);
+
+      let formData = new FormData();
+      formData.append('directoryNames', 'DOCTOR_PHOTO');
+      formData.append('file', pickerResult);
+      formData.append('userId', doctorId);
+      if (photoPath != null && photoPath != 0)
+        formData.append('fileToken', photoPath);
+      const {error, response} = await fileUpload(formData);
+
+      if (error != null) {
+        console.log('======error======');
+        console.log(error);
+        Alert.alert(
+          'Error',
+          'There was a problem in uploading profile picture. Please try again.',
+        );
+      } else {
+        console.log('======response======');
+        console.log(response.fileToken);
+        // setphotoPath(response.fileToken);
+        // let x = await AsyncStorage.getItem('UserDoctorProfile');
+        // x.photoPath = response.fileToken;
+        // await AsyncStorage.setItem('UserDoctorProfile', x);
+        await updateGenInfo(response.fileToken);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const updateGenInfo = async phototoken => {
+    setisUploading(true);
+
+    let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
+
+    let req = {
+      city: x.city,
+      contactVisibility: x.contactVisibility,
+      digialSignature: 0,
+      dob: x.dob,
+      doctorId: x.doctorId,
+      doctorName: x.doctorName,
+      email: x.email,
+      mobileNumber: x.mobileNumber,
+      pinCode: x.pinCode,
+      profilePhotoPath: phototoken,
+      whatsAppNumber: x.mobileNumber,
+    };
+
+    // let mainOnj = new Object();
+    // mainOnj.age = Number(age);
+
+    // mainOnj.city = city;
+
+    // mainOnj.contactVisibility = showMobNo;
+    // mainOnj.dob = dob;
+    // mainOnj.doctorId = doctorId;
+    // mainOnj.doctorName = title + ' ' + name;
+    // mainOnj.email = email;
+    // mainOnj.mobileNumber = x.mobileNumber;
+    // mainOnj.profilePhotoPath = phototoken;
+    // mainOnj.pinCode = PinCode;
+    console.log('General Info Update---------\n' + req);
+
+    axios
+      .post(apiConfig.baseUrl + '/doctor/generalinfo/update', req)
+      .then(async function (response) {
+        setisUploading(false);
+        if (response.status == 200) {
+          //store the changes made in details to UserDoctorProfile
+
+          x.profilePhotoPath = phototoken;
+          setphotoPath(phototoken);
+          await AsyncStorage.setItem('UserDoctorProfile', JSON.stringify(x));
+          Alert.alert('Updated', 'Profile photo has been updated.');
+          setGenInfoEdit(false);
+        } else Alert.alert('Updation Error', 'Could not Update Profile photo. Please try again later.');
+      })
+      .catch(function (error) {
+        setisUploading(false);
+        Alert.alert('Error', `An error has occured please try again. ${error}`);
+      });
+  };
 
   const handleError = err => {
     if (DocumentPicker.isCancel(err)) {
@@ -411,6 +594,7 @@ const DoctorRegistration2 = ({navigation}) => {
       setdob(x.dob);
       setAge(x.age + '');
       setPinCode(x.pincode);
+      setphotoPath(x.profilePhotoPath);
       setprofileCompleted(x.profileCompleted);
       setverified(x.verified);
       setmobileNumber(x.mobileNumber);
@@ -599,10 +783,11 @@ const DoctorRegistration2 = ({navigation}) => {
       if (dataSavedAddInfo) ++c;
       if (dataSavedPreConsultationQuestionaire) ++c;
       if (dataSavedConsultFees) ++c;
+      if (photoPath != null || photoPath != 0) ++c;
 
-      setCompletePercentage(parseInt((c / 8) * 100).toString() + '%');
+      setCompletePercentage(parseInt((c / 9) * 100).toString() + '%');
 
-      if (c == 8 && profileCompleted == false) {
+      if (c == 9 && profileCompleted == false) {
         setisSentForValidation(true);
         // Please wait we are processing your profile for verification
         axios
@@ -621,6 +806,7 @@ const DoctorRegistration2 = ({navigation}) => {
                 'Your profile has been sent for verification',
               );
               setprofileCompleted(true);
+              await AsyncStorage.removeItem(doctorId + 'speciality');
               let x = JSON.parse(
                 await AsyncStorage.getItem('UserDoctorProfile'),
               );
@@ -1466,18 +1652,52 @@ const DoctorRegistration2 = ({navigation}) => {
                 alignSelf: 'center',
                 marginVertical: 20,
               }}>
-              <Image
-                style={{
-                  alignSelf: 'center',
-                  width: 75,
-                  height: 75,
-                  marginVertical: 5,
-                  width: 100,
-                  height: 100,
-                  borderRadius: 100,
-                }}
-                source={doctor}></Image>
+              {photoPath == null || photoPath == 0 ? (
+                <Image
+                  style={{
+                    alignSelf: 'center',
+                    width: 75,
+                    height: 75,
+                    width: 100,
+                    height: 100,
+                    borderRadius: 100,
+                  }}
+                  source={gender == 'Male' ? doctor : doctor_female}></Image>
+              ) : (
+                <Image
+                  style={{
+                    alignSelf: 'center',
+                    width: 75,
+                    height: 75,
+                    width: 100,
+                    height: 100,
+                    borderRadius: 100,
+                  }}
+                  source={{
+                    uri: `${apiConfig.baseUrl}/file/download?fileToken=${photoPath}&userId=${doctorId}`,
+                  }}></Image>
+              )}
+              <TouchableOpacity onPress={chooseProfileImage}>
+                <FAIcon
+                  name="camera"
+                  size={20}
+                  color={'white'}
+                  style={{
+                    top: -25,
+                    right: -30,
+                    padding: 10,
+                    backgroundColor: 'gray',
+                    borderRadius: 100,
+                    alignSelf: 'center',
+                  }}
+                />
+              </TouchableOpacity>
             </View>
+            {photoPath == null || photoPath == 0 ? (
+              <Text style={{fontSize: 12, alignSelf: 'center'}}>
+                Please add Profile photo to complete your profile
+              </Text>
+            ) : null}
           </View>
 
           {/* Profile Messages */}
@@ -4344,6 +4564,27 @@ const DoctorRegistration2 = ({navigation}) => {
                   navigation.navigate('DoctorHome');
                 }}></CustomButton>
             </View> */}
+
+            <CustomButton
+              text={'Logout'}
+              textstyle={{
+                color: '#2b8ada',
+                fontSize: 15,
+                fontWeight: 'bold',
+              }}
+              style={{
+                borderColor: '#2b8ada',
+                borderWidth: 1,
+                flex: 0.45,
+                marginVertical: 20,
+                padding: 10,
+                borderRadius: 10,
+              }}
+              onPress={async () => {
+                await AsyncStorage.multiRemove(await AsyncStorage.getAllKeys());
+                navigation.navigate('RoleScreen');
+              }}
+            />
           </View>
         </ScrollView>
 

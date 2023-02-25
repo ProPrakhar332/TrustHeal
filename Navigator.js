@@ -341,10 +341,7 @@ function DoctorTabNavigator() {
 const logoutAction = async props => {
   console.log('Logging out');
   console.log(await AsyncStorage.getAllKeys());
-  await AsyncStorage.removeItem('UserDoctorProfile');
-  await AsyncStorage.removeItem('mobileNumber');
-  await AsyncStorage.removeItem('countryName');
-  await AsyncStorage.removeItem('age');
+  await AsyncStorage.multiRemove(await AsyncStorage.getAllKeys());
   console.log(await AsyncStorage.getAllKeys());
   props.navigation.navigate('RoleScreen');
 };

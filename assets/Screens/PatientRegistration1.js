@@ -812,7 +812,7 @@ const PatientRegistration1 = ({navigation}) => {
                     );
                 }
               }}></CustomButton>
-            <CustomButton
+            {/* <CustomButton
               text="Skip"
               textstyle={{
                 color: '#2b8ada',
@@ -830,7 +830,7 @@ const PatientRegistration1 = ({navigation}) => {
               }}
               onPress={() => {
                 navigation.push('PatientHome');
-              }}></CustomButton>
+              }}></CustomButton> */}
           </View>
         </ScrollView>
         {isLoading && (

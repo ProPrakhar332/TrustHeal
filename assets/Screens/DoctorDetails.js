@@ -1923,7 +1923,7 @@ function DoctorDetails({navigation}) {
                           axios
                             .delete(
                               apiConfig.baseUrl +
-                                '/patient/slot/prebook/delete?consultation=' +
+                                '/patient/slot/prebooked/delete?consultation=' +
                                 mode +
                                 '&slotId=' +
                                 slotId +

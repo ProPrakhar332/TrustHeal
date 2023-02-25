@@ -156,35 +156,52 @@ const DoctorRegistrationStep1 = ({navigation}) => {
       );
     else {
       setisLoading(true);
-      let docObj = new Object();
-      //phone ip
-      DeviceInfo.getIpAddress().then(ip => {
-        docObj.phoneIp = ip;
-      });
+      // let docObj = new Object();
 
-      docObj.age = parseInt(await AsyncStorage.getItem('age'));
-      docObj.city = city;
-      docObj.contactVisibility = showMobNo == 'Yes' ? true : false;
-      docObj.createdOn = dayjs().format('YYYY-MM-DD');
-      docObj.countryName = await AsyncStorage.getItem('countryName');
-      docObj.digitalSignature = 0;
-      docObj.dob = dob;
-      docObj.email = email;
-      docObj.fullName = title + ' ' + name;
-      docObj.gender = gender;
-      docObj.mobileNumber = mobile;
-      docObj.pincode = PIN;
-      docObj.profilephoto = 0;
-      docObj.termsAndCondition = checkTerms;
-      console.log(JSON.stringify(docObj));
+      // docObj.age = parseInt(await AsyncStorage.getItem('age'));
+      // docObj.city = city;
+      // docObj.contactVisibility = showMobNo == 'Yes' ? true : false;
+      // docObj.createdOn = dayjs().format('YYYY-MM-DD');
+      // (docObj.countryName = 'India'), (docObj.digitalSignature = 0);
+      // docObj.dob = dob;
+      // docObj.email = email;
+      // docObj.fullName = title + ' ' + name;
+      // docObj.gender = gender;
+      // docObj.location = 'DONT_ALLOW';
+      // docObj.mobileNumber = mobile;
+      // docObj.pinCode = PIN;
+      // docObj.profilephoto = 0;
+      // docObj.termsAndCondition = checkTerms;
+      // console.log(JSON.stringify(docObj));
 
       if (Otherspeciality != '') speciality.push(Otherspeciality);
 
-      console.log('===============Doctor Object====================\n', docObj);
+      let req = {
+        age: parseInt(await AsyncStorage.getItem('age')),
+        city: city,
+        contactVisibility: showMobNo == 'Yes' ? true : false,
+        countryName: 'India',
+        createdOn: dayjs().format('YYYY-MM-DD'),
+        digitalSignature: 0,
+        dob: dob,
+        email: email,
+        fullName: title + ' ' + name,
+        gender: gender,
+        location: 'DONT_ALLOW',
+        mobileNumber: mobile,
+        pinCode: PIN,
+        profilephoto: 0,
+        termsAndCondition: checkTerms,
+      };
+      //phone ip
+      DeviceInfo.getIpAddress().then(ip => {
+        req.phoneIp = ip;
+      });
+      console.log('===============Doctor Object====================\n', req);
 
       let flag = 0;
       await axios
-        .post(apiConfig.baseUrl + '/doctor/generalinfo/save', docObj)
+        .post(apiConfig.baseUrl + '/doctor/generalinfo/save', req)
         .then(async function (response) {
           //set is loading
           setisLoading(false);
@@ -695,6 +712,11 @@ const DoctorRegistrationStep1 = ({navigation}) => {
               style={{
                 alignSelf: 'center',
                 flexDirection: 'row',
+                justifyContent: 'space-evenly',
+                width: '95%',
+
+                marginBottom: 50,
+                marginVertical: 10,
               }}>
               <CustomButton
                 text="Proceed for Next"
@@ -705,22 +727,22 @@ const DoctorRegistrationStep1 = ({navigation}) => {
                 }}
                 style={{
                   backgroundColor: '#2b8ada',
-                  flex: 1,
-                  marginBottom: 50,
-                  marginVertical: 10,
+                  flex: 0.45,
+
                   padding: 10,
                   borderRadius: 10,
                 }}
                 onPress={async () => {
                   if (
-                    email === '' ||
-                    name === '' ||
-                    gender === '' ||
-                    speciality === '' ||
-                    Language === '' ||
-                    PIN === '' ||
-                    title === '' ||
-                    dob === ''
+                    email == '' ||
+                    name == '' ||
+                    gender == '' ||
+                    speciality == '' ||
+                    Language == '' ||
+                    PIN == '' ||
+                    title == '' ||
+                    dob == '' ||
+                    city == ''
                   )
                     Alert.alert(
                       'Profile Incomplete',
@@ -739,6 +761,28 @@ const DoctorRegistrationStep1 = ({navigation}) => {
                       );
                   }
                 }}></CustomButton>
+              <CustomButton
+                text={'Back'}
+                textstyle={{
+                  color: '#2b8ada',
+                  fontSize: 15,
+                  fontWeight: 'bold',
+                }}
+                style={{
+                  borderColor: '#2b8ada',
+                  borderWidth: 1,
+                  flex: 0.45,
+
+                  padding: 10,
+                  borderRadius: 10,
+                }}
+                onPress={async () => {
+                  await AsyncStorage.multiRemove(
+                    await AsyncStorage.getAllKeys(),
+                  );
+                  navigation.goBack();
+                }}
+              />
 
               {termsView ? (
                 <Modal

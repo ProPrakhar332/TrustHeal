@@ -275,6 +275,7 @@ function PreConsult({navigation}) {
       const pickerResult = await DocumentPicker.pickSingle({
         presentationStyle: 'fullScreen',
         copyTo: 'cachesDirectory',
+        type: types.pdf,
       });
 
       if (pickerResult.size > 2097152)
@@ -430,7 +431,8 @@ function PreConsult({navigation}) {
   };
 
   const uploadAnswers = async () => {
-    let p = QuestionList;
+    let p = [];
+    p = [...p, QuestionList];
 
     p.forEach(element => {
       delete element.question;

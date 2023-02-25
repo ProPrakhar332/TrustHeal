@@ -239,12 +239,12 @@ const Header = ({title, showMenu}) => {
               <Image style={styles.icon} source={heart} color="white" />
             </TouchableOpacity>
 
-            <TouchableOpacity
+            {/* <TouchableOpacity
               onPress={() => {
                 setLocationModal(true);
               }}>
               <Image style={styles.icon} source={location} color="white" />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             <TouchableOpacity
               onPress={() => {
                 console.log('Share');
@@ -252,13 +252,13 @@ const Header = ({title, showMenu}) => {
               }}>
               <Image style={styles.icon} source={sharing} />
             </TouchableOpacity>
-            <TouchableOpacity
+            {/* <TouchableOpacity
               onPress={() => {
                 console.log('Notifications');
                 setNotificationModal(true);
               }}>
               <Image style={styles.icon} source={bell} color="white" />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
         </View>
       ) : null}

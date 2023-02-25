@@ -167,11 +167,6 @@ function ConfirmBoking({navigation}) {
     const backAction = () => {
       Alert.alert('Hold on!', 'Are you sure you want to go back?', [
         {
-          text: 'Cancel',
-          onPress: () => null,
-          style: 'cancel',
-        },
-        {
           text: 'YES',
           onPress: async () => {
             let x = JSON.parse(
@@ -184,7 +179,7 @@ function ConfirmBoking({navigation}) {
             await axios
               .delete(
                 apiConfig.baseUrl +
-                  '/patient/slot/prebook/delete?consultation=' +
+                  '/patient/slot/prebooked/delete?consultation=' +
                   mode +
                   '&slotId=' +
                   x.slotId +
@@ -200,6 +195,11 @@ function ConfirmBoking({navigation}) {
                 Alert.alert('Error', `Error in Delete PreBook:-\n ${error}`);
               });
           },
+        },
+        {
+          text: 'Cancel',
+          onPress: () => null,
+          style: 'cancel',
         },
       ]);
       return true;
@@ -810,12 +810,12 @@ function ConfirmBoking({navigation}) {
                       marginBottom: 10,
                       paddingHorizontal: 15,
                     }}
-                    maxLength={50}
+                    maxLength={250}
                     onChangeText={text => setsymptoms(text)}
                     value={symptoms}
                   />
                   <Text style={{fontSize: 12, color: 'black'}}>
-                    Characters {symptoms.length}/50
+                    Characters {symptoms.length}/250
                   </Text>
                 </View>
               </View>
@@ -823,36 +823,38 @@ function ConfirmBoking({navigation}) {
           ) : null}
 
           {/* CheckBox */}
-          <View style={{width: '95%', alignSelf: 'center'}}>
-            <CheckBox
-              title={
-                <Text style={{fontSize: 12, fontWeight: 'bold'}}>
-                  I agree to Aarogya{' '}
-                  <Text
-                    style={[styles.textLink]}
-                    onPress={() => {
-                      viewTermsConditions();
-                    }}>
-                    Terms and Conditions
-                  </Text>{' '}
-                  and{' '}
-                  <Text
-                    style={[styles.textLink]}
-                    onPress={() => {
-                      viewPrivacyPolicy();
-                    }}>
-                    Privacy Policy
+          {!paymentDone ? (
+            <View style={{width: '95%', alignSelf: 'center'}}>
+              <CheckBox
+                title={
+                  <Text style={{fontSize: 12, fontWeight: 'bold'}}>
+                    I agree to Aarogya{' '}
+                    <Text
+                      style={[styles.textLink]}
+                      onPress={() => {
+                        viewTermsConditions();
+                      }}>
+                      Terms and Conditions
+                    </Text>{' '}
+                    and{' '}
+                    <Text
+                      style={[styles.textLink]}
+                      onPress={() => {
+                        viewPrivacyPolicy();
+                      }}>
+                      Privacy Policy
+                    </Text>
                   </Text>
-                </Text>
-              }
-              containerStyle={styles.containerStyle}
-              textStyle={{width: '90%', fontSize: 11, alignSelf: 'center'}}
-              checkedColor={'#2b8ada'}
-              checked={privatePolicy}
-              iconType={''}
-              onPress={() => setprivatePolicy(!privatePolicy)}
-            />
-          </View>
+                }
+                containerStyle={styles.containerStyle}
+                textStyle={{width: '90%', fontSize: 11, alignSelf: 'center'}}
+                checkedColor={'#2b8ada'}
+                checked={privatePolicy}
+                iconType={''}
+                onPress={() => setprivatePolicy(!privatePolicy)}
+              />
+            </View>
+          ) : null}
           {!paymentDone ? (
             <CustomButton
               text={'Proceed to Payment'}
@@ -877,57 +879,75 @@ function ConfirmBoking({navigation}) {
             <CustomButton
               text={'Book Appointment'}
               textstyle={{color: 'white', fontSize: 13}}
-              style={{
-                backgroundColor: 'limegreen',
-                width: '90%',
-                alignSelf: 'center',
-                borderRadius: 10,
-              }}
+              style={[
+                {
+                  backgroundColor: 'limegreen',
+                  width: '90%',
+                  alignSelf: 'center',
+                  borderRadius: 10,
+                },
+                paymentDone ? {marginBottom: 20} : null,
+              ]}
               onPress={async () => {
                 // await paymentOrderCreate();
-                await bookConsultation();
+                if (symptoms == '')
+                  Alert.alert(
+                    'Incomplete Details',
+                    'Please fill in symptoms before booking',
+                  );
+                else if (privatePolicy == false)
+                  Alert.alert(
+                    'Terms and Condition',
+                    'Please agree to T&C and Privacy Policy',
+                  );
+                else await bookConsultation();
               }}
             />
           )}
-          <CustomButton
-            text={'Cancel'}
-            textstyle={{color: '#2b8ada', fontSize: 13, formWeight: 'bold'}}
-            style={{
-              borderColor: '#2b8ada',
-              borderWidth: 2,
-              width: '90%',
-              alignSelf: 'center',
-              borderRadius: 10,
-              marginVertical: 15,
-            }}
-            onPress={async () => {
-              let mode =
-                PrevPageData.consultationType == 'PHYSICAL'
-                  ? 'P_CONSULTATION'
-                  : 'E_CONSULTATION';
+          {!paymentDone ? (
+            <CustomButton
+              text={'Cancel'}
+              textstyle={{color: '#2b8ada', fontSize: 13, formWeight: 'bold'}}
+              style={{
+                borderColor: '#2b8ada',
+                borderWidth: 2,
+                width: '90%',
+                alignSelf: 'center',
+                borderRadius: 10,
+                marginVertical: 15,
+              }}
+              onPress={async () => {
+                let mode =
+                  PrevPageData.consultationType == 'PHYSICAL'
+                    ? 'P_CONSULTATION'
+                    : 'E_CONSULTATION';
 
-              await axios
-                .delete(
-                  apiConfig.baseUrl +
-                    '/patient/slot/prebook/delete?consultation=' +
-                    mode +
-                    '&slotId=' +
-                    PrevPageData.slotId +
-                    '&userId=' +
-                    patientDet.patientId,
-                )
-                .then(response => {
-                  if (response.status == 200) {
-                    navigation.goBack();
-                  }
-                })
-                .catch(error => {
-                  Alert.alert('Error', `Error in Delete PreBook:-\n ${error}`);
-                });
-            }}
-          />
+                await axios
+                  .delete(
+                    apiConfig.baseUrl +
+                      '/patient/slot/prebooked/delete?consultation=' +
+                      mode +
+                      '&slotId=' +
+                      PrevPageData.slotId +
+                      '&userId=' +
+                      patientDet.patientId,
+                  )
+                  .then(response => {
+                    if (response.status == 200) {
+                      navigation.goBack();
+                    }
+                  })
+                  .catch(error => {
+                    Alert.alert(
+                      'Error',
+                      `Error in Delete PreBook:-\n ${error}`,
+                    );
+                  });
+              }}
+            />
+          ) : null}
 
-          <CustomButton
+          {/* <CustomButton
             text={'Cache Keys'}
             textstyle={{color: 'white', fontSize: 13}}
             style={{
@@ -939,7 +959,7 @@ function ConfirmBoking({navigation}) {
             onPress={async () => {
               console.log(await AsyncStorage.getAllKeys());
             }}
-          />
+          /> */}
         </ScrollView>
       </SafeAreaView>
     </KeyboardAvoidingView>
