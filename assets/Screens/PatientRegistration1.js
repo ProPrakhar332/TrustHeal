@@ -145,25 +145,29 @@ const PatientRegistration1 = ({navigation}) => {
     let p = {
       age: age,
       allowWhatsAppNotification: false,
-      bloodGroup: BloodGroup,
+      //bloodGroup: BloodGroup,
       city: city,
       dob: dayjs(dob).format('YYYY-MM-DD'),
       email: email,
       gender: gender,
-      height: Height,
+      //height: Height,
       locationPermissions: 'DONT_ALLOW',
       mobileNumber: mobno,
-      occupation: Occupation,
+      //occupation: Occupation,
       patientPhoto: 0,
       patientName: title + ' ' + name,
       pincode: pincode,
       termsAndConditions: true,
-      weight: Weight,
+      //weight: Weight,
       whatsAppNumber: 'string',
     };
     DeviceInfo.getIpAddress().then(ip => {
       p.phoneIp = ip;
     });
+    if (BloodGroup != '') p.bloodGroup = BloodGroup;
+    if (Occupation != '') p.occupation = Occupation;
+    if (Weight != '') p.weight = Weight;
+    if (Height != '') p.height = Height;
 
     let flag = 0;
     let patient = null;
