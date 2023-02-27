@@ -75,56 +75,54 @@ function MyAppointment({navigation}) {
   }, []);
 
   useEffect(() => {
-    const getUpcoming = async () => {
-      axios
-        .get(
-          apiConfig.baseUrl +
-            '/patient/upcoming/consultations?patientId=' +
-            patientDet.patientId,
-        )
-        .then(function (response) {
-          // console.log(
-          //   '\n=========================== UPCOMING CONSULTATIONS ====================================\n',
-          // );
-          // console.log(response.data);
-          if (response.status == 200) {
-            setUpcomingData(response.data);
-            //setUpcomingData(UpcomingServiceResponse);
-          }
-        })
-        .catch(error => {
-          Alert.alert('Error Upcoming', `${error}`);
-        });
-    };
-
-    if (upcomingActive == true && patientDet != null) getUpcoming();
-  }, [patientDet, upcomingActive]);
+    if (patientDet != null) getUpcoming();
+  }, [patientDet]);
+  const getUpcoming = async () => {
+    axios
+      .get(
+        apiConfig.baseUrl +
+          '/patient/upcoming/consultations?patientId=' +
+          patientDet.patientId,
+      )
+      .then(function (response) {
+        // console.log(
+        //   '\n=========================== UPCOMING CONSULTATIONS ====================================\n',
+        // );
+        // console.log(response.data);
+        if (response.status == 200) {
+          setUpcomingData(response.data);
+          //setUpcomingData(UpcomingServiceResponse);
+        }
+      })
+      .catch(error => {
+        Alert.alert('Error Upcoming', `${error}`);
+      });
+  };
 
   useEffect(() => {
-    const getCompleted = async () => {
-      axios
-        .get(
-          apiConfig.baseUrl +
-            '/patient/complete/consultations?max=5&min=0&patientId=' +
-            patientDet.patientId,
-        )
-        .then(function (response) {
-          // console.log(
-          //   '\n=========================== COMPLETED CONSULTATIONS ====================================\n',
-          // );
-          // console.log(response.data);
-          if (response.status == 200) {
-            setCompletedData(response.data);
-            //setCompletedData(CompletedServiceResponse);
-          }
-        })
-        .catch(error => {
-          Alert.alert('Error Completed', `${error}`);
-        });
-    };
-
-    if (completedActive == true) getCompleted();
-  }, [completedActive]);
+    if (patientDet != null) getCompleted();
+  }, [patientDet]);
+  const getCompleted = async () => {
+    axios
+      .get(
+        apiConfig.baseUrl +
+          '/patient/complete/consultations?max=5&min=0&patientId=' +
+          patientDet.patientId,
+      )
+      .then(function (response) {
+        // console.log(
+        //   '\n=========================== COMPLETED CONSULTATIONS ====================================\n',
+        // );
+        // console.log(response.data);
+        if (response.status == 200) {
+          setCompletedData(response.data);
+          //setCompletedData(CompletedServiceResponse);
+        }
+      })
+      .catch(error => {
+        Alert.alert('Error Completed', `${error}`);
+      });
+  };
 
   const onJoinPress = (
     consultationType,
@@ -532,6 +530,7 @@ function MyAppointment({navigation}) {
               flexDirection: 'column',
               alignSelf: 'center',
               margin: 5,
+              marginRight: 10,
               flex: 0.3,
             }}
             onPress={async () => {
@@ -913,6 +912,21 @@ function MyAppointment({navigation}) {
           </View>
           {upcomingActive ? (
             <View style={{alignSelf: 'center', width: '90%'}}>
+              <TouchableOpacity
+                style={{
+                  flexDirection: 'row',
+                  padding: 5,
+                  paddingHorizontal: 10,
+                }}
+                onPress={getUpcoming}>
+                <FAIcons
+                  name="redo-alt"
+                  size={12}
+                  style={{alignSelf: 'center', marginRight: 5}}
+                  color={'#2b8ada'}
+                />
+                <Text style={{color: '#2b8ada', fontSize: 12}}>Refresh</Text>
+              </TouchableOpacity>
               {UpcomingData != '' ? (
                 <FlatList
                   data={UpcomingData}
@@ -927,6 +941,21 @@ function MyAppointment({navigation}) {
             </View>
           ) : (
             <View style={{alignSelf: 'center', width: '90%'}}>
+              <TouchableOpacity
+                style={{
+                  flexDirection: 'row',
+                  padding: 5,
+                  paddingHorizontal: 10,
+                }}
+                onPress={getCompleted}>
+                <FAIcons
+                  name="redo-alt"
+                  size={12}
+                  style={{alignSelf: 'center', marginRight: 5}}
+                  color={'#2b8ada'}
+                />
+                <Text style={{color: '#2b8ada', fontSize: 12}}>Refresh</Text>
+              </TouchableOpacity>
               {CompletedData != '' ? (
                 <FlatList
                   data={CompletedData}

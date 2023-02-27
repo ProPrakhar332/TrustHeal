@@ -823,7 +823,7 @@ function ConfirmBoking({navigation}) {
           ) : null}
 
           {/* CheckBox */}
-          {!paymentDone ? (
+          {paymentDone ? (
             <View style={{width: '95%', alignSelf: 'center'}}>
               <CheckBox
                 title={

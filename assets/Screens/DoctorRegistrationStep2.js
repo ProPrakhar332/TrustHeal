@@ -333,13 +333,15 @@ const DoctorRegistration2 = ({navigation}) => {
 
     let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
 
+    //console.log('=================CACHE RESPONSE==================\n', x);
+
     let req = {
       city: x.city,
       contactVisibility: x.contactVisibility,
       digialSignature: 0,
       dob: x.dob,
       doctorId: x.doctorId,
-      doctorName: x.doctorName,
+      doctorName: x.doctorName != null ? x.doctorName : x.fullName,
       email: x.email,
       mobileNumber: x.mobileNumber,
       pinCode: x.pinCode,
@@ -360,7 +362,7 @@ const DoctorRegistration2 = ({navigation}) => {
     // mainOnj.mobileNumber = x.mobileNumber;
     // mainOnj.profilePhotoPath = phototoken;
     // mainOnj.pinCode = PinCode;
-    console.log('General Info Update---------\n' + req);
+    // console.log('General Info Update---------\n' + req);
 
     axios
       .post(apiConfig.baseUrl + '/doctor/generalinfo/update', req)
@@ -842,6 +844,7 @@ const DoctorRegistration2 = ({navigation}) => {
     dataSavedAddInfo,
     dataSavedPreConsultationQuestionaire,
     dataSavedConsultFees,
+    photoPath,
   ]);
 
   //view list of details
@@ -3924,11 +3927,11 @@ const DoctorRegistration2 = ({navigation}) => {
                             <View style={[styles.cellHeading, {flex: 0.3}]}>
                               <Text style={styles.cellHeadingText}>S.No.</Text>
                             </View>
-                            <View style={styles.cellHeading}>
+                            {/* <View style={styles.cellHeading}>
                               <Text style={styles.cellHeadingText}>
                                 Speciality
                               </Text>
-                            </View>
+                            </View> */}
                             <View style={styles.cellHeading}>
                               <Text style={styles.cellHeadingText}>
                                 Question

@@ -990,7 +990,7 @@ const FirstScreen = ({route, navigation}) => {
   const pin3Ref = useRef(null);
   const pin4Ref = useRef(null);
   const [show, setShow] = useState(false);
-  const [val, setVal] = useState(240);
+  const [val, setVal] = useState(30);
   const [resend, setResend] = useState(false);
 
   const [pin1, setPin1] = useState('');

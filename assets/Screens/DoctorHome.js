@@ -235,12 +235,16 @@ const DoctorHome = ({navigation}) => {
       >
         <View
           style={{
+            flex: 1,
             flexDirection: 'row',
             marginTop: 10,
             paddingHorizontal: 10,
             justifyContent: 'space-between',
           }}>
-          <View styles={{flex: 0.5}}>
+          <View
+            styles={{
+              flex: 0.45,
+            }}>
             <Image
               source={
                 item.paymentStatus != 'PRE_PAID' &&
@@ -263,18 +267,38 @@ const DoctorHome = ({navigation}) => {
           <View
             style={{
               flexDirection: 'row',
-              flex: 0.5,
-              alignSelf: 'flex-end',
+              flex: 0.45,
+              justifyContent: 'flex-end',
             }}>
-            {/* <FAIcon
+            <FAIcon
               name="prescription"
-              size={20}
-              style={{marginHorizontal: 5, alignSelf: 'center'}}
+              size={25}
+              style={{alignSelf: 'center'}}
               onPress={() => {
-                onPressPrescription(item);
+                Alert.alert(
+                  'Create Prescription',
+                  `Do you want to create prescription for ` +
+                    (item.familyUserName == null
+                      ? item.patientName
+                      : item.familyUserName) +
+                    ` right now?`,
+                  [
+                    {
+                      text: 'Yes',
+                      onPress: () => {
+                        onPressPrescription(item);
+                        navigation.navigate('CheifComplaints');
+                      },
+                    },
+                    {
+                      text: 'No',
+                      style: 'cancel',
+                    },
+                  ],
+                );
+                //onPressPrescription(item);
               }}
-            /> */}
-
+            />
             {/* <CustomButton
               text="Pre Consultation"
               textstyle={{color: 'white', fontSize: 10, alignSelf: 'center'}}
@@ -314,17 +338,33 @@ const DoctorHome = ({navigation}) => {
             // borderBottomWidth: 1,
             // justifyContent: 'space-around',
           }}>
-          <Image
-            source={pfp1}
-            style={{
-              width: 90,
-              height: 90,
-              alignSelf: 'center',
-              borderRadius: 5,
-              margin: 5,
-              marginHorizontal: 10,
-            }}
-          />
+          {item.patientPhoto == 0 || item.patientPhoto == null ? (
+            <Image
+              source={pfp1}
+              style={{
+                width: 90,
+                height: 90,
+                alignSelf: 'center',
+                borderRadius: 5,
+                margin: 5,
+                marginHorizontal: 10,
+              }}
+            />
+          ) : (
+            <Image
+              source={{
+                uri: `${apiConfig.baseUrl}/file/download?fileToken=${item.patientPhoto}&userId=${item.patientId}`,
+              }}
+              style={{
+                width: 90,
+                height: 90,
+                alignSelf: 'center',
+                borderRadius: 5,
+                margin: 5,
+                marginHorizontal: 10,
+              }}
+            />
+          )}
           <View
             style={{
               flexDirection: 'column',
@@ -600,7 +640,7 @@ const DoctorHome = ({navigation}) => {
               setConsultationQuestionnaire(true);
             }}>
             <MCIcons
-              name="message-reply-text-outline"
+              name="clipboard-list"
               color={'#2b8ada'}
               size={15}
               style={{alignSelf: 'center'}}
@@ -640,17 +680,33 @@ const DoctorHome = ({navigation}) => {
             ]}>
             Completed
           </Text>
-          <Image
-            source={pfp1}
-            style={{
-              width: 90,
-              height: 90,
-              alignSelf: 'center',
-              borderRadius: 5,
-              margin: 5,
-              marginHorizontal: 10,
-            }}
-          />
+          {item.patientPhoto == 0 || item.patientPhoto == null ? (
+            <Image
+              source={pfp1}
+              style={{
+                width: 90,
+                height: 90,
+                alignSelf: 'center',
+                borderRadius: 5,
+                margin: 5,
+                marginHorizontal: 10,
+              }}
+            />
+          ) : (
+            <Image
+              source={{
+                uri: `${apiConfig.baseUrl}/file/download?fileToken=${item.patientPhoto}&userId=${item.patientId}`,
+              }}
+              style={{
+                width: 90,
+                height: 90,
+                alignSelf: 'center',
+                borderRadius: 5,
+                margin: 5,
+                marginHorizontal: 10,
+              }}
+            />
+          )}
           <View
             style={{flexDirection: 'column', justifyContent: 'space-around'}}>
             <Text
@@ -915,17 +971,33 @@ const DoctorHome = ({navigation}) => {
             ]}>
             Completed
           </Text>
-          <Image
-            source={pfp1}
-            style={{
-              width: 90,
-              height: 90,
-              alignSelf: 'center',
-              borderRadius: 5,
-              margin: 5,
-              marginHorizontal: 10,
-            }}
-          />
+          {item.patientPhoto == 0 || item.patientPhoto == null ? (
+            <Image
+              source={pfp1}
+              style={{
+                width: 90,
+                height: 90,
+                alignSelf: 'center',
+                borderRadius: 5,
+                margin: 5,
+                marginHorizontal: 10,
+              }}
+            />
+          ) : (
+            <Image
+              source={{
+                uri: `${apiConfig.baseUrl}/file/download?fileToken=${item.patientPhoto}&userId=${item.patientId}`,
+              }}
+              style={{
+                width: 90,
+                height: 90,
+                alignSelf: 'center',
+                borderRadius: 5,
+                margin: 5,
+                marginHorizontal: 10,
+              }}
+            />
+          )}
           <View
             style={{flexDirection: 'column', justifyContent: 'space-around'}}>
             <Text
@@ -1299,107 +1371,104 @@ const DoctorHome = ({navigation}) => {
   }, []);
 
   useEffect(() => {
-    const getData = async () => {
-      let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
-      setDoctorObj(x);
-      let doctorId = x.doctorId;
-      //console.log(doctorId);
-      setisFetching(true);
-      axios
-        .get(
-          apiConfig.baseUrl +
-            '/doctor/upcoming/consultation?doctorId=' +
-            doctorId,
-        )
-        .then(function (response) {
-          setisFetching(false);
-          if (response.status == 200) {
-            setUpcomingData(response.data);
-          }
-          //console.log(UpcomingData);
-        })
-        .catch(function (error) {
-          setisFetching(false);
-          Alert.alert(
-            'Error',
-            'An error occured while fetching upcoming details. Please try again later.',
-          );
-          console.log(
-            '=====Error in fetching upcoming consultation details=====',
-          );
-          console.log(error);
-        });
-    };
-    if (Upcoming == true) getData();
+    if (Upcoming == true) getUpcomingData();
   }, [Upcoming]);
+  const getUpcomingData = async () => {
+    let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
+    setDoctorObj(x);
+    let doctorId = x.doctorId;
+    //console.log(doctorId);
+    setisFetching(true);
+    axios
+      .get(
+        apiConfig.baseUrl +
+          '/doctor/upcoming/consultation?doctorId=' +
+          doctorId,
+      )
+      .then(function (response) {
+        setisFetching(false);
+        if (response.status == 200) {
+          setUpcomingData(response.data);
+        }
+        //console.log(UpcomingData);
+      })
+      .catch(function (error) {
+        setisFetching(false);
+        Alert.alert(
+          'Error',
+          'An error occured while fetching upcoming details. Please try again later.',
+        );
+        console.log(
+          '=====Error in fetching upcoming consultation details=====',
+        );
+        console.log(error);
+      });
+  };
 
   useEffect(() => {
-    const getData = async () => {
-      let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
-      let doctorId = x.doctorId;
-      //console.log("Completed");
-      setisFetching(true);
-      axios
-        .get(
-          apiConfig.baseUrl +
-            '/doctor/complete/consultation?doctorId=' +
-            doctorId +
-            '&start=' +
-            0 +
-            '&max=' +
-            4,
-        )
-        .then(function (response) {
-          setisFetching(false);
-          if (response.status == 200) setCompleteData(response.data);
-          //console.log(CompleteData);
-        })
-        .catch(function (error) {
-          setisFetching(false);
-          Alert.alert(
-            'Error',
-            'An error occured while fetching completed consultation details. Please try again later.',
-          );
-          console.log(
-            '=====Error in fetching completed consultation details=====',
-          );
-          console.log(error);
-        });
-    };
-    if (Complete == true) getData();
+    if (Complete == true) getCompletedData();
   }, [Complete]);
+  const getCompletedData = async () => {
+    let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
+    let doctorId = x.doctorId;
+    //console.log("Completed");
+    setisFetching(true);
+    axios
+      .get(
+        apiConfig.baseUrl +
+          '/doctor/complete/consultation?doctorId=' +
+          doctorId +
+          '&start=' +
+          0 +
+          '&max=' +
+          10,
+      )
+      .then(function (response) {
+        setisFetching(false);
+        if (response.status == 200) setCompleteData(response.data);
+        //console.log(CompleteData);
+      })
+      .catch(function (error) {
+        setisFetching(false);
+        Alert.alert(
+          'Error',
+          'An error occured while fetching completed consultation details. Please try again later.',
+        );
+        console.log(
+          '=====Error in fetching completed consultation details=====',
+        );
+        console.log(error);
+      });
+  };
 
   useEffect(() => {
-    const getData = async () => {
-      let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
-      let doctorId = x.doctorId;
-      //console.log("Recent");
-      setisFetching(true);
-      axios
-        .get(
-          apiConfig.baseUrl +
-            '/doctor/recent/consultation?doctorId=' +
-            doctorId,
-        )
-        .then(function (response) {
-          setisFetching(false);
-          if (response.status == 200) setStatusData(response.data);
-          //console.log(StatusData);
-        })
-        .catch(function (error) {
-          setisFetching(false);
-          Alert.alert(
-            'Error',
-            'An error occured while fetching recent consultation details. Please try again later.',
-          );
-          console.log(
-            '=====Error in fetching recent consultation details=====',
-          );
-          console.log(error);
-        });
-    };
-    if (Status == true) getData();
+    if (Status == true) getRecentData();
   }, [Status]);
+
+  const getRecentData = async () => {
+    let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
+    let doctorId = x.doctorId;
+    //console.log("Recent");
+    setisFetching(true);
+    axios
+      .get(
+        apiConfig.baseUrl + '/doctor/recent/consultation?doctorId=' + doctorId,
+      )
+      .then(function (response) {
+        setisFetching(false);
+        if (response.status == 200) setStatusData(response.data);
+        //console.log(StatusData);
+      })
+      .catch(function (error) {
+        setisFetching(false);
+        Alert.alert(
+          'Error',
+          'An error occured while fetching recent consultation details. Please try again later.',
+        );
+        console.log('=====Error in fetching recent consultation details=====');
+        console.log(error);
+      });
+  };
 
   useEffect(() => {
     const getHistoryDocs = async () => {
@@ -1608,6 +1677,24 @@ const DoctorHome = ({navigation}) => {
             {Upcoming ? (
               <View style={{flexDirection: 'column'}}>
                 <View style={{backgroundColor: '#E8F0FE'}}>
+                  <TouchableOpacity
+                    style={{
+                      flexDirection: 'row',
+                      padding: 5,
+                      paddingHorizontal: 10,
+                      marginLeft: 10,
+                    }}
+                    onPress={getUpcomingData}>
+                    <FAIcon
+                      name="redo-alt"
+                      size={12}
+                      style={{alignSelf: 'center', marginRight: 5}}
+                      color={'#2b8ada'}
+                    />
+                    <Text style={{color: '#2b8ada', fontSize: 12}}>
+                      Refresh
+                    </Text>
+                  </TouchableOpacity>
                   {/* <View>
                     <Text
                       style={{
@@ -1826,9 +1913,15 @@ const DoctorHome = ({navigation}) => {
                             />
                           </View>
                         ) : (
-                          <View>
-                            <Text>
-                              No Document has been uploaded by the Pateint{' '}
+                          <View
+                            style={{
+                              flex: 1,
+                              flexDirection: 'column',
+                              alignSelf: 'center',
+                              justifyContent: 'center',
+                            }}>
+                            <Text style={{}}>
+                              No document has been uploaded by the patient
                             </Text>
                           </View>
                         )}
@@ -2207,6 +2300,24 @@ const DoctorHome = ({navigation}) => {
             {Complete ? (
               <View style={{flexDirection: 'column'}}>
                 <View style={{backgroundColor: '#E8F0FE'}}>
+                  <TouchableOpacity
+                    style={{
+                      flexDirection: 'row',
+                      padding: 5,
+                      paddingHorizontal: 10,
+                      marginLeft: 10,
+                    }}
+                    onPress={getCompletedData}>
+                    <FAIcon
+                      name="redo-alt"
+                      size={12}
+                      style={{alignSelf: 'center', marginRight: 5}}
+                      color={'#2b8ada'}
+                    />
+                    <Text style={{color: '#2b8ada', fontSize: 12}}>
+                      Refresh
+                    </Text>
+                  </TouchableOpacity>
                   {/* {CompleteData != '' ? (
                     <View>
                       <Text
@@ -2333,6 +2444,24 @@ const DoctorHome = ({navigation}) => {
             {Status ? (
               <View style={{flexDirection: 'column'}}>
                 <View style={{backgroundColor: '#E8F0FE'}}>
+                  <TouchableOpacity
+                    style={{
+                      flexDirection: 'row',
+                      padding: 5,
+                      paddingHorizontal: 10,
+                      marginLeft: 10,
+                    }}
+                    onPress={getRecentData}>
+                    <FAIcon
+                      name="redo-alt"
+                      size={12}
+                      style={{alignSelf: 'center', marginRight: 5}}
+                      color={'#2b8ada'}
+                    />
+                    <Text style={{color: '#2b8ada', fontSize: 12}}>
+                      Refresh
+                    </Text>
+                  </TouchableOpacity>
                   {/* {StatusData != '' ? (
                     <View>
                       <Text

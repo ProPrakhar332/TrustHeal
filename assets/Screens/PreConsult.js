@@ -431,16 +431,21 @@ function PreConsult({navigation}) {
   };
 
   const uploadAnswers = async () => {
-    let p = [];
-    p = [...p, QuestionList];
+    const clone = JSON.parse(JSON.stringify(QuestionList));
 
-    p.forEach(element => {
+    clone.forEach(element => {
       delete element.question;
     });
-    console.log('=============  Ques answer save  =====================\n', p);
+    console.log(
+      '=============  Ques answer save  =====================\n',
+      clone,
+    );
 
     await axios
-      .post(apiConfig.baseUrl + '/patient/consultation/question/answer/save', p)
+      .post(
+        apiConfig.baseUrl + '/patient/consultation/question/answer/save',
+        clone,
+      )
       .then(response => {
         if (response.status == 200)
           Alert.alert('Done', 'PreConsultation Questionnaire filled!');

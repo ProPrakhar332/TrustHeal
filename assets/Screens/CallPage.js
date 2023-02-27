@@ -42,8 +42,7 @@ export default function CallPage(props) {
             ...ONE_ON_ONE_VOICE_CALL_CONFIG,
             // ...ONE_ON_ONE_VIDEO_CALL_CONFIG,
             onHangUp: () => {
-              if (userType == 'Doctor')
-                props.navigation.navigate('CheifComplaints');
+              if (userType == 'Doctor') props.navigation.navigate('DoctorHome');
               else props.navigation.navigate('PatientHome');
             },
           }}
@@ -59,8 +58,7 @@ export default function CallPage(props) {
             // ...ONE_ON_ONE_VOICE_CALL_CONFIG,
             ...ONE_ON_ONE_VIDEO_CALL_CONFIG,
             onHangUp: () => {
-              if (userType == 'Doctor')
-                props.navigation.navigate('CheifComplaints');
+              if (userType == 'Doctor') props.navigation.navigate('DoctorHome');
               else props.navigation.navigate('PatientHome');
             },
           }}

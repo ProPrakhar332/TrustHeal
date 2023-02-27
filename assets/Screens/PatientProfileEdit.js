@@ -269,26 +269,31 @@ const PatientProfileEdit = ({navigation}) => {
     let p = {
       age: age,
       allowWhatsAppNotification: false,
-      bloodGroup: BloodGroup,
+      //bloodGroup: BloodGroup,
       city: city,
       dob: dayjs(dob).format('YYYY-MM-DD'),
       email: email,
       gender: gender,
-      height: Height,
+      //height: Height,
       locationPermissions: 'DONT_ALLOW',
       mobileNumber: mobno,
-      occupation: Occupation,
+      //occupation: Occupation,
       patientId: patientId,
       patientName: name,
       patientPhoto: photoPath,
       pincode: pincode,
       termsAndConditions: true,
-      weight: Weight,
+      //weight: Weight,
       whatsAppNumber: mobno,
     };
     DeviceInfo.getIpAddress().then(ip => {
       p.phoneIp = ip;
     });
+
+    if (BloodGroup != '') p.bloodGroup = BloodGroup;
+    if (Occupation != '') p.occupation = Occupation;
+    if (Weight != '') p.weight = Weight;
+    if (Height != '') p.height = Height;
 
     axios
       .post(apiConfig.baseUrl + '/patient/update', p)
@@ -852,7 +857,7 @@ const PatientProfileEdit = ({navigation}) => {
                   else if (email == '')
                     Alert.alert(
                       'Incomplete Details',
-                      'Please enter email before continuing.',
+                      'Please enter valid email before continuing.',
                     );
                   else if (gender == '')
                     Alert.alert(

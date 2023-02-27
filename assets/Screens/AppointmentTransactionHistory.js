@@ -37,41 +37,43 @@ function CheckEarnings({navigation}) {
   // };
 
   useEffect(() => {
-    const getData = async () => {
-      let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
-      let doctorId = x.doctorId;
-      //console.log("Completed");
-      setisLoading(true);
-      axios
-        .get(
-          apiConfig.baseUrl +
-            '/doctor/complete/consultation?doctorId=' +
-            doctorId +
-            '&start=' +
-            0 +
-            '&max=' +
-            5,
-        )
-        .then(function (response) {
-          setisLoading(false);
-          if (response.status == 200) {
-            console.log(response.data);
-            setData(response.data);
-          }
-          //console.log(response.data);
-        })
-        .catch(function (error) {
-          setisLoading(false);
-          Alert.alert(
-            'Error',
-            'An error occured while fetching details. Please try again later.',
-          );
-          console.log('=====Error in fetching details=====');
-          console.log(error);
-        });
-    };
     getData();
   }, []);
+
+  const getData = async () => {
+    let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
+    let doctorId = x.doctorId;
+    //console.log("Completed");
+    setisLoading(true);
+    axios
+      .get(
+        apiConfig.baseUrl +
+          '/doctor/complete/consultation?doctorId=' +
+          doctorId +
+          '&start=' +
+          0 +
+          '&max=' +
+          10,
+      )
+      .then(function (response) {
+        setisLoading(false);
+        if (response.status == 200) {
+          console.log(response.data);
+          setData(response.data);
+        }
+        //console.log(response.data);
+      })
+      .catch(function (error) {
+        setisLoading(false);
+        Alert.alert(
+          'Error',
+          'An error occured while fetching details. Please try again later.',
+        );
+        console.log('=====Error in fetching details=====');
+        console.log(error);
+      });
+  };
+
   const [Data, setData] = useState([]);
   const [search, setsearch] = useState('');
   const [searchData, setsearchData] = useState([]);
@@ -226,6 +228,17 @@ function CheckEarnings({navigation}) {
             </View> */}
 
             {/* List of Payments */}
+            <TouchableOpacity
+              style={{flexDirection: 'row', padding: 5, paddingHorizontal: 10}}
+              onPress={getData}>
+              <FAIcons
+                name="redo-alt"
+                size={15}
+                style={{alignSelf: 'center', marginRight: 5}}
+                color={'#2b8ada'}
+              />
+              <Text style={{color: '#2b8ada'}}>Refresh</Text>
+            </TouchableOpacity>
 
             {Data != '' ? (
               <FlatList

@@ -46,6 +46,12 @@ const dataMode = [
 const ManageSchedule = () => {
   const [manageSlotsLabel, setmanageSlotsLabel] = useState(false);
   const [manageClinicsLabel, setmanageClinicsLabel] = useState(false);
+  const [managePreConsultQues, setmanagePreConsultQues] = useState(false);
+  const [editQues, seteditQues] = useState(false);
+  const [QuestionsModal, setQuestionsModal] = useState(false);
+  const [questionareList, setQuestionareList] = useState(null);
+  const [questionId, setquestionId] = useState(null);
+  const [questions, setquestions] = useState('');
   const [ClinicDetEdit, setClinicDetEdit] = useState(false);
   const [ManageClinic, setManageClinic] = useState([]);
   const [clinicName, setclinicName] = useState('');
@@ -120,6 +126,31 @@ const ManageSchedule = () => {
       setViewPConsultations(false);
     }
   }, [manageSlotsLabel]);
+
+  useEffect(() => {
+    const getQuestions = async () => {
+      axios
+        .get(
+          apiConfig.baseUrl +
+            '/doctor/pre/consultation/questions?doctorId=' +
+            doctorId,
+        )
+        .then(response => {
+          if (response.status == 200) setQuestionareList(response.data);
+          else Alert.alert('Error', 'Error in fetching questions');
+        })
+        .catch(error => {
+          Alert.alert('Error', `${error}`);
+        });
+    };
+
+    if (
+      (managePreConsultQues == true && doctorId != 0) ||
+      QuestionsModal == false
+    ) {
+      getQuestions();
+    }
+  }, [managePreConsultQues, QuestionsModal]);
 
   //dynamic loading
   useEffect(() => {
@@ -509,6 +540,7 @@ const ManageSchedule = () => {
     setECoutTimeMM('');
     setECduration('');
     setECGap('');
+    setselectedDate('');
   };
 
   const updateClinic = async item => {
@@ -818,6 +850,123 @@ const ManageSchedule = () => {
     });
   };
 
+  const RenderQuestion = () => {
+    return questionareList.map((questionareList, index) => {
+      return (
+        <View
+          style={{
+            flexDirection: 'column',
+            borderWidth: 1,
+            borderTopWidth: 0,
+            borderColor: '#d3d3d3',
+          }}
+          key={index}>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              margin: 0,
+              padding: 0,
+            }}>
+            {/* S No. */}
+            <View style={[styles.cellStyle, {flex: 0.15}]}>
+              <Text style={{textAlign: 'center', fontSize: 10, padding: 5}}>
+                {index + 1}
+              </Text>
+            </View>
+            {/* Speciality */}
+            {/* <View style={styles.cellStyle}>
+              <Text style={{textAlign: 'center', fontSize: 10,padding: 5,}}>
+                {questionareList.specialization}
+              </Text>
+            </View> */}
+            {/* Question */}
+            <View style={[styles.cellStyle, {flex: 0.6}]}>
+              <Text style={{textAlign: 'center', fontSize: 10, padding: 5}}>
+                {questionareList.questions}
+              </Text>
+            </View>
+
+            {/* Actions */}
+            <View
+              style={[
+                styles.cellStyle,
+                {
+                  flexDirection: 'row',
+
+                  flex: 0.3,
+                  justifyContent: 'space-evenly',
+                  alignSelf: 'center',
+                },
+              ]}>
+              <TouchableOpacity
+                style={{flexDirection: 'column', flex: 0.45, padding: 5}}
+                onPress={() => {
+                  console.log(questionareList);
+                  setquestionId(questionareList.questionId);
+                  setquestions(questionareList.questions);
+                  seteditQues(true);
+                  setQuestionsModal(true);
+                }}>
+                <FAIcon
+                  name="edit"
+                  size={13}
+                  color={'#2b8ada'}
+                  style={{alignSelf: 'center'}}
+                />
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={{flexDirection: 'column', flex: 0.45, padding: 5}}
+                onPress={async () =>
+                  await removeQues(questionareList.questionId)
+                }>
+                <FAIcon name="trash" color={'red'} size={13} />
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      );
+    });
+  };
+  const removeQuestHandler = i => {
+    setQuestionareList(questionareList.filter(obj => i !== obj.questionId));
+  };
+
+  const removeQues = async id => {
+    axios
+      .delete(apiConfig.baseUrl + '/doctor/question/delete?questionId=' + id)
+      .then(response => {
+        if (response.status == 200) {
+          removeQuestHandler(id);
+          Alert.alert(
+            'Deleted',
+            'The question has been deleted from questionnaire',
+          );
+        }
+      })
+      .catch(error => {
+        Alert.alert('Error', `${error}`);
+      });
+  };
+
+  const updatePreConsultQues = async item => {
+    axios
+      .post(apiConfig.baseUrl + '/doctor/preconsultation/questions/save', item)
+      .then(response => {
+        if (response.status == 200)
+          Alert.alert(
+            'Done',
+            'Question ' + (editQues ? 'updated' : 'added') + ' successfully!',
+          );
+        setquestions('');
+        setQuestionsModal(false);
+      })
+      .catch(error => {
+        Alert.alert('Error', `${error}`);
+      });
+  };
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -909,6 +1058,7 @@ const ManageSchedule = () => {
                             : {backgroundColor: 'white'},
                         ]}
                         onPress={() => {
+                          setselectedDate('');
                           setCreateEConsultations(true);
                           setCreatePConsultations(false);
                         }}
@@ -928,6 +1078,7 @@ const ManageSchedule = () => {
                             : {backgroundColor: 'white'},
                         ]}
                         onPress={() => {
+                          setselectedDate('');
                           setCreatePConsultations(true);
                           setCreateEConsultations(false);
                         }}
@@ -1615,6 +1766,7 @@ const ManageSchedule = () => {
                           justifyContent: 'center',
                           paddingHorizontal: 1,
                           paddingVertical: 1,
+                          backgroundColor: '#2b8ada',
                         }}>
                         <Text style={styles.cellHeadingText}>Actions</Text>
                       </View>
@@ -2042,6 +2194,235 @@ const ManageSchedule = () => {
                 </View>
               </View>
             ) : null}
+            {/* Manage PreConsult Label */}
+            <TouchableOpacity
+              style={styles.WhiteLabel}
+              onPress={() => setmanagePreConsultQues(!managePreConsultQues)}>
+              <FAIcon
+                name="clipboard-list"
+                size={15}
+                color={managePreConsultQues ? '#2b8ada' : 'gray'}
+              />
+              <Text
+                style={[
+                  styles.label,
+                  {width: '80%'},
+                  managePreConsultQues ? {color: '#2B8ADA'} : {color: 'black'},
+                ]}>
+                Pre-Consultation Questions
+              </Text>
+              <FAIcon
+                name={managePreConsultQues ? 'chevron-down' : 'chevron-right'}
+                size={20}
+                style={[
+                  managePreConsultQues ? {color: '#2B8ADA'} : {color: 'black'},
+                ]}
+              />
+            </TouchableOpacity>
+            {/* Manage PreConsult Body */}
+            {managePreConsultQues ? (
+              <View
+                style={[
+                  styles.whiteBodyView,
+                  {width: '95%', alignSelf: 'center'},
+                ]}>
+                <View
+                  style={{
+                    width: '100%',
+                    alignSelf: 'center',
+                    marginVertical: 10,
+                  }}>
+                  <View
+                    style={{
+                      marginBottom: 5,
+                      width: '95%',
+                      alignSelf: 'center',
+                    }}>
+                    {/* Heading */}
+                    <View
+                      style={{
+                        flexDirection: 'column',
+                        borderWidth: 1,
+                        borderColor: '#d3d3d3',
+                      }}>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          margin: 0,
+                          padding: 0,
+                        }}>
+                        <View style={[styles.cellHeading, {flex: 0.15}]}>
+                          <Text style={styles.cellHeadingText}>S.No.</Text>
+                        </View>
+
+                        <View style={[styles.cellHeading, {flex: 0.6}]}>
+                          <Text style={styles.cellHeadingText}>Question</Text>
+                        </View>
+
+                        <View
+                          style={{
+                            flex: 0.3,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            paddingHorizontal: 1,
+                            paddingVertical: 1,
+                            backgroundColor: '#2b8ada',
+                          }}>
+                          <Text style={styles.cellHeadingText}>Actions</Text>
+                        </View>
+                      </View>
+                    </View>
+                    {questionareList != null ? (
+                      <RenderQuestion />
+                    ) : questionareList == '' ? (
+                      <Text style={{fontSize: 12, alignSelf: 'center'}}>
+                        No Questions Added
+                      </Text>
+                    ) : null}
+                  </View>
+                  <View style={{flex: 1}}>
+                    <CustomButton
+                      text={'+ Add More'}
+                      textstyle={{color: 'white', fontSize: 10}}
+                      style={{
+                        alignSelf: 'flex-end',
+                        width: 80,
+                        backgroundColor: '#2b8ada',
+                        borderRadius: 5,
+                        padding: 3,
+                        paddingHorizontal: 10,
+                        marginTop: 10,
+                      }}
+                      onPress={() => {
+                        seteditQues(false);
+                        setQuestionsModal(true);
+                        setquestionId(null);
+                      }}
+                    />
+                  </View>
+                </View>
+              </View>
+            ) : null}
+
+            {QuestionsModal ? (
+              <Modal
+                animationType="slide"
+                transparent={true}
+                visible={QuestionsModal}
+                onRequestClose={() => {
+                  setQuestionsModal(!QuestionsModal);
+                }}>
+                <View
+                  style={{
+                    height: '100%',
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                  }}>
+                  <View
+                    style={[
+                      styles.modalView,
+                      {
+                        borderRadius: 10,
+                        padding: 15,
+                        height: 400,
+                      },
+                    ]}>
+                    <View
+                      style={{
+                        width: '100%',
+                        alignSelf: 'center',
+                        marginBottom: 20,
+                        borderBottomWidth: 1,
+                        borderBottomColor: 'gray',
+                      }}>
+                      <Text
+                        style={{
+                          fontWeight: 'bold',
+                          fontSize: 14,
+                          padding: 5,
+                        }}>
+                        {editQues ? ' Edit' : 'Add More'} Questions
+                      </Text>
+                      <FAIcon
+                        name="window-close"
+                        color="black"
+                        size={26}
+                        style={{
+                          position: 'absolute',
+                          top: 0,
+                          right: 0,
+                        }}
+                        onPress={() => setQuestionsModal(false)}
+                      />
+                    </View>
+                    <View style={{width: '95%', alignSelf: 'center', flex: 1}}>
+                      <View style={{flexDirection: 'column', flex: 1}}>
+                        <Text style={[styles.inputLabel, {marginTop: 0}]}>
+                          Question
+                        </Text>
+                        <TextInput
+                          style={{
+                            padding: 5,
+                            color: 'black',
+                            backgroundColor: '#E8F0FE',
+                            borderRadius: 10,
+                            fontSize: 14,
+                            marginVertical: 5,
+                          }}
+                          onChangeText={text => setquestions(text)}
+                          value={questions}
+                        />
+                      </View>
+                    </View>
+
+                    <CustomButton
+                      text={editQues ? 'Update' : 'Save'}
+                      textstyle={{color: 'white', fontSize: 12}}
+                      style={{
+                        width: '95%',
+                        backgroundColor: '#2B8ADA',
+                        marginVertical: 5,
+                        paddingVertical: 10,
+                        borderRadius: 10,
+                      }}
+                      onPress={async () => {
+                        if (questions == '')
+                          Alert.alert(
+                            'Incomplete Details',
+                            'Please fill Clinic Name ',
+                          );
+                        else {
+                          let p = {
+                            doctorId: doctorId,
+                            questions: questions,
+                          };
+                          if (
+                            questionareList.findIndex(
+                              v => v.questions == p.questions,
+                            ) == -1
+                          ) {
+                            if (editQues) p.questionId = questionId;
+
+                            let arr = [];
+                            arr = [...arr, p];
+                            await updatePreConsultQues(arr);
+                            setquestions('');
+                            setquestionId(null);
+                          } else {
+                            Alert.alert(
+                              'Duplicate Data',
+                              'Duplicate clinic details found.',
+                            );
+                          }
+                        }
+                      }}
+                    />
+                  </View>
+                </View>
+              </Modal>
+            ) : null}
           </View>
         </ScrollView>
       </SafeAreaView>
@@ -2193,6 +2574,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     color: '#2b8ada',
   },
+  cellText: {textAlign: 'center', fontSize: 10, marginVertical: 10},
   cellStyle: {
     flex: 1,
     alignItems: 'center',
@@ -2202,7 +2584,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 1,
     paddingVertical: 1,
   },
-  cellText: {textAlign: 'center', fontSize: 10, marginVertical: 10},
   cellHeading: {
     flex: 1,
     alignItems: 'center',
@@ -2211,12 +2592,14 @@ const styles = StyleSheet.create({
     borderColor: '#d3d3d3',
     paddingHorizontal: 1,
     paddingVertical: 1,
+    backgroundColor: '#2b8ada',
   },
   cellHeadingText: {
     textAlign: 'center',
     fontWeight: 'bold',
-    fontSize: 10,
-    marginVertical: 3,
+    fontSize: 11,
+    marginVertical: 5,
+    color: 'white',
   },
 });
 

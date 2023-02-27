@@ -63,30 +63,34 @@ function PatientFav({navigation}) {
   const [FilterModeValue, setFilterModeValue] = useState(null);
 
   useEffect(() => {
-    const getFavDoctor = async () => {
-      setisLoading(true);
-      axios
-        .get(apiConfig.baseUrl + '/patient/favourite/doctor?patientId=1')
-        .then(function (response) {
-          console.log(
-            '\n=========================== FAVOURITE DOCTORS ====================================\n',
-          );
-          console.log(response.data);
-          if (response.status == 200) {
-            setisLoading(false);
-            //setdoctorDataList(response.data);
-            setdoctorDataList(serviceResponse);
-          }
-        })
-        .catch(error => {
-          setisLoading(false);
-          Alert.alert('Error Favourite', `${error}`);
-        });
-      setisLoading(false);
-    };
-
     getFavDoctor();
   }, []);
+  const getFavDoctor = async () => {
+    let x = JSON.parse(await AsyncStorage.getItem('UserPatientProfile'));
+    setisLoading(true);
+    axios
+      .get(
+        apiConfig.baseUrl +
+          '/patient/favourite/doctor?patientId=' +
+          x.patientId,
+      )
+      .then(function (response) {
+        console.log(
+          '\n=========================== FAVOURITE DOCTORS ====================================\n',
+        );
+        console.log(response.data);
+        if (response.status == 200) {
+          setisLoading(false);
+          setdoctorDataList(response.data);
+          //setdoctorDataList(serviceResponse);
+        }
+      })
+      .catch(error => {
+        setisLoading(false);
+        Alert.alert('Error Favourite', `${error}`);
+      });
+    setisLoading(false);
+  };
 
   const dataExp = [
     {min: 0, max: 24},
@@ -428,7 +432,7 @@ function PatientFav({navigation}) {
                 style={{marginRight: 5, alignSelf: 'center'}}
               />
               <Text style={styles.CardText}>
-                {Math.ceil(item.totalExprienceInMonths / 12)} year(s)
+                {Math.ceil(item.totalExperienceInMonths / 12)} year(s)
               </Text>
             </View>
             {/* Doctor Location */}
@@ -475,13 +479,15 @@ function PatientFav({navigation}) {
   };
 
   const removeFavourite = async item => {
+    let x = JSON.parse(await AsyncStorage.getItem('UserPatientProfile'));
     setisLoading(true);
     axios
       .delete(
         apiConfig.baseUrl +
           '/patient/favourite/doctor/delete?doctorId=' +
           item.doctorId +
-          '&patientId=400',
+          '&patientId=' +
+          x.patientId,
       )
       .then(async response => {
         if (response.status == 200) {
@@ -498,23 +504,6 @@ function PatientFav({navigation}) {
         console.log('Error Favourite', `${error}`);
       });
     setisLoading(false);
-  };
-  const getFavDoctor = async () => {
-    axios
-      .get(apiConfig.baseUrl + '/patient/favourite/doctor?patientId=1')
-      .then(function (response) {
-        console.log(
-          '\n=========================== FAVOURITE DOCTORS ====================================\n',
-        );
-        console.log(response.data);
-        if (response.status == 200) {
-          //setdoctorDataList(response.data);
-          setdoctorDataList(serviceResponse);
-        }
-      })
-      .catch(error => {
-        Alert.alert('Error Favourite', `${error}`);
-      });
   };
 
   return (

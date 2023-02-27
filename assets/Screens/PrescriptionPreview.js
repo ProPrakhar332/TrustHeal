@@ -392,7 +392,7 @@ th{
                 <div style="display: flex;background-color: rgba(240,250,255,1);margin-left:5%;width:92.5%">
                     <div style="display:block; flex:50%">
                         <p class="p-nme mb-0"><b>Name:</b>${patientName}</p>` +
-    (patientAge != undefined
+    (patientAge != undefined && patientAge != 0
       ? `<p class="p-ag"><b>Age:</b>${patientAge}</p>`
       : ``) +
     `
@@ -632,7 +632,7 @@ th{
     setfilePdf(file);
     setshowPdf(true);
     setisLoading(false);
-    Alert.alert('File Created', 'Prescription file has been created!');
+    Alert.alert('Done', 'Prescription file has been created!');
   };
   const uploadPres = async () => {
     try {

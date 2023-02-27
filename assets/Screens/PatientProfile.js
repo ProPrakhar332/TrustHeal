@@ -746,7 +746,7 @@ function PatientProfile({navigation}) {
                     alignSelf: 'center',
                   }}
                 /> */}
-                {PatientDet == null || PatientDet.photoPath == null ? (
+                {PatientDet == null || PatientDet.photoPath == 0 ? (
                   <Image
                     style={{
                       backgroundColor: '#2B8ADA',

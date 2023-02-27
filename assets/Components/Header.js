@@ -197,32 +197,12 @@ const Header = ({title, showMenu}) => {
     });
   };
   const renderSlot = ({item}) => {
-    return item.slotStatus == 'BOOKED' ? (
-      <TouchableOpacity
-        style={[
-          styles.slotBackgroundActive,
-          {
-            justifyContent: 'center',
-            marginRight: 5,
-          },
-        ]}
-        onPress={() => {
-          Alert.alert(
-            'Already Booked',
-            'This slot is already booked. Please select another slot',
-          );
-        }}>
-        <Text style={styles.slotTitleActive}>
-          {timeformatter(item.startTime)} to {timeformatter(item.endTime)}
-        </Text>
-      </TouchableOpacity>
-    ) : (
+    return (
       <TouchableOpacity
         style={[
           styles.slotBackground,
           {
             justifyContent: 'center',
-            marginRight: 5,
           },
           item.slotId == eslotsId ? {backgroundColor: '#2b8ada'} : null,
         ]}
@@ -234,16 +214,106 @@ const Header = ({title, showMenu}) => {
           seteslotsId(item.slotId);
           setMode(item.typeOfEConsultation);
         }}>
+        {item.typeOfEConsultation != null ? (
+          <FAIcon
+            name={
+              item.typeOfEConsultation == 'PHONE_CALL' ? 'phone-alt' : 'video'
+            }
+            size={12}
+            color={item.slotId == eslotsId ? 'white' : '#2b8ada'}
+            style={{alignSelf: 'center', marginRight: 3}}
+          />
+        ) : null}
         <Text
           style={[
-            styles.slotTitle,
-            item.slotId == eslotsId ? {color: 'white'} : null,
+            item.slotId == eslotsId ? styles.slotTitleActive : styles.slotTitle,
           ]}>
-          {timeformatter(item.startTime)} to {timeformatter(item.endTime)}
+          {timeformatter(item.startTime)} - {timeformatter(item.endTime)}
         </Text>
       </TouchableOpacity>
     );
   };
+  // const renderSlot = ({item}) => {
+  //   return item.slotStatus == 'BOOKED' ? (
+  //     <TouchableOpacity
+  //       style={[
+  //         styles.slotBackgroundActive,
+  //         {
+  //           justifyContent: 'center',
+  //           marginRight: 5,
+  //         },
+  //       ]}
+  //       onPress={() => {
+  //         Alert.alert(
+  //           'Already Booked',
+  //           'This slot is already booked. Please select another slot',
+  //         );
+  //       }}>
+  //       {item.typeOfEConsultation != null ? (
+  //         <FAIcon
+  //           name={
+  //             item.typeOfEConsultation == 'PHONE_CALL' ? 'phone-alt' : 'video'
+  //           }
+  //           size={12}
+  //           color={
+  //             item.slotStatus == 'BOOKED'
+  //               ? 'white'
+  //               : item.slotStatus == 'DELETED_BY_DOCTOR'
+  //               ? 'white'
+  //               : '#2b8ada'
+  //           }
+  //           style={{alignSelf: 'center', marginRight: 3}}
+  //         />
+  //       ) : null}
+  //       <Text style={styles.slotTitleActive}>
+  //         {timeformatter(item.startTime)} to {timeformatter(item.endTime)}
+  //       </Text>
+  //     </TouchableOpacity>
+  //   ) : (
+  //     <TouchableOpacity
+  //       style={[
+  //         styles.slotBackground,
+  //         {
+  //           justifyContent: 'center',
+  //           marginRight: 5,
+  //         },
+  //         item.slotId == eslotsId ? {backgroundColor: '#2b8ada'} : null,
+  //       ]}
+  //       onPress={() => {
+  //         console.log(item);
+  //         setslotTime(timeformatter(item.startTime));
+  //         setslotStartTime(timeformatter(item.startTime));
+  //         setslotEndTime(timeformatter(item.endTime));
+  //         seteslotsId(item.slotId);
+  //         setMode(item.typeOfEConsultation);
+  //       }}>
+  //       {item.typeOfEConsultation != null ? (
+  //         <FAIcon
+  //           name={
+  //             item.typeOfEConsultation == 'PHONE_CALL' ? 'phone-alt' : 'video'
+  //           }
+  //           size={12}
+  //           color={
+  //             item.slotStatus == 'BOOKED'
+  //               ? 'white'
+  //               : item.slotStatus == 'DELETED_BY_DOCTOR'
+  //               ? 'white'
+  //               : '#2b8ada'
+  //           }
+  //           style={{alignSelf: 'center', marginRight: 3}}
+  //         />
+  //       ) : null}
+  //       <Text
+  //         style={[
+  //           styles.slotTitle,
+  //           item.slotId == eslotsId ? {color: 'white'} : null,
+  //         ]}>
+  //         {timeformatter(item.startTime)} to {timeformatter(item.endTime)}
+  //       </Text>
+  //     </TouchableOpacity>
+  //   );
+  // };
+
   const renderEViewDaysSlot = ({item}) => {
     return (
       <TouchableOpacity
@@ -545,7 +615,7 @@ const Header = ({title, showMenu}) => {
                         color: '#2b8ada',
                       }}>
                       Select Date :-{' '}
-                      {date != null ? dayjs(date).format('DD-MM-YYYY') : ''}
+                      {/* {date != null ? dayjs(date).format('DD-MM-YYYY') : ''} */}
                     </Text>
                     {viewESlotsDate.length > 0 ? (
                       <View
@@ -655,9 +725,9 @@ const Header = ({title, showMenu}) => {
                       color: '#2b8ada',
                     }}>
                     Select Slots :-
-                    {slotStartTime != ''
+                    {/* {slotStartTime != ''
                       ? slotStartTime + ' to ' + slotEndTime
-                      : null}
+                      : null} */}
                   </Text>
                   {viewESlots.length > 0 ? (
                     <View
@@ -672,7 +742,7 @@ const Header = ({title, showMenu}) => {
                         data={viewESlots}
                         keyExtractor={(item, index) => index}
                         renderItem={renderSlot}
-                        numColumns={3}
+                        numColumns={2}
                         style={{alignSelf: 'center'}}
                       />
                     </View>
@@ -1062,37 +1132,64 @@ const styles = StyleSheet.create({
     width: '90%',
     textAlign: 'center',
   },
+  // slotBackground: {
+  //   alignSelf: 'center',
+  //   backgroundColor: '#E8F0FE',
+  //   borderWidth: 1,
+  //   borderColor: '#2b8ada',
+  //   padding: 2,
+  //   borderRadius: 10,
+  //   margin: 2,
+  //   width: 80,
+  // },
+  // slotTitle: {
+  //   fontSize: 12,
+  //   color: 'black',
+  //   textAlign: 'center',
+  //   width: 75,
+  // },
+  // slotBackgroundActive: {
+  //   alignSelf: 'center',
+  //   backgroundColor: '#2b8ada',
+  //   borderWidth: 1,
+  //   borderColor: '#2b8ada',
+  //   padding: 2,
+  //   borderRadius: 10,
+  //   margin: 2,
+  //   width: 80,
+  // },
+  // slotTitleActive: {
+  //   fontSize: 12,
+  //   color: '#fff',
+  //   textAlign: 'center',
+  //   width: 75,
+  // },
+
   slotBackground: {
+    flexDirection: 'row',
     alignSelf: 'center',
     backgroundColor: '#E8F0FE',
     borderWidth: 1,
     borderColor: '#2b8ada',
-    padding: 2,
-    borderRadius: 10,
+    padding: 10,
+    borderRadius: 5,
     margin: 2,
-    width: 80,
   },
   slotTitle: {
-    fontSize: 12,
+    fontSize: 11,
     color: 'black',
     textAlign: 'center',
-    width: 75,
+    alignSelf: 'center',
   },
   slotBackgroundActive: {
-    alignSelf: 'center',
     backgroundColor: '#2b8ada',
-    borderWidth: 1,
     borderColor: '#2b8ada',
-    padding: 2,
-    borderRadius: 10,
-    margin: 2,
-    width: 80,
   },
   slotTitleActive: {
-    fontSize: 12,
+    fontSize: 11,
     color: '#fff',
     textAlign: 'center',
-    width: 75,
+    alignSelf: 'center',
   },
 });
 
