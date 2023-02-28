@@ -472,6 +472,7 @@ function ConfirmBoking({navigation}) {
               width: '90%',
               alignSelf: 'center',
               borderBottomWidth: 1,
+              marginBottom: 10,
               borderColor: 'gray',
             }}>
             <View style={{marginBottom: 10}}>
@@ -866,12 +867,14 @@ function ConfirmBoking({navigation}) {
                 borderRadius: 10,
               }}
               onPress={async () => {
-                if (privatePolicy == true) await paymentOrderCreate();
-                else
-                  Alert.alert(
-                    'Attention',
-                    'Please agree to T&C and Privacy Policy before continuing',
-                  );
+                await paymentOrderCreate();
+
+                // if (privatePolicy == true)
+                // else
+                //   Alert.alert(
+                //     'Attention',
+                //     'Please agree to T&C and Privacy Policy before continuing',
+                //   );
                 //await bookConsultation();
               }}
             />

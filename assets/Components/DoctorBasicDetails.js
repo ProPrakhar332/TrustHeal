@@ -85,7 +85,7 @@ function DoctorBasicDetails({DocDet}) {
         } else
           Alert.alert(
             'Warning',
-            'You can only add max of 5 doctors to favourite list',
+            'You can only add max of 10 doctors to favourite list',
           );
       })
       .catch(response => {

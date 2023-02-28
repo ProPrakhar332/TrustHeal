@@ -1173,8 +1173,8 @@ const FirstScreen = ({route, navigation}) => {
             } else if (response.status == 204) {
               console.log(response.data);
               Alert.alert(
-                'Important',
-                `Please complete your profile before continuing`,
+                'Basic Details',
+                `Please fill basic details for your profile`,
               );
               navigation.navigate('PatientRegistration1');
             }

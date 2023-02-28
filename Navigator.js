@@ -573,14 +573,14 @@ function CustomDrawerContentPatient(props) {
           style={{
             backgroundColor: '#2B8ADA',
             flexDirection: 'row',
-            padding: 10,
+            padding: 5,
             paddingVertical: 20,
             borderTopRightRadius: 20,
             justifyContent: 'space-evenly',
           }}>
           <View
             style={{
-              flex: 0.4,
+              flex: 0.3,
               alignSelf: 'center',
             }}>
             <View
@@ -621,33 +621,32 @@ function CustomDrawerContentPatient(props) {
               )}
             </View>
           </View>
-          <TouchableOpacity
-            style={{flex: 0.5}}
-            // onPress={() => props.navigation.closeDrawer()}
-          >
+          <View
+            style={{flex: 0.5, justifyContent: 'center'}}
+            onPress={() => console.log(props.patientObj.patientName)}>
             <Text
               style={{
                 color: 'white',
-                fontSize: 14,
+                fontSize: 16,
                 marginVertical: 5,
                 fontWeight: 'bold',
               }}>
               {props.patientObj != null
-                ? props.patientObj.doctorName
+                ? props.patientObj.patientName
                 : 'Patient Name'}
             </Text>
-            <Text style={{color: 'white', fontSize: 10, marginBottom: 10}}>
+            <Text style={{color: 'white', fontSize: 12, marginBottom: 10}}>
               {props.patientObj != null
                 ? props.patientObj.mobileNumber
                 : 'Mobile No'}
             </Text>
-            <Text
+            {/* <Text
               style={{color: 'white'}}
               // onPress={() => props.navigation.navigate('DoctorProfileEdit')}
             >
               VIEW AND EDIT
-            </Text>
-          </TouchableOpacity>
+            </Text> */}
+          </View>
         </View>
       </View>
       <View style={styles.Heading}>
@@ -701,7 +700,7 @@ function CustomDrawerContentPatient(props) {
           <Image source={myprofile} style={{tintColor: '#033158'}} />
         )}
       />
-      <DrawerItem
+      {/* <DrawerItem
         label="Invoices"
         labelStyle={styles.labelStyle}
         style={{marginVertical: 0, paddingVertical: 0}}
@@ -709,7 +708,7 @@ function CustomDrawerContentPatient(props) {
         icon={({focused, color, size}) => (
           <Image source={myearning} style={{tintColor: '#033158'}} />
         )}
-      />
+      /> */}
 
       <View style={styles.Heading}>
         <Text style={styles.HeadingText}>About</Text>
@@ -801,13 +800,13 @@ const MyDrawer = props => {
   );
 };
 const PatientDrawer = props => {
-  // const doctorObj = props.route.params.doctorObj;
+  const patientObj = props.route.params.patientObj;
   // console.log(doctorObj.doctorName + "------------------ My Drawer");
   return (
     <Drawer.Navigator
       // useLegacyImplementation
       drawerContent={props => (
-        <CustomDrawerContentPatient {...props} />
+        <CustomDrawerContentPatient {...props} patientObj={patientObj} />
         // <CustomDrawerContent {...props} />
       )}
       screenOptions={{

@@ -75,10 +75,13 @@ function MyAppointment({navigation}) {
   }, []);
 
   useEffect(() => {
-    if (patientDet != null) getUpcoming();
+    if (patientDet != null) {
+      getUpcoming();
+    }
   }, [patientDet]);
   const getUpcoming = async () => {
-    axios
+    setisLoading(true);
+    await axios
       .get(
         apiConfig.baseUrl +
           '/patient/upcoming/consultations?patientId=' +
@@ -90,6 +93,7 @@ function MyAppointment({navigation}) {
         // );
         // console.log(response.data);
         if (response.status == 200) {
+          setisLoading(false);
           setUpcomingData(response.data);
           //setUpcomingData(UpcomingServiceResponse);
         }
@@ -97,13 +101,17 @@ function MyAppointment({navigation}) {
       .catch(error => {
         Alert.alert('Error Upcoming', `${error}`);
       });
+    setisLoading(false);
   };
 
   useEffect(() => {
-    if (patientDet != null) getCompleted();
+    if (patientDet != null) {
+      getCompleted();
+    }
   }, [patientDet]);
   const getCompleted = async () => {
-    axios
+    setisLoading(true);
+    await axios
       .get(
         apiConfig.baseUrl +
           '/patient/complete/consultations?max=5&min=0&patientId=' +
@@ -115,6 +123,7 @@ function MyAppointment({navigation}) {
         // );
         // console.log(response.data);
         if (response.status == 200) {
+          setisLoading(false);
           setCompletedData(response.data);
           //setCompletedData(CompletedServiceResponse);
         }
@@ -122,6 +131,7 @@ function MyAppointment({navigation}) {
       .catch(error => {
         Alert.alert('Error Completed', `${error}`);
       });
+    setisLoading(false);
   };
 
   const onJoinPress = (
@@ -1384,13 +1394,52 @@ function MyAppointment({navigation}) {
             </View>
           </Modal>
         ) : null}
-        {/* {showDocumentViewer ? (
-          <DocumentViewer
-            fileName={documentName}
-            userId={consultationId}
-            fileToken={documentPath}
-          />
-        ) : null} */}
+        {isLoading && (
+          <View
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: 'rgba(0,0,0,0.4)',
+            }}>
+            <View
+              style={{
+                backgroundColor: 'white',
+                alignSelf: 'center',
+                borderRadius: 20,
+                width: 150,
+                height: 150,
+                justifyContent: 'center',
+                flexDirection: 'column',
+              }}>
+              <Image
+                source={waiting}
+                style={{
+                  alignSelf: 'center',
+                  width: 80,
+                  height: 80,
+                  // borderRadius: 150,
+                }}
+              />
+              <Text
+                style={{
+                  alignSelf: 'center',
+                  textAlign: 'center',
+                  color: '#2B8ADA',
+                  fontSize: 15,
+                  fontWeight: 'bold',
+                  width: '100%',
+                  // padding: 10,
+                }}>
+                Loading...
+              </Text>
+            </View>
+          </View>
+        )}
       </SafeAreaView>
     </KeyboardAvoidingView>
   );

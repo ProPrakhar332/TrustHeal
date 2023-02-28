@@ -2,6 +2,7 @@ import React from 'react';
 import {useNavigation} from '@react-navigation/native';
 
 import {
+  Alert,
   View,
   Image,
   StyleSheet,
@@ -24,6 +25,9 @@ import bell from '../Icons/bell.png';
 import location from '../Icons/location.png';
 import heart from '../Icons/heart.png';
 import profileicon from '../Icons/profileicon.png';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import apiConfig from '../API/apiConfig';
 
 const slots = [
   {id: 1, time: '11:00 AM'},
@@ -84,6 +88,7 @@ const Header = ({title, showMenu}) => {
   const [whileUsing, setwhileUsing] = useState(false);
   const [onlyUsing, setonlyUsing] = useState(false);
   const [donAllow, setdonAllow] = useState(false);
+  const [name, setName] = useState('');
   const navigation = useNavigation();
 
   const removeHandler = e => {
@@ -150,7 +155,8 @@ const Header = ({title, showMenu}) => {
             `The app has been shared with ${patientName} via message on mobile number ${patientNumber}`,
           );
           setShareModal(false);
-          await reset();
+          setpatientName('');
+          setpatientNumber('');
         }
       })
       .catch(function (error) {
@@ -312,7 +318,8 @@ const Header = ({title, showMenu}) => {
                   size={20}
                   style={{position: 'absolute', right: 0}}
                   onPress={() => {
-                    setName('');
+                    setpatientName('');
+                    setpatientNumber('');
                     setMsg('');
                     setShareModal(false);
                   }}
@@ -353,6 +360,8 @@ const Header = ({title, showMenu}) => {
                         borderRadius: 5,
                         color: 'black',
                       }}
+                      keyboardType={'number-pad'}
+                      maxLength={10}
                       onChangeText={text => setpatientNumber(text)}
                       value={patientNumber}
                     />

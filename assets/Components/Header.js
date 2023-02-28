@@ -850,7 +850,7 @@ const Header = ({title, showMenu}) => {
                           onChangeText={text => setfees(text)}
                           value={fees}
                           style={{fontSize: 12}}
-                          placeholder="Amount Received"
+                          placeholder="Amount Received (in ₹)"
                           keyboardType={'number-pad'}
                           maxLength={4}></TextInput>
                       </View>

@@ -676,7 +676,10 @@ function PreConsult({navigation}) {
                     'bookSlot',
                     'viewProfile',
                   ]);
-                  navigation.navigate('PatientHome');
+                  let x = JSON.parse(
+                    await AsyncStorage.getItem('UserPatientProfile'),
+                  );
+                  navigation.navigate('PatientHome', {patientObj: x});
                 }
               }}
             />

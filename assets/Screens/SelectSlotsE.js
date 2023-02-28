@@ -539,7 +539,7 @@ function SelectSlotsE({navigation}) {
                                         ? `Phone Call`
                                         : `Video Call`),
                                   );
-                                  navigation.navigate('PatientHome');
+                                  navigation.goBack();
                                 }
                               })
                               .catch(error => {

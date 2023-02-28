@@ -1456,6 +1456,7 @@ function PatientConsult({navigation}) {
           {consultationModeModal ? <RenderModal /> : null} */}
 
           <DoctorCard DoctorsList={DoctorsList} />
+          <View style={{height: 50}} />
         </ScrollView>
         {isLoading && (
           <View
