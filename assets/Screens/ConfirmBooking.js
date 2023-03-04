@@ -172,6 +172,9 @@ function ConfirmBoking({navigation}) {
             let x = JSON.parse(
               await AsyncStorage.getItem('ConfirmBookingDoctor'),
             );
+            let patientDet = JSON.parse(
+              await AsyncStorage.getItem('UserPatientProfile'),
+            );
             let mode =
               x.consultationType == 'PHYSICAL'
                 ? 'P_CONSULTATION'

@@ -1127,9 +1127,13 @@ const FirstScreen = ({route, navigation}) => {
                 JSON.stringify(y),
               );
 
-              if (y.profileCompleted == true && y.verified == true)
+              if (y.profileCompleted == true && y.verified == true) {
+                setModalVisible(false);
                 navigation.navigate('DoctorHome', {doctorObj: y});
-              else navigation.navigate('DoctorRegistrationStep2');
+              } else {
+                setModalVisible(false);
+                navigation.navigate('DoctorRegistrationStep2');
+              }
             }
           })
           .catch(function (error) {
@@ -1150,6 +1154,7 @@ const FirstScreen = ({route, navigation}) => {
             setisLoading(false);
             console.log(response.data);
             if (response.status == 200) {
+              setModalVisible(false);
               await AsyncStorage.setItem(
                 'UserPatientProfile',
                 JSON.stringify(response.data),
@@ -1171,10 +1176,11 @@ const FirstScreen = ({route, navigation}) => {
                 navigation.navigate('PatientRegistration1');
               }
             } else if (response.status == 204) {
+              setModalVisible(false);
               console.log(response.data);
               Alert.alert(
-                'Basic Details',
-                `Please fill basic details for your profile`,
+                'New User!',
+                `Please register yourself before continuing.`,
               );
               navigation.navigate('PatientRegistration1');
             }

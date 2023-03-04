@@ -373,30 +373,46 @@ function PreConsult({navigation}) {
   const renderDocs = ({item, index}) => {
     return (
       <View
-        style={{
-          flexDirection: 'row',
-          backgroundColor: '#e8f0fe',
-          padding: 5,
-          borderRadius: 10,
-          margin: 3,
-          flex: 1,
-          justifyContent: 'center',
-        }}
-        key={item.documentPath}>
-        <TextInput
-          style={{
-            flex: 0.9,
-            backgroundColor: '#e8f0fe',
-            padding: 0,
-            fontSize: 12,
+        style={[
+          {
+            flexDirection: 'row',
+
+            padding: 5,
             borderRadius: 10,
-            paddingHorizontal: 15,
-          }}
-          onChangeText={text => handleRename(text, index)}
-          value={item.documentName}
-          editable={!DocsUploaded}
-          placeholderTextColor={'black'}
-        />
+            margin: 3,
+            flex: 1,
+            justifyContent: 'center',
+          },
+          !DocsUploaded ? {borderColor: '#2b8ada', borderWidth: 1} : null,
+        ]}
+        key={item.documentPath}>
+        <View style={{flex: 0.9, flexDirection: 'column'}}>
+          {!DocsUploaded ? (
+            <Text
+              style={{
+                fontSize: 12,
+                marginBottom: 3,
+                color: '#2b8ada',
+                fontWeight: 'bold',
+                paddingHorizontal: 10,
+              }}>
+              File Name:-
+            </Text>
+          ) : null}
+          <TextInput
+            style={{
+              backgroundColor: '#e8f0fe',
+              padding: 0,
+              fontSize: 12,
+              borderRadius: 10,
+              paddingHorizontal: 15,
+            }}
+            onChangeText={text => handleRename(text, index)}
+            value={item.documentName}
+            editable={!DocsUploaded}
+            placeholderTextColor={'black'}
+          />
+        </View>
         {!DocsUploaded ? (
           <TouchableOpacity
             style={{marginLeft: 5, flex: 0.1, justifyContent: 'center'}}
@@ -448,7 +464,10 @@ function PreConsult({navigation}) {
       )
       .then(response => {
         if (response.status == 200)
-          Alert.alert('Done', 'PreConsultation Questionnaire filled!');
+          Alert.alert(
+            'Done',
+            'Pre-Consultation Questionnaire submitted successfully!',
+          );
         setanswersUploaded(true);
       })
       .catch(error => {
@@ -466,7 +485,7 @@ function PreConsult({navigation}) {
       .post(apiConfig.baseUrl + '/patient/consultation/document/save', DocList)
       .then(response => {
         if (response.status == 200)
-          Alert.alert('Done', 'Documents uploaded successfully');
+          Alert.alert('Done', 'Documents submitted successfully');
         setDocsUploaded(true);
       })
       .catch(error => {
@@ -525,7 +544,7 @@ function PreConsult({navigation}) {
                   borderTopRightRadius: 10,
                   borderTopLeftRadius: 10,
                 }}>
-                Step 1 (Please Fill Preconsultation Questionnaire)
+                Step 1 (Please Fill Questionnaire)
               </Text>
               <View style={{padding: 10}}>
                 <FlatList
@@ -536,28 +555,36 @@ function PreConsult({navigation}) {
               </View>
 
               {!answersUploaded ? (
-                <CustomButton
-                  text={'Upload Answers'}
-                  textstyle={{
-                    color: 'white',
-                    fontWeight: 'bold',
-                    fontSize: 12,
-                    alignSelf: 'center',
-                  }}
+                <View
                   style={{
-                    flex: 0.45,
-                    padding: 5,
-                    paddingHorizontal: 10,
-                    backgroundColor: '#2b8ada',
-                    borderRadius: 10,
-                    marginVertical: 10,
-                    //width: '50%',
+                    flexDirection: 'row',
+                    width: '90%',
                     alignSelf: 'center',
-                  }}
-                  onPress={async () => {
-                    await uploadAnswers();
-                  }}
-                />
+                    justifyContent: 'space-evenly',
+                    marginVertical: 10,
+                  }}>
+                  <CustomButton
+                    text={'Submit'}
+                    textstyle={{
+                      color: 'white',
+                      fontWeight: 'bold',
+                      fontSize: 12,
+                      alignSelf: 'center',
+                    }}
+                    style={{
+                      flex: 0.45,
+                      padding: 5,
+                      paddingHorizontal: 10,
+                      backgroundColor: '#2b8ada',
+                      borderRadius: 10,
+                      //width: '50%',
+                      alignSelf: 'center',
+                    }}
+                    onPress={async () => {
+                      await uploadAnswers();
+                    }}
+                  />
+                </View>
               ) : null}
             </View>
 
@@ -580,6 +607,16 @@ function PreConsult({navigation}) {
                 }}>
                 Step 2 (Please Upload Documents)
               </Text>
+              <Text
+                style={{
+                  marginVertical: 5,
+                  padding: 3,
+                  fontSize: 12,
+                  color: '#2b8ada',
+                  alignSelf: 'center',
+                }}>
+                Note:- Documents may include lab reports, prescriptions,etc.
+              </Text>
               <View style={{padding: 10}}>
                 <FlatList
                   data={DocList}
@@ -597,33 +634,13 @@ function PreConsult({navigation}) {
                     justifyContent: 'space-evenly',
                     marginVertical: 10,
                   }}>
-                  <CustomButton
-                    text={'Upload Docs'}
-                    textstyle={{
-                      color: 'white',
-                      fontWeight: 'bold',
-                      fontSize: 12,
-                    }}
-                    style={{
-                      flex: 0.45,
-                      padding: 5,
-                      paddingHorizontal: 10,
-                      backgroundColor: '#2b8ada',
-                      borderRadius: 10,
-                      marginVertical: 10,
-                      //width: '50%',
-                      alignSelf: 'center',
-                    }}
-                    onPress={async () => {
-                      await uploadDocs();
-                    }}
-                  />
                   <TouchableOpacity
                     style={{
                       flex: 0.45,
                       justifyContent: 'center',
                       flexDirection: 'row',
                       borderWidth: 1,
+                      borderColor: '#2b8ada',
                       alignSelf: 'center',
                       borderRadius: 10,
                       padding: 3,
@@ -644,12 +661,40 @@ function PreConsult({navigation}) {
                     <FAIcons
                       name="file-pdf"
                       size={15}
+                      color={'#2b8ada'}
                       style={{alignSelf: 'center', marginRight: 5}}
                     />
-                    <Text style={{fontSize: 12, alignSelf: 'center'}}>
+                    <Text
+                      style={{
+                        fontSize: 12,
+                        alignSelf: 'center',
+                        color: '#2b8ada',
+                      }}>
                       Add File
                     </Text>
                   </TouchableOpacity>
+
+                  <CustomButton
+                    text={'Submit'}
+                    textstyle={{
+                      color: 'white',
+                      fontWeight: 'bold',
+                      fontSize: 12,
+                    }}
+                    style={{
+                      flex: 0.45,
+                      padding: 5,
+                      paddingHorizontal: 10,
+                      backgroundColor: '#2b8ada',
+                      borderRadius: 10,
+                      marginVertical: 10,
+                      //width: '50%',
+                      alignSelf: 'center',
+                    }}
+                    onPress={async () => {
+                      await uploadDocs();
+                    }}
+                  />
                 </View>
               ) : null}
             </View>
@@ -668,8 +713,8 @@ function PreConsult({navigation}) {
                   );
                 else {
                   Alert.alert(
-                    'Done',
-                    'All details have been uploaded successfully',
+                    'Success',
+                    `Your response has been successfully shared with doctor.`,
                   );
                   await AsyncStorage.multiRemove([
                     'ConfirmBookingDoctor',

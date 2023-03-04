@@ -60,9 +60,9 @@ const dataIdenDocs = [
 
 const dataTitle = [
   {key: 'Dr.', value: 'Dr.'},
-  {key: 'Mr.', value: 'Mr.'},
-  {key: 'Mrs.', value: 'Mrs.'},
-  {key: 'Ms.', value: 'Ms.'},
+  // {key: 'Mr.', value: 'Mr.'},
+  // {key: 'Mrs.', value: 'Mrs.'},
+  // {key: 'Ms.', value: 'Ms.'},
 ];
 const dataGender = [
   {key: 'Male', value: 'Male'},
@@ -684,6 +684,7 @@ const EditProfile = ({navigation}) => {
     setisUploading(true);
 
     let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
+    let flag = false;
     let mainOnj = new Object();
     mainOnj.age = Number(age);
 
@@ -701,7 +702,7 @@ const EditProfile = ({navigation}) => {
       'General Info Update---------\n' + JSON.stringify(mainOnj, null, 1),
     );
 
-    axios
+    await axios
       .post(apiConfig.baseUrl + '/doctor/generalinfo/update', mainOnj)
       .then(async function (response) {
         setisUploading(false);
@@ -723,12 +724,29 @@ const EditProfile = ({navigation}) => {
             'All changes made in Genreal Information have been updated.',
           );
           setGenInfoEdit(false);
+          flag = true;
         } else Alert.alert('Updation Error', 'Could not Update Details. Please try again later.');
       })
       .catch(function (error) {
         setisUploading(false);
         Alert.alert('Error', `An error has occured please try again. ${error}`);
       });
+
+    if (flag) {
+      await axios
+        .post(apiConfig.baseUrl + '/doctor/contact/visibility/update', {
+          doctorId: x.doctorId,
+          doctorNumber: x.mobileNumber,
+          email: x.email,
+          visibility: showMobNo,
+        })
+        .then(response => {
+          if (response == 200);
+        })
+        .catch(error => {
+          Alert.alert('Error', `${error}`);
+        });
+    }
   };
 
   const updateMedReg = async () => {
@@ -2118,17 +2136,28 @@ const EditProfile = ({navigation}) => {
                                   'Incomplete Details!',
                                   'Please fill registration council.',
                                 );
-                              if (RegYear == '')
+                              else if (RegYear == '' || RegYear.length < 4)
                                 Alert.alert(
                                   'Incomplete Details!',
                                   'Please fill registration year.',
                                 );
-                              if (certificatePath == null)
+                              // else if (
+                              //   RegYear != '' &&
+                              //   !(
+                              //     parseInt(RegYear) > parseInt(dob) &&
+                              //     parseInt(RegYear) < 2024
+                              //   )
+                              // )
+                              //   Alert(
+                              //     'Invalid Year',
+                              //     'Please fill valid registration year',
+                              //   );
+                              else if (certificatePath == null)
                                 Alert.alert(
                                   'Incomplete Details!',
                                   'Please select registration certificate file.',
                                 );
-                              updateMedReg();
+                              else updateMedReg();
                               //setMedInfoEdit(false);
                             }}
                             style={styles.ButtonUpdate}
@@ -3708,6 +3737,7 @@ const EditProfile = ({navigation}) => {
                       </View>
                       <View
                         style={{alignSelf: 'center', flexDirection: 'column'}}>
+                        {/* Zoom Controls */}
                         <View
                           style={{
                             flexDirection: 'row',
@@ -3735,6 +3765,31 @@ const EditProfile = ({navigation}) => {
                               onPress={onZoomIn}
                             />
                           </TouchableOpacity>
+                        </View>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            alignSelf: 'center',
+                            marginVertical: 5,
+                          }}>
+                          <Text
+                            style={{
+                              fontSize: 13,
+                              fontWeight: 'bold',
+                              color: 'black',
+                              marginRight: 3,
+                            }}>
+                            File Name:-
+                          </Text>
+                          {docPath != null ? (
+                            <Text
+                              style={{
+                                fontSize: 13,
+                                color: 'black',
+                              }}>
+                              {docPath.split('/').pop()}
+                            </Text>
+                          ) : null}
                         </View>
                         <View
                           style={{

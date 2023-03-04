@@ -3611,7 +3611,12 @@ const DoctorRegistration2 = ({navigation}) => {
                     {ClinicDet.length == 0 || addMoreAddInfo ? (
                       <View style={{width: '95%', alignSelf: 'center'}}>
                         <View style={{flexDirection: 'column'}}>
-                          <Text style={styles.inputLabel}>Clinic Name</Text>
+                          <View style={{flexDirection: 'row'}}>
+                            <Text style={styles.inputLabel}>Clinic Name</Text>
+                            <Text style={[styles.inputLabel, {color: 'red'}]}>
+                              *
+                            </Text>
+                          </View>
                           <TextInput
                             style={styles.textInput}
                             value={clinicName}
@@ -3620,7 +3625,14 @@ const DoctorRegistration2 = ({navigation}) => {
                           />
                         </View>
                         <View style={{flexDirection: 'column'}}>
-                          <Text style={styles.inputLabel}>Clinic Address</Text>
+                          <View style={{flexDirection: 'row'}}>
+                            <Text style={styles.inputLabel}>
+                              Clinic Address
+                            </Text>
+                            <Text style={[styles.inputLabel, {color: 'red'}]}>
+                              *
+                            </Text>
+                          </View>
                           <TextInput
                             style={styles.textInput}
                             value={clinicAddress}
@@ -3669,6 +3681,7 @@ const DoctorRegistration2 = ({navigation}) => {
                               );
                               setClinicName('');
                             } else if (
+                              specialInstruction != '' &&
                               !checkAlphanumicOnly(specialInstruction)
                             ) {
                               Alert.alert(
@@ -3964,22 +3977,33 @@ const DoctorRegistration2 = ({navigation}) => {
                           style={[
                             styles.textInput,
                             {
-                              alignSelf: 'center',
-                              justifyContent: 'space-evenly',
+                              alignSelf: 'flex-end',
                               flexDirection: 'row',
-                              width: '95%',
-                              backgroundColor: '#2b8ada',
+                              borderColor: '#2b8ada',
+                              borderWidth: 1,
+                              padding: 5,
+                              paddingHorizontal: 10,
+                              backgroundColor: 'white',
                             },
                           ]}
                           onPress={() => setQuestionare(true)}>
                           <FAIcon
                             name="plus"
-                            color={'white'}
-                            size={20}
-                            style={{alignSelf: 'center'}}
+                            color={'#2b8ada'}
+                            size={15}
+                            style={{alignSelf: 'center', marginRight: 5}}
                           />
-                          <Text style={[styles.label, {color: 'white'}]}>
-                            Add Pre Consultation Questionnaire
+                          <Text
+                            style={[
+                              styles.label,
+                              {
+                                color: '#2b8ada',
+                                alignSelf: 'center',
+                                padding: 0,
+                                fontSize: 12,
+                              },
+                            ]}>
+                            Add Questions
                           </Text>
                         </TouchableOpacity>
                       </View>
@@ -4077,8 +4101,9 @@ const DoctorRegistration2 = ({navigation}) => {
                           fontWeight: 'bold',
                           fontSize: 14,
                           padding: 5,
+                          color: 'black',
                         }}>
-                        Add Pre Consultation Questionnaire
+                        Add Questions
                       </Text>
                       <FAIcon
                         name="window-close"
@@ -4176,7 +4201,10 @@ const DoctorRegistration2 = ({navigation}) => {
                               marginBottom: 5,
                             }}>
                             <Text
-                              style={[styles.inputLabel, {marginBottom: 5}]}>
+                              style={[
+                                styles.inputLabel,
+                                {marginBottom: 5, color: 'black'},
+                              ]}>
                               Question
                             </Text>
 
@@ -4201,7 +4229,6 @@ const DoctorRegistration2 = ({navigation}) => {
                                   height: 60,
                                 }}
                                 maxLength={50}
-                                multiline={true}
                                 value={consultationQuestion}
                                 onChangeText={text =>
                                   setConsultationQuestion(text)
@@ -4364,7 +4391,7 @@ const DoctorRegistration2 = ({navigation}) => {
             </View>
             {/* Consultation Fees Body*/}
             {showConsultFees ? (
-              <View style={[styles.whiteBodyView, {marginBottom: 100}]}>
+              <View style={[styles.whiteBodyView]}>
                 <View
                   style={{
                     width: '95%',
@@ -4579,9 +4606,10 @@ const DoctorRegistration2 = ({navigation}) => {
                 borderColor: '#2b8ada',
                 borderWidth: 1,
                 flex: 0.45,
-                marginVertical: 20,
+                marginTop: 10,
                 padding: 10,
                 borderRadius: 10,
+                marginBottom: 100,
               }}
               onPress={async () => {
                 await AsyncStorage.multiRemove(await AsyncStorage.getAllKeys());

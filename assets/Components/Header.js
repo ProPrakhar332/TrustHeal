@@ -374,6 +374,7 @@ const Header = ({title, showMenu}) => {
       consultationType: mode,
       doctorId: doctorId,
       doctorMobileNumber: x.mobileNumber,
+      doctorName: x.doctorName,
       eslotsId: eslotsId,
       fees: fees,
       patientMobileNumber: mob,

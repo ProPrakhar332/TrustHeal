@@ -41,6 +41,7 @@ const PatientRegistration1 = ({navigation}) => {
   const [patientDto, setpatientDto] = useState([]);
   const [title, setTitle] = useState('');
   const [name, setName] = useState('');
+  const [editName, seteditName] = useState(true);
   const [email, setEmail] = useState('');
   const [gender, setGender] = useState('');
   const [city, setCity] = useState('');
@@ -91,6 +92,11 @@ const PatientRegistration1 = ({navigation}) => {
   useEffect(() => {
     const onLoadSetData = async () => {
       setmobno(await AsyncStorage.getItem('mobileNumber'));
+      let x = JSON.parse(await AsyncStorage.getItem('UserPatientProfile'));
+      if (x != null) {
+        setName(x.patientName);
+        seteditName(false);
+      }
     };
 
     onLoadSetData();
@@ -412,9 +418,15 @@ const PatientRegistration1 = ({navigation}) => {
                         <Text style={{color: 'red'}}>*</Text>
                       </View>
                       <TextInput
-                        style={[styles.textInput, {backgroundColor: '#E8F0FE'}]}
+                        style={[
+                          styles.textInput,
+                          editName
+                            ? {backgroundColor: '#E8F0FE'}
+                            : {backgroundColor: '#d0e0fc'},
+                        ]}
                         placeholderTextColor={'black'}
                         maxLength={50}
+                        editable={editName}
                         onChangeText={text => setName(text)}
                         value={name}></TextInput>
                     </View>
@@ -759,6 +771,8 @@ const PatientRegistration1 = ({navigation}) => {
               alignSelf: 'center',
               flexDirection: 'row',
               marginVertical: 15,
+              width: '95%',
+              justifyContent: 'space-evenly',
             }}>
             <CustomButton
               text="Submit"
@@ -768,9 +782,7 @@ const PatientRegistration1 = ({navigation}) => {
                 fontWeight: 'bold',
               }}
               style={{
-                flex: 1,
-                marginBottom: 50,
-                marginVertical: 10,
+                flex: 0.45,
                 padding: 10,
                 borderRadius: 10,
                 backgroundColor: '#2b8ada',
@@ -816,6 +828,25 @@ const PatientRegistration1 = ({navigation}) => {
                     );
                 }
               }}></CustomButton>
+            <CustomButton
+              text={'Logout'}
+              textstyle={{
+                color: '#2b8ada',
+                fontSize: 15,
+                fontWeight: 'bold',
+              }}
+              style={{
+                borderColor: '#2b8ada',
+                borderWidth: 1,
+                flex: 0.45,
+                padding: 10,
+                borderRadius: 10,
+              }}
+              onPress={async () => {
+                await AsyncStorage.multiRemove(await AsyncStorage.getAllKeys());
+                navigation.navigate('RoleScreen');
+              }}
+            />
             {/* <CustomButton
               text="Skip"
               textstyle={{
