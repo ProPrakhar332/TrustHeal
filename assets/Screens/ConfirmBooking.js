@@ -580,7 +580,7 @@ function ConfirmBoking({navigation}) {
                       style={{flexDirection: 'row'}}
                     />
 
-                    <CustomButton
+                    {/* <CustomButton
                       text={'+ Add Family Member'}
                       textstyle={[
                         {fontSize: 12},
@@ -600,7 +600,7 @@ function ConfirmBoking({navigation}) {
                         setselfp(false);
                         setAppointmentFor([]);
                       }}
-                    />
+                    /> */}
                   </View>
                 </View>
               </View>

@@ -31,6 +31,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import apiConfig from '../API/apiConfig';
 import waiting from '../Animations/waiting1.gif';
+//import logo from '../Resources/TH_trans.png';
+import logo from '../Resources/Logo.jpg';
 
 const countries = [
   {
@@ -1242,7 +1244,7 @@ const FirstScreen = ({route, navigation}) => {
           <View
             style={{flex: 1, flexDirection: 'column', alignItems: 'center'}}>
             <Image
-              source={require('../Resources/Logo.jpg')}
+              source={logo}
               style={{
                 width: 200,
                 height: 200,

@@ -60,6 +60,7 @@ const PatientProfileEdit = ({navigation}) => {
   const [isLoading, setisLoading] = useState(false);
   const [patientId, setpatientId] = useState('');
   const [photoPath, setphotoPath] = useState(null);
+  const [isSpecial, setisSpecial] = useState(false);
 
   const [checkTerms, setCheckTerms] = useState(false);
 
@@ -105,6 +106,8 @@ const PatientProfileEdit = ({navigation}) => {
       setEmail(x.email);
       setdob(x.dob);
       setGender(x.gender);
+      setisSpecial(x.isSpecialPatient);
+      setmobno(x.mobileNumber);
       setCity(x.city);
       setpatientId(x.patientId);
       setphotoPath(x.photoPath);
@@ -112,10 +115,10 @@ const PatientProfileEdit = ({navigation}) => {
       x.profileComplete = true;
       await AsyncStorage.setItem('UserPatientProfile', JSON.stringify(x));
       //other details
-      setBloodGroup(x.bloodGroup != null ? x.bloodGroup : ' ');
-      setOccupation(x.occupation != null ? x.occupation : ' ');
-      setHeight(x.height != null ? x.height : ' ');
-      setWeight(x.weight != null ? x.weight : ' ');
+      setBloodGroup(x.bloodGroup != null ? x.bloodGroup : '');
+      setOccupation(x.occupation != null ? x.occupation : '');
+      setHeight(x.height != null ? x.height : '');
+      setWeight(x.weight != null ? x.weight : '');
     };
 
     onLoadSetData();
@@ -267,7 +270,7 @@ const PatientProfileEdit = ({navigation}) => {
   const postData = async () => {
     setisLoading(true);
     let p = {
-      age: age,
+      age: dayjs().diff(dayjs(dob), 'y'),
       allowWhatsAppNotification: false,
       //bloodGroup: BloodGroup,
       city: city,
@@ -279,7 +282,7 @@ const PatientProfileEdit = ({navigation}) => {
       mobileNumber: mobno,
       //occupation: Occupation,
       patientId: patientId,
-      patientName: name,
+      patientName: title + ' ' + name,
       patientPhoto: photoPath,
       pincode: pincode,
       termsAndConditions: true,
@@ -294,20 +297,18 @@ const PatientProfileEdit = ({navigation}) => {
     if (Occupation != '') p.occupation = Occupation;
     if (Weight != '') p.weight = Weight;
     if (Height != '') p.height = Height;
+    console.log('===========Editing Details===========\n', p);
 
     axios
       .post(apiConfig.baseUrl + '/patient/update', p)
       .then(async function (response) {
         if (response.status == 200) {
-          await AsyncStorage.setItem(
-            'UserPatientProfile',
-            JSON.stringify(response.data),
-          );
+          p.isSpecialPatient = isSpecial;
+
+          await AsyncStorage.setItem('UserPatientProfile', JSON.stringify(p));
           setisLoading(false);
           Alert.alert('Done', 'Your details have been saved successfully.');
-          navigation.navigate('PatientProfile', {
-            patientObj: JSON.stringify(response.data),
-          });
+          navigation.goBack();
         }
       })
       .catch(error => {

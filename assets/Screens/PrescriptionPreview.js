@@ -706,14 +706,18 @@ th{
     console.log();
     axios
       .post(apiConfig.baseUrl + '/doctor/consultation/status/complete', p)
-      .then(function (response) {
+      .then(async function (response) {
         setisUploading(false);
         if (response.status == 200) {
           Alert.alert(
             'Success',
             `Your Consultation with ${patientName} has been completed.`,
           );
-          navigation.navigate('DoctorHome');
+          navigation.navigate('DoctorHome', {
+            doctorObj: JSON.stringify(
+              await AsyncStorage.getItem('UserDoctorProfile'),
+            ),
+          });
         }
       })
       .catch(error => {

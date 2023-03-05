@@ -88,10 +88,10 @@ function MyAppointment({navigation}) {
           patientDet.patientId,
       )
       .then(function (response) {
-        // console.log(
-        //   '\n=========================== UPCOMING CONSULTATIONS ====================================\n',
-        // );
-        // console.log(response.data);
+        console.log(
+          '\n=========================== UPCOMING CONSULTATIONS ====================================\n',
+        );
+        console.log(response.data);
         if (response.status == 200) {
           setisLoading(false);
           setUpcomingData(response.data);
@@ -322,7 +322,7 @@ function MyAppointment({navigation}) {
             <Text style={{fontSize: 12, fontWeight: 'bold'}}>
               {timeformatter(item.slotStartTime)}
               {'  |  '}
-              {dayjs(item.date).format('DD-MMM-YY')}
+              {dayjs(item.slotDate).format('DD-MMM-YY')}
             </Text>
             {/* <View style={{flexDirection: 'row', marginVertical: 3}}>
               {item.slotStartTime == dayjs().format('HH:mm') ? (

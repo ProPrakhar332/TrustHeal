@@ -434,8 +434,8 @@ function PatientProfile({navigation}) {
               ]}>
               {item.name}
             </Text>
-
-            {item.familyId == activeFamilyId ? (
+            {/* edit family */}
+            {/* {item.familyId == activeFamilyId ? (
               <View
                 style={{
                   flex: 0.2,
@@ -477,7 +477,7 @@ function PatientProfile({navigation}) {
                   />
                 </TouchableOpacity>
               </View>
-            ) : null}
+            ) : null} */}
 
             <TouchableOpacity style={{right: 0}}>
               <FAIcon
