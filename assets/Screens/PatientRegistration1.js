@@ -225,6 +225,7 @@ const PatientRegistration1 = ({navigation}) => {
     let patient = null;
 
     if (editName) {
+      console.log('=========== NEW USER ================\n', p);
       await axios
         .post(apiConfig.baseUrl + '/patient/save', p)
         .then(function (response) {
@@ -240,6 +241,7 @@ const PatientRegistration1 = ({navigation}) => {
         });
     } else {
       p.patientId = patientId;
+      console.log('=========== SHARED USER ================\n', p);
       await axios
         .post(apiConfig.baseUrl + '/patient/update', p)
         .then(function (response) {

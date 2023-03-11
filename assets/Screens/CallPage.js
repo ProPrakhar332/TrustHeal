@@ -43,7 +43,7 @@ export default function CallPage(props) {
             // ...ONE_ON_ONE_VIDEO_CALL_CONFIG,
             onHangUp: () => {
               if (userType == 'Doctor') props.navigation.goBack();
-              else props.navigation.navigate('PatientHome');
+              else props.navigation.navigate('Consult');
             },
           }}
         />
@@ -59,7 +59,7 @@ export default function CallPage(props) {
             ...ONE_ON_ONE_VIDEO_CALL_CONFIG,
             onHangUp: () => {
               if (userType == 'Doctor') props.navigation.goBack();
-              else props.navigation.navigate('PatientHome');
+              else props.navigation.navigate('Consult');
             },
           }}
         />

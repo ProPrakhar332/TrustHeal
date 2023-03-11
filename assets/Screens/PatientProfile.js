@@ -25,6 +25,7 @@ import {
 } from 'react-native-dropdown-select-list';
 //icons
 import patient from '../Resources/patient.png';
+import patient_female from '../Resources/patient_female.png';
 import invoice from '../Icons/invoice.png';
 import notification from '../Icons/notification.png';
 import appointment from '../Icons/appointment.png';
@@ -746,7 +747,10 @@ function PatientProfile({navigation}) {
                     alignSelf: 'center',
                   }}
                 /> */}
-                {PatientDet == null || PatientDet.photoPath == 0 ? (
+                {PatientDet == null ||
+                (PatientDet.patientphoto != null &&
+                  PatientDet.patientphoto == 0) ||
+                (PatientDet.photoPath != null && PatientDet.photoPath == 0) ? (
                   <Image
                     style={{
                       backgroundColor: '#2B8ADA',
@@ -755,7 +759,13 @@ function PatientProfile({navigation}) {
                       height: 70,
                       alignSelf: 'center',
                     }}
-                    source={patient}
+                    source={
+                      PatientDet != null
+                        ? PatientDet.gender == 'Female'
+                          ? patient_female
+                          : patient
+                        : patient
+                    }
                   />
                 ) : (
                   <Image

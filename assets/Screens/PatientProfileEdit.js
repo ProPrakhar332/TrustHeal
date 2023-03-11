@@ -27,6 +27,7 @@ import HeaderPatient from '../Components/HeaderPatient';
 
 //icons
 import patient from '../Resources/patient.png';
+import patient_female from '../Resources/patient_female.png';
 import upload from '../Resources/upload.png';
 import waiting from '../Animations/waiting1.gif';
 import {CheckBox} from 'react-native-elements';
@@ -110,7 +111,7 @@ const PatientProfileEdit = ({navigation}) => {
       setmobno(x.mobileNumber);
       setCity(x.city);
       setpatientId(x.patientId);
-      setphotoPath(x.photoPath);
+      setphotoPath(x.photoPath != null ? x.photoPath : x.patientPhoto);
       setpincode(x.pinCode == null ? x.pincode : x.pinCode);
       x.profileComplete = true;
       await AsyncStorage.setItem('UserPatientProfile', JSON.stringify(x));
@@ -350,7 +351,7 @@ const PatientProfileEdit = ({navigation}) => {
                 alignItems: 'center',
                 marginVertical: 20,
               }}>
-              {photoPath == null ? (
+              {photoPath == null || photoPath == 0 ? (
                 <Image
                   style={{
                     alignSelf: 'center',
@@ -360,7 +361,9 @@ const PatientProfileEdit = ({navigation}) => {
                     height: 100,
                     borderRadius: 100,
                   }}
-                  source={patient}></Image>
+                  source={
+                    gender == 'Female' ? patient_female : patient
+                  }></Image>
               ) : (
                 <Image
                   style={{
