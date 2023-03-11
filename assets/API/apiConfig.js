@@ -1,9 +1,9 @@
 var apiConfig = {
   baseUrl: 'http://10.0.2.2:8080', //local
   //baseUrl: 'http://trustheal.in:8080', //server
-  zegoCloudAppId: 40130663,
+  zegoCloudAppId: 558378046,
   zegoCloudAppSign:
-    'e6b0c9cafc50e47d9f9dfd56abd1765e0f0efdf7595b32cefceed2770dc2bffb',
+    '6a7186f7d654688499212a30b7b3b8202cf8b90b7bbbcb71889f3bdc5eb382bc',
 };
 
 export default apiConfig;

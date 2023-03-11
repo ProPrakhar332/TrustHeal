@@ -24,6 +24,7 @@ import Header from '../Components/Header';
 import HeaderPatient from '../Components/HeaderPatient';
 import FAIcons from 'react-native-vector-icons/FontAwesome5';
 import apiConfig from '../API/apiConfig';
+import Pdf from 'react-native-pdf';
 
 //icons
 import defaultDoctor from '../Resources/doctor3x.png';
@@ -141,6 +142,16 @@ function ConfirmBoking({navigation}) {
   const [AppointmentFor, setAppointmentFor] = useState([]);
   const [THOrderId, setTHOrderId] = useState(0);
   const [PayonClinic, setPayonClinic] = useState(false);
+
+  const [termsView, setTermsView] = useState(false);
+  const [zoom, setZoom] = useState(1);
+
+  const onZoomIn = () => {
+    if (zoom < 2.5) setZoom(zoom + 0.25);
+  };
+  const onZoomOut = () => {
+    if (zoom > 1) setZoom(zoom - 0.25);
+  };
 
   useEffect(() => {
     const LoadData = async () => {
@@ -537,7 +548,7 @@ function ConfirmBoking({navigation}) {
                 }}>
                 <Text
                   style={{fontSize: 15, color: 'black', fontWeight: 'bold'}}>
-                  Appointment For
+                  Appointment for
                 </Text>
                 <View
                   style={{
@@ -567,41 +578,27 @@ function ConfirmBoking({navigation}) {
                       }}
                     />
                   </View>
-                  <Text
-                    style={{color: 'black', fontSize: 12, fontWeight: 'bold'}}>
-                    Family Member
-                  </Text>
-                  <View style={{flexDirection: 'column', flexWrap: 'wrap'}}>
-                    <FlatList
-                      data={FamilyList}
-                      renderItem={RenderFamily}
-                      key={item => item.familyId}
-                      horizontal={true}
-                      style={{flexDirection: 'row'}}
-                    />
-
-                    {/* <CustomButton
-                      text={'+ Add Family Member'}
-                      textstyle={[
-                        {fontSize: 12},
-                        family ? {color: 'white'} : {color: 'black'},
-                      ]}
-                      style={[
-                        {
-                          backgroundColor: 'white',
-                          padding: 5,
-                          paddingHorizontal: 20,
-                          margin: 5,
-                        },
-                        family ? {backgroundColor: '#2B8ADA'} : null,
-                      ]}
-                      onPress={() => {
-                        setfamily(true);
-                        setselfp(false);
-                        setAppointmentFor([]);
-                      }}
-                    /> */}
-                  </View>
+                  {!SpecialUser ? (
+                    <View>
+                      <Text
+                        style={{
+                          color: 'black',
+                          fontSize: 12,
+                          fontWeight: 'bold',
+                        }}>
+                        Family Member
+                      </Text>
+                      <View style={{flexDirection: 'column', flexWrap: 'wrap'}}>
+                        <FlatList
+                          data={FamilyList}
+                          renderItem={RenderFamily}
+                          key={item => item.familyId}
+                          horizontal={true}
+                          style={{flexDirection: 'row'}}
+                        />
+                      </View>
+                    </View>
+                  ) : null}
                 </View>
               </View>
               {family ? (
@@ -794,7 +791,13 @@ function ConfirmBoking({navigation}) {
               ) : null}
               {/* Symptoms */}
               <View style={{width: '90%', alignSelf: 'center'}}>
-                <Text style={styles.fomrHeading}>
+                <Text
+                  style={{
+                    fontSize: 15,
+                    color: 'black',
+                    fontWeight: 'bold',
+                    marginBottom: 3,
+                  }}>
                   Give a brief description of your symptoms
                 </Text>
                 <View
@@ -836,17 +839,9 @@ function ConfirmBoking({navigation}) {
                     <Text
                       style={[styles.textLink]}
                       onPress={() => {
-                        viewTermsConditions();
+                        setTermsView(true);
                       }}>
                       Terms and Conditions
-                    </Text>{' '}
-                    and{' '}
-                    <Text
-                      style={[styles.textLink]}
-                      onPress={() => {
-                        viewPrivacyPolicy();
-                      }}>
-                      Privacy Policy
                     </Text>
                   </Text>
                 }
@@ -952,21 +947,155 @@ function ConfirmBoking({navigation}) {
               }}
             />
           ) : null}
-
-          {/* <CustomButton
-            text={'Cache Keys'}
-            textstyle={{color: 'white', fontSize: 13}}
-            style={{
-              backgroundColor: 'limegreen',
-              width: '90%',
-              alignSelf: 'center',
-              borderRadius: 10,
-            }}
-            onPress={async () => {
-              console.log(await AsyncStorage.getAllKeys());
-            }}
-          /> */}
         </ScrollView>
+        {termsView ? (
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={termsView}
+            onRequestClose={() => {
+              setTermsView(!termsView);
+            }}>
+            <View
+              style={{
+                height: '100%',
+                backgroundColor: 'rgba(0,0,0,0.8)',
+                flexDirection: 'row',
+                justifyContent: 'center',
+              }}>
+              <View
+                style={[
+                  styles.modalView,
+                  {
+                    borderRadius: 10,
+                  },
+                ]}>
+                <View
+                  style={{
+                    width: '100%',
+                    alignSelf: 'center',
+                    borderBottomWidth: 1,
+                    borderBottomColor: 'gray',
+                  }}>
+                  <Text
+                    style={{
+                      fontWeight: 'bold',
+                      fontSize: 16,
+                      padding: 5,
+                      color: 'black',
+                    }}>
+                    Terms and Condition
+                  </Text>
+                  <FAIcons
+                    name="window-close"
+                    color="black"
+                    size={26}
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      right: 0,
+                    }}
+                    onPress={() => {
+                      setTermsView(false);
+
+                      setZoom(1);
+                    }}
+                  />
+                </View>
+                <View style={{minHeight: 150, width: '100%'}}>
+                  <View
+                    style={{
+                      padding: 10,
+                      width: '100%',
+                      alignSelf: 'center',
+                      borderRadius: 7,
+                      marginVertical: 10,
+                      borderWidth: 2,
+                      borderColor: 'gray',
+                    }}>
+                    <Pdf
+                      source={{
+                        uri: 'https://docs.google.com/uc?export=&id=18CsnbLsajh30On3diIcKR0xLzpTIxpH5',
+                      }}
+                      //source={require('../Terms/Doctor.pdf')}
+                      style={{
+                        width: '100%',
+                        height: 275,
+                        alignSelf: 'center',
+                      }}
+                      onLoadComplete={() => console.log('fully loaded')}
+                      scale={zoom}
+                    />
+                  </View>
+                  <View style={{alignSelf: 'center', flexDirection: 'column'}}>
+                    {/* Zoom Controls */}
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignContent: 'center',
+                        justifyContent: 'space-evenly',
+                        width: '95%',
+                      }}>
+                      <TouchableOpacity>
+                        <FAIcons
+                          name="minus-circle"
+                          size={20}
+                          color={'gray'}
+                          onPress={onZoomOut}
+                        />
+                      </TouchableOpacity>
+                      <Text>
+                        {zoom * 100}
+                        {' %'}
+                      </Text>
+                      <TouchableOpacity>
+                        <FAIcons
+                          name="plus-circle"
+                          size={20}
+                          color={'gray'}
+                          onPress={onZoomIn}
+                        />
+                      </TouchableOpacity>
+                    </View>
+                    <View style={{flexDirection: 'row', marginTop: 20}}>
+                      <CustomButton
+                        text="Decline"
+                        textstyle={{color: '#2B8ADA', fontSize: 13}}
+                        style={{
+                          borderWidth: 1,
+                          borderColor: '#2B8ADA',
+                          flex: 0.45,
+                          marginRight: '5%',
+                          alignSelf: 'center',
+                          padding: 5,
+                        }}
+                        onPress={() => {
+                          setprivatePolicy(false);
+                          setTermsView(false);
+                        }}
+                      />
+                      <CustomButton
+                        text="Accept"
+                        textstyle={{color: 'white', fontSize: 13}}
+                        style={{
+                          backgroundColor: '#2B8ADA',
+                          flex: 0.45,
+                          alignSelf: 'center',
+                          padding: 5,
+                        }}
+                        onPress={() => {
+                          //  PostData();
+                          setprivatePolicy(true);
+                          setTermsView(false);
+                        }}
+                      />
+                    </View>
+                  </View>
+                </View>
+              </View>
+            </View>
+          </Modal>
+        ) : null}
       </SafeAreaView>
     </KeyboardAvoidingView>
   );
@@ -1002,6 +1131,25 @@ const styles = StyleSheet.create({
   textLink: {
     textDecorationLine: 'underline',
     color: 'blue',
+  },
+  modalView: {
+    position: 'absolute',
+    width: '90%',
+    alignSelf: 'center',
+    backgroundColor: 'white',
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    borderRadius: 10,
+  },
+  modalText: {
+    marginVertical: 15,
+    marginHorizontal: 10,
+    textAlign: 'center',
   },
 });
 

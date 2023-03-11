@@ -342,6 +342,24 @@ const ManageSchedule = () => {
     let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
     let doctorId = Number(x.doctorId);
 
+    let availablePslots = [];
+    console.log(
+      apiConfig.baseUrl +
+        `/slot/pslots/all?clinicId=${PCCreateClinicID}&date=${selectedDate}&doctorId=${doctorId}`,
+    );
+
+    await axios
+      .get(
+        apiConfig.baseUrl +
+          `/slot/pslots/all?clinicId=${PCCreateClinicID}&date=${selectedDate}&doctorId=${doctorId}`,
+      )
+      .then(response => {
+        if (response.status == 200) availablePslots = response.data;
+      })
+      .catch(error => {
+        Alert.alert('Error in p/g phy', `${error}`);
+      });
+
     let p = {
       clinicId: PCCreateClinicID,
       date: selectedDate,
@@ -357,14 +375,15 @@ const ManageSchedule = () => {
         (PCinTimeMM.length == 1 ? '0' + PCinTimeMM : PCinTimeMM),
     };
     console.log(p);
-    if (PCData.length == 0) {
+
+    if (availablePslots.length == 0) {
       PCData.push(p);
       axios
         .post(apiConfig.baseUrl + '/doctor/slots/p/create', PCData)
         .then(function (response) {
           console.log(response.status);
           if (response.status == 201 || response.status == 200) {
-            Alert.alert('Slot Added', 'Slot details submitted successfully');
+            Alert.alert('Done', 'Slot has been added successfully');
             setPCData([]);
             getPDates();
           } else Alert.alert('Error', 'There was some problem please try again');
@@ -381,33 +400,26 @@ const ManageSchedule = () => {
         });
     } else {
       let flag = 0;
-      for (var i = 0; i < PCData.length; ++i) {
+      for (var i = 0; i < availablePslots.length; ++i) {
+        let endTime = availablePslots[i].endTime;
+        let startTime = availablePslots[i].startTime;
+        let time1 = startTime.split(':');
+        let time2 = endTime.split(':');
         if (
-          PCData[i].clinicName == PCCreateClinicName &&
-          PCData[i].clinicAddress == PCCreateClinicAddress &&
-          PCData[i].date == selectedDate
+          (Number(PCinTimeHH) <= Number(time1[0]) &&
+            Number(time1[0]) <= Number(PCinTimeHH)) ||
+          (Number(PCoutTimeHH) <= Number(time2[0]) &&
+            Number(time2[0]) <= Number(PCoutTimeHH))
         ) {
-          let endTime = PCData[i].endTime;
-          let startTime = p.startTime;
-
-          let time1 = endTime.split(':');
-          let time2 = startTime.split(':');
-
-          if (Number(time1[0]) > Number(time2[0])) {
-            flag = 1;
-            break;
-          } else if (Number(time1[0]) == Number(time2[0])) {
-            if (Number(time1[1]) > Number(time2[1])) {
-              flag = 1;
-              break;
-            } else continue;
-          } else continue;
+          flag = 1;
+          break;
         }
       }
+
       if (flag == 1) {
         Alert.alert(
-          'Duplicate Data',
-          'Sorry you cannot insert duplicate records',
+          'Overlapping Slot',
+          'This time slot overlaps with the existing ones.\nPlease enter new time slot.',
         );
         setPCData([]);
         await reset();
@@ -418,7 +430,7 @@ const ManageSchedule = () => {
           .then(function (response) {
             console.log(response.status);
             if (response.status == 201 || response.status == 200) {
-              Alert.alert('Slot Added', 'Slot details submitted successfully');
+              Alert.alert('Done', 'Slot has been added successfully');
               setPCData([]);
               getPDates();
             } else Alert.alert('Error', 'There was some problem please try again');
@@ -433,14 +445,44 @@ const ManageSchedule = () => {
             console.log(error);
             //setPCData([]);
           });
-        //Alert.alert("Slot details submitted successfully");
       }
       console.log(PCData);
     }
   };
+
   const pushESlot = async () => {
     let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
     let doctorId = Number(x.doctorId);
+
+    let availableEslots = [];
+
+    //get available slots by date
+    console.log(
+      apiConfig.baseUrl +
+        '/slot/eslot/all?date=' +
+        selectedDate +
+        '&doctorId=' +
+        doctorId,
+    );
+
+    await axios
+      .get(
+        apiConfig.baseUrl +
+          '/slot/eslot/all?date=' +
+          selectedDate +
+          '&doctorId=' +
+          doctorId,
+      )
+      .then(response => {
+        if (response.status == 200) {
+          availableEslots = response.data;
+        }
+      })
+      .catch(error => {
+        Alert.alert('Error in push get', `${error}`);
+      });
+
+    console.log('Available slots\n', availableEslots);
 
     let p = {
       consultationDate: selectedDate,
@@ -457,15 +499,16 @@ const ManageSchedule = () => {
       slotDuration: Number(ECduration),
       typeOfEConsultation: EconsultMode,
     };
-    if (ECData.length == 0) {
+
+    if (availableEslots.length == 0) {
       //console.log(p);
       ECData.push(p);
       axios
         .post(apiConfig.baseUrl + '/doctor/slots/e/create', ECData)
         .then(function (response) {
           console.log(response.status);
-          if (response.status == 201 || response.status == 200) {
-            Alert.alert('Slot Added', 'Slot details submitted successfully');
+          if (response.status == 200) {
+            Alert.alert('Done', 'Slot has been added successfully');
             setECData([]);
             getEDates();
           } else Alert.alert('Error', 'There was some problem please try again');
@@ -477,27 +520,25 @@ const ManageSchedule = () => {
         });
     } else {
       let flag = 0;
-      for (var i = 0; i < ECData.length; ++i) {
-        let endTime = ECData[i].consultationEndTime;
-        let startTime = p.consultationStartTime;
-
-        let time1 = endTime.split(':');
-        let time2 = startTime.split(':');
-
-        if (Number(time1[0]) > Number(time2[0])) {
+      for (var i = 0; i < availableEslots.length; ++i) {
+        let endTime = availableEslots[i].endTime;
+        let startTime = availableEslots[i].startTime;
+        let time1 = startTime.split(':');
+        let time2 = endTime.split(':');
+        if (
+          (Number(ECinTimeHH) <= Number(time1[0]) &&
+            Number(time1[0]) <= Number(ECinTimeHH)) ||
+          (Number(ECoutTimeHH) <= Number(time2[0]) &&
+            Number(time2[0]) <= Number(ECoutTimeHH))
+        ) {
           flag = 1;
           break;
-        } else if (Number(time1[0]) == Number(time2[0])) {
-          if (Number(time1[1]) > Number(time2[1])) {
-            flag = 1;
-            break;
-          } else continue;
-        } else continue;
+        }
       }
       if (flag == 1) {
         Alert.alert(
           'Overlapping Slot',
-          'Sorry you cannot insert overlapping timings',
+          'This time slot overlaps with the existing ones.\nPlease enter new time slot.',
         );
         await reset();
       } else {
@@ -506,8 +547,8 @@ const ManageSchedule = () => {
           .post(apiConfig.baseUrl + '/doctor/slots/e/create', ECData)
           .then(function (response) {
             console.log(response.status);
-            if (response.status == 201) {
-              Alert.alert('Slot Added', 'Slot details submitted successfully');
+            if (response.status == 200) {
+              Alert.alert('Done', 'Slot has been added successfully');
               setECData([]);
               getEDates();
             } else Alert.alert('Error', 'There was some problem please try again');
@@ -517,10 +558,9 @@ const ManageSchedule = () => {
 
             console.log(error);
           });
-        Alert.alert('Slot Added', 'Slot details submitted successfully');
+        Alert.alert('Done', 'Slot has been added successfully');
       }
     }
-    console.log(ECData);
   };
 
   const reset = async () => {
@@ -1270,24 +1310,57 @@ const ManageSchedule = () => {
 
                             if (PCCreateClinicID == '')
                               Alert.alert(
-                                'Incomplete Details',
+                                'Invalid Input',
                                 'Please select a hospital from the list',
                               );
                             else if (selectedDate == '')
                               Alert.alert(
-                                'Incomplete Details',
+                                'Invalid Input',
                                 'Please select date',
                               );
                             else if (
                               PCinTimeHH == '' ||
-                              PCinTimeMM == '' ||
-                              PCoutTimeHH == '' ||
-                              PCoutTimeMM == '' ||
-                              PCduration == ''
+                              Number(PCinTimeHH) > 23 ||
+                              Number(PCinTimeHH) < 0
                             )
                               Alert.alert(
-                                'Incomplete Details',
-                                'Please fill all time details before submiting',
+                                'Invalid Input',
+                                'Please enter valid slot start time HH',
+                              );
+                            else if (
+                              PCinTimeMM == '' ||
+                              Number(PCinTimeMM) >= 60 ||
+                              Number(PCinTimeMM) < 0
+                            )
+                              Alert.alert(
+                                'Invalid Input',
+                                'Please enter valid slot start time MM',
+                              );
+                            else if (
+                              PCoutTimeHH == '' ||
+                              Number(PCoutTimeHH) > 23 ||
+                              Number(PCoutTimeHH) < 0
+                            )
+                              Alert.alert(
+                                'Invalid Input',
+                                'Please enter valid slot end time HH',
+                              );
+                            else if (
+                              PCoutTimeMM == '' ||
+                              Number(PCoutTimeMM) >= 60 ||
+                              Number(PCoutTimeMM) < 0
+                            )
+                              Alert.alert(
+                                'Invalid Input',
+                                'Please enter valid slot end time MM',
+                              );
+                            else if (
+                              PCduration == '' ||
+                              Number(PCduration) == 0
+                            )
+                              Alert.alert(
+                                'Invalid Input',
+                                'Please enter valid slot duration in minutes',
                               );
                             else {
                               if (PCinTimeHH.length == 1)
@@ -1300,21 +1373,13 @@ const ManageSchedule = () => {
                                 setPCoutTimeMM('0' + PCoutTimeMM);
 
                               if (
-                                Number(PCinTimeMM) >= 60 ||
-                                Number(PCinTimeMM) < 0 ||
-                                Number(PCoutTimeMM) >= 60 ||
-                                Number(PCoutTimeMM) < 0 ||
-                                Number(PCinTimeHH) > 23 ||
-                                Number(PCinTimeHH) < 0 ||
-                                Number(PCoutTimeHH) > 23 ||
-                                Number(PCoutTimeHH) < 0 ||
                                 (Number(PCinTimeHH) == Number(PCoutTimeHH) &&
                                   Number(PCinTimeMM) > Number(PCoutTimeMM)) ||
                                 Number(PCinTimeHH) > Number(PCoutTimeHH)
                               )
                                 Alert.alert(
                                   'Invalid Time',
-                                  'Please enter valid time',
+                                  'Please enter valid time slot range',
                                 );
                               else {
                                 console.log(PCData);
@@ -1513,35 +1578,74 @@ const ManageSchedule = () => {
                           }}
                           onPress={async () => {
                             //setemodal(false);
-                            if (
-                              selectedDate == '' ||
+                            if (selectedDate == '')
+                              Alert.alert(
+                                'Invalid Input',
+                                'Please select slot date.',
+                              );
+                            else if (EconsultMode == '')
+                              Alert.alert(
+                                'Invalid Input',
+                                'Please select consultation mode from the dropdown',
+                              );
+                            else if (
                               ECinTimeHH == '' ||
-                              ECinTimeMM == '' ||
-                              ECoutTimeHH == '' ||
-                              ECoutTimeMM == '' ||
-                              ECduration == ''
+                              Number(ECinTimeHH) > 23 ||
+                              Number(ECinTimeHH) < 0
                             )
                               Alert.alert(
-                                'Incomplete Details',
-                                'Please fill all details before submiting',
+                                'Invalid Input',
+                                'Please enter valid slot start time HH',
+                              );
+                            else if (
+                              ECinTimeMM == '' ||
+                              Number(ECinTimeMM) >= 60 ||
+                              Number(ECinTimeMM) < 0
+                            )
+                              Alert.alert(
+                                'Invalid Input',
+                                'Please enter valid slot start time MM',
+                              );
+                            else if (
+                              ECoutTimeHH == '' ||
+                              Number(ECoutTimeHH) > 23 ||
+                              Number(ECoutTimeHH) < 0
+                            )
+                              Alert.alert(
+                                'Invalid Input',
+                                'Please enter valid slot end time HH',
+                              );
+                            else if (
+                              ECoutTimeMM == '' ||
+                              Number(ECoutTimeMM) >= 60 ||
+                              Number(ECoutTimeMM) < 0
+                            )
+                              Alert.alert(
+                                'Invalid Input',
+                                'Please enter valid slot end time MM',
+                              );
+                            else if (
+                              ECduration == '' ||
+                              Number(ECduration) == 0
+                            )
+                              Alert.alert(
+                                'Invalid Input',
+                                'Please enter valid slot duration time in minutes',
+                              );
+                            else if (ECGap == '' || Number(ECGap) == 0)
+                              Alert.alert(
+                                'Invalid Input',
+                                'Please enter valid gap time in minutes',
                               );
                             else {
                               if (
-                                Number(ECinTimeMM) >= 60 ||
-                                Number(ECinTimeMM) < 0 ||
-                                Number(ECoutTimeMM) >= 60 ||
-                                Number(ECoutTimeMM) < 0 ||
-                                Number(ECinTimeHH) > 23 ||
-                                Number(ECinTimeHH) < 0 ||
-                                Number(ECoutTimeHH) > 23 ||
-                                Number(ECoutTimeHH) < 0 ||
                                 (Number(ECinTimeHH) == Number(ECoutTimeHH) &&
                                   Number(ECinTimeMM) > Number(ECoutTimeMM)) ||
                                 Number(ECinTimeHH) > Number(ECoutTimeHH)
                               )
                                 Alert.alert(
                                   'Invalid Time',
-                                  'Please enter valid time',
+                                  'Please enter valid slot time range',
                                 );
                               else {
                                 pushESlot();
@@ -1656,12 +1760,12 @@ const ManageSchedule = () => {
                       onPress={() => {
                         if (clinicName == '')
                           Alert.alert(
-                            'Incomplete Details',
+                            'Invalid Input',
                             'Please fill Clinic Name ',
                           );
                         else if (clinicAddress == '')
                           Alert.alert(
-                            'Incomplete Details',
+                            'Invalid Input',
                             'Please fill Clinic Address',
                           );
                         else {
@@ -2390,7 +2494,7 @@ const ManageSchedule = () => {
                       onPress={async () => {
                         if (questions == '')
                           Alert.alert(
-                            'Incomplete Details',
+                            'Invalid Input',
                             'Please fill Clinic Name ',
                           );
                         else {

@@ -29,6 +29,7 @@ import advice from '../Icons/doctor.png';
 import followUp from '../Icons/calendar.png';
 import thermometer from '../Icons/thermometer.png';
 import bloodpressure from '../Icons/blood-pressure.png';
+import pulseIcon from '../Icons/pulse.png';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function BodyScan({navigation}) {
@@ -43,6 +44,10 @@ function BodyScan({navigation}) {
   const [tempBPSys, settempBPSys] = useState(120);
   const [tempBPDia, settempBPDia] = useState(80);
   const [BPTab, setBPTab] = useState(false);
+
+  const [PulseTab, setPulseTab] = useState(false);
+  const [PulseModalVisible, setPulseModalVisible] = useState(false);
+  const [pulse, setpulse] = useState(120);
   const window = useWindowDimensions();
 
   const pressedProceed = async () => {
@@ -51,6 +56,7 @@ function BodyScan({navigation}) {
         BPDiastolic: tempBPDia,
         BPSystolic: tempBPSys,
         examinationNotes: examinNotes,
+        pulse: pulse,
         temperature: tempTemp,
       };
 
@@ -162,6 +168,7 @@ function BodyScan({navigation}) {
               </TouchableOpacity>
               {AddVitals ? (
                 <View>
+                  {/* Temp Tab */}
                   <TouchableOpacity
                     style={[
                       styles.WhiteLabel,
@@ -211,6 +218,7 @@ function BodyScan({navigation}) {
                       style={[{color: 'black'}]}
                     />
                   </TouchableOpacity>
+                  {/* BP Tab */}
                   <TouchableOpacity
                     style={[
                       styles.WhiteLabel,
@@ -244,6 +252,49 @@ function BodyScan({navigation}) {
                             {fontSize: 11, color: '#2B8ADA'},
                           ]}>
                           {BP !== '' ? BP : 'mmHg'}
+                        </Text>
+                      </View>
+                    </View>
+                    <FAIcon
+                      name={'chevron-right'}
+                      size={20}
+                      style={[{color: 'black'}]}
+                    />
+                  </TouchableOpacity>
+                  {/* Pulse Tab */}
+                  <TouchableOpacity
+                    style={[
+                      styles.WhiteLabel,
+                      {alignItems: 'center', padding: 10},
+                    ]}
+                    onPress={() => {
+                      setPulseTab(true);
+                      setPulseModalVisible(true);
+                    }}>
+                    <View
+                      style={{
+                        backgroundColor: '#E8F0FE',
+                        borderRadius: 5,
+
+                        padding: 5,
+                      }}>
+                      <Image source={pulseIcon} />
+                    </View>
+                    <View style={{width: '50%', flexDirection: 'column'}}>
+                      <Text
+                        style={[
+                          styles.label,
+                          {fontWeight: 'bold', fontSize: 15, color: 'black'},
+                        ]}>
+                        Pulse
+                      </Text>
+                      <View style={{flexDirection: 'row'}}>
+                        <Text
+                          style={[
+                            styles.label,
+                            {fontSize: 11, color: '#2B8ADA'},
+                          ]}>
+                          {pulse !== '' ? pulse + ' bpm' : 'bpm'}
                         </Text>
                       </View>
                     </View>
@@ -547,6 +598,130 @@ function BodyScan({navigation}) {
                   </View>
                 </Modal>
               ) : null}
+
+              {PulseTab ? (
+                <Modal
+                  animationType="slide"
+                  transparent={true}
+                  visible={PulseModalVisible}
+                  onRequestClose={() => {
+                    setPulseModalVisible(!PulseModalVisible);
+                  }}>
+                  <View
+                    style={{
+                      height: '100%',
+                      backgroundColor: 'rgba(0,0,0,0.8)',
+                    }}>
+                    <View
+                      style={[
+                        styles.modalView,
+                        {
+                          flexDirection: 'column',
+                          bottom: 0,
+                          borderTopRightRadius: 50,
+                          borderTopLeftRadius: 50,
+                          width: '100%',
+                        },
+                      ]}>
+                      <View
+                        style={{
+                          borderBottomColor: '#2b8ada',
+                          borderBottomWidth: 1,
+                          width: '100%',
+                        }}>
+                        <Text
+                          style={{
+                            fontSize: 18,
+                            color: '#2b8ada',
+                            fontWeight: 'bold',
+                            marginBottom: 10,
+                          }}>
+                          Pulse
+                        </Text>
+                        <FAIcon
+                          name="window-close"
+                          color="black"
+                          size={26}
+                          style={{position: 'absolute', top: 0, right: 0}}
+                          onPress={() => setPulseModalVisible(false)}
+                        />
+                      </View>
+                      <View style={{flexDirection: 'row', flex: 1}}></View>
+                      <View
+                        style={{
+                          flexDirection: 'column',
+                          flex: 1,
+                          width: '100%',
+                        }}>
+                        <Text style={{marginVertical: 14, fontWeight: 'bold'}}>
+                          Pulse (in bpm)
+                        </Text>
+                        <View
+                          style={{
+                            flex: 1,
+                            color: '#2B8ADA',
+                            backgroundColor: '#E8F0FE',
+                            borderRadius: 10,
+                          }}>
+                          <TextInput
+                            style={{
+                              flex: 1,
+                              color: '#2B8ADA',
+                              fontWeight: 'bold',
+                              paddingHorizontal: 15,
+                            }}
+                            onChangeText={text => setpulse(text)}
+                            value={pulse}
+                            maxLength={3}
+                            keyboardType={'decimal-pad'}></TextInput>
+                        </View>
+                        {/* <Slider
+                          style={{width: 200, height: 40}}
+                          minimumValue={88}
+                          maximumValue={108}
+                          thumbTintColor="#E8F0FE"
+                          minimumTrackTintColor="#2B8ADA"
+                          maximumTrackTintColor="#2B8ADA"
+                          value={tempTemp}
+                          step={0.1}
+                          onValueChange={value => settempTemp(value)}
+                        /> */}
+                      </View>
+
+                      <View style={{flexDirection: 'row', marginTop: 20}}>
+                        <CustomButton
+                          text="Save"
+                          style={{
+                            backgroundColor: '#2b8ada',
+                            flex: 0.45,
+                            padding: 3,
+                            borderRadius: 10,
+                            marginRight: '5%',
+                          }}
+                          textstyle={{color: 'white'}}
+                          onPress={() => {
+                            setTemp(tempTemp);
+                            setPulseModalVisible(false);
+                          }}></CustomButton>
+                        <CustomButton
+                          text="Skip"
+                          style={{
+                            borderColor: '#2b8ada',
+                            borderWidth: 1,
+                            flex: 0.45,
+                            padding: 3,
+                            borderRadius: 10,
+                          }}
+                          textstyle={{color: '#2b8ada'}}
+                          onPress={() => {
+                            setPulseModalVisible(false);
+                          }}></CustomButton>
+                      </View>
+                    </View>
+                  </View>
+                </Modal>
+              ) : null}
+
               {/* Examination Note */}
               <View
                 style={{

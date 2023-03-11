@@ -510,6 +510,44 @@ function MyAppointment({navigation}) {
               </Text>
             </TouchableOpacity>
           </View>
+          {/* <TouchableOpacity
+            style={[
+              {
+                width: '95%',
+                alignSelf: 'center',
+                flexDirection: 'row',
+                padding: 3,
+                paddingHorizontal: 5,
+                borderWidth: 1,
+                borderColor: 'red',
+                // backgroundColor: 'red',
+                borderRadius: 5,
+                justifyContent: 'center',
+                marginTop: 8,
+              },
+            ]}
+            onPress={async () => {
+              Alert.alert(
+                'Cancel Booking',
+                `Are you sure you want to cancel your appointment with ${item.doctorName}`,
+                [
+                  {
+                    text: 'ok',
+                  },
+                  {
+                    text: 'cancel',
+                  },
+                ],
+              );
+            }}>
+            <MIcons
+              name="close"
+              color={'red'}
+              size={15}
+              style={{alignSelf: 'center', marginRight: 5}}
+            />
+            <Text style={{fontSize: 12, color: 'red'}}>Cancel Booking</Text>
+          </TouchableOpacity> */}
         </View>
       </View>
     );
@@ -669,6 +707,7 @@ function MyAppointment({navigation}) {
               justifyContent: 'center',
             }}
             onPress={async () => {
+              //console.log(item);
               await downloadCache(
                 item.prescriptionPath,
                 item.doctorId,

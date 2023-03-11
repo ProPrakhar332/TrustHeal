@@ -171,6 +171,7 @@ const DoctorRegistration2 = ({navigation}) => {
   const [ClinicDet, setClinicDet] = useState([]);
   const [clinicName, setClinicName] = useState('');
   const [clinicAddress, setClinicAddress] = useState('');
+  const [clinicPhoto, setClinicPhoto] = useState(null);
   const [specialInstruction, setSpecialInstruction] = useState('');
 
   //PreConsultation Questionnaire
@@ -3610,6 +3611,25 @@ const DoctorRegistration2 = ({navigation}) => {
                     {/* Add Clinic */}
                     {ClinicDet.length == 0 || addMoreAddInfo ? (
                       <View style={{width: '95%', alignSelf: 'center'}}>
+                        <TouchableOpacity
+                          style={{
+                            backgroundColor: '#e8f0fe',
+                            padding: 10,
+                            justifyContent: 'center',
+                            borderRadius: 10,
+                            flexDirection: 'row',
+                          }}>
+                          <FAIcon
+                            name="camera"
+                            color={'gray'}
+                            size={15}
+                            style={{marginRight: 5, alignSelf: 'center'}}
+                          />
+                          <Text style={{alignSelf: 'center', fontSize: 12}}>
+                            Upload Clinic Pic
+                          </Text>
+                        </TouchableOpacity>
+
                         <View style={{flexDirection: 'column'}}>
                           <View style={{flexDirection: 'row'}}>
                             <Text style={styles.inputLabel}>Clinic Name</Text>
@@ -3674,6 +3694,11 @@ const DoctorRegistration2 = ({navigation}) => {
                                 'Incomplete Details!',
                                 'Please fill Clinic Name before saving',
                               );
+                            // else if (clinicPhoto == null)
+                            //   Alert.alert(
+                            //     'Incomplete Details!',
+                            //     'Please add Clinic Photo before saving',
+                            //   );
                             else if (!checkAlphabetOnly(clinicName)) {
                               Alert.alert(
                                 'Inavlid Input',

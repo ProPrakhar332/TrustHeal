@@ -268,6 +268,7 @@ const DoctorHome = ({navigation}) => {
               }}
             />
           </View>
+
           <View
             style={{
               flexDirection: 'row',
@@ -303,36 +304,6 @@ const DoctorHome = ({navigation}) => {
                 //onPressPrescription(item);
               }}
             />
-            {/* <CustomButton
-              text="Pre Consultation"
-              textstyle={{color: 'white', fontSize: 10, alignSelf: 'center'}}
-              style={{
-                backgroundColor: '#2B8ADA',
-                padding: 5,
-                marginHorizontal: 5,
-                paddingHorizontal: 7,
-                padding: 4,
-              }}
-              onPress={() => {
-                setUpcomingId(item.consultationId);
-                setConsultationQuestionnaire(true);
-              }}
-            /> */}
-
-            {/* <CustomButton
-              text="Manage Status"
-              textstyle={{color: '#2B8ADA', fontSize: 10}}
-              style={{
-                borderColor: '#2B8ADA',
-                borderWidth: 1,
-                backgroundColor: 'white',
-                padding: 5,
-                marginHorizontal: 5,
-                paddingHorizontal: 7,
-                padding: 4,
-              }}
-              onPress={() => setManageStatusModal(true)}
-            /> */}
           </View>
         </View>
         <View
@@ -655,7 +626,676 @@ const DoctorHome = ({navigation}) => {
       </View>
     );
   };
+  const renderCardPending = ({item}) => {
+    return (
+      <View
+        style={{
+          backgroundColor: 'white',
+          width: '95%',
+          alignSelf: 'center',
+          borderRadius: 10,
+          marginVertical: 5,
+        }}
+        // onPress={() => console.log(item)}
+      >
+        <View
+          style={{
+            flex: 1,
+            flexDirection: 'row',
+            marginTop: 10,
+            paddingHorizontal: 10,
+            justifyContent: 'space-between',
+          }}>
+          {/* <View
+            styles={{
+              flex: 0.45,
+            }}>
+            <Image
+              source={
+                item.paymentStatus != 'PRE_PAID' &&
+                item.paymentStatus != 'SPECIAL_USER'
+                  ? payonclinic
+                  : prepaid
+              }
+              style={{
+                width: 30,
+                height: 30,
+                tintColor:
+                  item.paymentStatus != 'PRE_PAID' &&
+                  item.paymentStatus != 'SPECIAL_USER'
+                    ? '#2b8ada'
+                    : '#51e80c',
+                marginLeft: 10,
+              }}
+            />
+          </View> */}
+          {/* <View
+            style={{
+              flexDirection: 'row',
+              flex: 0.45,
+              justifyContent: 'flex-end',
+            }}>
+            <FAIcon
+              name="prescription"
+              size={25}
+              style={{alignSelf: 'center'}}
+              onPress={() => {
+                Alert.alert(
+                  'Create Prescription',
+                  `Do you want to create prescription for ` +
+                    (item.familyUserName == null
+                      ? item.patientName
+                      : item.familyUserName) +
+                    ` right now?`,
+                  [
+                    {
+                      text: 'Yes',
+                      onPress: () => {
+                        onPressPrescription(item);
+                        navigation.navigate('CheifComplaints');
+                      },
+                    },
+                    {
+                      text: 'No',
+                      style: 'cancel',
+                    },
+                  ],
+                );
+                //onPressPrescription(item);
+              }}
+            />
 
+          </View> */}
+        </View>
+        <View
+          style={{
+            flexDirection: 'row',
+          }}>
+          {item.patientPhoto == 0 || item.patientPhoto == null ? (
+            <Image
+              source={pfp1}
+              style={{
+                width: 90,
+                height: 90,
+                alignSelf: 'center',
+                borderRadius: 5,
+                margin: 5,
+                marginHorizontal: 10,
+              }}
+            />
+          ) : (
+            <Image
+              source={{
+                uri: `${apiConfig.baseUrl}/file/download?fileToken=${item.patientPhoto}&userId=${item.patientId}`,
+              }}
+              style={{
+                width: 90,
+                height: 90,
+                alignSelf: 'center',
+                borderRadius: 5,
+                margin: 5,
+                marginHorizontal: 10,
+              }}
+            />
+          )}
+          <View
+            style={{
+              flexDirection: 'column',
+              justifyContent: 'space-around',
+            }}>
+            <Text
+              style={{
+                flexDirection: 'row',
+                fontSize: 20,
+                fontWeight: 'bold',
+                color: 'black',
+              }}>
+              {item.familyUserName == null
+                ? item.patientName
+                : item.familyUserName}
+            </Text>
+            {item.consultationType == 'PHYSICAL' ? (
+              <View style={{flexDirection: 'row'}}>
+                <View
+                  style={{
+                    flexDirection: 'column',
+                    width: '20%',
+                    marginRight: '5%',
+                  }}>
+                  {/* <Text style={styles.cardText}>Clinic</Text> */}
+                  <FAIcon
+                    name="hospital"
+                    size={15}
+                    color={'#2b8ada'}
+                    style={{}}
+                  />
+                </View>
+                <View style={{flexDirection: 'column', width: '60%'}}>
+                  <Text
+                    style={[
+                      styles.cardText,
+                      {color: '#2b8ada', fontWeight: 'bold'},
+                    ]}>
+                    {item.clinicName}
+                    {' | '} {item.clinicAddress}
+                  </Text>
+                </View>
+              </View>
+            ) : null}
+
+            {item.patientDob != null || item.familyUserDob ? (
+              <View style={{flexDirection: 'row'}}>
+                <View
+                  style={{
+                    flexDirection: 'column',
+                    width: '20%',
+                    marginRight: '5%',
+                  }}>
+                  <Text style={styles.cardText}>Age</Text>
+                </View>
+                <View style={{flexDirection: 'column', width: '60%'}}>
+                  <Text style={styles.cardText}>
+                    {item.familyUserDob == null
+                      ? dayjs().diff(dayjs(item.patientDob), 'y')
+                      : dayjs().diff(dayjs(item.familyUserDob), 'y')}
+                  </Text>
+                </View>
+              </View>
+            ) : null}
+
+            {item.patientCity != null || item.familyUsercity ? (
+              <View style={{flexDirection: 'row'}}>
+                <View
+                  style={{
+                    flexDirection: 'column',
+                    width: '20%',
+                    marginRight: '5%',
+                  }}>
+                  <Text style={styles.cardText}>Location</Text>
+                </View>
+                <View style={{flexDirection: 'column', width: '60%'}}>
+                  <Text style={styles.cardText}>
+                    {item.familyUsercity == null
+                      ? item.patientCity
+                      : item.familyUsercity}
+                  </Text>
+                </View>
+              </View>
+            ) : null}
+            {item.symptoms != null ? (
+              <View style={{flexDirection: 'row'}}>
+                <View
+                  style={{
+                    flexDirection: 'column',
+                    flex: 0.2,
+                    marginRight: '5%',
+                  }}>
+                  <Text style={styles.cardText}>Symtoms</Text>
+                </View>
+                <View
+                  style={{
+                    flexDirection: 'column',
+                    flex: 0.6,
+                  }}>
+                  <Text style={styles.cardText}>{item.symptoms}</Text>
+                </View>
+              </View>
+            ) : null}
+            <View style={{flexDirection: 'row'}}>
+              <View
+                style={{
+                  flexDirection: 'column',
+                  width: '20%',
+                  marginRight: '5%',
+                }}>
+                <Text style={styles.cardText}>Date</Text>
+              </View>
+              <View style={{flexDirection: 'column', width: '60%'}}>
+                <Text style={styles.cardText}>
+                  {dayjs(item.slotDate).format('DD-MMM-YYYY')}
+                </Text>
+              </View>
+            </View>
+            <View style={{flexDirection: 'row'}}>
+              <View
+                style={{
+                  flexDirection: 'column',
+                  width: '20%',
+                  marginRight: '5%',
+                }}>
+                <Text style={styles.cardText}>Slot</Text>
+              </View>
+              <View style={{flexDirection: 'column', width: '60%'}}>
+                <Text style={styles.cardText}>
+                  {timeformatter(item.slotStartTime)}
+                </Text>
+              </View>
+            </View>
+          </View>
+        </View>
+        {/* Buttons */}
+        <View
+          style={{
+            marginVertical: 10,
+            flexDirection: 'row',
+            justifyContent: 'space-evenly',
+            width: '95%',
+            alignSelf: 'center',
+          }}>
+          <TouchableOpacity
+            style={{
+              flex: 0.45,
+              justifyContent: 'center',
+              flexDirection: 'row',
+              padding: 3,
+              paddingHorizontal: 5,
+              alignSelf: 'center',
+              backgroundColor: '#2B8ADA',
+              borderWidth: 1,
+              borderColor: '#2B8ADA',
+              borderRadius: 5,
+            }}
+            onPress={async () => {
+              Alert.alert(
+                'Create Prescription',
+                `Do you want to create prescription for ` +
+                  (item.familyUserName == null
+                    ? item.patientName
+                    : item.familyUserName) +
+                  ` right now?`,
+                [
+                  {
+                    text: 'Yes',
+                    onPress: async () => {
+                      await onPressPrescription(item);
+                      navigation.navigate('CheifComplaints');
+                    },
+                  },
+                  {
+                    text: 'No',
+                    style: 'cancel',
+                  },
+                ],
+              );
+            }}>
+            <FAIcon
+              name="prescription"
+              size={15}
+              color={'white'}
+              style={{alignSelf: 'center', marginRight: 5}}
+              onPress={() => {
+                //onPressPrescription(item);
+              }}
+            />
+            <Text style={{fontSize: 12, color: 'white'}}>
+              Create Prescription
+            </Text>
+          </TouchableOpacity>
+          {/* <TouchableOpacity
+            style={{
+              flexDirection: 'row',
+              padding: 3,
+              paddingHorizontal: 5,
+              alignSelf: 'center',
+              borderWidth: 1,
+              borderColor: '#000080',
+              borderRadius: 5,
+            }}
+            onPress={() => {
+              sethistoryId(
+                item.familyId != null ? item.familyId : item.patientId,
+              );
+              setHistoryModal(true);
+            }}>
+            <FAIcon
+              name="file-pdf"
+              color={'#000080'}
+              size={15}
+              style={{marginRight: 5}}
+            />
+            <Text style={{fontSize: 12, color: '#000080'}}>History</Text>
+          </TouchableOpacity> */}
+
+          <TouchableOpacity
+            style={{
+              flex: 0.2,
+              justifyContent: 'center',
+              flexDirection: 'row',
+              padding: 3,
+              paddingHorizontal: 5,
+              alignSelf: 'center',
+              borderWidth: 1,
+              borderColor: 'gray',
+              borderRadius: 5,
+            }}
+            onPress={async () => {
+              settodayId(item.consultationId);
+              await getTodaysDocs(item.consultationId);
+              setTodaysModal(true);
+            }}>
+            <FAIcon
+              name="file-pdf"
+              color={'gray'}
+              size={15}
+              style={{marginRight: 5}}
+            />
+            <Text style={{fontSize: 12}}>Files</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              {
+                flex: 0.1,
+                justifyContent: 'center',
+                flexDirection: 'row',
+                padding: 3,
+                paddingHorizontal: 5,
+                borderWidth: 1,
+                borderColor: '#2b8ada',
+                borderRadius: 5,
+              },
+            ]}
+            onPress={async () => {
+              settodayId(item.consultationId);
+              await getTodaysDocs(item.consultationId);
+              setConsultationQuestionnaire(true);
+            }}>
+            <MCIcons
+              name="clipboard-list"
+              color={'#2b8ada'}
+              size={15}
+              style={{alignSelf: 'center'}}
+            />
+            {/* <Text style={{fontSize: 12, color: '#2b8ada'}}>Questionnaire</Text> */}
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
+
+  const renderCardRecent = ({item}) => {
+    return (
+      <View
+        style={{
+          backgroundColor: 'white',
+          width: '95%',
+          alignSelf: 'center',
+          borderRadius: 10,
+          marginVertical: 5,
+          padding: 10,
+        }}
+        //onPress={() => console.log(item.consultationId)}
+        key={item.consultationId}>
+        <View
+          style={{
+            flexDirection: 'row',
+            // borderBottomColor: "gray",
+            // borderBottomWidth: 1,
+          }}>
+          <Text
+            style={[
+              styles.tag,
+              {
+                backgroundColor: '#2B8ADA',
+              },
+            ]}>
+            Completed
+          </Text>
+          {item.patientPhoto == 0 || item.patientPhoto == null ? (
+            <Image
+              source={pfp1}
+              style={{
+                width: 90,
+                height: 90,
+                alignSelf: 'center',
+                borderRadius: 5,
+                margin: 5,
+                marginHorizontal: 10,
+              }}
+            />
+          ) : (
+            <Image
+              source={{
+                uri: `${apiConfig.baseUrl}/file/download?fileToken=${item.patientPhoto}&userId=${item.patientId}`,
+              }}
+              style={{
+                width: 90,
+                height: 90,
+                alignSelf: 'center',
+                borderRadius: 5,
+                margin: 5,
+                marginHorizontal: 10,
+              }}
+            />
+          )}
+          <View
+            style={{flexDirection: 'column', justifyContent: 'space-around'}}>
+            <Text
+              style={{
+                flexDirection: 'row',
+                fontSize: 20,
+                fontWeight: 'bold',
+                color: 'black',
+              }}>
+              {item.familyUserName == null
+                ? item.patientName
+                : item.familyUserName}
+            </Text>
+            {item.consultationType == 'PHYSICAL' ? (
+              <View style={{flexDirection: 'row'}}>
+                <View
+                  style={{
+                    flexDirection: 'column',
+                    width: '20%',
+                    marginRight: '5%',
+                  }}>
+                  {/* <Text style={styles.cardText}>Clinic</Text> */}
+                  <FAIcon
+                    name="hospital"
+                    size={15}
+                    color={'#2b8ada'}
+                    style={{}}
+                  />
+                </View>
+                <View style={{flexDirection: 'column', width: '60%'}}>
+                  <Text
+                    style={[
+                      styles.cardText,
+                      {color: '#2b8ada', fontWeight: 'bold'},
+                    ]}>
+                    {item.clinicName}
+                    {' | '} {item.clinicAddress}
+                  </Text>
+                </View>
+              </View>
+            ) : null}
+
+            {item.patientDob != null || item.familyUserDob != null ? (
+              <View style={{flexDirection: 'row'}}>
+                <View
+                  style={{
+                    flexDirection: 'column',
+                    width: '20%',
+                    marginRight: '5%',
+                  }}>
+                  <Text style={styles.cardText}>Age</Text>
+                </View>
+                <View style={{flexDirection: 'column', width: '60%'}}>
+                  <Text style={styles.cardText}>
+                    {item.familyUserDob == null
+                      ? dayjs().diff(dayjs(item.patientDob), 'y')
+                      : dayjs().diff(dayjs(item.familyUserDob), 'y')}
+                  </Text>
+                </View>
+              </View>
+            ) : null}
+            {item.familyUsercity != null || item.patientCity != null ? (
+              <View style={{flexDirection: 'row'}}>
+                <View
+                  style={{
+                    flexDirection: 'column',
+                    width: '20%',
+                    marginRight: '5%',
+                  }}>
+                  <Text style={styles.cardText}>Location</Text>
+                </View>
+                <View style={{flexDirection: 'column', width: '60%'}}>
+                  <Text style={styles.cardText}>
+                    {item.familyUsercity == null
+                      ? item.patientCity
+                      : item.familyUsercity}
+                  </Text>
+                </View>
+              </View>
+            ) : null}
+            {item.symptoms != null ? (
+              <View style={{flexDirection: 'row'}}>
+                <View
+                  style={{
+                    flexDirection: 'column',
+                    width: '20%',
+                    marginRight: '5%',
+                  }}>
+                  <Text style={styles.cardText}>Symtoms</Text>
+                </View>
+                <View style={{flexDirection: 'column', width: '60%'}}>
+                  <Text style={styles.cardText}>{item.symptoms}</Text>
+                </View>
+              </View>
+            ) : null}
+            <View style={{flexDirection: 'row'}}>
+              <View
+                style={{
+                  flexDirection: 'column',
+                  width: '20%',
+                  marginRight: '5%',
+                }}>
+                <Text style={styles.cardText}>Date</Text>
+              </View>
+              <View style={{flexDirection: 'column', width: '60%'}}>
+                <Text style={styles.cardText}>
+                  {dayjs(item.slotDate).format('DD-MMM-YYYY')}
+                </Text>
+              </View>
+            </View>
+
+            <View style={{flexDirection: 'row'}}>
+              <View
+                style={{
+                  flexDirection: 'column',
+                  width: '20%',
+                  marginRight: '5%',
+                }}>
+                <Text style={styles.cardText}>Slot</Text>
+              </View>
+              <View style={{flexDirection: 'column', width: '60%'}}>
+                <Text style={styles.cardText}>
+                  {timeformatter(item.slotStartTime)}
+                  {' | '}
+                  {dayjs(item.slotDate).format('DD MMM, YYYY')}
+                </Text>
+              </View>
+            </View>
+          </View>
+        </View>
+        {/* Buttons */}
+        <View
+          style={{
+            marginTop: 10,
+            flexDirection: 'row',
+            justifyContent: 'space-evenly',
+          }}>
+          {item.consultationType !== 'PHYSICAL' ? (
+            <TouchableOpacity
+              style={{
+                flexDirection: 'row',
+                padding: 3,
+                paddingHorizontal: 15,
+                alignSelf: 'center',
+                borderWidth: 1,
+                borderColor: '#2b8ada',
+                backgroundColor: '#2B8ADA',
+                borderRadius: 5,
+              }}>
+              <FAIcon
+                name={
+                  item.consultationType == 'VIDEO_CALL' ? 'video' : 'phone-alt'
+                }
+                color={'white'}
+                size={15}
+                style={{marginRight: 5}}
+              />
+              <Text style={{fontSize: 13, color: 'white'}}>E-Consultation</Text>
+            </TouchableOpacity>
+          ) : (
+            <CustomButton
+              text="P-Consultation"
+              textstyle={{fontSize: 13, color: 'white'}}
+              style={{
+                borderWidth: 1,
+                borderColor: '#2b8ada',
+                backgroundColor: '#2B8ADA',
+                padding: 3,
+                alignSelf: 'center',
+                borderRadius: 5,
+                paddingHorizontal: 15,
+              }}
+            />
+          )}
+          <TouchableOpacity
+            style={{
+              flexDirection: 'row',
+              padding: 3,
+              paddingHorizontal: 15,
+              alignSelf: 'center',
+              borderWidth: 1,
+              borderColor: 'gray',
+              borderRadius: 5,
+            }}
+            onPress={async () => {
+              settodayId(item.consultationId);
+              setpatientId(item.patientId);
+              await getTodaysDocs(item.consultationId);
+              setTodaysModal(true);
+            }}>
+            <FAIcon
+              name="file-pdf"
+              color={'gray'}
+              size={15}
+              style={{marginRight: 5}}
+            />
+            <Text style={{fontSize: 13}}>Files</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{
+              flexDirection: 'row',
+              padding: 3,
+              paddingHorizontal: 15,
+              alignSelf: 'center',
+              borderWidth: 1,
+              borderColor: 'gray',
+              borderRadius: 5,
+            }}
+            onPress={async () => {
+              // openURL(
+              //   `${apiConfig.baseUrl}/file/download?fileToken=${item.prescriptionPath}&userId=${doctorId}`,
+              // );
+              // download(item.prescriptionPath,doctorId,item.consultationId + '_Prescription_' + item.slotDate + '.pdf');
+              downloadCache(
+                item.prescriptionPath,
+                doctorId,
+                item.consultationId + '_Prescription_' + item.slotDate + '.pdf',
+              );
+            }}>
+            <FAIcon
+              name="prescription"
+              size={15}
+              style={{marginHorizontal: 5}}
+            />
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
   const renderCardCompleted = ({item}) => {
     return (
       <View
@@ -942,717 +1582,6 @@ const DoctorHome = ({navigation}) => {
               size={15}
               style={{marginHorizontal: 5}}
             />
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
-  };
-  const renderCardRecent = ({item}) => {
-    return (
-      <View
-        style={{
-          backgroundColor: 'white',
-          width: '95%',
-          alignSelf: 'center',
-          borderRadius: 10,
-          marginVertical: 5,
-          padding: 10,
-        }}
-        //onPress={() => console.log(item.consultationId)}
-        key={item.consultationId}>
-        <View
-          style={{
-            flexDirection: 'row',
-            // borderBottomColor: "gray",
-            // borderBottomWidth: 1,
-          }}>
-          <Text
-            style={[
-              styles.tag,
-              {
-                backgroundColor: '#2B8ADA',
-              },
-            ]}>
-            Completed
-          </Text>
-          {item.patientPhoto == 0 || item.patientPhoto == null ? (
-            <Image
-              source={pfp1}
-              style={{
-                width: 90,
-                height: 90,
-                alignSelf: 'center',
-                borderRadius: 5,
-                margin: 5,
-                marginHorizontal: 10,
-              }}
-            />
-          ) : (
-            <Image
-              source={{
-                uri: `${apiConfig.baseUrl}/file/download?fileToken=${item.patientPhoto}&userId=${item.patientId}`,
-              }}
-              style={{
-                width: 90,
-                height: 90,
-                alignSelf: 'center',
-                borderRadius: 5,
-                margin: 5,
-                marginHorizontal: 10,
-              }}
-            />
-          )}
-          <View
-            style={{flexDirection: 'column', justifyContent: 'space-around'}}>
-            <Text
-              style={{
-                flexDirection: 'row',
-                fontSize: 20,
-                fontWeight: 'bold',
-                color: 'black',
-              }}>
-              {item.familyUserName == null
-                ? item.patientName
-                : item.familyUserName}
-            </Text>
-            {item.consultationType == 'PHYSICAL' ? (
-              <View style={{flexDirection: 'row'}}>
-                <View
-                  style={{
-                    flexDirection: 'column',
-                    width: '20%',
-                    marginRight: '5%',
-                  }}>
-                  {/* <Text style={styles.cardText}>Clinic</Text> */}
-                  <FAIcon
-                    name="hospital"
-                    size={15}
-                    color={'#2b8ada'}
-                    style={{}}
-                  />
-                </View>
-                <View style={{flexDirection: 'column', width: '60%'}}>
-                  <Text
-                    style={[
-                      styles.cardText,
-                      {color: '#2b8ada', fontWeight: 'bold'},
-                    ]}>
-                    {item.clinicName}
-                    {' | '} {item.clinicAddress}
-                  </Text>
-                </View>
-              </View>
-            ) : null}
-
-            {item.patientDob != null || item.familyUserDob != null ? (
-              <View style={{flexDirection: 'row'}}>
-                <View
-                  style={{
-                    flexDirection: 'column',
-                    width: '20%',
-                    marginRight: '5%',
-                  }}>
-                  <Text style={styles.cardText}>Age</Text>
-                </View>
-                <View style={{flexDirection: 'column', width: '60%'}}>
-                  <Text style={styles.cardText}>
-                    {item.familyUserDob == null
-                      ? dayjs().diff(dayjs(item.patientDob), 'y')
-                      : dayjs().diff(dayjs(item.familyUserDob), 'y')}
-                  </Text>
-                </View>
-              </View>
-            ) : null}
-            {item.familyUsercity != null || item.patientCity != null ? (
-              <View style={{flexDirection: 'row'}}>
-                <View
-                  style={{
-                    flexDirection: 'column',
-                    width: '20%',
-                    marginRight: '5%',
-                  }}>
-                  <Text style={styles.cardText}>Location</Text>
-                </View>
-                <View style={{flexDirection: 'column', width: '60%'}}>
-                  <Text style={styles.cardText}>
-                    {item.familyUsercity == null
-                      ? item.patientCity
-                      : item.familyUsercity}
-                  </Text>
-                </View>
-              </View>
-            ) : null}
-            {item.symptoms != null ? (
-              <View style={{flexDirection: 'row'}}>
-                <View
-                  style={{
-                    flexDirection: 'column',
-                    width: '20%',
-                    marginRight: '5%',
-                  }}>
-                  <Text style={styles.cardText}>Symtoms</Text>
-                </View>
-                <View style={{flexDirection: 'column', width: '60%'}}>
-                  <Text style={styles.cardText}>{item.symptoms}</Text>
-                </View>
-              </View>
-            ) : null}
-            <View style={{flexDirection: 'row'}}>
-              <View
-                style={{
-                  flexDirection: 'column',
-                  width: '20%',
-                  marginRight: '5%',
-                }}>
-                <Text style={styles.cardText}>Date</Text>
-              </View>
-              <View style={{flexDirection: 'column', width: '60%'}}>
-                <Text style={styles.cardText}>
-                  {dayjs(item.slotDate).format('DD-MMM-YYYY')}
-                </Text>
-              </View>
-            </View>
-
-            <View style={{flexDirection: 'row'}}>
-              <View
-                style={{
-                  flexDirection: 'column',
-                  width: '20%',
-                  marginRight: '5%',
-                }}>
-                <Text style={styles.cardText}>Slot</Text>
-              </View>
-              <View style={{flexDirection: 'column', width: '60%'}}>
-                <Text style={styles.cardText}>
-                  {timeformatter(item.slotStartTime)}
-                  {' | '}
-                  {dayjs(item.slotDate).format('DD MMM, YYYY')}
-                </Text>
-              </View>
-            </View>
-          </View>
-        </View>
-        {/* Buttons */}
-        <View
-          style={{
-            marginTop: 10,
-            flexDirection: 'row',
-            justifyContent: 'space-evenly',
-          }}>
-          {item.consultationType !== 'PHYSICAL' ? (
-            <TouchableOpacity
-              style={{
-                flexDirection: 'row',
-                padding: 3,
-                paddingHorizontal: 15,
-                alignSelf: 'center',
-                borderWidth: 1,
-                borderColor: '#2b8ada',
-                backgroundColor: '#2B8ADA',
-                borderRadius: 5,
-              }}>
-              <FAIcon
-                name={
-                  item.consultationType == 'VIDEO_CALL' ? 'video' : 'phone-alt'
-                }
-                color={'white'}
-                size={15}
-                style={{marginRight: 5}}
-              />
-              <Text style={{fontSize: 13, color: 'white'}}>E-Consultation</Text>
-            </TouchableOpacity>
-          ) : (
-            <CustomButton
-              text="P-Consultation"
-              textstyle={{fontSize: 13, color: 'white'}}
-              style={{
-                borderWidth: 1,
-                borderColor: '#2b8ada',
-                backgroundColor: '#2B8ADA',
-                padding: 3,
-                alignSelf: 'center',
-                borderRadius: 5,
-                paddingHorizontal: 15,
-              }}
-            />
-          )}
-          <TouchableOpacity
-            style={{
-              flexDirection: 'row',
-              padding: 3,
-              paddingHorizontal: 15,
-              alignSelf: 'center',
-              borderWidth: 1,
-              borderColor: 'gray',
-              borderRadius: 5,
-            }}
-            onPress={async () => {
-              settodayId(item.consultationId);
-              setpatientId(item.patientId);
-              await getTodaysDocs(item.consultationId);
-              setTodaysModal(true);
-            }}>
-            <FAIcon
-              name="file-pdf"
-              color={'gray'}
-              size={15}
-              style={{marginRight: 5}}
-            />
-            <Text style={{fontSize: 13}}>Files</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={{
-              flexDirection: 'row',
-              padding: 3,
-              paddingHorizontal: 15,
-              alignSelf: 'center',
-              borderWidth: 1,
-              borderColor: 'gray',
-              borderRadius: 5,
-            }}
-            onPress={async () => {
-              // openURL(
-              //   `${apiConfig.baseUrl}/file/download?fileToken=${item.prescriptionPath}&userId=${doctorId}`,
-              // );
-              // download(item.prescriptionPath,doctorId,item.consultationId + '_Prescription_' + item.slotDate + '.pdf');
-              downloadCache(
-                item.prescriptionPath,
-                doctorId,
-                item.consultationId + '_Prescription_' + item.slotDate + '.pdf',
-              );
-            }}>
-            <FAIcon
-              name="prescription"
-              size={15}
-              style={{marginHorizontal: 5}}
-            />
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
-  };
-  const renderCardPending = ({item}) => {
-    return (
-      <View
-        style={{
-          backgroundColor: 'white',
-          width: '95%',
-          alignSelf: 'center',
-          borderRadius: 10,
-          marginVertical: 5,
-        }}
-        // onPress={() => console.log(item)}
-      >
-        <View
-          style={{
-            flex: 1,
-            flexDirection: 'row',
-            marginTop: 10,
-            paddingHorizontal: 10,
-            justifyContent: 'space-between',
-          }}>
-          <View
-            styles={{
-              flex: 0.45,
-            }}>
-            <Image
-              source={
-                item.paymentStatus != 'PRE_PAID' &&
-                item.paymentStatus != 'SPECIAL_USER'
-                  ? payonclinic
-                  : prepaid
-              }
-              style={{
-                width: 30,
-                height: 30,
-                tintColor:
-                  item.paymentStatus != 'PRE_PAID' &&
-                  item.paymentStatus != 'SPECIAL_USER'
-                    ? '#2b8ada'
-                    : '#51e80c',
-                marginLeft: 10,
-              }}
-            />
-          </View>
-          <View
-            style={{
-              flexDirection: 'row',
-              flex: 0.45,
-              justifyContent: 'flex-end',
-            }}>
-            <FAIcon
-              name="prescription"
-              size={25}
-              style={{alignSelf: 'center'}}
-              onPress={() => {
-                Alert.alert(
-                  'Create Prescription',
-                  `Do you want to create prescription for ` +
-                    (item.familyUserName == null
-                      ? item.patientName
-                      : item.familyUserName) +
-                    ` right now?`,
-                  [
-                    {
-                      text: 'Yes',
-                      onPress: () => {
-                        onPressPrescription(item);
-                        navigation.navigate('CheifComplaints');
-                      },
-                    },
-                    {
-                      text: 'No',
-                      style: 'cancel',
-                    },
-                  ],
-                );
-                //onPressPrescription(item);
-              }}
-            />
-            {/* <CustomButton
-              text="Pre Consultation"
-              textstyle={{color: 'white', fontSize: 10, alignSelf: 'center'}}
-              style={{
-                backgroundColor: '#2B8ADA',
-                padding: 5,
-                marginHorizontal: 5,
-                paddingHorizontal: 7,
-                padding: 4,
-              }}
-              onPress={() => {
-                setUpcomingId(item.consultationId);
-                setConsultationQuestionnaire(true);
-              }}
-            /> */}
-
-            {/* <CustomButton
-              text="Manage Status"
-              textstyle={{color: '#2B8ADA', fontSize: 10}}
-              style={{
-                borderColor: '#2B8ADA',
-                borderWidth: 1,
-                backgroundColor: 'white',
-                padding: 5,
-                marginHorizontal: 5,
-                paddingHorizontal: 7,
-                padding: 4,
-              }}
-              onPress={() => setManageStatusModal(true)}
-            /> */}
-          </View>
-        </View>
-        <View
-          style={{
-            flexDirection: 'row',
-          }}>
-          {item.patientPhoto == 0 || item.patientPhoto == null ? (
-            <Image
-              source={pfp1}
-              style={{
-                width: 90,
-                height: 90,
-                alignSelf: 'center',
-                borderRadius: 5,
-                margin: 5,
-                marginHorizontal: 10,
-              }}
-            />
-          ) : (
-            <Image
-              source={{
-                uri: `${apiConfig.baseUrl}/file/download?fileToken=${item.patientPhoto}&userId=${item.patientId}`,
-              }}
-              style={{
-                width: 90,
-                height: 90,
-                alignSelf: 'center',
-                borderRadius: 5,
-                margin: 5,
-                marginHorizontal: 10,
-              }}
-            />
-          )}
-          <View
-            style={{
-              flexDirection: 'column',
-              justifyContent: 'space-around',
-            }}>
-            <Text
-              style={{
-                flexDirection: 'row',
-                fontSize: 20,
-                fontWeight: 'bold',
-                color: 'black',
-              }}>
-              {item.familyUserName == null
-                ? item.patientName
-                : item.familyUserName}
-            </Text>
-            {item.consultationType == 'PHYSICAL' ? (
-              <View style={{flexDirection: 'row'}}>
-                <View
-                  style={{
-                    flexDirection: 'column',
-                    width: '20%',
-                    marginRight: '5%',
-                  }}>
-                  {/* <Text style={styles.cardText}>Clinic</Text> */}
-                  <FAIcon
-                    name="hospital"
-                    size={15}
-                    color={'#2b8ada'}
-                    style={{}}
-                  />
-                </View>
-                <View style={{flexDirection: 'column', width: '60%'}}>
-                  <Text
-                    style={[
-                      styles.cardText,
-                      {color: '#2b8ada', fontWeight: 'bold'},
-                    ]}>
-                    {item.clinicName}
-                    {' | '} {item.clinicAddress}
-                  </Text>
-                </View>
-              </View>
-            ) : null}
-
-            {item.patientDob != null || item.familyUserDob ? (
-              <View style={{flexDirection: 'row'}}>
-                <View
-                  style={{
-                    flexDirection: 'column',
-                    width: '20%',
-                    marginRight: '5%',
-                  }}>
-                  <Text style={styles.cardText}>Age</Text>
-                </View>
-                <View style={{flexDirection: 'column', width: '60%'}}>
-                  <Text style={styles.cardText}>
-                    {item.familyUserDob == null
-                      ? dayjs().diff(dayjs(item.patientDob), 'y')
-                      : dayjs().diff(dayjs(item.familyUserDob), 'y')}
-                  </Text>
-                </View>
-              </View>
-            ) : null}
-
-            {item.patientCity != null || item.familyUsercity ? (
-              <View style={{flexDirection: 'row'}}>
-                <View
-                  style={{
-                    flexDirection: 'column',
-                    width: '20%',
-                    marginRight: '5%',
-                  }}>
-                  <Text style={styles.cardText}>Location</Text>
-                </View>
-                <View style={{flexDirection: 'column', width: '60%'}}>
-                  <Text style={styles.cardText}>
-                    {item.familyUsercity == null
-                      ? item.patientCity
-                      : item.familyUsercity}
-                  </Text>
-                </View>
-              </View>
-            ) : null}
-            {item.symptoms != null ? (
-              <View style={{flexDirection: 'row'}}>
-                <View
-                  style={{
-                    flexDirection: 'column',
-                    flex: 0.2,
-                    marginRight: '5%',
-                  }}>
-                  <Text style={styles.cardText}>Symtoms</Text>
-                </View>
-                <View
-                  style={{
-                    flexDirection: 'column',
-                    flex: 0.6,
-                  }}>
-                  <Text style={styles.cardText}>{item.symptoms}</Text>
-                </View>
-              </View>
-            ) : null}
-            <View style={{flexDirection: 'row'}}>
-              <View
-                style={{
-                  flexDirection: 'column',
-                  width: '20%',
-                  marginRight: '5%',
-                }}>
-                <Text style={styles.cardText}>Date</Text>
-              </View>
-              <View style={{flexDirection: 'column', width: '60%'}}>
-                <Text style={styles.cardText}>
-                  {dayjs(item.slotDate).format('DD-MMM-YYYY')}
-                </Text>
-              </View>
-            </View>
-            <View style={{flexDirection: 'row'}}>
-              <View
-                style={{
-                  flexDirection: 'column',
-                  width: '20%',
-                  marginRight: '5%',
-                }}>
-                <Text style={styles.cardText}>Slot</Text>
-              </View>
-              <View style={{flexDirection: 'column', width: '60%'}}>
-                <Text style={styles.cardText}>
-                  {timeformatter(item.slotStartTime)}
-                </Text>
-              </View>
-            </View>
-          </View>
-        </View>
-        {/* Buttons */}
-        <View
-          style={{
-            marginVertical: 10,
-            flexDirection: 'row',
-            justifyContent: 'space-evenly',
-            width: '95%',
-            alignSelf: 'center',
-          }}>
-          {item.consultationType !== 'PHYSICAL' ? (
-            <TouchableOpacity
-              style={{
-                flex: 0.45,
-                justifyContent: 'center',
-                flexDirection: 'row',
-                padding: 3,
-                paddingHorizontal: 5,
-                alignSelf: 'center',
-                backgroundColor: '#2B8ADA',
-                borderWidth: 1,
-                borderColor: '#2B8ADA',
-                borderRadius: 5,
-              }}
-              onPress={async () => {
-                await onPressPrescription(item);
-                console.log(item);
-                onJoinPress(
-                  item.consultationType,
-                  item.consultationId + '',
-                  doctorObj.doctorId + '',
-                  doctorObj.doctorName,
-                  'Doctor',
-                );
-              }}>
-              <FAIcon
-                name={
-                  item.consultationType == 'VIDEO_CALL' ? 'video' : 'phone-alt'
-                }
-                color={'white'}
-                size={15}
-                style={{marginRight: 5}}
-              />
-              <Text style={{fontSize: 12, color: 'white'}}>Consult Now</Text>
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity
-              style={{
-                flex: 0.45,
-                justifyContent: 'center',
-                flexDirection: 'row',
-                padding: 3,
-                paddingHorizontal: 5,
-                alignSelf: 'center',
-                backgroundColor: '#2B8ADA',
-                borderWidth: 1,
-                borderColor: '#2B8ADA',
-                borderRadius: 5,
-              }}
-              onPress={async () => {
-                await onPressPrescription(item);
-                navigation.navigate('CheifComplaints');
-              }}>
-              <FAIcon
-                name="hospital"
-                size={15}
-                color={'white'}
-                style={{marginRight: 5}}
-              />
-              <Text style={{fontSize: 12, color: 'white'}}>P-Consultation</Text>
-            </TouchableOpacity>
-          )}
-          {/* <TouchableOpacity
-            style={{
-              flexDirection: 'row',
-              padding: 3,
-              paddingHorizontal: 5,
-              alignSelf: 'center',
-              borderWidth: 1,
-              borderColor: '#000080',
-              borderRadius: 5,
-            }}
-            onPress={() => {
-              sethistoryId(
-                item.familyId != null ? item.familyId : item.patientId,
-              );
-              setHistoryModal(true);
-            }}>
-            <FAIcon
-              name="file-pdf"
-              color={'#000080'}
-              size={15}
-              style={{marginRight: 5}}
-            />
-            <Text style={{fontSize: 12, color: '#000080'}}>History</Text>
-          </TouchableOpacity> */}
-
-          <TouchableOpacity
-            style={{
-              flex: 0.2,
-              justifyContent: 'center',
-              flexDirection: 'row',
-              padding: 3,
-              paddingHorizontal: 5,
-              alignSelf: 'center',
-              borderWidth: 1,
-              borderColor: 'gray',
-              borderRadius: 5,
-            }}
-            onPress={async () => {
-              settodayId(item.consultationId);
-              await getTodaysDocs(item.consultationId);
-              setTodaysModal(true);
-            }}>
-            <FAIcon
-              name="file-pdf"
-              color={'gray'}
-              size={15}
-              style={{marginRight: 5}}
-            />
-            <Text style={{fontSize: 12}}>Files</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              {
-                flex: 0.1,
-                justifyContent: 'center',
-                flexDirection: 'row',
-                padding: 3,
-                paddingHorizontal: 5,
-                borderWidth: 1,
-                borderColor: '#2b8ada',
-                borderRadius: 5,
-              },
-            ]}
-            onPress={async () => {
-              settodayId(item.consultationId);
-              await getTodaysDocs(item.consultationId);
-              setConsultationQuestionnaire(true);
-            }}>
-            <MCIcons
-              name="clipboard-list"
-              color={'#2b8ada'}
-              size={15}
-              style={{alignSelf: 'center'}}
-            />
-            {/* <Text style={{fontSize: 12, color: '#2b8ada'}}>Questionnaire</Text> */}
           </TouchableOpacity>
         </View>
       </View>
@@ -2192,6 +2121,307 @@ const DoctorHome = ({navigation}) => {
                 </View>
               </View>
             ) : null}
+            {/* Prescription Pending White Label */}
+            {/* <TouchableOpacity
+              style={[styles.WhiteLabel]}
+              onPress={() => setpending(!pending)}>
+              <FAIcon
+                name="prescription"
+                size={15}
+                color={pending ? '#2b8ada' : 'gray'}
+                style={{marginLeft: 3, alignSelf: 'center'}}
+              />
+              <Text
+                style={[
+                  styles.label,
+                  {width: '80%'},
+                  pending ? {color: '#2B8ADA'} : {color: 'black'},
+                ]}>
+                Prescription Pending
+              </Text>
+              <FAIcon
+                name={pending ? 'chevron-down' : 'chevron-right'}
+                size={20}
+                style={[pending ? {color: '#2B8ADA'} : {color: 'black'}]}
+              />
+            </TouchableOpacity> */}
+            {/* Prescription Pending Data */}
+            {/* {pending ? (
+              <View style={{flexDirection: 'column'}}>
+                <View style={{backgroundColor: '#E8F0FE'}}>
+                  <TouchableOpacity
+                    style={{
+                      flexDirection: 'row',
+                      padding: 5,
+                      paddingHorizontal: 10,
+                      marginLeft: 10,
+                    }}
+                    //onPress={getPendingData}
+                  >
+                    <FAIcon
+                      name="redo-alt"
+                      size={12}
+                      style={{alignSelf: 'center', marginRight: 5}}
+                      color={'#2b8ada'}
+                    />
+                    <Text style={{color: '#2b8ada', fontSize: 12}}>
+                      Refresh
+                    </Text>
+                  </TouchableOpacity>
+
+                  <View>
+                    
+                    {UpcomingData != '' ? (
+                      <FlatList
+                        data={UpcomingData}
+                        keyExtractor={item => item.consultationId}
+                        renderItem={renderCardPending}
+                      />
+                    ) : (
+                      <Text
+                        style={{
+                          marginVertical: 10,
+                          fontSize: 12,
+                          alignSelf: 'center',
+                          fontWeight: 'bold',
+                        }}>
+                        No Data Available for Upcoming Consultations
+                      </Text>
+                    )}
+                  </View>
+                </View>
+              </View>
+            ) : null} */}
+            {/* Recent Consultaions White Label */}
+            <TouchableOpacity
+              style={styles.WhiteLabel}
+              onPress={() => setStatus(!Status)}>
+              <Entypo
+                name="back-in-time"
+                size={17}
+                color={Status ? '#2b8ada' : 'gray'}
+                style={{
+                  marginLeft: 3,
+                  alignSelf: 'center',
+                }}
+              />
+              <Text
+                style={[
+                  styles.label,
+                  {width: '80%'},
+                  Status ? {color: '#2B8ADA'} : {color: 'black'},
+                ]}>
+                Recent Consultations
+              </Text>
+              <FAIcon
+                name={Status ? 'chevron-down' : 'chevron-right'}
+                size={20}
+                style={[Status ? {color: '#2B8ADA'} : {color: 'black'}]}
+              />
+            </TouchableOpacity>
+            {/* Recent Consultaions Body Data */}
+            {Status ? (
+              <View style={{flexDirection: 'column'}}>
+                <View style={{backgroundColor: '#E8F0FE'}}>
+                  <TouchableOpacity
+                    style={{
+                      flexDirection: 'row',
+                      padding: 5,
+                      paddingHorizontal: 10,
+                      marginLeft: 10,
+                    }}
+                    onPress={getRecentData}>
+                    <FAIcon
+                      name="redo-alt"
+                      size={12}
+                      style={{alignSelf: 'center', marginRight: 5}}
+                      color={'#2b8ada'}
+                    />
+                    <Text style={{color: '#2b8ada', fontSize: 12}}>
+                      Refresh
+                    </Text>
+                  </TouchableOpacity>
+                  {/* {StatusData != '' ? (
+                    <View>
+                      <Text
+                        style={{
+                          color: '#2B8ADA',
+                          textDecorationLine: 'underline',
+                          alignSelf: 'flex-end',
+                          margin: 5,
+                          marginHorizontal: 10,
+                          fontSize: 12,
+                        }}>
+                        View More
+                      </Text>
+                    </View>
+                  ) : null} */}
+
+                  <View>
+                    {/*Card Design Completed Consultaions */}
+                    {StatusData != '' ? (
+                      <FlatList
+                        data={StatusData}
+                        keyExtractor={item => item.consultationId}
+                        renderItem={renderCardRecent}
+                      />
+                    ) : (
+                      <Text
+                        style={{
+                          marginVertical: 10,
+                          fontSize: 12,
+                          alignSelf: 'center',
+                          fontWeight: 'bold',
+                        }}>
+                        No Recent Consultations Data Found
+                      </Text>
+                    )}
+                  </View>
+                </View>
+              </View>
+            ) : null}
+
+            {/* Completed Consultaions White Label */}
+            <TouchableOpacity
+              style={styles.WhiteLabel}
+              onPress={() => setComplete(!Complete)}>
+              <FAIcon
+                name="calendar-check"
+                size={15}
+                color={Complete ? '#2b8ada' : 'gray'}
+                style={{marginLeft: 3, alignSelf: 'center'}}
+              />
+              <Text
+                style={[
+                  styles.label,
+                  {width: '80%'},
+                  Complete ? {color: '#2B8ADA'} : {color: 'black'},
+                ]}>
+                Completed Consultations
+              </Text>
+              <FAIcon
+                name={Complete ? 'chevron-down' : 'chevron-right'}
+                size={20}
+                style={[Complete ? {color: '#2B8ADA'} : {color: 'black'}]}
+              />
+            </TouchableOpacity>
+            {/* Completed Consultaions Body Data */}
+            {Complete ? (
+              <View style={{flexDirection: 'column'}}>
+                <View style={{backgroundColor: '#E8F0FE'}}>
+                  <TouchableOpacity
+                    style={{
+                      flexDirection: 'row',
+                      padding: 5,
+                      paddingHorizontal: 10,
+                      marginLeft: 10,
+                    }}
+                    onPress={getCompletedData}>
+                    <FAIcon
+                      name="redo-alt"
+                      size={12}
+                      style={{alignSelf: 'center', marginRight: 5}}
+                      color={'#2b8ada'}
+                    />
+                    <Text style={{color: '#2b8ada', fontSize: 12}}>
+                      Refresh
+                    </Text>
+                  </TouchableOpacity>
+                  {/* {CompleteData != '' ? (
+                    <View>
+                      <Text
+                        style={{
+                          color: '#2B8ADA',
+                          textDecorationLine: 'underline',
+                          alignSelf: 'flex-end',
+                          margin: 5,
+                          marginHorizontal: 10,
+                          fontSize: 12,
+                        }}>
+                        View More
+                      </Text>
+                    </View>
+                  ) : null} */}
+
+                  <View>
+                    {/*Card Design Completed Consultaions */}
+                    {CompleteData != '' ? (
+                      <View>
+                        <FlatList
+                          data={CompleteData}
+                          keyExtractor={item => item.consultationId}
+                          renderItem={renderCardCompleted}
+                        />
+                      </View>
+                    ) : (
+                      <Text
+                        style={{
+                          marginVertical: 10,
+                          fontSize: 12,
+                          alignSelf: 'center',
+                          fontWeight: 'bold',
+                        }}>
+                        No Completed Consultations Data Found
+                      </Text>
+                    )}
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignSelf: 'center',
+                        marginVertical: 10,
+                      }}>
+                      {strtCC != 0 ? (
+                        <Pressable
+                          style={{flexDirection: 'row', marginRight: 10}}
+                          onPress={() => onPrev()}>
+                          <FAIcon
+                            size={15}
+                            name="chevron-left"
+                            style={{
+                              fontWeight: 'bold',
+                              alignSelf: 'center',
+                            }}
+                            color={strtCC == 0 ? '#E8F0FE' : 'black'}
+                          />
+                          <Text
+                            style={{
+                              fontSize: 12,
+                              alignSelf: 'center',
+                              color: strtCC == 0 ? '#E8F0FE' : 'black',
+                              marginLeft: 3,
+                            }}>
+                            Previous
+                          </Text>
+                        </Pressable>
+                      ) : null}
+                      {endOfList ? (
+                        <Pressable
+                          style={{flexDirection: 'row'}}
+                          onPress={() => onNext()}>
+                          <Text
+                            style={{
+                              fontSize: 12,
+                              alignSelf: 'center',
+                              marginRight: 3,
+                              color: 'black',
+                            }}>
+                            Next
+                          </Text>
+                          <FAIcon
+                            size={15}
+                            name="chevron-right"
+                            style={{
+                              fontWeight: 'bold',
+                              alignSelf: 'center',
+                            }}
+                          />
+                        </Pressable>
+                      ) : null}
+                    </View>
+                  </View>
+                </View>
+              </View>
+            ) : null}
             {/* History Modal */}
             {HistoryModal ? (
               <Modal
@@ -2702,307 +2932,6 @@ const DoctorHome = ({navigation}) => {
                   </View>
                 </View>
               </Modal>
-            ) : null}
-            {/* Completed Consultaions White Label */}
-            <TouchableOpacity
-              style={styles.WhiteLabel}
-              onPress={() => setComplete(!Complete)}>
-              <FAIcon
-                name="calendar-check"
-                size={15}
-                color={Complete ? '#2b8ada' : 'gray'}
-                style={{marginLeft: 3, alignSelf: 'center'}}
-              />
-              <Text
-                style={[
-                  styles.label,
-                  {width: '80%'},
-                  Complete ? {color: '#2B8ADA'} : {color: 'black'},
-                ]}>
-                Completed Consultations
-              </Text>
-              <FAIcon
-                name={Complete ? 'chevron-down' : 'chevron-right'}
-                size={20}
-                style={[Complete ? {color: '#2B8ADA'} : {color: 'black'}]}
-              />
-            </TouchableOpacity>
-            {/* Completed Consultaions Body Data */}
-            {Complete ? (
-              <View style={{flexDirection: 'column'}}>
-                <View style={{backgroundColor: '#E8F0FE'}}>
-                  <TouchableOpacity
-                    style={{
-                      flexDirection: 'row',
-                      padding: 5,
-                      paddingHorizontal: 10,
-                      marginLeft: 10,
-                    }}
-                    onPress={getCompletedData}>
-                    <FAIcon
-                      name="redo-alt"
-                      size={12}
-                      style={{alignSelf: 'center', marginRight: 5}}
-                      color={'#2b8ada'}
-                    />
-                    <Text style={{color: '#2b8ada', fontSize: 12}}>
-                      Refresh
-                    </Text>
-                  </TouchableOpacity>
-                  {/* {CompleteData != '' ? (
-                    <View>
-                      <Text
-                        style={{
-                          color: '#2B8ADA',
-                          textDecorationLine: 'underline',
-                          alignSelf: 'flex-end',
-                          margin: 5,
-                          marginHorizontal: 10,
-                          fontSize: 12,
-                        }}>
-                        View More
-                      </Text>
-                    </View>
-                  ) : null} */}
-
-                  <View>
-                    {/*Card Design Completed Consultaions */}
-                    {CompleteData != '' ? (
-                      <View>
-                        <FlatList
-                          data={CompleteData}
-                          keyExtractor={item => item.consultationId}
-                          renderItem={renderCardCompleted}
-                        />
-                      </View>
-                    ) : (
-                      <Text
-                        style={{
-                          marginVertical: 10,
-                          fontSize: 12,
-                          alignSelf: 'center',
-                          fontWeight: 'bold',
-                        }}>
-                        No Completed Consultations Data Found
-                      </Text>
-                    )}
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        alignSelf: 'center',
-                        marginVertical: 10,
-                      }}>
-                      {strtCC != 0 ? (
-                        <Pressable
-                          style={{flexDirection: 'row', marginRight: 10}}
-                          onPress={() => onPrev()}>
-                          <FAIcon
-                            size={15}
-                            name="chevron-left"
-                            style={{
-                              fontWeight: 'bold',
-                              alignSelf: 'center',
-                            }}
-                            color={strtCC == 0 ? '#E8F0FE' : 'black'}
-                          />
-                          <Text
-                            style={{
-                              fontSize: 12,
-                              alignSelf: 'center',
-                              color: strtCC == 0 ? '#E8F0FE' : 'black',
-                              marginLeft: 3,
-                            }}>
-                            Previous
-                          </Text>
-                        </Pressable>
-                      ) : null}
-                      {endOfList ? (
-                        <Pressable
-                          style={{flexDirection: 'row'}}
-                          onPress={() => onNext()}>
-                          <Text
-                            style={{
-                              fontSize: 12,
-                              alignSelf: 'center',
-                              marginRight: 3,
-                              color: 'black',
-                            }}>
-                            Next
-                          </Text>
-                          <FAIcon
-                            size={15}
-                            name="chevron-right"
-                            style={{
-                              fontWeight: 'bold',
-                              alignSelf: 'center',
-                            }}
-                          />
-                        </Pressable>
-                      ) : null}
-                    </View>
-                  </View>
-                </View>
-              </View>
-            ) : null}
-            {/* Recent Consultaions White Label */}
-            <TouchableOpacity
-              style={styles.WhiteLabel}
-              onPress={() => setStatus(!Status)}>
-              <Entypo
-                name="back-in-time"
-                size={17}
-                color={Status ? '#2b8ada' : 'gray'}
-                style={{
-                  marginLeft: 3,
-                  alignSelf: 'center',
-                }}
-              />
-              <Text
-                style={[
-                  styles.label,
-                  {width: '80%'},
-                  Status ? {color: '#2B8ADA'} : {color: 'black'},
-                ]}>
-                Recent Consultations
-              </Text>
-              <FAIcon
-                name={Status ? 'chevron-down' : 'chevron-right'}
-                size={20}
-                style={[Status ? {color: '#2B8ADA'} : {color: 'black'}]}
-              />
-            </TouchableOpacity>
-            {/* Recent Consultaions Body Data */}
-            {Status ? (
-              <View style={{flexDirection: 'column'}}>
-                <View style={{backgroundColor: '#E8F0FE'}}>
-                  <TouchableOpacity
-                    style={{
-                      flexDirection: 'row',
-                      padding: 5,
-                      paddingHorizontal: 10,
-                      marginLeft: 10,
-                    }}
-                    onPress={getRecentData}>
-                    <FAIcon
-                      name="redo-alt"
-                      size={12}
-                      style={{alignSelf: 'center', marginRight: 5}}
-                      color={'#2b8ada'}
-                    />
-                    <Text style={{color: '#2b8ada', fontSize: 12}}>
-                      Refresh
-                    </Text>
-                  </TouchableOpacity>
-                  {/* {StatusData != '' ? (
-                    <View>
-                      <Text
-                        style={{
-                          color: '#2B8ADA',
-                          textDecorationLine: 'underline',
-                          alignSelf: 'flex-end',
-                          margin: 5,
-                          marginHorizontal: 10,
-                          fontSize: 12,
-                        }}>
-                        View More
-                      </Text>
-                    </View>
-                  ) : null} */}
-
-                  <View>
-                    {/*Card Design Completed Consultaions */}
-                    {StatusData != '' ? (
-                      <FlatList
-                        data={StatusData}
-                        keyExtractor={item => item.consultationId}
-                        renderItem={renderCardRecent}
-                      />
-                    ) : (
-                      <Text
-                        style={{
-                          marginVertical: 10,
-                          fontSize: 12,
-                          alignSelf: 'center',
-                          fontWeight: 'bold',
-                        }}>
-                        No Recent Consultations Data Found
-                      </Text>
-                    )}
-                  </View>
-                </View>
-              </View>
-            ) : null}
-
-            {/* Prescription Pending White Label */}
-            <TouchableOpacity
-              style={[styles.WhiteLabel]}
-              onPress={() => setpending(!pending)}>
-              <FAIcon
-                name="prescription"
-                size={15}
-                color={pending ? '#2b8ada' : 'gray'}
-                style={{marginLeft: 3, alignSelf: 'center'}}
-              />
-              <Text
-                style={[
-                  styles.label,
-                  {width: '80%'},
-                  pending ? {color: '#2B8ADA'} : {color: 'black'},
-                ]}>
-                Prescription Pending
-              </Text>
-              <FAIcon
-                name={pending ? 'chevron-down' : 'chevron-right'}
-                size={20}
-                style={[pending ? {color: '#2B8ADA'} : {color: 'black'}]}
-              />
-            </TouchableOpacity>
-            {/* Prescription Pending Data */}
-            {pending ? (
-              <View style={{flexDirection: 'column'}}>
-                <View style={{backgroundColor: '#E8F0FE'}}>
-                  <TouchableOpacity
-                    style={{
-                      flexDirection: 'row',
-                      padding: 5,
-                      paddingHorizontal: 10,
-                      marginLeft: 10,
-                    }}
-                    //onPress={getPendingData}
-                  >
-                    <FAIcon
-                      name="redo-alt"
-                      size={12}
-                      style={{alignSelf: 'center', marginRight: 5}}
-                      color={'#2b8ada'}
-                    />
-                    <Text style={{color: '#2b8ada', fontSize: 12}}>
-                      Refresh
-                    </Text>
-                  </TouchableOpacity>
-
-                  <View>
-                    {/*Card Design */}
-                    {UpcomingData != '' ? (
-                      <FlatList
-                        data={UpcomingData}
-                        keyExtractor={item => item.consultationId}
-                        renderItem={renderCardPending}
-                      />
-                    ) : (
-                      <Text
-                        style={{
-                          marginVertical: 10,
-                          fontSize: 12,
-                          alignSelf: 'center',
-                          fontWeight: 'bold',
-                        }}>
-                        No Data Available for Upcoming Consultations
-                      </Text>
-                    )}
-                  </View>
-                </View>
-              </View>
             ) : null}
           </View>
         </ScrollView>

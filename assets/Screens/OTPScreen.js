@@ -1056,18 +1056,18 @@ const FirstScreen = ({route, navigation}) => {
       //let no = countryCodeCache + "" + mob;
       //console.log(no);
       setwrongOTPMessage(false);
-      if (privatePolicy == false)
-        Alert.alert(
-          'Terms and Condition',
-          'Please accept privacy policy with terms & condition before continuing',
-        );
-      else {
-        try {
-          await AsyncStorage.setItem('mobileNumber', mob);
-          sendOTP();
-        } catch (e) {
-          console.log(e);
-        }
+      // if (privatePolicy == false)
+      //   Alert.alert(
+      //     'Terms and Condition',
+      //     'Please accept privacy policy with terms & condition before continuing',
+      //   );
+      // else {
+      try {
+        await AsyncStorage.setItem('mobileNumber', mob);
+        sendOTP();
+      } catch (e) {
+        console.log(e);
+        // }
       }
     }
   };
@@ -1238,11 +1238,17 @@ const FirstScreen = ({route, navigation}) => {
             alignSelf: 'center',
             backgroundColor: '#e8f0fe',
             // marginTop: 50,
-            height: '100%',
+            //height: '100%',
           }}
           showsVerticalScrollIndicator={false}>
           <View
-            style={{flex: 1, flexDirection: 'column', alignItems: 'center'}}>
+            style={{
+              flex: 1,
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '100%',
+            }}>
             <Image
               source={logo}
               style={{
@@ -1289,7 +1295,7 @@ const FirstScreen = ({route, navigation}) => {
                 maxLength={maxLength}
                 contextMenuHidden={true}></TextInput>
             </View>
-            <View style={{width: '80%', alignSelf: 'center'}}>
+            {/* <View style={{width: '80%', alignSelf: 'center'}}>
               <CheckBox
                 //title="By signing in, you agree to Aarogya Terms and Conditions and Private Policy"
                 title={
@@ -1326,8 +1332,8 @@ const FirstScreen = ({route, navigation}) => {
                 checkedColor={"#2b8ada"}
                 checked={notification}
                 onPress={() => setnotification(!notification)}
-              /> */}
-            </View>
+              /> 
+            </View> */}
             <CustomButton
               text="Continue"
               textstyle={{
@@ -1448,231 +1454,230 @@ const FirstScreen = ({route, navigation}) => {
               </Text>
             </View> */}
           </View>
-          {modalVisible ? (
-            <Modal
-              animationType="slide"
-              transparent={true}
-              visible={modalVisible}
-              onRequestClose={() => {
-                setModalVisible(!modalVisible);
-              }}>
-              <View
-                style={{height: '100%', backgroundColor: 'rgba(0,0,0,0.8)'}}>
-                <View style={[styles.modalView, {flexDirection: 'column'}]}>
-                  <View
+        </ScrollView>
+        {modalVisible ? (
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={modalVisible}
+            onRequestClose={() => {
+              setModalVisible(!modalVisible);
+            }}>
+            <View style={{height: '100%', backgroundColor: 'rgba(0,0,0,0.8)'}}>
+              <View style={[styles.modalView, {flexDirection: 'column'}]}>
+                <View
+                  style={{
+                    width: '100%',
+                    alignSelf: 'center',
+                  }}>
+                  <Text
                     style={{
-                      width: '100%',
+                      fontSize: 26,
+                      fontWeight: 'bold',
                       alignSelf: 'center',
+                      marginTop: 15,
+                      color: 'black',
                     }}>
-                    <Text
-                      style={{
-                        fontSize: 26,
-                        fontWeight: 'bold',
-                        alignSelf: 'center',
-                        marginTop: 15,
-                        color: 'black',
-                      }}>
-                      Enter OTP
-                    </Text>
-                    <FAIcon
-                      name="window-close"
-                      color="black"
-                      size={26}
-                      style={{position: 'absolute', top: 10, right: 10}}
-                      onPress={() => {
-                        setModalVisible(false);
-                        reset();
+                    Enter OTP
+                  </Text>
+                  <FAIcon
+                    name="window-close"
+                    color="black"
+                    size={26}
+                    style={{position: 'absolute', top: 10, right: 10}}
+                    onPress={() => {
+                      setModalVisible(false);
+                      reset();
+                    }}
+                  />
+                </View>
+                <View
+                  style={{
+                    width: '75%',
+                    alignItems: 'center',
+                    marginVertical: 10,
+                  }}>
+                  <Text
+                    style={{
+                      textAlign: 'center',
+                      fontSize: 13,
+                      color: 'black',
+                      marginVertical: 16,
+                    }}>
+                    Enter 4 digit OTP sent to your mobile number and Registered
+                    email
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: 22,
+                      fontWeight: 'bold',
+                      color: 'black',
+                    }}>
+                    <FAIcon name="phone-alt" size={22} color="black" />
+                    {'  '}
+                    {mob}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    marginVertical: 15,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    flexDirection: 'row',
+                    justifyContent: 'space-around',
+                  }}>
+                  <View style={styles.TextInputView}>
+                    <TextInput
+                      ref={pin1Ref}
+                      keyboardType={'number-pad'}
+                      maxLength={1}
+                      onChangeText={pin1 => {
+                        setPin1(pin1);
+                        if (pin1 != '') {
+                          pin2Ref.current.focus();
+                        }
                       }}
+                      value={pin1}
+                      style={styles.TextInputText}
                     />
                   </View>
-                  <View
-                    style={{
-                      width: '75%',
-                      alignItems: 'center',
-                      marginVertical: 10,
-                    }}>
+                  <View style={styles.TextInputView}>
+                    <TextInput
+                      ref={pin2Ref}
+                      keyboardType={'number-pad'}
+                      maxLength={1}
+                      onChangeText={pin2 => {
+                        setPin2(pin2);
+                        if (pin2 != '') {
+                          pin3Ref.current.focus();
+                        }
+                      }}
+                      value={pin2}
+                      style={styles.TextInputText}
+                    />
+                  </View>
+                  <View style={styles.TextInputView}>
+                    <TextInput
+                      ref={pin3Ref}
+                      keyboardType={'number-pad'}
+                      maxLength={1}
+                      onChangeText={pin3 => {
+                        setPin3(pin3);
+                        if (pin3 != '') {
+                          pin4Ref.current.focus();
+                        }
+                      }}
+                      value={pin3}
+                      style={styles.TextInputText}
+                    />
+                  </View>
+                  <View style={styles.TextInputView}>
+                    <TextInput
+                      ref={pin4Ref}
+                      keyboardType={'number-pad'}
+                      maxLength={1}
+                      onChangeText={pin4 => {
+                        setPin4(pin4);
+                      }}
+                      value={pin4}
+                      style={styles.TextInputText}
+                    />
+                  </View>
+                </View>
+                <CustomButton
+                  text="Submit"
+                  style={{
+                    alignSelf: 'center',
+                    width: '90%',
+                    backgroundColor: '#2b8ada',
+                  }}
+                  textstyle={{color: 'white', fontSize: 16}}
+                  onPress={onSubmitPressed}></CustomButton>
+                <View
+                  style={{
+                    flexDirection: 'column',
+                    alignSelf: 'center',
+                    marginVertical: 10,
+                    width: '95%',
+                  }}>
+                  {wrongOTPMessage == true ? (
                     <Text
                       style={{
-                        textAlign: 'center',
-                        fontSize: 13,
-                        color: 'black',
-                        marginVertical: 16,
-                      }}>
-                      Enter 4 digit OTP sent to your mobile number and
-                      Registered email
-                    </Text>
-                    <Text
-                      style={{
-                        fontSize: 22,
-                        fontWeight: 'bold',
-                        color: 'black',
-                      }}>
-                      <FAIcon name="phone-alt" size={22} color="black" />
-                      {'  '}
-                      {mob}
-                    </Text>
-                  </View>
-                  <View
-                    style={{
-                      marginVertical: 15,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      flexDirection: 'row',
-                      justifyContent: 'space-around',
-                    }}>
-                    <View style={styles.TextInputView}>
-                      <TextInput
-                        ref={pin1Ref}
-                        keyboardType={'number-pad'}
-                        maxLength={1}
-                        onChangeText={pin1 => {
-                          setPin1(pin1);
-                          if (pin1 != '') {
-                            pin2Ref.current.focus();
-                          }
-                        }}
-                        value={pin1}
-                        style={styles.TextInputText}
-                      />
-                    </View>
-                    <View style={styles.TextInputView}>
-                      <TextInput
-                        ref={pin2Ref}
-                        keyboardType={'number-pad'}
-                        maxLength={1}
-                        onChangeText={pin2 => {
-                          setPin2(pin2);
-                          if (pin2 != '') {
-                            pin3Ref.current.focus();
-                          }
-                        }}
-                        value={pin2}
-                        style={styles.TextInputText}
-                      />
-                    </View>
-                    <View style={styles.TextInputView}>
-                      <TextInput
-                        ref={pin3Ref}
-                        keyboardType={'number-pad'}
-                        maxLength={1}
-                        onChangeText={pin3 => {
-                          setPin3(pin3);
-                          if (pin3 != '') {
-                            pin4Ref.current.focus();
-                          }
-                        }}
-                        value={pin3}
-                        style={styles.TextInputText}
-                      />
-                    </View>
-                    <View style={styles.TextInputView}>
-                      <TextInput
-                        ref={pin4Ref}
-                        keyboardType={'number-pad'}
-                        maxLength={1}
-                        onChangeText={pin4 => {
-                          setPin4(pin4);
-                        }}
-                        value={pin4}
-                        style={styles.TextInputText}
-                      />
-                    </View>
-                  </View>
-                  <CustomButton
-                    text="Submit"
-                    style={{
-                      alignSelf: 'center',
-                      width: '90%',
-                      backgroundColor: '#2b8ada',
-                    }}
-                    textstyle={{color: 'white', fontSize: 16}}
-                    onPress={onSubmitPressed}></CustomButton>
-                  <View
-                    style={{
-                      flexDirection: 'column',
-                      alignSelf: 'center',
-                      marginVertical: 10,
-                      width: '95%',
-                    }}>
-                    {wrongOTPMessage == true ? (
-                      <Text
-                        style={{
-                          fontSize: 15,
-                          color: 'red',
-                          alignSelf: 'center',
-                          fontWeight: 'bold',
-                          marginVertical: 3,
-                        }}>
-                        This otp is incorrect. Please recheck.
-                      </Text>
-                    ) : null}
-                    <View
-                      style={{
-                        flexDirection: 'row',
+                        fontSize: 15,
+                        color: 'red',
                         alignSelf: 'center',
+                        fontWeight: 'bold',
+                        marginVertical: 3,
                       }}>
+                      This otp is incorrect. Please recheck.
+                    </Text>
+                  ) : null}
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignSelf: 'center',
+                    }}>
+                    <Text
+                      style={{
+                        fontSize: 15,
+                        color: 'black',
+                        alignSelf: 'center',
+                        fontWeight: 'bold',
+                      }}>
+                      Didn't recieve the OTP.{' '}
+                    </Text>
+                    {resend === false ? (
                       <Text
                         style={{
                           fontSize: 15,
                           color: 'black',
                           alignSelf: 'center',
                           fontWeight: 'bold',
-                        }}>
-                        Didn't recieve the OTP.{' '}
+                          color: '#2b8ada',
+                        }}
+                        onPress={onResend}>
+                        Resend OTP
                       </Text>
-                      {resend === false ? (
-                        <Text
-                          style={{
-                            fontSize: 15,
-                            color: 'black',
-                            alignSelf: 'center',
-                            fontWeight: 'bold',
-                            color: '#2b8ada',
-                          }}
-                          onPress={onResend}>
-                          Resend OTP
-                        </Text>
-                      ) : null}
-                    </View>
-
-                    {show ? (
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          alignSelf: 'center',
-                          marginTop: 10,
-                        }}>
-                        <Text style={{color: 'black', marginTop: 10}}>
-                          Resend OTP after
-                        </Text>
-
-                        <CountDown
-                          size={16}
-                          until={val}
-                          digitStyle={{
-                            marginHorizontal: 2,
-                            padding: 0,
-                          }}
-                          digitTxtStyle={{
-                            color: '#2b8ada',
-                            padding: 0,
-                          }}
-                          //separatorStyle={{paddingTop: 15, marginTop: 10}}
-                          timeToShow={['M', 'S']}
-                          timeLabels={{m: null, s: null}}
-                          showSeparator={true}
-                          onFinish={onFinishCount}
-                        />
-
-                        <Text style={{color: 'black', marginTop: 10}}>sec</Text>
-                      </View>
                     ) : null}
                   </View>
+
+                  {show ? (
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignSelf: 'center',
+                        marginTop: 10,
+                      }}>
+                      <Text style={{color: 'black', marginTop: 10}}>
+                        Resend OTP after
+                      </Text>
+
+                      <CountDown
+                        size={16}
+                        until={val}
+                        digitStyle={{
+                          marginHorizontal: 2,
+                          padding: 0,
+                        }}
+                        digitTxtStyle={{
+                          color: '#2b8ada',
+                          padding: 0,
+                        }}
+                        //separatorStyle={{paddingTop: 15, marginTop: 10}}
+                        timeToShow={['M', 'S']}
+                        timeLabels={{m: null, s: null}}
+                        showSeparator={true}
+                        onFinish={onFinishCount}
+                      />
+
+                      <Text style={{color: 'black', marginTop: 10}}>sec</Text>
+                    </View>
+                  ) : null}
                 </View>
               </View>
-            </Modal>
-          ) : null}
-        </ScrollView>
+            </View>
+          </Modal>
+        ) : null}
         {isLoading && (
           <View
             style={{

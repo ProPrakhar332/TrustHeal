@@ -17,16 +17,21 @@ import {
   KeyboardAvoidingView,
   useWindowDimensions,
   StatusBar,
+  FlatList,
 } from 'react-native';
 import CustomButton from '../Components/CustomButton';
 import {
   SelectList,
   MultipleSelectList,
 } from 'react-native-dropdown-select-list';
+import Pdf from 'react-native-pdf';
 
 //icons
 import doctor from '../Resources/doctor.png';
 import waiting from '../Animations/waiting1.gif';
+//file
+//import terms from '../Terms/Doctor.pdf';
+const terms = require('../Terms/Doctor.pdf');
 import {CheckBox, Icon} from 'react-native-elements';
 import FAIcon from 'react-native-vector-icons/FontAwesome5';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -64,6 +69,15 @@ const DoctorRegistrationStep1 = ({navigation}) => {
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [isLoading, setisLoading] = useState(false);
   const [complete, setcomplete] = useState(0);
+
+  const [zoom, setZoom] = useState(1);
+
+  const onZoomIn = () => {
+    if (zoom < 2.5) setZoom(zoom + 0.25);
+  };
+  const onZoomOut = () => {
+    if (zoom > 1) setZoom(zoom - 0.25);
+  };
 
   const dataShowMobNo = [
     {key: 'Yes', value: 'Yes'},
@@ -267,7 +281,35 @@ const DoctorRegistrationStep1 = ({navigation}) => {
       setmobile(await AsyncStorage.getItem('mobileNumber'));
     };
 
+    const getAvailableSpecialities = async () => {
+      axios
+        .get(
+          apiConfig.baseUrl + '/suggest/specialization/dropdown?max=100&min=1',
+        )
+        .then(response => {
+          if (response.status == 200) {
+          }
+        })
+        .catch(error => {
+          Alert.alert('Error', `${error}`);
+        });
+    };
+
+    const getAvailableLanguages = async () => {
+      axios
+        .get(apiConfig.baseUrl + '/suggest/language/dropdown?max=100&min=1')
+        .then(response => {
+          if (response.status == 200) {
+          }
+        })
+        .catch(error => {
+          Alert.alert('Error', `${error}`);
+        });
+    };
+
     onLoadSetData();
+    getAvailableSpecialities();
+    getAvailableLanguages();
   }, []);
 
   useEffect(() => {
@@ -675,18 +717,19 @@ const DoctorRegistrationStep1 = ({navigation}) => {
                       <Text
                         style={[styles.textLink]}
                         onPress={() => {
-                          viewTermsConditions();
+                          //viewTermsConditions();
+                          setTermsView(true);
                         }}>
                         Terms and Conditions
                       </Text>{' '}
-                      and{' '}
+                      {/* and{' '}
                       <Text
                         style={[styles.textLink]}
                         onPress={() => {
                           viewPrivacyPolicy();
                         }}>
                         Privacy Policy
-                      </Text>
+                      </Text> */}
                     </Text>
                   }
                   containerStyle={{
@@ -783,113 +826,162 @@ const DoctorRegistrationStep1 = ({navigation}) => {
                   navigation.goBack();
                 }}
               />
-
-              {termsView ? (
-                <Modal
-                  animationType="slide"
-                  transparent={true}
-                  visible={termsView}
-                  onRequestClose={() => {
-                    setTermsView(!termsView);
-                  }}>
-                  <View
-                    style={{
-                      height: '100%',
-                      backgroundColor: 'rgba(0,0,0,0.8)',
-                      flexDirection: 'row',
-                      justifyContent: 'center',
-                    }}>
-                    <View
-                      style={[
-                        styles.modalView,
-                        {
-                          flexDirection: 'column',
-                          borderRadius: 10,
-                          height: 400,
-                          width: '95%',
-                        },
-                      ]}>
-                      <Image source={require('../Resources/accept.png')} />
-                      <Text style={{fontWeight: 'bold'}}>
-                        Terms of Services
-                      </Text>
-                      <Text>Lorem ipsum dolor sit amet, consectetur</Text>
-                      <ScrollView style={{marginTop: 10}}>
-                        <Text style={{fontWeight: 'bold'}}>Term 1</Text>
-                        <Text>
-                          Lorem ipsum dolor sit amet, consectetur adipiscing
-                          elit, sed do eiusmod tempor incididunt ut labore et
-                          dolore magna aliqua. Ut enim ad minim veniam, quis
-                          nostrud exercitation ullamco laboris nisi ut aliquip
-                          ex ea commodo consequat. Duis aute irure dolor in
-                          reprehenderit in voluptate velit esse cillum dolore eu
-                          fugiat nulla pariatur. Excepteur sint occaecat
-                          cupidatat non proident, sunt in culpa qui officia
-                          deserunt mollit anim id est laborum.
-                        </Text>
-                        <Text style={{fontWeight: 'bold'}}>Term 2</Text>
-                        <Text>
-                          Lorem ipsum dolor sit amet, consectetur adipiscing
-                          elit, sed do eiusmod tempor incididunt ut labore et
-                          dolore magna aliqua. Ut enim ad minim veniam, quis
-                          nostrud exercitation ullamco laboris nisi ut aliquip
-                          ex ea commodo consequat. Duis aute irure dolor in
-                          reprehenderit in voluptate velit esse cillum dolore eu
-                          fugiat nulla pariatur. Excepteur sint occaecat
-                          cupidatat non proident, sunt in culpa qui officia
-                          deserunt mollit anim id est laborum.
-                        </Text>
-                        <Text style={{fontWeight: 'bold'}}>Term 3</Text>
-                        <Text>
-                          Lorem ipsum dolor sit amet, consectetur adipiscing
-                          elit, sed do eiusmod tempor incididunt ut labore et
-                          dolore magna aliqua. Ut enim ad minim veniam, quis
-                          nostrud exercitation ullamco laboris nisi ut aliquip
-                          ex ea commodo consequat. Duis aute irure dolor in
-                          reprehenderit in voluptate velit esse cillum dolore eu
-                          fugiat nulla pariatur. Excepteur sint occaecat
-                          cupidatat non proident, sunt in culpa qui officia
-                          deserunt mollit anim id est laborum.
-                        </Text>
-                      </ScrollView>
-                      <View style={{flexDirection: 'row', marginTop: 20}}>
-                        <CustomButton
-                          text="Decline"
-                          textstyle={{color: '#2B8ADA', fontSize: 13}}
-                          style={{
-                            borderWidth: 1,
-                            borderColor: '#2B8ADA',
-                            flex: 0.45,
-                            marginRight: '5%',
-                            alignSelf: 'center',
-                            padding: 5,
-                          }}
-                          onPress={() => setTermsView(false)}
-                        />
-                        <CustomButton
-                          text="Accept"
-                          textstyle={{color: 'white', fontSize: 13}}
-                          style={{
-                            backgroundColor: '#2B8ADA',
-                            flex: 0.45,
-                            alignSelf: 'center',
-                            padding: 5,
-                          }}
-                          onPress={() => {
-                            //  PostData();
-
-                            setTermsView(false);
-                          }}
-                        />
-                      </View>
-                    </View>
-                  </View>
-                </Modal>
-              ) : null}
             </View>
           </View>
         </ScrollView>
+        {termsView ? (
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={termsView}
+            onRequestClose={() => {
+              setTermsView(!termsView);
+            }}>
+            <View
+              style={{
+                height: '100%',
+                backgroundColor: 'rgba(0,0,0,0.8)',
+                flexDirection: 'row',
+                justifyContent: 'center',
+              }}>
+              <View
+                style={[
+                  styles.modalView,
+                  {
+                    borderRadius: 10,
+                  },
+                ]}>
+                <View
+                  style={{
+                    width: '100%',
+                    alignSelf: 'center',
+                    borderBottomWidth: 1,
+                    borderBottomColor: 'gray',
+                  }}>
+                  <Text
+                    style={{
+                      fontWeight: 'bold',
+                      fontSize: 16,
+                      padding: 5,
+                      color: 'black',
+                    }}>
+                    Terms and Condition
+                  </Text>
+                  <FAIcon
+                    name="window-close"
+                    color="black"
+                    size={26}
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      right: 0,
+                    }}
+                    onPress={() => {
+                      setTermsView(false);
 
+                      setZoom(1);
+                    }}
+                  />
+                </View>
+                <View style={{minHeight: 150, width: '100%'}}>
+                  <View
+                    style={{
+                      padding: 10,
+                      width: '100%',
+                      alignSelf: 'center',
+                      borderRadius: 7,
+                      marginVertical: 10,
+                      borderWidth: 2,
+                      borderColor: 'gray',
+                    }}>
+                    <Pdf
+                      source={{
+                        uri: 'https://web.stanford.edu/group/csp/cs21/htmlcheatsheet.pdf',
+                        cache: true,
+                        method: 'GET',
+                      }}
+                      //source={require('../Terms/Doctor.pdf')}
+                      style={{
+                        width: '100%',
+                        height: 275,
+                        alignSelf: 'center',
+                      }}
+                      onLoadComplete={() => console.log('fully loaded')}
+                      onError={error => {
+                        console.log(error);
+                      }}
+                      scale={zoom}
+                    />
+                  </View>
+                  <View style={{alignSelf: 'center', flexDirection: 'column'}}>
+                    {/* Zoom Controls */}
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignContent: 'center',
+                        justifyContent: 'space-evenly',
+                        width: '95%',
+                      }}>
+                      <TouchableOpacity>
+                        <FAIcon
+                          name="minus-circle"
+                          size={20}
+                          color={'gray'}
+                          onPress={onZoomOut}
+                        />
+                      </TouchableOpacity>
+                      <Text>
+                        {zoom * 100}
+                        {' %'}
+                      </Text>
+                      <TouchableOpacity>
+                        <FAIcon
+                          name="plus-circle"
+                          size={20}
+                          color={'gray'}
+                          onPress={onZoomIn}
+                        />
+                      </TouchableOpacity>
+                    </View>
+                    <View style={{flexDirection: 'row', marginTop: 20}}>
+                      <CustomButton
+                        text="Decline"
+                        textstyle={{color: '#2B8ADA', fontSize: 13}}
+                        style={{
+                          borderWidth: 1,
+                          borderColor: '#2B8ADA',
+                          flex: 0.45,
+                          marginRight: '5%',
+                          alignSelf: 'center',
+                          padding: 5,
+                        }}
+                        onPress={() => {
+                          setCheckTerms(false);
+                          setTermsView(false);
+                        }}
+                      />
+                      <CustomButton
+                        text="Accept"
+                        textstyle={{color: 'white', fontSize: 13}}
+                        style={{
+                          backgroundColor: '#2B8ADA',
+                          flex: 0.45,
+                          alignSelf: 'center',
+                          padding: 5,
+                        }}
+                        onPress={() => {
+                          //  PostData();
+                          setCheckTerms(true);
+                          setTermsView(false);
+                        }}
+                      />
+                    </View>
+                  </View>
+                </View>
+              </View>
+            </View>
+          </Modal>
+        ) : null}
         {isLoading && (
           <View
             style={{

@@ -111,21 +111,30 @@ function PrescriptionPreview({navigation}) {
       //setting examination details
       if (b != null) {
         let tempb =
-          ` <div style="display: flex;margin-left:5%;width:90%;margin-top:5px;margin-bottom:5px" >
-                    <div  style="flex:50%">
-                        <p class="p-nme mb-0"><b>Body Temperature - </b>` +
+          ` 
+           <p class="mb-0 complaints"><b><u>Vitals</u> :-  </b></p>
+          <div style="display: flex;margin-left:5%;width:90%;margin-top:5px;margin-bottom:5px" >
+                    <div  style="flex:30%">
+                        <p class="p-nme mb-0"><b>Pulse - </b>` +
+          b.pulse +
+          ` bpm</p>
+                    </div>
+                     <div  style="flex:30%">
+                        <p class="p-nme mb-0"><b>Temperature - </b>` +
           b.temperature +
           ` F</p>
                     </div>
-                    <div  style="flex:50%">
-                        <p class="p-nme mb-0"  ><b>Blood Pressure - </b>` +
+                    <div  style="flex:30%">
+                        <p class="p-nme mb-0"  ><b>BP- </b>` +
           b.BPSystolic +
           `/` +
           b.BPDiastolic +
           ` mmHg</p>
                     </div>
+                    
                 </div>
-                <p class="p-nme mb-0" style="padding: 0 1.2rem;"><b>Examination notes - </b>` +
+
+                <p class="mb-0 complaints"><b><u>Examination Notes</u> :-  </b>` +
           b.examinationNotes +
           `</p>`;
         setExamination(tempb);
@@ -215,11 +224,11 @@ function PrescriptionPreview({navigation}) {
       for (var i = 0; i < doctorEducationRaw.length; ++i) {
         x =
           x +
-          `<h6 class="dr-designation">` +
+          `<p class="dr-designation">` +
           doctorEducationRaw[i].degree +
           ` ` +
           doctorEducationRaw[i].specialization +
-          `</h6>`;
+          `</p>`;
       }
       //console.log('==========Doctor education display===============');
       setdoctorEducationDisp(x);
@@ -227,11 +236,6 @@ function PrescriptionPreview({navigation}) {
       //console.log(x);
     }
   }, [doctorEducationRaw]);
-
-  const show = async () => {
-    const value = await AsyncStorage.getAllKeys();
-    console.log(value);
-  };
 
   const html =
     `<!DOCTYPE html>
@@ -292,6 +296,9 @@ img{
     font-weight: 500;
     font-size: 12px;
     color: rgba(0,0,0,0.5);
+    padding:0;
+    margin:0;
+    line-height:1;
 }
 .dr-address, .dr-mobile, .p-id, .date{
     line-height: 14px;
@@ -427,7 +434,7 @@ th{
                                 <tr>
                                     <th width="10%">S.No</th>
                                     <th width="40%">Medicine Name</th>
-                                    <th width="50%">Instructions</th>
+                                    <th width="50%">Regime and Instruction</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -445,10 +452,10 @@ th{
     Advice +
     `</h2>
               <p class="mb-1 complaints" ><b><u>Follow-Up Date</u> :-   </b>` +
-    dayjs(FollowUpDate).format('DD-MMM-YYYY') +
+    dayjs(FollowUpDate).format('DD MMM, YYYY') +
     `
  
-                
+                <p class="mb-1 complaints"  style="font-size:10px; text-align: justify,border-width: 5px;border-style: solid;border-color:black;margin-top:50px;padding:2px"><b>Disclaimer:</b>The prescription is based on the information provided by you in an online consultation. No physical examination was done. The prescription cannot be used for medico legal purposes and is valid for 6 months from the date of issue.</p>
             </div>
         </div>
     </div>
@@ -477,117 +484,6 @@ th{
     doctorName,
     doctorFlag,
   ]);
-
-  // const fRequestAndroidPermission = async () => {
-  //   // Refer to https://reactnative.dev/docs/permissionsandroid for further details on permsissions
-  //   try {
-  //     const granted = await PermissionsAndroid.request(
-  //       PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-  //       {
-  //         title: 'App1 Permission Request',
-  //         message:
-  //           'App1 needs access to your storage so you can save files to your device.',
-  //         buttonNeutral: 'Ask Me Later',
-  //         buttonNegative: 'Cancel',
-  //         buttonPositive: 'OK',
-  //       },
-  //     );
-
-  //     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-  //       console.log('permission is granted');
-  //       return true;
-  //     } else {
-  //       console.log('permission denied');
-  //       return false;
-  //     }
-  //   } catch (err) {
-  //     console.error('fRequestAndroidPermission error:', err);
-  //     return false;
-  //   }
-  // };
-
-  // const createPDF = async () => {
-  //   setisLoading(true);
-  //   setshowPdf(false);
-  //   let options = {
-  //     html: html,
-  //     fileName: patientID + '_prescription_' + dayjs().format('YYYYMMDDHmmss'),
-  //     directory: 'Download', // replace 'Documents' with 'Download' - I am not sure if it works on iOS!
-  //   };
-
-  //   if (Platform.OS === 'android') {
-  //     const permissionGranted = await fRequestAndroidPermission();
-  //     if (!permissionGranted) {
-  //       console.log('access was refused');
-  //       return;
-  //     }
-  //   }
-
-  //   let file = await RNHTMLtoPDF.convert(options);
-  //   console.log(file);
-  //   setfilePdf(file);
-  //   //await uploadPres(file);
-  //   setshowPdf(true);
-  //   setisLoading(false);
-  // };
-
-  // const uploadPres = async file => {
-  //   try {
-  //     let statResult = await stat(file.uri);
-
-  //     console.log('==================statResult=================');
-
-  //     console.log(statResult);
-
-  //     file.uri = statResult.path;
-  //     file.size = statResult.size;
-  //     file.type = 'application/pdf';
-
-  //     console.log(
-  //       '\n\n==============File PDF inside upload====================\n\n',
-  //     );
-
-  //     // filePdf.uri =
-  //     //   'content://com.android.providers.downloads.documents/document/raw%3A%2Fstorage%2Femulated%2F0%2FDownload%2F' +
-  //     //   filePdf.name;
-  //     // filePdf.uri = `${RNFS.DownloadDirectoryPath}/Arogya/${fileP}`;
-
-  //     console.log(file);
-
-  //     // let x = {
-  //     //   name: 'testing.pdf',
-  //     //   size: 111384,
-  //     //   type: 'application/pdf',
-  //     //   uri: 'content://com.android.providers.downloads.documents/document/raw%3A%2Fstorage%2Femulated%2F0%2FDownload%2F7_prescription_20230118173248.pdf',
-  //     // };
-
-  //     let formData = new FormData();
-  //     formData.append('directoryNames', 'PATIENT_PRESCRIPTION');
-  //     formData.append('file', file);
-  //     const {error, response} = await fileUpload(formData);
-
-  //     if (error != null) {
-  //       console.log('======error======');
-  //       console.log(error);
-  //       Alert.alert(
-  //         'Error',
-  //         'There was a problem in selecting document. Please try again.',
-  //       );
-  //     } else {
-  //       console.log('======response of prescription preview======');
-  //       console.log(response);
-  //       if (response != undefined) {
-  //         setprescriptionPath(response.path);
-  //         setisLoading(false);
-
-  //       }
-  //     }
-  //   } catch (e) {
-  //     setisUploading(false);
-  //     console.log('Uploading error', e);
-  //     Alert.alert('Error', `${e}`);
-  //   }
-  // };
 
   //pdf  generator
   let stackOverflowPDF = async () => {
@@ -929,7 +825,7 @@ th{
                   marginVertical: 5,
                   // padding: 10,
                 }}>
-                {'Uploading '}
+                {'Uploading'}
               </Text>
               <Text
                 style={{
@@ -940,7 +836,7 @@ th{
                   width: '100%',
                   paddingHorizontal: 15,
                 }}>
-                {'We are upating your details'}
+                {'We are uploading prescription'}
               </Text>
             </View>
           </View>

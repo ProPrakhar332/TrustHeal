@@ -16,6 +16,7 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import CustomButton from '../Components/CustomButton';
+import Pdf from 'react-native-pdf';
 import {
   SelectList,
   MultipleSelectList,
@@ -68,6 +69,16 @@ const PatientRegistration1 = ({navigation}) => {
   const [Occupation, setOccupation] = useState('');
   const [Weight, setWeight] = useState('');
   const [Height, setHeight] = useState('');
+
+  const [zoom, setZoom] = useState(1);
+
+  const onZoomIn = () => {
+    if (zoom < 2.5) setZoom(zoom + 0.25);
+  };
+  const onZoomOut = () => {
+    if (zoom > 1) setZoom(zoom - 0.25);
+  };
+
   const dataGender = [
     {key: 'Male', value: 'Male'},
     {key: 'Female', value: 'Female'},
@@ -107,13 +118,12 @@ const PatientRegistration1 = ({navigation}) => {
     let c = 0;
     if (title != '') ++c;
     if (name != '') ++c;
-    if (email != '') ++c;
     if (gender != '') ++c;
     if (city != '') ++c;
     if (pincode != '') ++c;
     if (dob != '') ++c;
     setcomplete(c / 7);
-  }, [title, name, email, gender, city, pincode, dob]);
+  }, [title, name, gender, city, pincode, dob]);
 
   const hideDatePicker = () => {
     setDatePickerVisibility(false);
@@ -154,7 +164,7 @@ const PatientRegistration1 = ({navigation}) => {
       //bloodGroup: BloodGroup,
       city: city,
       dob: dayjs(dob).format('YYYY-MM-DD'),
-      email: email,
+      // email: email,
       gender: gender,
       //height: Height,
       locationPermissions: 'DONT_ALLOW',
@@ -174,6 +184,7 @@ const PatientRegistration1 = ({navigation}) => {
     if (Occupation != '') p.occupation = Occupation;
     if (Weight != '') p.weight = Weight;
     if (Height != '') p.height = Height;
+    if (email != '') p.email = email;
 
     let flag = 0;
     let patient = null;
@@ -441,7 +452,7 @@ const PatientRegistration1 = ({navigation}) => {
                     <View style={{flex: 0.9}}>
                       <View style={{flexDirection: 'row'}}>
                         <Text style={styles.inputLabel}>Email</Text>
-                        <Text style={{color: 'red'}}>*</Text>
+                        {/* <Text style={{color: 'red'}}>*</Text> */}
                       </View>
                       <TextInput
                         style={[styles.textInput, {backgroundColor: '#E8F0FE'}]}
@@ -733,17 +744,9 @@ const PatientRegistration1 = ({navigation}) => {
                   <Text
                     style={[styles.textLink]}
                     onPress={() => {
-                      viewTermsConditions();
+                      setTermsView(true);
                     }}>
                     Terms & Conditions
-                  </Text>{' '}
-                  and{' '}
-                  <Text
-                    style={[styles.textLink]}
-                    onPress={() => {
-                      viewPrivacyPolicy();
-                    }}>
-                    Privacy Policy
                   </Text>
                 </Text>
               }
@@ -868,6 +871,151 @@ const PatientRegistration1 = ({navigation}) => {
               }}></CustomButton> */}
           </View>
         </ScrollView>
+        {termsView ? (
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={termsView}
+            onRequestClose={() => {
+              setTermsView(!termsView);
+            }}>
+            <View
+              style={{
+                height: '100%',
+                backgroundColor: 'rgba(0,0,0,0.8)',
+                flexDirection: 'row',
+                justifyContent: 'center',
+              }}>
+              <View
+                style={[
+                  styles.modalView,
+                  {
+                    borderRadius: 10,
+                  },
+                ]}>
+                <View
+                  style={{
+                    width: '100%',
+                    alignSelf: 'center',
+                    borderBottomWidth: 1,
+                    borderBottomColor: 'gray',
+                  }}>
+                  <Text
+                    style={{
+                      fontWeight: 'bold',
+                      fontSize: 16,
+                      padding: 5,
+                      color: 'black',
+                    }}>
+                    Terms and Condition
+                  </Text>
+                  <FAIcon
+                    name="window-close"
+                    color="black"
+                    size={26}
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      right: 0,
+                    }}
+                    onPress={() => {
+                      setTermsView(false);
+
+                      setZoom(1);
+                    }}
+                  />
+                </View>
+                <View style={{minHeight: 150, width: '100%'}}>
+                  <View
+                    style={{
+                      padding: 10,
+                      width: '100%',
+                      alignSelf: 'center',
+                      borderRadius: 7,
+                      marginVertical: 10,
+                      borderWidth: 2,
+                      borderColor: 'gray',
+                    }}>
+                    <Pdf
+                      source={{
+                        uri: 'https://docs.google.com/uc?export=&id=18CsnbLsajh30On3diIcKR0xLzpTIxpH5',
+                      }}
+                      //source={require('../Terms/Doctor.pdf')}
+                      style={{
+                        width: '100%',
+                        height: 275,
+                        alignSelf: 'center',
+                      }}
+                      onLoadComplete={() => console.log('fully loaded')}
+                      scale={zoom}
+                    />
+                  </View>
+                  <View style={{alignSelf: 'center', flexDirection: 'column'}}>
+                    {/* Zoom Controls */}
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignContent: 'center',
+                        justifyContent: 'space-evenly',
+                        width: '95%',
+                      }}>
+                      <TouchableOpacity>
+                        <FAIcon
+                          name="minus-circle"
+                          size={20}
+                          color={'gray'}
+                          onPress={onZoomOut}
+                        />
+                      </TouchableOpacity>
+                      <Text>
+                        {zoom * 100}
+                        {' %'}
+                      </Text>
+                      <TouchableOpacity>
+                        <FAIcon
+                          name="plus-circle"
+                          size={20}
+                          color={'gray'}
+                          onPress={onZoomIn}
+                        />
+                      </TouchableOpacity>
+                    </View>
+                    <View style={{flexDirection: 'row', marginTop: 20}}>
+                      <CustomButton
+                        text="Decline"
+                        textstyle={{color: '#2B8ADA', fontSize: 13}}
+                        style={{
+                          borderWidth: 1,
+                          borderColor: '#2B8ADA',
+                          flex: 0.45,
+                          marginRight: '5%',
+                          alignSelf: 'center',
+                          padding: 5,
+                        }}
+                        onPress={() => setTermsView(false)}
+                      />
+                      <CustomButton
+                        text="Accept"
+                        textstyle={{color: 'white', fontSize: 13}}
+                        style={{
+                          backgroundColor: '#2B8ADA',
+                          flex: 0.45,
+                          alignSelf: 'center',
+                          padding: 5,
+                        }}
+                        onPress={() => {
+                          //  PostData();
+                          setCheckTerms(true);
+                          setTermsView(false);
+                        }}
+                      />
+                    </View>
+                  </View>
+                </View>
+              </View>
+            </View>
+          </Modal>
+        ) : null}
         {isLoading && (
           <View
             style={{
