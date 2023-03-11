@@ -25,6 +25,7 @@ import HeaderPatient from '../Components/HeaderPatient';
 import FAIcons from 'react-native-vector-icons/FontAwesome5';
 import apiConfig from '../API/apiConfig';
 import Pdf from 'react-native-pdf';
+import RNFS from 'react-native-fs';
 
 //icons
 import defaultDoctor from '../Resources/doctor3x.png';
@@ -145,12 +146,44 @@ function ConfirmBoking({navigation}) {
 
   const [termsView, setTermsView] = useState(false);
   const [zoom, setZoom] = useState(1);
+  const [File, setFile] = useState(null);
 
   const onZoomIn = () => {
     if (zoom < 2.5) setZoom(zoom + 0.25);
   };
   const onZoomOut = () => {
     if (zoom > 1) setZoom(zoom - 0.25);
+  };
+  const downloadTerms = async () => {
+    // let op = {};
+    // if (Platform.OS == 'ios') op = {NSURLIsExcludedFromBackupKey: true};
+    // await RNFS.mkdir(`file://${RNFS.DownloadDirectoryPath}/Arogya`, op);
+    let filePath = `file://${RNFS.CachesDirectoryPath}/`;
+    let options = {
+      fromUrl: `https://web.stanford.edu/group/csp/cs21/htmlcheatsheet.pdf`,
+      toFile: filePath + 'TermsRefund.pdf',
+    };
+
+    await RNFS.downloadFile(options)
+      .promise.then(response => {
+        console.log(response);
+        if (response.statusCode == 200) {
+          //  Alert.alert(
+          //   'File Downloaded',
+          //   `The file is downloaded. File name is ${fileName}.`,
+          // );
+          setFile(filePath + 'TermsRefund.pdf');
+        } else if (response.statusCode == 204)
+          Alert.alert('Sorry', 'The file does not exist');
+        else
+          Alert.alert(
+            'Download Fail',
+            `Unable to download file. ${response.statusCode}`,
+          );
+      })
+      .catch(e => {
+        Alert.alert('Error', `${e}`);
+      });
   };
 
   useEffect(() => {
@@ -838,7 +871,8 @@ function ConfirmBoking({navigation}) {
                     I agree to Aarogya{' '}
                     <Text
                       style={[styles.textLink]}
-                      onPress={() => {
+                      onPress={async () => {
+                        await downloadTerms();
                         setTermsView(true);
                       }}>
                       Terms and Conditions
@@ -1015,7 +1049,7 @@ function ConfirmBoking({navigation}) {
                     }}>
                     <Pdf
                       source={{
-                        uri: 'https://docs.google.com/uc?export=&id=18CsnbLsajh30On3diIcKR0xLzpTIxpH5',
+                        uri: File,
                       }}
                       //source={require('../Terms/Doctor.pdf')}
                       style={{

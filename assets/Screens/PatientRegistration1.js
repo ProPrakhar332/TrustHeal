@@ -24,6 +24,7 @@ import {
 import dayjs from 'dayjs';
 import dateformatter from '../API/dateformatter';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import RNFS from 'react-native-fs';
 
 //icons
 import patient from '../Resources/patient.png';
@@ -53,6 +54,7 @@ const PatientRegistration1 = ({navigation}) => {
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [isLoading, setisLoading] = useState(false);
   const [complete, setcomplete] = useState(0);
+  const [File, setFile] = useState(null);
 
   const [checkTerms, setCheckTerms] = useState(false);
 
@@ -77,6 +79,37 @@ const PatientRegistration1 = ({navigation}) => {
   };
   const onZoomOut = () => {
     if (zoom > 1) setZoom(zoom - 0.25);
+  };
+  const downloadTerms = async () => {
+    // let op = {};
+    // if (Platform.OS == 'ios') op = {NSURLIsExcludedFromBackupKey: true};
+    // await RNFS.mkdir(`file://${RNFS.DownloadDirectoryPath}/Arogya`, op);
+    let filePath = `file://${RNFS.CachesDirectoryPath}/`;
+    let options = {
+      fromUrl: `https://web.stanford.edu/group/csp/cs21/htmlcheatsheet.pdf`,
+      toFile: filePath + 'TermsPatient.pdf',
+    };
+
+    await RNFS.downloadFile(options)
+      .promise.then(response => {
+        console.log(response);
+        if (response.statusCode == 200) {
+          //  Alert.alert(
+          //   'File Downloaded',
+          //   `The file is downloaded. File name is ${fileName}.`,
+          // );
+          setFile(filePath + 'TermsPatient.pdf');
+        } else if (response.statusCode == 204)
+          Alert.alert('Sorry', 'The file does not exist');
+        else
+          Alert.alert(
+            'Download Fail',
+            `Unable to download file. ${response.statusCode}`,
+          );
+      })
+      .catch(e => {
+        Alert.alert('Error', `${e}`);
+      });
   };
 
   const dataGender = [
@@ -743,7 +776,8 @@ const PatientRegistration1 = ({navigation}) => {
                   I agree to the{' '}
                   <Text
                     style={[styles.textLink]}
-                    onPress={() => {
+                    onPress={async () => {
+                      await downloadTerms();
                       setTermsView(true);
                     }}>
                     Terms & Conditions
@@ -937,16 +971,13 @@ const PatientRegistration1 = ({navigation}) => {
                       borderColor: 'gray',
                     }}>
                     <Pdf
-                      source={{
-                        uri: 'https://docs.google.com/uc?export=&id=18CsnbLsajh30On3diIcKR0xLzpTIxpH5',
-                      }}
+                      source={{uri: File}}
                       //source={require('../Terms/Doctor.pdf')}
                       style={{
                         width: '100%',
                         height: 275,
                         alignSelf: 'center',
                       }}
-                      onLoadComplete={() => console.log('fully loaded')}
                       scale={zoom}
                     />
                   </View>
