@@ -73,7 +73,8 @@ function PrescriptionPreview({navigation}) {
   const [isUploading, setisUploading] = useState(false);
   const [doctorFlag, setDoctorFlag] = useState(false);
 
-  const imageURL = 'https://jsplquality.jindalsteel.com/arogyaImage/';
+  //const imageURL = 'https://jsplquality.jindalsteel.com/arogyaImage/';
+  const imageURL = 'http://trustheal.in/';
 
   useEffect(() => {
     const loadData = async () => {
@@ -267,13 +268,10 @@ img{
 }
 .px-logo{
     width: auto;
-    height: 70px;
+    height: 100px;
 }
 .prescription{
-    background:url( "` +
-    imageURL +
-    'bg.png' +
-    `");
+    background:url( "https://jsplquality.jindalsteel.com/arogyaImage/bg.png");
     background-attachment: scroll;
     background-repeat: no-repeat;
     background-position: center;
@@ -281,6 +279,7 @@ img{
     padding: 0.5rem;
     background-color: #fff;
     padding-bottom: 3.5rem;
+    
 }
 .dr-nme{
     line-height: 20px;
@@ -378,7 +377,7 @@ th{
                 <div>
                     <img src="` +
     imageURL +
-    'logo@2x.png' +
+    'TH_trans.png' +
     `" alt="logo" class="px-logo mx-2">
                 </div>
                 <div style="display: flex;margin-left:5%;width:95%">
@@ -396,7 +395,7 @@ th{
                     </div>
                 </div>
                 
-                <div style="display: flex;background-color: rgba(240,250,255,1);margin-left:5%;width:92.5%">
+                <div style="display: flex;margin-left:5%;width:92.5%;margin-top:10px;padding:10px">
                     <div style="display:block; flex:50%">
                         <p class="p-nme mb-0"><b>Name:</b>${patientName}</p>` +
     (patientAge != undefined && patientAge != 0
@@ -407,7 +406,7 @@ th{
                     </div>
                     <div style="display:block; flex:50%">
                         <p class="p-nme mb-0"><b>Date :</b>` +
-    dayjs(new Date()).format('DD-MM-YYYY') +
+    dayjs(new Date()).format('DD MMM, YYYY') +
     `</p>
                         <p class="p-nme mb-0"><b>Mobile Number:</b> ${patientNumber}</p>
                     </div>
@@ -422,10 +421,7 @@ th{
     Diagnosis +
     `</p>
     <div class="center">
-                <img src="` +
-    imageURL +
-    'rx.png' +
-    `" alt="rx" class="rx">
+                <img src="https://static.vecteezy.com/system/resources/previews/009/012/556/original/medical-symbol-rx-signage-template-free-vector.jpg" alt="rx" class="rx">
     </div>
                 <div class="row align-items-center mx-2">
                     <div class="col-md-12">

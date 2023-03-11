@@ -3611,7 +3611,9 @@ const DoctorRegistration2 = ({navigation}) => {
                     {/* Add Clinic */}
                     {ClinicDet.length == 0 || addMoreAddInfo ? (
                       <View style={{width: '95%', alignSelf: 'center'}}>
-                        <TouchableOpacity
+                        {/* Clinic Photo */}
+
+                        {/* <TouchableOpacity
                           style={{
                             backgroundColor: '#e8f0fe',
                             padding: 10,
@@ -3628,7 +3630,7 @@ const DoctorRegistration2 = ({navigation}) => {
                           <Text style={{alignSelf: 'center', fontSize: 12}}>
                             Upload Clinic Pic
                           </Text>
-                        </TouchableOpacity>
+                        </TouchableOpacity> */}
 
                         <View style={{flexDirection: 'column'}}>
                           <View style={{flexDirection: 'row'}}>

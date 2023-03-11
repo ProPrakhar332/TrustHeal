@@ -60,6 +60,7 @@ function DoctorBasicDetails({DocDet}) {
         .catch(error => {
           //setisLoading(false);
           Alert.alert('Error Favourite', `${error}`);
+          console.log(`${error}`);
         });
       //setisLoading(false);
     };

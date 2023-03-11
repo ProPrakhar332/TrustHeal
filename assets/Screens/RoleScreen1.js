@@ -19,6 +19,9 @@ import axios from 'axios';
 import apiConfig from '../API/apiConfig';
 import DeviceInfo from 'react-native-device-info';
 
+import logo from '../Resources/TH_trans.png';
+//import logo from '../Resources/Logo.jpg';
+
 const RoleScreen = ({navigation}) => {
   const [check, setChecked] = useState(false);
   const [activeP, setactiveP] = useState(false);
@@ -100,7 +103,16 @@ const RoleScreen = ({navigation}) => {
             width: '100%',
             alignItems: 'center',
           }}>
-          <Image source={require('../Resources/Logo.jpg')} />
+          <Image
+            source={logo}
+            style={{
+              width: 200,
+              height: 200,
+              alignSelf: 'center',
+              borderRadius: 50,
+              margin: 20,
+            }}
+          />
           {/* <Text
             style={{
               fontWeight: "bold",

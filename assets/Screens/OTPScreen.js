@@ -31,8 +31,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import apiConfig from '../API/apiConfig';
 import waiting from '../Animations/waiting1.gif';
-//import logo from '../Resources/TH_trans.png';
-import logo from '../Resources/Logo.jpg';
+import logo from '../Resources/TH_trans.png';
+//import logo from '../Resources/Logo.jpg';
 
 const countries = [
   {
@@ -1164,7 +1164,7 @@ const FirstScreen = ({route, navigation}) => {
               console.log(response.data);
               if (response.data.profileComplete == true) {
                 Alert.alert(
-                  'Welcome to Arogya',
+                  'Welcome to Trust Heal',
                   `Lets get you quality and accessible health consultation`,
                 );
                 navigation.navigate('PatientHome', {
@@ -1260,7 +1260,7 @@ const FirstScreen = ({route, navigation}) => {
               }}></Image>
 
             <View style={{flex: 1, flexDirection: 'row', alignSelf: 'center'}}>
-              <CountryPicker
+              {/* <CountryPicker
                 disable={false}
                 animationType={'slide'}
                 language="en"
@@ -1275,17 +1275,18 @@ const FirstScreen = ({route, navigation}) => {
                 searchBarStyle={styles.searchBarStyle}
                 countryCode={'91'}
                 selectedValue={selectedValue}
-              />
+              /> */}
               <TextInput
                 placeholder="Enter Mobile Number"
                 style={{
                   borderRadius: 10,
-                  borderBottomLeftRadius: 0,
-                  borderTopLeftRadius: 0,
-                  padding: 10,
+                  //borderBottomLeftRadius: 0,
+                  //borderTopLeftRadius: 0,
+                  padding: 15,
                   marginVertical: 10,
                   backgroundColor: 'white',
-                  width: '60%',
+                  //width: '60%',
+                  width: '80%',
                   fontSize: 15,
                 }}
                 onChangeText={text => setMob(text)}
@@ -1295,6 +1296,7 @@ const FirstScreen = ({route, navigation}) => {
                 maxLength={maxLength}
                 contextMenuHidden={true}></TextInput>
             </View>
+
             {/* <View style={{width: '80%', alignSelf: 'center'}}>
               <CheckBox
                 //title="By signing in, you agree to Aarogya Terms and Conditions and Private Policy"
@@ -1343,9 +1345,9 @@ const FirstScreen = ({route, navigation}) => {
               }}
               style={{
                 backgroundColor: '#2b8ada',
-                width: '90%',
+                width: '80%',
                 alignSelf: 'center',
-                marginVertical: 10,
+                marginVertical: 20,
                 borderRadius: 5,
               }}
               onPress={onContinuePressed}></CustomButton>

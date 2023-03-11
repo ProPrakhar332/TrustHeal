@@ -160,7 +160,7 @@ function ConfirmBoking({navigation}) {
     // await RNFS.mkdir(`file://${RNFS.DownloadDirectoryPath}/Arogya`, op);
     let filePath = `file://${RNFS.CachesDirectoryPath}/`;
     let options = {
-      fromUrl: `https://web.stanford.edu/group/csp/cs21/htmlcheatsheet.pdf`,
+      fromUrl: `http://trustheal.in/TrustHeal_Refund_and_Cancellation_Policy.pdf`,
       toFile: filePath + 'TermsRefund.pdf',
     };
 
@@ -357,11 +357,11 @@ function ConfirmBoking({navigation}) {
           if (response.data != null) {
             var options = {
               description: 'Credits towards consultation',
-              //image: '',
+              image: 'http://trustheal.in/TH_trans.png',
               currency: 'INR',
               key: response.data.razorpayKey,
               amount: response.data.amount,
-              name: 'Arogya',
+              name: 'Trust Heal',
               order_id: response.data.gatewayOrderId, //Replace this with an order_id created using Orders API.
               prefill: {
                 email: patientDet.email,

@@ -392,7 +392,7 @@ const Header = ({title, showMenu}) => {
             'Slot Booked',
             `Slot successfully booked for ${p.patientName} on ${dayjs(
               p.slotDate,
-            ).format('DD-MMM-YYYY')} at ${p.slotStartTime}`,
+            ).format('DD MMM, YYYY')} at ${p.slotStartTime}`,
           );
           setShareModal(false);
           await reset();

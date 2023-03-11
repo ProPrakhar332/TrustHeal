@@ -454,7 +454,7 @@ const DoctorHome = ({navigation}) => {
               </View>
               <View style={{flexDirection: 'column', width: '60%'}}>
                 <Text style={styles.cardText}>
-                  {dayjs(item.slotDate).format('DD-MMM-YYYY')}
+                  {dayjs(item.slotDate).format('DD MMM, YYYY')}
                 </Text>
               </View>
             </View>
@@ -852,7 +852,7 @@ const DoctorHome = ({navigation}) => {
               </View>
               <View style={{flexDirection: 'column', width: '60%'}}>
                 <Text style={styles.cardText}>
-                  {dayjs(item.slotDate).format('DD-MMM-YYYY')}
+                  {dayjs(item.slotDate).format('DD MMM, YYYY')}
                 </Text>
               </View>
             </View>
@@ -1173,7 +1173,7 @@ const DoctorHome = ({navigation}) => {
               </View>
               <View style={{flexDirection: 'column', width: '60%'}}>
                 <Text style={styles.cardText}>
-                  {dayjs(item.slotDate).format('DD-MMM-YYYY')}
+                  {dayjs(item.slotDate).format('DD MMM, YYYY')}
                 </Text>
               </View>
             </View>
@@ -1457,7 +1457,7 @@ const DoctorHome = ({navigation}) => {
               </View>
               <View style={{flexDirection: 'column', width: '60%'}}>
                 <Text style={styles.cardText}>
-                  {dayjs(item.slotDate).format('DD-MMM-YYYY')}
+                  {dayjs(item.slotDate).format('DD MMM, YYYY')}
                 </Text>
               </View>
             </View>

@@ -55,6 +55,7 @@ const PatientRegistration1 = ({navigation}) => {
   const [isLoading, setisLoading] = useState(false);
   const [complete, setcomplete] = useState(0);
   const [File, setFile] = useState(null);
+  const [patientId, setpatientId] = useState(null);
 
   const [checkTerms, setCheckTerms] = useState(false);
 
@@ -86,7 +87,7 @@ const PatientRegistration1 = ({navigation}) => {
     // await RNFS.mkdir(`file://${RNFS.DownloadDirectoryPath}/Arogya`, op);
     let filePath = `file://${RNFS.CachesDirectoryPath}/`;
     let options = {
-      fromUrl: `https://web.stanford.edu/group/csp/cs21/htmlcheatsheet.pdf`,
+      fromUrl: `http://trustheal.in/TrusHeal_Agreement_with_Patient.pdf`,
       toFile: filePath + 'TermsPatient.pdf',
     };
 
@@ -139,6 +140,7 @@ const PatientRegistration1 = ({navigation}) => {
       let x = JSON.parse(await AsyncStorage.getItem('UserPatientProfile'));
       if (x != null) {
         setName(x.patientName);
+        setpatientId(x.patientId);
         seteditName(false);
       }
     };
@@ -155,7 +157,7 @@ const PatientRegistration1 = ({navigation}) => {
     if (city != '') ++c;
     if (pincode != '') ++c;
     if (dob != '') ++c;
-    setcomplete(c / 7);
+    setcomplete(c / 6);
   }, [title, name, gender, city, pincode, dob]);
 
   const hideDatePicker = () => {
@@ -222,34 +224,36 @@ const PatientRegistration1 = ({navigation}) => {
     let flag = 0;
     let patient = null;
 
-    await axios
-      .post(apiConfig.baseUrl + '/patient/save', p)
-      .then(function (response) {
-        if (response.status == 200) {
-          //setisLoading(false);
-          patient = response.data;
-
-          flag = 1;
-          //response.data.profileComplete = true;
-          // AsyncStorage.setItem(
-          //   'UserPatientProfile',
-          //   JSON.stringify(response.data),
-          // );
-          // setisLoading(false);
-          // Alert.alert(
-          //   'Welcome to Arogya',
-          //   'Your details have been saved successfully.',
-          // );
-          // navigation.navigate('PatientHome', {
-          //   patientObj: JSON.stringify(response.data),
-          // });
-        }
-      })
-      .catch(error => {
-        setisLoading(false);
-        console.log(error);
-        Alert.alert('Error', `${error}`);
-      });
+    if (editName) {
+      await axios
+        .post(apiConfig.baseUrl + '/patient/save', p)
+        .then(function (response) {
+          if (response.status == 200) {
+            patient = response.data;
+            flag = 1;
+          }
+        })
+        .catch(error => {
+          setisLoading(false);
+          console.log(error);
+          Alert.alert('Error', `${error}`);
+        });
+    } else {
+      p.patientId = patientId;
+      await axios
+        .post(apiConfig.baseUrl + '/patient/update', p)
+        .then(function (response) {
+          if (response.status == 200) {
+            patient = response.data;
+            flag = 1;
+          }
+        })
+        .catch(error => {
+          setisLoading(false);
+          console.log(error);
+          Alert.alert('Error', `${error}`);
+        });
+    }
 
     console.log(patient);
 
@@ -269,7 +273,7 @@ const PatientRegistration1 = ({navigation}) => {
               JSON.stringify(patient),
             );
             Alert.alert(
-              'Welcome to Arogya',
+              'Welcome to Trust Heal',
               'Your details have been saved successfully.',
             );
             navigation.navigate('PatientHome', {
@@ -777,7 +781,7 @@ const PatientRegistration1 = ({navigation}) => {
                   <Text
                     style={[styles.textLink]}
                     onPress={async () => {
-                      await downloadTerms();
+                      downloadTerms();
                       setTermsView(true);
                     }}>
                     Terms & Conditions
@@ -843,11 +847,11 @@ const PatientRegistration1 = ({navigation}) => {
                       'Incomplete Details',
                       'Please enter name before continuing.',
                     );
-                  else if (email == '')
-                    Alert.alert(
-                      'Incomplete Details',
-                      'Please enter email before continuing.',
-                    );
+                  // else if (email == '')
+                  //   Alert.alert(
+                  //     'Incomplete Details',
+                  //     'Please enter email before continuing.',
+                  //   );
                   else if (gender == '')
                     Alert.alert(
                       'Incomplete Details',
@@ -858,7 +862,7 @@ const PatientRegistration1 = ({navigation}) => {
                       'Incomplete Details',
                       'Please enter city name before continuing.',
                     );
-                  else
+                  else if (dob == '')
                     Alert.alert(
                       'Incomplete Details',
                       'Please select date of birth before continuing.',

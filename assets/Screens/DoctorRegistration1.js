@@ -270,7 +270,7 @@ const DoctorRegistrationStep1 = ({navigation}) => {
 
       if (flag == 1) {
         Alert.alert(
-          'Welcome to Arogya! ',
+          'Welcome to Trust Heal! ',
           'Your General Information has been saved successfully.',
         );
         navigation.push('DoctorRegistrationStep2');
@@ -371,7 +371,7 @@ const DoctorRegistrationStep1 = ({navigation}) => {
     // await RNFS.mkdir(`file://${RNFS.DownloadDirectoryPath}/Arogya`, op);
     let filePath = `file://${RNFS.CachesDirectoryPath}/`;
     let options = {
-      fromUrl: `https://web.stanford.edu/group/csp/cs21/htmlcheatsheet.pdf`,
+      fromUrl: `http://trustheal.in/TrustHeal_Agreement_with_Doctor.pdf`,
       toFile: filePath + 'TermsDoctor.pdf',
     };
 
