@@ -838,7 +838,7 @@ const EditProfile = ({navigation}) => {
     let amp = [];
     amp.push(item);
     axios
-      .post(apiConfig.baseUrl + '/doctor/identity/save', amp)
+      .post(apiConfig.baseUrl + '/doctor/identifications/save', amp)
       .then(function (response) {
         setisUploading(false);
         if (response.status == 200) {

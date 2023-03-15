@@ -1461,7 +1461,10 @@ const DoctorRegistration2 = ({navigation}) => {
     console.log(IdentificationDocs);
 
     axios
-      .post(apiConfig.baseUrl + '/doctor/identity/save', IdentificationDocs)
+      .post(
+        apiConfig.baseUrl + '/doctor/identifications/save',
+        IdentificationDocs,
+      )
       .then(function (response) {
         setisUploading(false);
         if (response.status == 201 || response.status == 200) {
