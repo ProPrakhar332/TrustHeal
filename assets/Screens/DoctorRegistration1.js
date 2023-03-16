@@ -48,6 +48,9 @@ import DeviceInfo from 'react-native-device-info';
 import dayjs from 'dayjs';
 import {checkAlphabetOnly, checkAlphanumicOnly} from '../API/Validations';
 const DoctorRegistrationStep1 = ({navigation}) => {
+  const [availableSpeciality, setavailableSpeciality] = useState([]);
+  const [availableLanguages, setavailableLanguages] = useState([]);
+
   const [title, setTitle] = useState('');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -90,7 +93,7 @@ const DoctorRegistrationStep1 = ({navigation}) => {
 
   const data = [
     {key: 'Dermatologist', value: 'Dermatologist'},
-    {key: 'Dietitian and Nutritionist', value: 'Dietitian and Nutritionist'},
+    {key: 'Dietician and Nutritionist', value: 'Dietician and Nutritionist'},
     {key: 'ENT', value: 'ENT'},
     {key: 'Endocrinologist', value: 'Endocrinologist'},
     {key: 'Gastroenterologist', value: 'Gastroenterologist'},
@@ -103,6 +106,7 @@ const DoctorRegistrationStep1 = ({navigation}) => {
     {key: 'Psychological Counselling', value: 'Psychological Counselling'},
     {key: 'Other', value: 'Other'},
   ];
+
   const dataLang = [
     {key: 'English', value: 'English'},
     {key: 'Hindi', value: 'Hindi'},
@@ -172,26 +176,7 @@ const DoctorRegistrationStep1 = ({navigation}) => {
       );
     else {
       setisLoading(true);
-      // let docObj = new Object();
-
-      // docObj.age = parseInt(await AsyncStorage.getItem('age'));
-      // docObj.city = city;
-      // docObj.contactVisibility = showMobNo == 'Yes' ? true : false;
-      // docObj.createdOn = dayjs().format('YYYY-MM-DD');
-      // (docObj.countryName = 'India'), (docObj.digitalSignature = 0);
-      // docObj.dob = dob;
-      // docObj.email = email;
-      // docObj.fullName = title + ' ' + name;
-      // docObj.gender = gender;
-      // docObj.location = 'DONT_ALLOW';
-      // docObj.mobileNumber = mobile;
-      // docObj.pinCode = PIN;
-      // docObj.profilephoto = 0;
-      // docObj.termsAndCondition = checkTerms;
-      // console.log(JSON.stringify(docObj));
-
       if (Otherspeciality != '') speciality.push(Otherspeciality);
-
       let req = {
         age: parseInt(await AsyncStorage.getItem('age')),
         city: city,
@@ -286,10 +271,19 @@ const DoctorRegistrationStep1 = ({navigation}) => {
     const getAvailableSpecialities = async () => {
       axios
         .get(
-          apiConfig.baseUrl + '/suggest/specialization/dropdown?max=100&min=1',
+          apiConfig.baseUrl + '/suggest/specialization/dropdown?max=100&min=0',
         )
         .then(response => {
           if (response.status == 200) {
+            //console.log('From Service\n\n', response.data);
+            let p = [];
+            response.data.forEach(item => {
+              // console.log(item);
+              p.push({key: item.specialization, value: item.specialization});
+            });
+            p.push({key: 'Other', value: 'Other'});
+            console.log('Modify\n\n', p);
+            setavailableSpeciality(p);
           }
         })
         .catch(error => {
@@ -299,9 +293,17 @@ const DoctorRegistrationStep1 = ({navigation}) => {
 
     const getAvailableLanguages = async () => {
       axios
-        .get(apiConfig.baseUrl + '/suggest/language/dropdown?max=100&min=1')
+        .get(apiConfig.baseUrl + '/suggest/language/dropdown?max=100&min=0')
         .then(response => {
           if (response.status == 200) {
+            console.log('From Service Languages\n\n', response.data);
+            let p = [];
+            response.data.availableLanguage.forEach(item => {
+              // console.log(item);
+              p.push({key: item, value: item});
+            });
+            console.log('Modify\n\n', p);
+            setavailableLanguages(p);
           }
         })
         .catch(error => {
@@ -612,7 +614,7 @@ const DoctorRegistrationStep1 = ({navigation}) => {
                 labelStyles={{height: 0}}
                 placeholder={' '}
                 setSelected={val => setSpeciality(val)}
-                data={data}
+                data={availableSpeciality}
                 save="value"
                 boxStyles={{backgroundColor: 'white', borderWidth: 0}}
                 dropdownStyles={{backgroundColor: 'white'}}
@@ -649,7 +651,7 @@ const DoctorRegistrationStep1 = ({navigation}) => {
                 labelStyles={{height: 0}}
                 placeholder={' '}
                 setSelected={val => setLanguage(val)}
-                data={dataLang}
+                data={availableLanguages}
                 save="value"
                 boxStyles={{backgroundColor: 'white', borderWidth: 0}}
                 dropdownStyles={{backgroundColor: 'white'}}
