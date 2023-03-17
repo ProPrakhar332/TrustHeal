@@ -19,6 +19,8 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {CheckBox} from 'react-native-elements';
+import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import {PermissionsAndroid} from 'react-native';
 import {
   SelectList,
   MultipleSelectList,
@@ -27,6 +29,7 @@ import FAIcon from 'react-native-vector-icons/FontAwesome5';
 import CustomButton from '../Components/CustomButton';
 import Header from '../Components/Header';
 import apiConfig from '../API/apiConfig';
+import {fileUpload} from '../API/apiConfig';
 import timeformatter from '../API/timeformatter';
 import axios from 'axios';
 //images
@@ -57,6 +60,7 @@ const ManageSchedule = () => {
   const [clinicName, setclinicName] = useState('');
   const [clinicAddress, setclinicAddress] = useState('');
   const [clinicId, setclinicId] = useState('');
+  const [clinicPhoto, setclinicPhoto] = useState(0);
   const [specialInstruction, setspecialInstruction] = useState('');
   const [ClinicModal, setClinicModal] = useState(false);
   const [editClinic, seteditClinic] = useState(false);
@@ -108,6 +112,11 @@ const ManageSchedule = () => {
   const [DaysSlotRefresh, setDaysSlotRefresh] = useState(false);
   const [Days, setDays] = useState(null);
   const [doctorId, setdoctorId] = useState(0);
+
+  //view images
+  const [DisplayPhotoToken, setDisplayPhotoToken] = useState(0);
+  const [ImageViewer, setImageViewer] = useState(false);
+  const [ClinicViewer, setClinicViewer] = useState(null);
 
   useEffect(() => {
     const onLoadSetData = async () => {
@@ -617,6 +626,139 @@ const ManageSchedule = () => {
         Alert.alert('Error in Clinic Deletion', `${error}`);
       });
   };
+  //post photo exp/clinic
+  const choosePhoto = async forField => {
+    Alert.alert(
+      'Upload Profile Picture',
+      'Select option for uploading profile picture',
+      [
+        {
+          text: 'Open Library',
+          onPress: () => {
+            launchImageLibrary({mediaType: 'photo'}, async response => {
+              console.log(response);
+              if (response.didCancel) console.log('Cancel');
+              else if (response.errorCode) {
+                Alert.alert('Error', response.errorMessage);
+              } else {
+                if (response.assets[0].fileSize <= 2097152) {
+                  await postPhoto(response.assets[0], forField);
+                } else
+                  Alert.alert(
+                    'Max Size',
+                    'The file exceeds the maximum limit of 2MB.',
+                  );
+              }
+            });
+          },
+        },
+        {
+          text: 'Open Camera',
+          onPress: () => {
+            requestCamera(forField);
+          },
+        },
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+      ],
+    );
+  };
+
+  const requestCamera = async forField => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.CAMERA,
+        {
+          title: 'App Camera Permission',
+          message: 'App needs access to your camera ',
+          buttonNeutral: 'Ask Me Later',
+          buttonNegative: 'Cancel',
+          buttonPositive: 'OK',
+        },
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        await launchcameraPhoto(forField);
+      } else {
+        console.log('Camera permission denied');
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+
+  const launchcameraPhoto = async forField => {
+    launchCamera(
+      {mediaType: 'photo', cameraType: 'front', saveToPhotos: true},
+      async response => {
+        console.log(response);
+        if (response.didCancel) console.log('Cancel');
+        else if (response.errorCode) {
+          Alert.alert('Error', response.errorMessage);
+        } else {
+          if (response.assets[0].fileSize <= 2097152) {
+            await postPhoto(response.assets[0], forField);
+          } else
+            Alert.alert(
+              'Max Size',
+              'The file exceeds the maximum limit of 2MB.',
+            );
+        }
+      },
+    );
+  };
+  const postPhoto = async (pickerResult, forField) => {
+    try {
+      console.log(`==============Inside post photo for ${forField}==========`);
+
+      let ext = '.' + pickerResult.fileName.split('.').pop();
+
+      delete pickerResult.fileName;
+      pickerResult.size = pickerResult.fileSize;
+      delete pickerResult.fileSize;
+      if (forField == 'Clinic')
+        pickerResult.name = doctorId + '_ClinicPhoto' + ext;
+
+      if (forField == 'Experience')
+        pickerResult.name = doctorId + '_ExpPhoto' + ext;
+
+      console.log(pickerResult.name);
+      console.log(pickerResult);
+
+      let formData = new FormData();
+      formData.append(
+        'directoryNames',
+        forField == 'Clinic' ? ' DOCTOR_CLINIC' : ' DOCTOR_EXPERIENCE',
+      );
+      formData.append('file', pickerResult);
+      formData.append('userId', doctorId);
+
+      if (forField == 'Experience' && expPhotoPath != 0)
+        formData.append('fileToken', expPhotoPath);
+
+      if (forField == 'Clinic' && clinicPhoto != null)
+        formData.append('fileToken', clinicPhoto);
+
+      const {error, response} = await fileUpload(formData);
+
+      if (error != null) {
+        console.log('======error======');
+        console.log(error);
+        Alert.alert(
+          'Error',
+          'There was a problem in uploading profile picture. Please try again.',
+        );
+      } else {
+        console.log('======response======');
+        console.log(response.fileToken);
+        if (forField == 'Clinic') setclinicPhoto(response.fileToken);
+        if (forField == 'Experience') setexpPhotoPath(response.fileToken);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
   //render slots and dates
   const renderDaysSlot = ({item}) => {
@@ -834,12 +976,28 @@ const ManageSchedule = () => {
                 {flexDirection: 'row', alignContent: 'space-around'},
               ]}>
               <TouchableOpacity
-                style={{flexDirection: 'column', flex: 0.45}}
+                style={{flexDirection: 'column', flex: 0.3}}
+                onPress={async () => {
+                  setDisplayPhotoToken(ManageClinic.clinicPhoto);
+                  console.log(ManageClinic);
+                  setClinicViewer(ManageClinic);
+                  setImageViewer(true);
+                }}>
+                <FAIcon
+                  name="file-image"
+                  size={13}
+                  color={'#2b8ada'}
+                  style={{alignSelf: 'center'}}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{flexDirection: 'column', flex: 0.3}}
                 onPress={() => {
                   setclinicName(ManageClinic.clinicName);
                   setclinicAddress(ManageClinic.clinicAddress);
                   setclinicId(ManageClinic.clinicId);
                   setspecialInstruction(ManageClinic.specialInstruction);
+                  setclinicPhoto(ManageClinic.clinicPhoto);
                   seteditClinic(true);
                   setClinicModal(true);
                 }}>
@@ -851,7 +1009,7 @@ const ManageSchedule = () => {
                 />
               </TouchableOpacity>
               <TouchableOpacity
-                style={{flexDirection: 'column', flex: 0.45}}
+                style={{flexDirection: 'column', flex: 0.3}}
                 onPress={() => {
                   Alert.alert(
                     'Delete Clinic',
@@ -1698,6 +1856,7 @@ const ManageSchedule = () => {
                           fontWeight: 'bold',
                           fontSize: 14,
                           padding: 5,
+                          color: 'black',
                         }}>
                         {editClinic ? ' Edit' : 'Add More'} Clinic Details
                       </Text>
@@ -1710,42 +1869,128 @@ const ManageSchedule = () => {
                           top: 0,
                           right: 0,
                         }}
-                        onPress={() => setClinicModal(false)}
+                        onPress={() => {
+                          setclinicAddress('');
+                          setclinicName('');
+                          setclinicPhoto(0);
+                          setspecialInstruction('');
+                          setClinicModal(false);
+                        }}
                       />
                     </View>
-                    <View style={{width: '95%', alignSelf: 'center', flex: 1}}>
-                      <View style={{flexDirection: 'column', flex: 1}}>
-                        <Text style={[styles.inputLabel, {marginTop: 0}]}>
-                          Clinic Name
-                        </Text>
-                        <TextInput
-                          style={[styles.textInput]}
-                          value={clinicName}
-                          onChangeText={text => setclinicName(text)}
-                        />
+                    <ScrollView
+                      style={{
+                        width: '95%',
+                        alignSelf: 'center',
+                        flex: 1,
+                        minHeight: 200,
+                        maxHeight: 400,
+                      }}>
+                      {/* Clinic Photo */}
+                      <View style={{flexDirection: 'row'}}>
+                        <View style={{flexDirection: 'column', flex: 1}}>
+                          <Text style={[styles.inputLabel, {marginTop: 0}]}>
+                            Clinic Photo
+                          </Text>
+                          {clinicPhoto != 0 && clinicPhoto != null ? (
+                            <Image
+                              source={{
+                                uri: `${apiConfig.baseUrl}/file/download?fileToken=${clinicPhoto}&userId=${doctorId}`,
+                              }}
+                              style={{
+                                resizeMode: 'cover',
+                                width: '100%',
+                                height: 180,
+                              }}
+                            />
+                          ) : null}
+                          <TouchableOpacity
+                            style={[
+                              {
+                                backgroundColor: '#e8f0fe',
+                                padding: 10,
+                                justifyContent: 'center',
+                                borderRadius: 10,
+                                flexDirection: 'row',
+                                marginVertical: 10,
+                              },
+                              clinicPhoto != 0
+                                ? {
+                                    backgroundColor: 'white',
+                                    borderColor: '#21c47f',
+                                    borderWidth: 1,
+                                  }
+                                : null,
+                            ]}
+                            onPress={async () => {
+                              if (clinicName != '') await choosePhoto('Clinic');
+                              else
+                                Alert.alert(
+                                  'Incomplete Details!',
+                                  'Please enter clinic name before uploading picture',
+                                );
+                            }}>
+                            {clinicPhoto == 0 ? (
+                              <FAIcon
+                                name="camera"
+                                color={'gray'}
+                                size={15}
+                                style={{marginRight: 5, alignSelf: 'center'}}
+                              />
+                            ) : null}
+                            <Text
+                              style={[
+                                {alignSelf: 'center', fontSize: 12},
+                                clinicPhoto != 0 ? {color: '#21c47f'} : null,
+                              ]}>
+                              {clinicPhoto == 0
+                                ? 'Upload Clinic Photo'
+                                : '✓ File Selected'}
+                            </Text>
+                          </TouchableOpacity>
+                        </View>
                       </View>
-                      <View style={{flexDirection: 'column', flex: 1}}>
-                        <Text style={[styles.inputLabel, {marginTop: 0}]}>
-                          Clinic Address
-                        </Text>
-                        <TextInput
-                          style={[styles.textInput]}
-                          value={clinicAddress}
-                          onChangeText={text => setclinicAddress(text)}
-                        />
+                      {/* Clinic Name */}
+                      <View style={{flexDirection: 'row'}}>
+                        <View style={{flexDirection: 'column', flex: 1}}>
+                          <Text style={[styles.inputLabel, {marginTop: 0}]}>
+                            Clinic Name
+                          </Text>
+                          <TextInput
+                            style={[styles.textInput]}
+                            value={clinicName}
+                            onChangeText={text => setclinicName(text)}
+                          />
+                        </View>
                       </View>
-                      <View style={{flexDirection: 'column', flex: 1}}>
-                        <Text style={[styles.inputLabel, {marginTop: 0}]}>
-                          Special Instruction
-                        </Text>
-                        <TextInput
-                          style={[styles.textInput]}
-                          multiline={true}
-                          value={specialInstruction}
-                          onChangeText={text => setspecialInstruction(text)}
-                        />
+                      {/* Clinic Address */}
+                      <View style={{flexDirection: 'row'}}>
+                        <View style={{flexDirection: 'column', flex: 1}}>
+                          <Text style={[styles.inputLabel, {marginTop: 0}]}>
+                            Clinic Address
+                          </Text>
+                          <TextInput
+                            style={[styles.textInput]}
+                            value={clinicAddress}
+                            onChangeText={text => setclinicAddress(text)}
+                          />
+                        </View>
                       </View>
-                    </View>
+                      {/* Special Instruction */}
+                      <View style={{flexDirection: 'row'}}>
+                        <View style={{flexDirection: 'column', flex: 1}}>
+                          <Text style={[styles.inputLabel, {marginTop: 0}]}>
+                            Special Instruction
+                          </Text>
+                          <TextInput
+                            style={[styles.textInput]}
+                            multiline={true}
+                            value={specialInstruction}
+                            onChangeText={text => setspecialInstruction(text)}
+                          />
+                        </View>
+                      </View>
+                    </ScrollView>
 
                     <CustomButton
                       text={editClinic ? 'Update' : 'Save'}
@@ -1772,10 +2017,12 @@ const ManageSchedule = () => {
                           let p = {
                             clinicAddress: clinicAddress,
                             clinicName: clinicName,
+                            clinicPhoto: clinicPhoto,
                             doctorId: doctorId,
                             specialInstruction: specialInstruction,
                           };
                           if (
+                            editClinic ||
                             ManageClinic.findIndex(
                               v =>
                                 v.clinicName == p.clinicName &&
@@ -1787,6 +2034,7 @@ const ManageSchedule = () => {
                             updateClinic(p);
                             setclinicAddress('');
                             setclinicName('');
+                            setclinicPhoto(0);
                             setspecialInstruction('');
                             setmanageClinicsLabel(false);
                           } else {
@@ -2529,6 +2777,113 @@ const ManageSchedule = () => {
             ) : null}
           </View>
         </ScrollView>
+        {ImageViewer ? (
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={ImageViewer}
+            onRequestClose={() => {
+              setImageViewer(!ImageViewer);
+            }}>
+            <View
+              style={{
+                height: '100%',
+                backgroundColor: 'rgba(0,0,0,0.8)',
+                flexDirection: 'row',
+                justifyContent: 'center',
+              }}>
+              <View
+                style={[
+                  {
+                    position: 'absolute',
+                    alignItems: 'center',
+                    alignSelf: 'center',
+                    width: '90%',
+                    backgroundColor: 'white',
+                    padding: 35,
+                    shadowColor: '#000',
+                    shadowOffset: {
+                      width: 0,
+                      height: 2,
+                    },
+                    borderRadius: 10,
+                    padding: 15,
+                    height: 300,
+                  },
+                ]}>
+                <View
+                  style={{
+                    width: '100%',
+                    alignSelf: 'center',
+                    borderBottomWidth: 1,
+                    borderBottomColor: 'gray',
+                  }}>
+                  <Text
+                    style={{
+                      fontWeight: 'bold',
+                      fontSize: 16,
+                      padding: 5,
+                      color: 'black',
+                    }}>
+                    Clinic Photo
+                  </Text>
+                  <FAIcon
+                    name="window-close"
+                    color="black"
+                    size={26}
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      right: 0,
+                    }}
+                    onPress={() => {
+                      setImageViewer(false);
+                      setDisplayPhotoToken(0);
+                    }}
+                  />
+                </View>
+                <View style={{minHeight: 150, width: '100%'}}>
+                  <ScrollView
+                    style={{
+                      padding: 10,
+                      width: '100%',
+                      alignSelf: 'center',
+                      borderRadius: 7,
+                      marginVertical: 10,
+                      borderWidth: 2,
+                      borderColor: 'gray',
+                      minHeight: 200,
+                    }}
+                    scrollEnabled={true}>
+                    {DisplayPhotoToken == 0 ? (
+                      <Image
+                        source={waiting}
+                        style={{
+                          alignSelf: 'center',
+                        }}
+                      />
+                    ) : (
+                      <Image
+                        source={{
+                          uri: `${apiConfig.baseUrl}/file/download?fileToken=${DisplayPhotoToken}&userId=${doctorId}`,
+                        }}
+                        style={{
+                          resizeMode: 'cover',
+                          width: '100%',
+                          height: 180,
+                        }}
+                      />
+                    )}
+                    <Text style={styles.inputLabel}>
+                      {ClinicViewer.clinicName} {' , '}{' '}
+                      {ClinicViewer.clinicAddress}
+                    </Text>
+                  </ScrollView>
+                </View>
+              </View>
+            </View>
+          </Modal>
+        ) : null}
       </SafeAreaView>
     </KeyboardAvoidingView>
   );
