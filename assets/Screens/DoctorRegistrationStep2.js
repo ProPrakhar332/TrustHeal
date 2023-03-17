@@ -4576,7 +4576,7 @@ const DoctorRegistration2 = ({navigation}) => {
                       />
                     </View>
                   </View>
-                  {/* Follow-Up Duration */}
+                  {/* Duration of Follow-Up */}
                   <View style={{flexDirection: 'row'}}>
                     <View
                       style={{
@@ -4713,34 +4713,6 @@ const DoctorRegistration2 = ({navigation}) => {
                 </View>
               </View>
             ) : null}
-            {/* Buttons */}
-            {/* <View
-              style={{
-                alignSelf: 'center',
-                flexDirection: 'row',
-                marginVertical: 15,
-              }}>
-              <CustomButton
-                text="Submit"
-                textstyle={{
-                  color: 'white',
-                  fontSize: 16,
-                  fontWeight: 'bold',
-                }}
-                style={{
-                  flex: 1,
-                  marginBottom: 50,
-                  marginVertical: 10,
-                  padding: 10,
-                  borderRadius: 10,
-                  backgroundColor: '#2b8ada',
-                }}
-                onPress={() => {
-                  // Alert.alert(completePercentage + ' Profile Details Filled');
-                  navigation.navigate('DoctorHome');
-                }}></CustomButton>
-            </View> */}
-
             <CustomButton
               text={'Logout'}
               textstyle={{
@@ -5017,88 +4989,6 @@ const DoctorRegistration2 = ({navigation}) => {
                       />
                     )}
                   </ScrollView>
-                  {/* <View style={{alignSelf: 'center', flexDirection: 'column'}}>
-                    {/* Zoom Controls 
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        alignContent: 'center',
-                        justifyContent: 'space-evenly',
-                        width: '95%',
-                      }}>
-                      <TouchableOpacity>
-                        <FAIcon
-                          name="minus-circle"
-                          size={20}
-                          color={'gray'}
-                          onPress={onZoomOut}
-                        />
-                      </TouchableOpacity>
-                      <Text>
-                        {zoom * 100}
-                        {' %'}
-                      </Text>
-                      <TouchableOpacity>
-                        <FAIcon
-                          name="plus-circle"
-                          size={20}
-                          color={'gray'}
-                          onPress={onZoomIn}
-                        />
-                      </TouchableOpacity>
-                    </View>
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        alignSelf: 'center',
-                        marginVertical: 5,
-                      }}>
-                      <Text
-                        style={{
-                          fontSize: 13,
-                          fontWeight: 'bold',
-                          color: 'black',
-                          marginRight: 3,
-                        }}>
-                        File Name:-
-                      </Text>
-                      {docPath != null ? (
-                        <Text
-                          style={{
-                            fontSize: 13,
-                            color: 'black',
-                          }}>
-                          {docPath.split('/').pop()}
-                        </Text>
-                      ) : null}
-                    </View>
-                    <View
-                      style={{
-                        width: '85%',
-                        alignSelf: 'center',
-                        marginTop: 5,
-                      }}></View>
-                    <CustomButton
-                      textstyle={{color: 'white', fontSize: 12}}
-                      text={'Download'}
-                      style={{
-                        backgroundColor: 'limegreen',
-                        borderRadius: 10,
-                      }}
-                      onPress={async () => {
-                        let fileName = docPath.split('/').pop();
-                        //console.log(fileName);
-                        await RNFS.copyFile(
-                          docPath,
-                          `file://${RNFS.DownloadDirectoryPath}/` + fileName,
-                        );
-                        Alert.alert(
-                          'Downloaded',
-                          `Document has been downloaded under the name of:- ${fileName}`,
-                        );
-                      }}
-                    />
-                  </View> */}
                 </View>
               </View>
             </View>

@@ -19,6 +19,7 @@ import CustomButton from '../Components/CustomButton';
 import FAIcon from 'react-native-vector-icons/FontAwesome5';
 import MIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Pdf from 'react-native-pdf';
+import {CheckBox} from 'react-native-elements';
 import {
   SelectList,
   MultipleSelectList,
@@ -174,6 +175,8 @@ const EditProfile = ({navigation}) => {
   const [TotalYear, setTotalYear] = useState('');
   const [TotalMonths, setTotalMonths] = useState('');
   const [experienceId, setexperienceId] = useState(0);
+  const [expPhotoPath, setexpPhotoPath] = useState(0);
+  const [checkPresent, setcheckPresent] = useState(false);
   //Identification
   const [showIdenDet, setShowIdenDet] = useState(false);
   const [IdenDetEdit, setIdenDetEdit] = useState(false);
@@ -192,7 +195,6 @@ const EditProfile = ({navigation}) => {
   const [GenConfigEdit, setGenConfigEdit] = useState(false);
   const [DoctorConfiguration, setDoctorConfiguration] = useState(null);
   const [showMobNo, setshowMobNo] = useState(false);
-  const [showFollowUp, setshowFollowUp] = useState('');
 
   //consultation fees
   const [showConsultFees, setShowConsultFees] = useState(false);
@@ -200,11 +202,16 @@ const EditProfile = ({navigation}) => {
   const [DoctorFees, setDoctorFees] = useState(null);
   const [physicalConsulationFees, setphysicalConsulationFees] = useState(0);
   const [eConsulationFees, seteConsulationFees] = useState(0);
-  const [followUpFees, setfollowUpFees] = useState(0);
+  const [showFollowUp, setshowFollowUp] = useState('');
+  const [physicalfollowUpFees, setphysicalfollowUpFees] = useState(0);
+  const [efollowUpFees, setefollowUpFees] = useState(0);
   const [doctorConsulationFeesPkId, setdoctorConsulationFeesPkId] = useState(0);
   const [isLoading, setisLoading] = useState(false);
   const [isFetching, setisFetching] = useState(false);
   const [isUploading, setisUploading] = useState(false);
+  //view images
+  const [DisplayPhotoToken, setDisplayPhotoToken] = useState(0);
+  const [ImageViewer, setImageViewer] = useState(false);
 
   //viewing document
   const [docPath, setdocPath] = useState(null);
@@ -521,14 +528,17 @@ const EditProfile = ({navigation}) => {
           setisFetching(false);
 
           if (response.data != '') {
+            // console.log('Fees\n\n', response.data);
             setDoctorFees(response.data);
-            setphysicalConsulationFees(response.data.physicalConsulationFees);
+
             seteConsulationFees(response.data.econsulationFees);
-            setfollowUpFees(response.data.followUpFees);
+            setefollowUpFees(response.data.efollowUpFees);
+            setshowFollowUp(response.data.followUpDuration);
+            setphysicalConsulationFees(response.data.physicalConsulationFees);
+            setphysicalfollowUpFees(response.data.physicalfollowUpFees);
             setdoctorConsulationFeesPkId(
               response.data.doctorConsulationFeesPkId,
             );
-            setshowFollowUp(response.data.followUpDuration);
           }
         })
         .catch(function (error) {
@@ -669,7 +679,139 @@ const EditProfile = ({navigation}) => {
       console.log(e);
     }
   };
+  //post photo exp/clinic
+  const choosePhoto = async forField => {
+    Alert.alert(
+      'Upload Profile Picture',
+      'Select option for uploading profile picture',
+      [
+        {
+          text: 'Open Library',
+          onPress: () => {
+            launchImageLibrary({mediaType: 'photo'}, async response => {
+              console.log(response);
+              if (response.didCancel) console.log('Cancel');
+              else if (response.errorCode) {
+                Alert.alert('Error', response.errorMessage);
+              } else {
+                if (response.assets[0].fileSize <= 2097152) {
+                  await postPhoto(response.assets[0], forField);
+                } else
+                  Alert.alert(
+                    'Max Size',
+                    'The file exceeds the maximum limit of 2MB.',
+                  );
+              }
+            });
+          },
+        },
+        {
+          text: 'Open Camera',
+          onPress: () => {
+            requestCamera(forField);
+          },
+        },
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+      ],
+    );
+  };
 
+  const requestCamera = async forField => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.CAMERA,
+        {
+          title: 'App Camera Permission',
+          message: 'App needs access to your camera ',
+          buttonNeutral: 'Ask Me Later',
+          buttonNegative: 'Cancel',
+          buttonPositive: 'OK',
+        },
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        await launchcameraPhoto(forField);
+      } else {
+        console.log('Camera permission denied');
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+
+  const launchcameraPhoto = async forField => {
+    launchCamera(
+      {mediaType: 'photo', cameraType: 'front', saveToPhotos: true},
+      async response => {
+        console.log(response);
+        if (response.didCancel) console.log('Cancel');
+        else if (response.errorCode) {
+          Alert.alert('Error', response.errorMessage);
+        } else {
+          if (response.assets[0].fileSize <= 2097152) {
+            await postPhoto(response.assets[0], forField);
+          } else
+            Alert.alert(
+              'Max Size',
+              'The file exceeds the maximum limit of 2MB.',
+            );
+        }
+      },
+    );
+  };
+  const postPhoto = async (pickerResult, forField) => {
+    try {
+      console.log(`==============Inside post photo for ${forField}==========`);
+
+      let ext = '.' + pickerResult.fileName.split('.').pop();
+
+      delete pickerResult.fileName;
+      pickerResult.size = pickerResult.fileSize;
+      delete pickerResult.fileSize;
+      if (forField == 'Clinic')
+        pickerResult.name = doctorId + '_ClinicPhoto' + ext;
+
+      if (forField == 'Experience')
+        pickerResult.name = doctorId + '_ExpPhoto' + ext;
+
+      console.log(pickerResult.name);
+      console.log(pickerResult);
+
+      let formData = new FormData();
+      formData.append(
+        'directoryNames',
+        forField == 'Clinic' ? ' DOCTOR_CLINIC' : ' DOCTOR_EXPERIENCE',
+      );
+      formData.append('file', pickerResult);
+      formData.append('userId', doctorId);
+
+      if (forField == 'Experience' && expPhotoPath != 0)
+        formData.append('fileToken', expPhotoPath);
+
+      if (forField == 'Clinic' && clinicPhoto != null)
+        formData.append('fileToken', clinicPhoto);
+
+      const {error, response} = await fileUpload(formData);
+
+      if (error != null) {
+        console.log('======error======');
+        console.log(error);
+        Alert.alert(
+          'Error',
+          'There was a problem in uploading profile picture. Please try again.',
+        );
+      } else {
+        console.log('======response======');
+        console.log(response.fileToken);
+        if (forField == 'Clinic') setClinicPhoto(response.fileToken);
+        if (forField == 'Experience') setexpPhotoPath(response.fileToken);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
   //api calls on press update button
 
   const updateGenInfo = async () => {
@@ -857,12 +999,13 @@ const EditProfile = ({navigation}) => {
     setisUploading(true);
     let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
     let doctorFees = new Object();
-    doctorFees.feesId = DoctorFees.doctorConsulationFeesPkId;
     doctorFees.doctorId = doctorId;
-    doctorFees.physicalConsulationFees = Number(physicalConsulationFees);
     doctorFees.econsulationFees = Number(eConsulationFees);
-    doctorFees.followUpFees = Number(followUpFees);
+    doctorFees.efollowUpFees = Number(efollowUpFees);
+    doctorFees.feesId = DoctorFees.doctorConsulationFeesPkId;
     doctorFees.followUpDuration = Number(showFollowUp);
+    doctorFees.physicalConsulationFees = Number(physicalConsulationFees);
+    doctorFees.physicalFollowUpFees = Number(physicalfollowUpFees);
 
     console.log('Fees Update---------\n' + JSON.stringify(doctorFees, null, 1));
     axios
@@ -1219,38 +1362,49 @@ const EditProfile = ({navigation}) => {
                 </Text>
               ) : null}
             </View>
-            {ExpDetEdit ? (
-              <View
-                style={[
-                  styles.cellStyle,
-                  {flexDirection: 'row', alignContent: 'space-around'},
-                ]}>
-                <View style={{flexDirection: 'column', flex: 0.45}}>
+
+            <View
+              style={[
+                styles.cellStyle,
+                {flexDirection: 'row', alignContent: 'space-around'},
+              ]}>
+              <View style={{flexDirection: 'row', flex: 0.45}}>
+                <FAIcon
+                  name="file-image"
+                  size={15}
+                  color={'#2b8ada'}
+                  style={[
+                    {alignSelf: 'center'},
+                    ExpDetEdit ? {marginRight: 10} : null,
+                  ]}
+                  onPress={async () => {
+                    setDisplayPhotoToken(Exp.experiencePhoto);
+                    console.log(Exp);
+                    setImageViewer(true);
+                  }}
+                />
+
+                {ExpDetEdit ? (
                   <FAIcon
                     name="edit"
                     size={13}
                     color={'#2b8ada'}
                     style={{alignSelf: 'center'}}
                     onPress={() => {
+                      console.log(Exp);
                       setPracticeAt(Exp.practiceAt);
                       setStartExpDate(Exp.startDate);
                       setEndExpDate(Exp.endDate);
                       setexperienceId(Exp.experienceId);
+                      setexpPhotoPath(Exp.experiencePhoto);
+                      setcheckPresent(Exp.currentlyThere);
                       seteditExp(true);
                       setExpElementModal(true);
                     }}
                   />
-                </View>
-                {/* <View style={{flexDirection: 'column', flex: 0.45}}>
-                  <FAIcon
-                    name="trash"
-                    size={13}
-                    color={'red'}
-                    style={{alignSelf: 'center'}}
-                  />
-                </View> */}
+                ) : null}
               </View>
-            ) : null}
+            </View>
           </View>
         </View>
       );
@@ -2472,21 +2626,19 @@ const EditProfile = ({navigation}) => {
                                 Experience
                               </Text>
                             </View>
-                            {ExpDetEdit ? (
-                              <View
-                                style={{
-                                  flex: 1,
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  paddingHorizontal: 1,
-                                  paddingVertical: 1,
-                                  backgroundColor: '#2b8ada',
-                                }}>
-                                <Text style={styles.cellHeadingText}>
-                                  Actions
-                                </Text>
-                              </View>
-                            ) : null}
+                            <View
+                              style={{
+                                flex: 1,
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                paddingHorizontal: 1,
+                                paddingVertical: 1,
+                                backgroundColor: '#2b8ada',
+                              }}>
+                              <Text style={styles.cellHeadingText}>
+                                Actions
+                              </Text>
+                            </View>
                           </View>
                         </View>
                         <ViewExperienceTabular />
@@ -2803,15 +2955,21 @@ const EditProfile = ({navigation}) => {
                       flexDirection: 'column',
                       marginBottom: 10,
                     }}>
+                    {/* Physical Consultation Fees */}
                     <View style={{flexDirection: 'row', alignSelf: 'center'}}>
                       <View
                         style={{
                           flexDirection: 'column',
                           width: '100%',
                         }}>
-                        <Text style={styles.inputLabel}>
-                          Physical Consultation Fees
-                        </Text>
+                        <View style={{flexDirection: 'row'}}>
+                          <Text style={styles.inputLabel}>
+                            Physical Consultation Fees{' '}
+                          </Text>
+                          <Text style={[styles.inputLabel, {color: 'red'}]}>
+                            ( in ₹ )
+                          </Text>
+                        </View>
 
                         <TextInput
                           style={[
@@ -2828,16 +2986,21 @@ const EditProfile = ({navigation}) => {
                         />
                       </View>
                     </View>
+                    {/* E-Consultation Fees */}
                     <View style={{flexDirection: 'row', alignSelf: 'center'}}>
                       <View
                         style={{
                           flexDirection: 'column',
                           width: '100%',
                         }}>
-                        <Text style={styles.inputLabel}>
-                          E-Consultation Fees
-                        </Text>
-
+                        <View style={{flexDirection: 'row'}}>
+                          <Text style={styles.inputLabel}>
+                            E-Consultation Fees{' '}
+                          </Text>
+                          <Text style={[styles.inputLabel, {color: 'red'}]}>
+                            ( in ₹ )
+                          </Text>
+                        </View>
                         <TextInput
                           style={[
                             styles.textInput,
@@ -2851,27 +3014,7 @@ const EditProfile = ({navigation}) => {
                         />
                       </View>
                     </View>
-                    <View style={{flexDirection: 'row', alignSelf: 'center'}}>
-                      <View
-                        style={{
-                          flexDirection: 'column',
-                          width: '100%',
-                        }}>
-                        <Text style={styles.inputLabel}>Follow-Up Fees</Text>
-
-                        <TextInput
-                          style={[
-                            styles.textInput,
-                            {backgroundColor: '#d0e0fc'},
-                          ]}
-                          keyboardType={'number-pad'}
-                          maxLength={5}
-                          onChangeText={text => setfollowUpFees(text)}
-                          value={followUpFees + ''}
-                          editable={ConsultFeesEdit}
-                        />
-                      </View>
-                    </View>
+                    {/* Duration of Follow-Up */}
                     <View style={{flexDirection: 'row', alignSelf: 'center'}}>
                       <View
                         style={{
@@ -2891,6 +3034,64 @@ const EditProfile = ({navigation}) => {
                           maxLength={2}
                           onChangeText={text => setshowFollowUp(text)}
                           value={showFollowUp + ''}
+                          editable={ConsultFeesEdit}
+                        />
+                      </View>
+                    </View>
+                    {/* Physical Follow-Up Fees */}
+                    <View style={{flexDirection: 'row', alignSelf: 'center'}}>
+                      <View
+                        style={{
+                          flexDirection: 'column',
+                          width: '100%',
+                        }}>
+                        <View style={{flexDirection: 'row'}}>
+                          <Text style={styles.inputLabel}>
+                            Physical Follow-Up Fees{' '}
+                          </Text>
+                          <Text style={[styles.inputLabel, {color: 'red'}]}>
+                            ( in ₹ )
+                          </Text>
+                        </View>
+
+                        <TextInput
+                          style={[
+                            styles.textInput,
+                            {backgroundColor: '#d0e0fc'},
+                          ]}
+                          keyboardType={'number-pad'}
+                          maxLength={5}
+                          onChangeText={text => setphysicalfollowUpFees(text)}
+                          value={physicalfollowUpFees + ''}
+                          editable={ConsultFeesEdit}
+                        />
+                      </View>
+                    </View>
+                    {/* E-Consultation Follow-Up Fees */}
+                    <View style={{flexDirection: 'row', alignSelf: 'center'}}>
+                      <View
+                        style={{
+                          flexDirection: 'column',
+                          width: '100%',
+                        }}>
+                        <View style={{flexDirection: 'row'}}>
+                          <Text style={styles.inputLabel}>
+                            E-Consultation Follow-Up Fees{' '}
+                          </Text>
+                          <Text style={[styles.inputLabel, {color: 'red'}]}>
+                            ( in ₹ )
+                          </Text>
+                        </View>
+
+                        <TextInput
+                          style={[
+                            styles.textInput,
+                            {backgroundColor: '#d0e0fc'},
+                          ]}
+                          keyboardType={'number-pad'}
+                          maxLength={5}
+                          onChangeText={text => setefollowUpFees(text)}
+                          value={efollowUpFees + ''}
                           editable={ConsultFeesEdit}
                         />
                       </View>
@@ -3243,6 +3444,8 @@ const EditProfile = ({navigation}) => {
                           setPracticeAt('');
                           setStartExpDate('');
                           setEndExpDate('');
+                          setcheckPresent(false);
+                          setexpPhotoPath(0);
                         }}
                       />
                     </View>
@@ -3329,33 +3532,35 @@ const EditProfile = ({navigation}) => {
                           </View>
                           <View style={{flex: 0.475}}>
                             <Text style={styles.inputLabel}>End Date</Text>
-                            <View
-                              style={{
-                                flexDirection: 'row',
-                                width: '100%',
-                                alignItems: 'center',
-                                backgroundColor: '#E8F0FE',
-                                borderRadius: 10,
-                              }}>
-                              <Text style={[styles.textInput, {flex: 1}]}>
-                                {dayjs(endExpDate).isValid()
-                                  ? dayjs(endExpDate).format('DD-MM-YYYY')
-                                  : 'DD-MM-YYYY'}
-                              </Text>
-                              <FAIcon
-                                name="calendar-alt"
-                                color={'gray'}
-                                size={20}
+                            {!checkPresent ? (
+                              <View
                                 style={{
-                                  marginHorizontal: 5,
-                                  position: 'absolute',
-                                  right: 0,
-                                }}
-                                onPress={() => {
-                                  setEndExpDatePickerVisible(true);
-                                }}
-                              />
-                            </View>
+                                  flexDirection: 'row',
+                                  width: '100%',
+                                  alignItems: 'center',
+                                  backgroundColor: '#E8F0FE',
+                                  borderRadius: 10,
+                                }}>
+                                <Text style={[styles.textInput, {flex: 1}]}>
+                                  {dayjs(endExpDate).isValid()
+                                    ? dayjs(endExpDate).format('DD-MM-YYYY')
+                                    : 'DD-MM-YYYY'}
+                                </Text>
+                                <FAIcon
+                                  name="calendar-alt"
+                                  color={'gray'}
+                                  size={20}
+                                  style={{
+                                    marginHorizontal: 5,
+                                    position: 'absolute',
+                                    right: 0,
+                                  }}
+                                  onPress={() => {
+                                    setEndExpDatePickerVisible(true);
+                                  }}
+                                />
+                              </View>
+                            ) : null}
                             <DateTimePickerModal
                               isVisible={isEndExpDatePickerVisible}
                               mode="date"
@@ -3371,8 +3576,76 @@ const EditProfile = ({navigation}) => {
                                 setEndExpDatePickerVisible(false);
                               }}
                             />
+                            <CheckBox
+                              title={
+                                <Text style={{fontSize: 10}}>
+                                  Present (Current)
+                                </Text>
+                              }
+                              containerStyle={{
+                                marginTop: 3,
+                                width: '100%',
+                                borderWidth: 0,
+                                padding: 0,
+                                backgroundColor: 'white',
+                              }}
+                              checkedColor={'#2b8ada'}
+                              checked={checkPresent}
+                              onPress={async () => {
+                                setcheckPresent(!checkPresent);
+                                await calculateExpPresent();
+                              }}
+                            />
                           </View>
                         </View>
+                        <Text style={styles.inputLabel}>
+                          Experience Certificate
+                        </Text>
+                        {expPhotoPath != 0 ? (
+                          <Image
+                            source={{
+                              uri: `${apiConfig.baseUrl}/file/download?fileToken=${expPhotoPath}&userId=${doctorId}`,
+                            }}
+                            style={{
+                              resizeMode: 'cover',
+                              width: '100%',
+                              height: 180,
+                            }}
+                          />
+                        ) : null}
+                        <CustomButton
+                          text={
+                            expPhotoPath == 0
+                              ? 'Select Photo'
+                              : ' ✓ Photo Selected'
+                          }
+                          textstyle={{
+                            color: expPhotoPath == 0 ? '#2b8ada' : '#21c47f',
+                            fontSize: 12,
+                            fontWeight: 'bold',
+                          }}
+                          style={{
+                            marginTop: 5,
+                            backgroundColor: 'white',
+                            borderRadius: 12,
+                            padding: 6,
+                            paddingHorizontal: 10,
+                            borderWidth: 2,
+                            borderColor:
+                              expPhotoPath == 0 ? '#2b8ada' : '#21c47f',
+                          }}
+                          onPress={async () => {
+                            if (practiceAt == '')
+                              Alert.alert(
+                                'Incomplete Details!',
+                                'Please add Clinic/Hospital practice name',
+                              );
+                            else {
+                              await choosePhoto('Experience');
+                              //selectDocsIden();
+                            }
+                          }}
+                        />
                       </View>
                     </View>
 
@@ -3397,10 +3670,15 @@ const EditProfile = ({navigation}) => {
                             'Incomplete Details!',
                             'Please Select Practise Start Date',
                           );
-                        else if (endExpDate == '')
+                        else if (endExpDate == '' && checkPresent == false)
                           Alert.alert(
                             'Incomplete Details!',
                             'Please Select Practise End Date',
+                          );
+                        else if (expPhotoPath == 0)
+                          Alert.alert(
+                            'Incomplete Details!',
+                            'Please upload experience certificate.',
                           );
                         else {
                           let p = {
@@ -3409,6 +3687,7 @@ const EditProfile = ({navigation}) => {
                             experienceInMonths: Number(experienceInMonths),
                             practiceAt: practiceAt,
                             startDate: startExpDate,
+                            experiencePhoto: expPhotoPath,
                           };
 
                           if (editExp) p.experienceId = Number(experienceId);
@@ -3421,6 +3700,7 @@ const EditProfile = ({navigation}) => {
                           setTotalYear('');
                           setTotalMonths('');
                           setShowExpDet(false);
+                          setexpPhotoPath(0);
                           setExpElementModal(false);
                         }
                       }}
@@ -3979,6 +4259,99 @@ const EditProfile = ({navigation}) => {
             </View>
           </View>
         )}
+        {ImageViewer ? (
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={ImageViewer}
+            onRequestClose={() => {
+              setImageViewer(!ImageViewer);
+            }}>
+            <View
+              style={{
+                height: '100%',
+                backgroundColor: 'rgba(0,0,0,0.8)',
+                flexDirection: 'row',
+                justifyContent: 'center',
+              }}>
+              <View
+                style={[
+                  styles.modalView,
+                  {
+                    borderRadius: 10,
+                    padding: 15,
+                  },
+                ]}>
+                <View
+                  style={{
+                    width: '100%',
+                    alignSelf: 'center',
+                    borderBottomWidth: 1,
+                    borderBottomColor: 'gray',
+                  }}>
+                  <Text
+                    style={{
+                      fontWeight: 'bold',
+                      fontSize: 16,
+                      padding: 5,
+                      color: 'black',
+                    }}>
+                    Image Viewer
+                  </Text>
+                  <FAIcon
+                    name="window-close"
+                    color="black"
+                    size={26}
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      right: 0,
+                    }}
+                    onPress={() => {
+                      setImageViewer(false);
+                      setDisplayPhotoToken(0);
+                      setZoom(1);
+                    }}
+                  />
+                </View>
+                <View style={{minHeight: 150, width: '100%'}}>
+                  <ScrollView
+                    style={{
+                      padding: 10,
+                      width: '100%',
+                      alignSelf: 'center',
+                      borderRadius: 7,
+                      marginVertical: 10,
+                      borderWidth: 2,
+                      borderColor: 'gray',
+                      minHeight: 200,
+                    }}
+                    scrollEnabled={true}>
+                    {DisplayPhotoToken == 0 ? (
+                      <Image
+                        source={waiting}
+                        style={{
+                          alignSelf: 'center',
+                        }}
+                      />
+                    ) : (
+                      <Image
+                        source={{
+                          uri: `${apiConfig.baseUrl}/file/download?fileToken=${DisplayPhotoToken}&userId=${doctorId}`,
+                        }}
+                        style={{
+                          resizeMode: 'cover',
+                          width: '100%',
+                          height: 180,
+                        }}
+                      />
+                    )}
+                  </ScrollView>
+                </View>
+              </View>
+            </View>
+          </Modal>
+        ) : null}
       </SafeAreaView>
     </KeyboardAvoidingView>
   );
