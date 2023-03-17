@@ -15,19 +15,71 @@ export default function CallPage(props) {
   const {consultationType, callID, userID, userName, userType} = params;
 
   useEffect(() => {
-    const statusUpdate = async () => {
+    const statusUpdateDoctor = async () => {
       axios
-        .post(apiConfig.baseUrl + '')
+        .post(
+          apiConfig.baseUrl +
+            '/doctor/consultation/join?consultationId=' +
+            callID,
+        )
         .then(response => {
           if (response.status == 200)
-            console.log('Meeting going on status updated');
+            console.log('Meeting going on status updated doctor');
         })
         .catch(response => {
           console.log(response);
         });
     };
-    if (userType == 'Doctor') statusUpdate();
+    const statusUpdatePatient = async () => {
+      axios
+        .post(
+          apiConfig.baseUrl +
+            '/patient/consultation/join?consultationId=' +
+            callID,
+        )
+        .then(response => {
+          if (response.status == 200)
+            console.log('Meeting going on status updated patient');
+        })
+        .catch(response => {
+          console.log(response);
+        });
+    };
+    if (userType == 'Doctor') statusUpdateDoctor();
+    else statusUpdatePatient();
   }, []);
+
+  const statusUpdatePatientDisconnect = async () => {
+    axios
+      .post(
+        apiConfig.baseUrl +
+          '/patient/consultation/disconnect?consultationId=' +
+          callID,
+      )
+      .then(response => {
+        if (response.status == 200)
+          console.log('Meeting going on status updated patient disconnected');
+      })
+      .catch(response => {
+        console.log(response);
+      });
+  };
+
+  const statusUpdateDoctorDisconnect = async () => {
+    axios
+      .post(
+        apiConfig.baseUrl +
+          '/doctor/consultation/disconnect?consultationId=' +
+          callID,
+      )
+      .then(response => {
+        if (response.status == 200)
+          console.log('Meeting going on status updated doctor disconnected');
+      })
+      .catch(response => {
+        console.log(response);
+      });
+  };
 
   return (
     <View style={styles.container}>
@@ -41,9 +93,18 @@ export default function CallPage(props) {
           config={{
             ...ONE_ON_ONE_VOICE_CALL_CONFIG,
             // ...ONE_ON_ONE_VIDEO_CALL_CONFIG,
-            onHangUp: () => {
-              if (userType == 'Doctor') props.navigation.goBack();
-              else props.navigation.navigate('Consult');
+            onHangUp: async () => {
+              if (userType == 'Doctor') {
+                await statusUpdateDoctorDisconnect();
+                Alert.alert(
+                  'Consultation Ended',
+                  'Please make sure to make prescription for the patient.',
+                );
+                props.navigation.goBack();
+              } else {
+                await statusUpdatePatientDisconnect();
+                props.navigation.navigate('Consult');
+              }
             },
           }}
         />
@@ -57,9 +118,18 @@ export default function CallPage(props) {
           config={{
             // ...ONE_ON_ONE_VOICE_CALL_CONFIG,
             ...ONE_ON_ONE_VIDEO_CALL_CONFIG,
-            onHangUp: () => {
-              if (userType == 'Doctor') props.navigation.goBack();
-              else props.navigation.navigate('Consult');
+            onHangUp: async () => {
+              if (userType == 'Doctor') {
+                await statusUpdateDoctorDisconnect();
+                Alert.alert(
+                  'Consultation Ended',
+                  'Please make sure to make prescription for the patient.',
+                );
+                props.navigation.goBack();
+              } else {
+                await statusUpdatePatientDisconnect();
+                props.navigation.navigate('Consult');
+              }
             },
           }}
         />

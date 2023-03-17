@@ -1766,6 +1766,39 @@ const DoctorHome = ({navigation}) => {
   };
 
   useEffect(() => {
+    if (pending == true) getPendingData();
+  }, [pending]);
+  const getPendingData = async () => {
+    let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
+    setDoctorObj(x);
+    let doctorId = x.doctorId;
+    //console.log(doctorId);
+    setisFetching(true);
+    axios
+      .get(
+        apiConfig.baseUrl +
+          '/doctor/consultation/presription/pending?doctorId=' +
+          doctorId,
+      )
+      .then(function (response) {
+        setisFetching(false);
+        if (response.status == 200) {
+          setPendingData(response.data);
+        }
+        console.log(PendingData);
+      })
+      .catch(function (error) {
+        setisFetching(false);
+        Alert.alert(
+          'Error',
+          'An error occured while fetching pending details. Please try again later.',
+        );
+        console.log('=====Error in fetching pending consultation details=====');
+        console.log(error);
+      });
+  };
+
+  useEffect(() => {
     if (Complete == true) getCompletedData();
   }, [Complete]);
   const getCompletedData = async () => {
@@ -1852,36 +1885,6 @@ const DoctorHome = ({navigation}) => {
     };
     if (HistoryModal == true) getHistoryDocs();
   }, [HistoryModal]);
-
-  // useEffect(() => {
-  //   const getTodaysDocs = async () => {
-  //     console.log(todayId);
-  //     axios
-  //       .get(
-  //         apiConfig.baseUrl +
-  //           '/docs/current/uploaded?consultationId=' +
-  //           todayId,
-  //       )
-  //       .then(function (response) {
-  //         if (response.status == 200) {
-  //           setTodaysDocs(response.data.documents);
-  //           setPreconsultaionQuestionData(response.data.quesAns);
-  //         }
-  //         //console.log(TodaysDocs);
-  //       })
-  //       .catch(function (error) {
-  //         Alert.alert(
-  //           'Error',
-  //           'An error occured while fetching previous documents of patient. Please try again later.',
-  //         );
-  //         console.log(
-  //           '=====Error in fetching previous documents of patient=====',
-  //         );
-  //         console.log(error);
-  //       });
-  //   };
-  //   if (TodaysModal == true) getTodaysDocs();
-  // }, [TodaysModal]);
 
   const getTodaysDocs = async todayId => {
     console.log(todayId);
@@ -2009,6 +2012,7 @@ const DoctorHome = ({navigation}) => {
               <Text style={{color: '#2B8ADA'}}>By Date</Text>
               <FAIcon name="caret-down" color={'#2B8ADA'} size={15} />
             </View> */}
+
             {/* Upcoming Consultations White Label */}
             <TouchableOpacity
               style={[styles.WhiteLabel, {marginTop: 20}]}
@@ -2121,8 +2125,9 @@ const DoctorHome = ({navigation}) => {
                 </View>
               </View>
             ) : null}
+
             {/* Prescription Pending White Label */}
-            {/* <TouchableOpacity
+            <TouchableOpacity
               style={[styles.WhiteLabel]}
               onPress={() => setpending(!pending)}>
               <FAIcon
@@ -2144,9 +2149,9 @@ const DoctorHome = ({navigation}) => {
                 size={20}
                 style={[pending ? {color: '#2B8ADA'} : {color: 'black'}]}
               />
-            </TouchableOpacity> */}
+            </TouchableOpacity>
             {/* Prescription Pending Data */}
-            {/* {pending ? (
+            {pending ? (
               <View style={{flexDirection: 'column'}}>
                 <View style={{backgroundColor: '#E8F0FE'}}>
                   <TouchableOpacity
@@ -2156,8 +2161,7 @@ const DoctorHome = ({navigation}) => {
                       paddingHorizontal: 10,
                       marginLeft: 10,
                     }}
-                    //onPress={getPendingData}
-                  >
+                    onPress={getPendingData}>
                     <FAIcon
                       name="redo-alt"
                       size={12}
@@ -2170,10 +2174,9 @@ const DoctorHome = ({navigation}) => {
                   </TouchableOpacity>
 
                   <View>
-                    
-                    {UpcomingData != '' ? (
+                    {PendingData != '' ? (
                       <FlatList
-                        data={UpcomingData}
+                        data={PendingData}
                         keyExtractor={item => item.consultationId}
                         renderItem={renderCardPending}
                       />
@@ -2191,7 +2194,8 @@ const DoctorHome = ({navigation}) => {
                   </View>
                 </View>
               </View>
-            ) : null} */}
+            ) : null}
+
             {/* Recent Consultaions White Label */}
             <TouchableOpacity
               style={styles.WhiteLabel}
@@ -2422,6 +2426,7 @@ const DoctorHome = ({navigation}) => {
                 </View>
               </View>
             ) : null}
+
             {/* History Modal */}
             {HistoryModal ? (
               <Modal
