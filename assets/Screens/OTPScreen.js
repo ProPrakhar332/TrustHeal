@@ -1029,7 +1029,7 @@ const FirstScreen = ({route, navigation}) => {
     setPin4('');
     setShow(true);
     setResend(true);
-    setVal(240);
+    setVal(60);
     sendOTP();
   };
 

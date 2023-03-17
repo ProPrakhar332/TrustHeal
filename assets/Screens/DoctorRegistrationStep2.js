@@ -22,6 +22,7 @@ import {
   SelectList,
   MultipleSelectList,
 } from 'react-native-dropdown-select-list';
+import Pdf from 'react-native-pdf';
 
 //icons
 import doctor from '../Resources/doctor.png';
@@ -79,7 +80,7 @@ const data = [
 ];
 const dataYear = [];
 
-const dataIdenDocs = [
+let dataIdenDocs = [
   {key: 'Aadhar', value: 'Aadhar'},
   {key: 'Driving Licence', value: 'Driving Licence'},
   {key: 'PAN', value: 'PAN'},
@@ -155,6 +156,7 @@ const DoctorRegistration2 = ({navigation}) => {
   const [TotalYear, setTotalYear] = useState('');
   const [TotalMonths, setTotalMonths] = useState('');
   const [FinalTotalMonths, setFinalTotalMonths] = useState(0);
+  const [expPhotoPath, setexpPhotoPath] = useState(0);
   const [checkPresent, setcheckPresent] = useState(false);
   //Identification
   const [showIdenDet, setShowIdenDet] = useState(false);
@@ -196,13 +198,30 @@ const DoctorRegistration2 = ({navigation}) => {
   const [showConsultFees, setShowConsultFees] = useState(false);
   const [addMoreConsultFees, setaddMoreConsultFees] = useState(false);
   const [dataSavedConsultFees, setdataSavedConsultFees] = useState(false);
-  const [physicalConsulationFees, setphysicalConsulationFees] = useState(0);
   const [eConsulationFees, seteConsulationFees] = useState(0);
-  const [followUpFees, setfollowUpFees] = useState(0);
+  const [efollowUpFees, setefollowUpFees] = useState(0);
   const [showFollowUp, setshowFollowUp] = useState('');
+  const [physicalConsulationFees, setphysicalConsulationFees] = useState(0);
+  const [physicalfollowUpFees, setphysicalfollowUpFees] = useState(0);
   const [isLoading, setisLoading] = useState(false);
   const [isSentForValidation, setisSentForValidation] = useState(false);
   const [isUploading, setisUploading] = useState(false);
+
+  //viewing document
+  const [docPath, setdocPath] = useState(null);
+  const [docsModal, setdocsModal] = useState(false);
+  const [zoom, setZoom] = useState(1);
+
+  const onZoomIn = () => {
+    if (zoom < 2.5) setZoom(zoom + 0.25);
+  };
+  const onZoomOut = () => {
+    if (zoom > 1) setZoom(zoom - 0.25);
+  };
+
+  //view images
+  const [DisplayPhotoToken, setDisplayPhotoToken] = useState(0);
+  const [ImageViewer, setImageViewer] = useState(false);
 
   //post pfp
   const chooseProfileImage = async () => {
@@ -385,6 +404,140 @@ const DoctorRegistration2 = ({navigation}) => {
       });
   };
 
+  //post photo exp/clinic
+  const choosePhoto = async forField => {
+    Alert.alert(
+      'Upload Profile Picture',
+      'Select option for uploading profile picture',
+      [
+        {
+          text: 'Open Library',
+          onPress: () => {
+            launchImageLibrary({mediaType: 'photo'}, async response => {
+              console.log(response);
+              if (response.didCancel) console.log('Cancel');
+              else if (response.errorCode) {
+                Alert.alert('Error', response.errorMessage);
+              } else {
+                if (response.assets[0].fileSize <= 2097152) {
+                  await postPhoto(response.assets[0], forField);
+                } else
+                  Alert.alert(
+                    'Max Size',
+                    'The file exceeds the maximum limit of 2MB.',
+                  );
+              }
+            });
+          },
+        },
+        {
+          text: 'Open Camera',
+          onPress: () => {
+            requestCamera(forField);
+          },
+        },
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+      ],
+    );
+  };
+
+  const requestCamera = async forField => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.CAMERA,
+        {
+          title: 'App Camera Permission',
+          message: 'App needs access to your camera ',
+          buttonNeutral: 'Ask Me Later',
+          buttonNegative: 'Cancel',
+          buttonPositive: 'OK',
+        },
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        await launchcameraPhoto(forField);
+      } else {
+        console.log('Camera permission denied');
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+
+  const launchcameraPhoto = async forField => {
+    launchCamera(
+      {mediaType: 'photo', cameraType: 'front', saveToPhotos: true},
+      async response => {
+        console.log(response);
+        if (response.didCancel) console.log('Cancel');
+        else if (response.errorCode) {
+          Alert.alert('Error', response.errorMessage);
+        } else {
+          if (response.assets[0].fileSize <= 2097152) {
+            await postPhoto(response.assets[0], forField);
+          } else
+            Alert.alert(
+              'Max Size',
+              'The file exceeds the maximum limit of 2MB.',
+            );
+        }
+      },
+    );
+  };
+  const postPhoto = async (pickerResult, forField) => {
+    try {
+      console.log(`==============Inside post photo for ${forField}==========`);
+
+      let ext = '.' + pickerResult.fileName.split('.').pop();
+
+      delete pickerResult.fileName;
+      pickerResult.size = pickerResult.fileSize;
+      delete pickerResult.fileSize;
+      if (forField == 'Clinic')
+        pickerResult.name = doctorId + '_ClinicPhoto' + ext;
+
+      if (forField == 'Experience')
+        pickerResult.name = doctorId + '_ExpPhoto' + ext;
+
+      console.log(pickerResult.name);
+      console.log(pickerResult);
+
+      let formData = new FormData();
+      formData.append(
+        'directoryNames',
+        forField == 'Clinic' ? ' DOCTOR_CLINIC' : ' DOCTOR_EXPERIENCE',
+      );
+      formData.append('file', pickerResult);
+      formData.append('userId', doctorId);
+
+      if (forField == 'Experience' && expPhotoPath != 0)
+        formData.append('fileToken', expPhotoPath);
+
+      if (forField == 'Clinic' && clinicPhoto != null)
+        formData.append('fileToken', clinicPhoto);
+
+      const {error, response} = await fileUpload(formData);
+
+      if (error != null) {
+        console.log('======error======');
+        console.log(error);
+        Alert.alert(
+          'Error',
+          'There was a problem in uploading profile picture. Please try again.',
+        );
+      } else {
+        console.log('======response======');
+        console.log(response.fileToken);
+        if (forField == 'Clinic') setClinicPhoto(response.fileToken);
+        if (forField == 'Experience') setexpPhotoPath(response.fileToken);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   const handleError = err => {
     if (DocumentPicker.isCancel(err)) {
       console.warn('cancelled');
@@ -398,10 +551,8 @@ const DoctorRegistration2 = ({navigation}) => {
     }
   };
   const download = async (fileToken, userId, fileName) => {
-    // let op = {};
-    // if (Platform.OS == 'ios') op = {NSURLIsExcludedFromBackupKey: true};
-    // await RNFS.mkdir(`file://${RNFS.DownloadDirectoryPath}/Arogya`, op);
-    let filePath = `file://${RNFS.DownloadDirectoryPath}/`;
+    setisLoading(true);
+    let filePath = `file://${RNFS.CachesDirectoryPath}/`;
     let options = {
       fromUrl:
         apiConfig.baseUrl +
@@ -413,32 +564,23 @@ const DoctorRegistration2 = ({navigation}) => {
     };
     await RNFS.downloadFile(options)
       .promise.then(response => {
-        //console.log(response);
-        if (response.statusCode == 200)
-          Alert.alert(
-            'File Downloaded',
-            `The file is downloaded. File name is ${fileName}.`,
-          );
-        else
+        if (response.statusCode == 200) {
+          setdocPath(filePath + fileName);
+          setdocsModal(true);
+          setisLoading(false);
+        } else {
+          setisLoading(false);
           Alert.alert(
             'Download Fail',
             `Unable to download file. ${response.statusCode}`,
           );
+        }
       })
       .catch(e => {
+        setisLoading(false);
         Alert.alert('Error', `${e}`);
       });
   };
-
-  const dataFollowUp = [
-    {key: '1', value: '1'},
-    {key: '2', value: '2'},
-    {key: '3', value: '3'},
-    {key: '4', value: '4'},
-    {key: '5', value: '5'},
-    {key: '6', value: '6'},
-    {key: '7', value: '7'},
-  ];
 
   const dataShowQues = [
     {key: 'Yes', value: 'Yes'},
@@ -542,39 +684,39 @@ const DoctorRegistration2 = ({navigation}) => {
     settingAge();
   }, [age]);
 
-  useEffect(() => {
-    const getspl = async () => {
-      let arr = [];
-      let p = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
-      let doctorId = p.doctorId;
-      console.log(doctorId);
-      axios
-        .get(apiConfig.baseUrl + '/doctor/educations?doctorId=' + doctorId)
-        .then(function (response) {
-          if (response.status == 200) {
-            setdataSavedEduDet(true);
-            arr = response.data;
-          } else {
-            setdataSavedEduDet(false);
-            setdataSpecialization(data);
-          }
-        })
-        .catch(function (error) {
-          console.log('===== Error in fetching education =====');
-          console.log(error);
-        });
-      if (setdataSavedEduDet) {
-        for (var i = 0; i < arr.length; ++i)
-          dataSpecialization.push({
-            key: arr[i].specialization,
-            value: arr[i].specialization,
-          });
-        arr = [];
-      }
-    };
+  // useEffect(() => {
+  //   const getspl = async () => {
+  //     let arr = [];
+  //     let p = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
+  //     let doctorId = p.doctorId;
+  //     console.log(doctorId);
+  //     axios
+  //       .get(apiConfig.baseUrl + '/doctor/educations?doctorId=' + doctorId)
+  //       .then(function (response) {
+  //         if (response.status == 200) {
+  //           setdataSavedEduDet(true);
+  //           arr = response.data;
+  //         } else {
+  //           setdataSavedEduDet(false);
+  //           setdataSpecialization(data);
+  //         }
+  //       })
+  //       .catch(function (error) {
+  //         console.log('===== Error in fetching education =====');
+  //         console.log(error);
+  //       });
+  //     if (setdataSavedEduDet) {
+  //       for (var i = 0; i < arr.length; ++i)
+  //         dataSpecialization.push({
+  //           key: arr[i].specialization,
+  //           value: arr[i].specialization,
+  //         });
+  //       arr = [];
+  //     }
+  //   };
 
-    if (showPreConsultationQuestionaire == true) getspl();
-  }, [showPreConsultationQuestionaire]);
+  //   if (showPreConsultationQuestionaire == true) getspl();
+  // }, [showPreConsultationQuestionaire]);
 
   //on screen load data setter
   useEffect(() => {
@@ -775,6 +917,29 @@ const DoctorRegistration2 = ({navigation}) => {
       }
     }
   }, [doctorId, profileCompleted]);
+
+  //default preconsultation questions
+  useEffect(() => {
+    const getDefaultQues = async () => {
+      axios
+        .get(apiConfig.baseUrl + '/doctor/default/questions')
+        .then(response => {
+          if (response.status == 200) {
+            console.log(response.data);
+            let p = [];
+            response.data.question.forEach(item => {
+              p.push({questions: item});
+            });
+            setQuestionareList(p);
+          }
+        })
+        .catch(error => {
+          Alert.alert('Default Questions', `${error}`);
+        });
+    };
+    if (showQuestions == true) getDefaultQues();
+  }, [showQuestions]);
+
   //progress bar
   useEffect(() => {
     const progressBar = async () => {
@@ -786,7 +951,7 @@ const DoctorRegistration2 = ({navigation}) => {
       if (dataSavedAddInfo) ++c;
       if (dataSavedPreConsultationQuestionaire) ++c;
       if (dataSavedConsultFees) ++c;
-      if (photoPath != null || photoPath != 0) ++c;
+      if (photoPath != null && photoPath != 0) ++c;
 
       setCompletePercentage(parseInt((c / 9) * 100).toString() + '%');
 
@@ -911,6 +1076,10 @@ const DoctorRegistration2 = ({navigation}) => {
                 size={15}
                 onPress={() => {
                   removeIdenHandler(index);
+                  dataIdenDocs.push({
+                    key: IdentificationDocs.identificationType,
+                    value: IdentificationDocs.identificationType,
+                  });
                 }}
               />
             </TouchableOpacity>
@@ -1065,11 +1234,26 @@ const DoctorRegistration2 = ({navigation}) => {
               ) : null}
             </View>
             <TouchableOpacity
-              style={styles.cellStyle}
-              onPress={() => {
-                removeExpHandler(index);
-              }}>
-              <FAIcon name="trash" color={'red'} size={15} />
+              style={[styles.cellStyle, {flexDirection: 'row'}]}>
+              <FAIcon
+                name="file-image"
+                size={15}
+                color={'#2b8ada'}
+                style={{marginRight: 10}}
+                onPress={async () => {
+                  setDisplayPhotoToken(Experience.experiencePhoto);
+                  console.log(Experience.experiencePhoto);
+                  setImageViewer(true);
+                }}
+              />
+              <FAIcon
+                name="trash"
+                color={'red'}
+                size={15}
+                onPress={() => {
+                  removeExpHandler(index);
+                }}
+              />
             </TouchableOpacity>
           </View>
         </View>
@@ -1170,11 +1354,26 @@ const DoctorRegistration2 = ({navigation}) => {
             </View>
             {/* Actions */}
             <TouchableOpacity
-              style={styles.cellStyle}
-              onPress={() => {
-                removeClinicHandler(index);
-              }}>
-              <FAIcon name="trash" color={'red'} size={15} />
+              style={[styles.cellStyle, {flexDirection: 'row'}]}>
+              <FAIcon
+                name="file-image"
+                size={15}
+                color={'#2b8ada'}
+                style={{marginRight: 10}}
+                onPress={async () => {
+                  setDisplayPhotoToken(ClinicDet.clinicPhoto);
+                  console.log(ClinicDet);
+                  setImageViewer(true);
+                }}
+              />
+              <FAIcon
+                name="trash"
+                color={'red'}
+                size={15}
+                onPress={() => {
+                  removeClinicHandler(index);
+                }}
+              />
             </TouchableOpacity>
           </View>
         </View>
@@ -1511,7 +1710,6 @@ const DoctorRegistration2 = ({navigation}) => {
           );
           setShowAddInfo(false);
           setdataSavedAddInfo(true);
-          //setShowPreConsultationQuestionaire(true);
         }
       })
       .catch(function (error) {
@@ -1543,8 +1741,9 @@ const DoctorRegistration2 = ({navigation}) => {
       .then(function (response) {
         setisUploading(false);
         if (response.status == 201 || response.status == 200) {
-          console.log(
-            'Pre Consultation Questionnaire Record Inserted Successfully',
+          Alert.alert(
+            'Details Uploaded',
+            'Pre-Consulation  questions have been saved successfully.',
           );
           setdataSavedPreConsultationQuestionaire(true);
           setShowPreConsultationQuestionaire(false);
@@ -1570,8 +1769,9 @@ const DoctorRegistration2 = ({navigation}) => {
     let amp = {
       doctorId: doctorId,
       econsulationFees: eConsulationFees,
+      efollowUpFees: efollowUpFees,
       followUpDuration: Number(showFollowUp),
-      followUpFees: followUpFees,
+      physicalfollowUpFees: physicalfollowUpFees,
       physicalConsulationFees: physicalConsulationFees,
     };
 
@@ -2950,7 +3150,6 @@ const DoctorRegistration2 = ({navigation}) => {
                                 width: '100%',
                                 borderWidth: 0,
                                 padding: 0,
-                                margin: 0,
                                 backgroundColor: 'white',
                               }}
                               checkedColor={'#2b8ada'}
@@ -2962,8 +3161,43 @@ const DoctorRegistration2 = ({navigation}) => {
                             />
                           </View>
                         </View>
+                        <Text style={styles.inputLabel}>
+                          Experience Certificate
+                        </Text>
+                        <CustomButton
+                          text={
+                            expPhotoPath == 0
+                              ? 'Select Photo'
+                              : ' ✓ Photo Selected'
+                          }
+                          textstyle={{
+                            color: expPhotoPath == 0 ? '#2b8ada' : '#21c47f',
+                            fontSize: 12,
+                            fontWeight: 'bold',
+                          }}
+                          style={{
+                            backgroundColor: 'white',
+                            borderRadius: 12,
+                            padding: 6,
+                            paddingHorizontal: 10,
+                            borderWidth: 2,
+                            borderColor:
+                              expPhotoPath == 0 ? '#2b8ada' : '#21c47f',
+                          }}
+                          onPress={async () => {
+                            if (practiceAt == '')
+                              Alert.alert(
+                                'Incomplete Details!',
+                                'Please add Clinic/Hospital practice name',
+                              );
+                            else {
+                              await choosePhoto('Experience');
+                              //selectDocsIden();
+                            }
+                          }}
+                        />
                       </View>
-                      {/* Display  Experience */}
+                      {/* Display Experience */}
                       <View
                         style={{
                           flexDirection: 'row',
@@ -3004,25 +3238,33 @@ const DoctorRegistration2 = ({navigation}) => {
                             if (practiceAt == '')
                               Alert.alert(
                                 'Incomplete Details!',
-                                'Please add Clinic/Hospital Practise Name',
+                                'Please add Clinic/Hospital practice name',
                               );
                             else if (startExpDate == '')
                               Alert.alert(
                                 'Incomplete Details!',
-                                'Please Select Practise Start Date',
+                                'Please select practice start date',
                               );
                             else if (endExpDate == '' && checkPresent == false)
                               Alert.alert(
                                 'Incomplete Details!',
-                                'Please Select Practise End Date',
+                                'Please select practice end date',
+                              );
+                            else if (expPhotoPath == 0)
+                              Alert.alert(
+                                'Incomplete Details!',
+                                'Please upload experience certificate.',
                               );
                             else {
                               let p = {
-                                practiceAt: practiceAt,
-                                startDate: startExpDate,
+                                currentlyThere: checkPresent,
                                 endDate: endExpDate,
                                 experienceInMonths: experienceInMonths,
+                                experiencePhoto: expPhotoPath,
+                                practiceAt: practiceAt,
+                                startDate: startExpDate,
                               };
+                              console.log(p);
 
                               let arr = [...Experience];
                               arr.push(p);
@@ -3034,6 +3276,7 @@ const DoctorRegistration2 = ({navigation}) => {
                               setTotalYear('');
                               setTotalMonths('');
                               setcheckPresent(false);
+                              setexpPhotoPath(0);
                               setaddMoreExpDet(false);
                             }
                           }}
@@ -3093,27 +3336,6 @@ const DoctorRegistration2 = ({navigation}) => {
                       justifyContent: 'center',
                       width: '95%',
                     }}>
-                    {/* <CustomButton
-                      text={'Skip For Now'}
-                      textstyle={{fontSize: 12, color: '#2b8ada'}}
-                      style={[
-                        {
-                          flex: 0.5,
-                          borderColor: '#2b8ada',
-                          borderWidth: 1,
-                          padding: 5,
-                          borderRadius: 10,
-                        },
-                        Experience.length == 0
-                          ? {flex: 1, alignSelf: 'center', marginRight: ' 0%'}
-                          : null,
-                      ]}
-                      onPress={() => {
-                        setShowExpDet(false);
-                        setShowIdenDet(true);
-                        setdataSavedExpDet(false);
-                      }}
-                    /> */}
                     {Experience.length > 0 ? (
                       <CustomButton
                         text={'Save'}
@@ -3395,6 +3617,9 @@ const DoctorRegistration2 = ({navigation}) => {
                                 setidentificationNumber('');
                                 setidentificationType('');
                                 setidentificationPath(null);
+                                dataIdenDocs = dataIdenDocs.filter(item => {
+                                  return item.key != identificationType;
+                                });
                                 //console.log(IdentificationDocs);
                                 setaddMoreIdenDet(false);
                               }
@@ -3616,24 +3841,49 @@ const DoctorRegistration2 = ({navigation}) => {
                       <View style={{width: '95%', alignSelf: 'center'}}>
                         {/* Clinic Photo */}
 
-                        {/* <TouchableOpacity
-                          style={{
-                            backgroundColor: '#e8f0fe',
-                            padding: 10,
-                            justifyContent: 'center',
-                            borderRadius: 10,
-                            flexDirection: 'row',
+                        <TouchableOpacity
+                          style={[
+                            {
+                              backgroundColor: '#e8f0fe',
+                              padding: 10,
+                              justifyContent: 'center',
+                              borderRadius: 10,
+                              flexDirection: 'row',
+                            },
+                            clinicPhoto != null
+                              ? {
+                                  backgroundColor: 'white',
+                                  borderColor: '#21c47f',
+                                  borderWidth: 1,
+                                }
+                              : null,
+                          ]}
+                          onPress={async () => {
+                            if (clinicName != '') await choosePhoto('Clinic');
+                            else
+                              Alert.alert(
+                                'Incomplete Details!',
+                                'Please enter clinic name before uploading picture',
+                              );
                           }}>
-                          <FAIcon
-                            name="camera"
-                            color={'gray'}
-                            size={15}
-                            style={{marginRight: 5, alignSelf: 'center'}}
-                          />
-                          <Text style={{alignSelf: 'center', fontSize: 12}}>
-                            Upload Clinic Pic
+                          {clinicPhoto == null ? (
+                            <FAIcon
+                              name="camera"
+                              color={'gray'}
+                              size={15}
+                              style={{marginRight: 5, alignSelf: 'center'}}
+                            />
+                          ) : null}
+                          <Text
+                            style={[
+                              {alignSelf: 'center', fontSize: 12},
+                              clinicPhoto != null ? {color: '#21c47f'} : null,
+                            ]}>
+                            {clinicPhoto == null
+                              ? 'Upload Clinic Photo'
+                              : '✓ File Selected'}
                           </Text>
-                        </TouchableOpacity> */}
+                        </TouchableOpacity>
 
                         <View style={{flexDirection: 'column'}}>
                           <View style={{flexDirection: 'row'}}>
@@ -3699,11 +3949,11 @@ const DoctorRegistration2 = ({navigation}) => {
                                 'Incomplete Details!',
                                 'Please fill Clinic Name before saving',
                               );
-                            // else if (clinicPhoto == null)
-                            //   Alert.alert(
-                            //     'Incomplete Details!',
-                            //     'Please add Clinic Photo before saving',
-                            //   );
+                            else if (clinicPhoto == null)
+                              Alert.alert(
+                                'Incomplete Details!',
+                                'Please add Clinic Photo before saving',
+                              );
                             else if (!checkAlphabetOnly(clinicName)) {
                               Alert.alert(
                                 'Inavlid Input',
@@ -3725,6 +3975,7 @@ const DoctorRegistration2 = ({navigation}) => {
                                   clinicName: clinicName,
                                   clinicAddress: clinicAddress,
                                   specialInstruction: specialInstruction,
+                                  clinicPhoto: clinicPhoto,
                                 },
                               ];
                               if (
@@ -3741,6 +3992,7 @@ const DoctorRegistration2 = ({navigation}) => {
                                     clinicName: v.clinicName,
                                     clinicAddress: v.clinicAddress,
                                     specialInstruction: v.specialInstruction,
+                                    clinicPhoto: v.clinicPhoto,
                                   };
                                 });
                                 // console.log("newArr--------");
@@ -3749,6 +4001,7 @@ const DoctorRegistration2 = ({navigation}) => {
                                 setClinicAddress('');
                                 setClinicName('');
                                 setSpecialInstruction('');
+                                setClinicPhoto(null);
                                 setaddMoreAddInfo(false);
                                 // console.log("ClinicDet--------");
                                 // console.log(ClinicDet);
@@ -3889,7 +4142,7 @@ const DoctorRegistration2 = ({navigation}) => {
                         ? {color: '#2B8ADA'}
                         : null,
                     ]}>
-                    Pre Consultation Questionnaire
+                    Pre-Consultation Questions
                   </Text>
                   <FAIcon
                     name={
@@ -3925,7 +4178,7 @@ const DoctorRegistration2 = ({navigation}) => {
                         marginBottom: 10,
                       }}>
                       <Text style={[styles.inputLabel, {marginTop: 0}]}>
-                        Set PreConsultation Questionnaire
+                        Set Pre-Consultation Questions
                       </Text>
                       <SelectList
                         placeholder={showQuestions ? 'Yes' : 'No'}
@@ -3946,98 +4199,224 @@ const DoctorRegistration2 = ({navigation}) => {
                         data={dataShowQues}
                       />
                     </View>
-                    {questionareList.length > 0 ? (
-                      <View
-                        style={{
-                          marginBottom: 5,
-                          width: '95%',
-                          alignSelf: 'center',
-                        }}>
-                        {/* Heading */}
-                        <View
-                          style={{
-                            flexDirection: 'column',
-                            borderWidth: 1,
-                            borderColor: '#d3d3d3',
-                          }}>
-                          <View
-                            style={{
-                              flexDirection: 'row',
-                              justifyContent: 'space-between',
-                              margin: 0,
-                              padding: 0,
-                            }}>
-                            <View style={[styles.cellHeading, {flex: 0.3}]}>
-                              <Text style={styles.cellHeadingText}>S.No.</Text>
-                            </View>
-                            {/* <View style={styles.cellHeading}>
-                              <Text style={styles.cellHeadingText}>
-                                Speciality
-                              </Text>
-                            </View> */}
-                            <View style={styles.cellHeading}>
-                              <Text style={styles.cellHeadingText}>
-                                Question
-                              </Text>
-                            </View>
-
-                            <View
-                              style={{
-                                flex: 0.4,
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                paddingHorizontal: 1,
-                                paddingVertical: 1,
-                                backgroundColor: '#2b8ada',
-                              }}>
-                              <Text style={styles.cellHeadingText}>
-                                Actions
-                              </Text>
-                            </View>
-                          </View>
-                        </View>
-                        <RenderQuestion />
-                      </View>
-                    ) : null}
 
                     {showQuestions ? (
                       <View
-                        style={{flexDirection: 'column', marginVertical: 10}}>
-                        <TouchableOpacity
-                          style={[
-                            styles.textInput,
-                            {
-                              alignSelf: 'flex-end',
-                              flexDirection: 'row',
-                              borderColor: '#2b8ada',
-                              borderWidth: 1,
-                              padding: 5,
-                              paddingHorizontal: 10,
-                              backgroundColor: 'white',
-                            },
-                          ]}
-                          onPress={() => setQuestionare(true)}>
-                          <FAIcon
-                            name="plus"
-                            color={'#2b8ada'}
-                            size={15}
-                            style={{alignSelf: 'center', marginRight: 5}}
-                          />
-                          <Text
-                            style={[
-                              styles.label,
-                              {
+                        style={{
+                          width: '95%',
+                          alignSelf: 'center',
+                          marginBottom: 10,
+                        }}>
+                        {questionareList.length > 0 ? (
+                          <View style={{marginBottom: 5}}>
+                            {/* Heading */}
+                            <View
+                              style={{
+                                flexDirection: 'column',
+                                borderWidth: 1,
+                                borderColor: '#d3d3d3',
+                              }}>
+                              <View
+                                style={{
+                                  flexDirection: 'row',
+                                  justifyContent: 'space-between',
+                                  margin: 0,
+                                  padding: 0,
+                                }}>
+                                <View style={[styles.cellHeading, {flex: 0.3}]}>
+                                  <Text style={styles.cellHeadingText}>
+                                    S.No.
+                                  </Text>
+                                </View>
+                                {/* <View style={styles.cellHeading}>
+                                <Text style={styles.cellHeadingText}>
+                                  Speciality
+                                </Text>
+                              </View> */}
+                                <View style={styles.cellHeading}>
+                                  <Text style={styles.cellHeadingText}>
+                                    Question
+                                  </Text>
+                                </View>
+
+                                <View
+                                  style={{
+                                    flex: 0.4,
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    paddingHorizontal: 1,
+                                    paddingVertical: 1,
+                                    backgroundColor: '#2b8ada',
+                                  }}>
+                                  <Text style={styles.cellHeadingText}>
+                                    Actions
+                                  </Text>
+                                </View>
+                              </View>
+                            </View>
+                            <RenderQuestion />
+                          </View>
+                        ) : null}
+
+                        {questionareList.length == 0 ||
+                        addMorePreConsultationQuestionaire ? (
+                          <View>
+                            {/* <View>
+                            <Text style={[styles.inputLabel, {marginTop: 0}]}>
+                              Select Speciality
+                            </Text>
+                            <SelectList
+                              boxStyles={{
+                                backgroundColor: '#e8f0fe',
+                                borderWidth: 0,
+                              }}
+                              dropdownTextStyles={{
                                 color: '#2b8ada',
+                                fontWeight: 'bold',
+                              }}
+                              setSelected={setquestionSpl}
+                              data={splArray}
+                            />
+                          </View> */}
+                            <View
+                              style={{
+                                width: '100%',
                                 alignSelf: 'center',
-                                padding: 0,
-                                fontSize: 12,
-                              },
-                            ]}>
-                            Add Questions
-                          </Text>
-                        </TouchableOpacity>
+                                marginBottom: 5,
+                              }}>
+                              <Text
+                                style={[
+                                  styles.inputLabel,
+                                  {marginBottom: 5, color: 'black'},
+                                ]}>
+                                Question
+                              </Text>
+
+                              <View
+                                style={{
+                                  height: 80,
+                                  textAlignVertical: 'top',
+                                  width: '100%',
+                                  borderWidth: 1,
+                                  borderColor: 'gray',
+                                  borderRadius: 5,
+                                  alignSelf: 'center',
+                                  justifyContent: 'center',
+                                }}>
+                                <TextInput
+                                  returnKeyType="done"
+                                  placeholder="Write your Question Here..."
+                                  style={{
+                                    textAlign: 'left',
+                                    alignSelf: 'center',
+                                    width: '90%',
+                                    fontSize: 11,
+                                    height: 60,
+                                  }}
+                                  maxLength={50}
+                                  value={consultationQuestion}
+                                  onChangeText={text =>
+                                    setConsultationQuestion(text)
+                                  }
+                                  onSubmitEditing={() => {
+                                    // if (questionSpl == '')
+                                    //   Alert.alert(
+                                    //     'Incomplete Details!',
+                                    //     'Please select speciality before saving.',
+                                    //   );
+                                    if (consultationQuestion == '')
+                                      Alert.alert(
+                                        'Incomplete Details!',
+                                        'Please fill question before saving.',
+                                      );
+                                    else if (
+                                      consultationQuestion != '' &&
+                                      questionareList.length < 4
+                                    ) {
+                                      let p = {
+                                        questions: consultationQuestion,
+                                        //specialization: questionSpl,
+                                      };
+                                      let arr = [...questionareList];
+                                      arr.push(p);
+                                      setQuestionareList(arr);
+                                    } else if (questionareList.length == 4)
+                                      Alert.alert(
+                                        'Warning',
+                                        'You can only add max of 5 questions',
+                                      );
+                                    setConsultationQuestion('');
+                                  }}
+                                />
+                              </View>
+                            </View>
+                            <Text style={{fontSize: 10, color: '#2b8ada'}}>
+                              {' Note:- Max limit is 50 characters. '}
+                              {50 - consultationQuestion.length}{' '}
+                              {'characters left'}
+                            </Text>
+                            {/* <CustomButton
+                              text="Save"
+                              textstyle={{color: '#2B8ADA', fontSize: 10}}
+                              style={{
+                                borderColor: '#2B8ADA',
+                                borderWidth: 1,
+                                alignSelf: 'flex-end',
+                                marginVertical: 5,
+                                padding: 5,
+                                paddingHorizontal: 10,
+                                borderRadius: 5,
+                              }}
+                              onPress={() => {
+                                if (consultationQuestion == '')
+                                  Alert.alert(
+                                    'Incomplete Details!',
+                                    'Please fill question before saving.',
+                                  );
+                                else if (
+                                  consultationQuestion != '' &&
+                                  questionareList.length < 4
+                                ) {
+                                  let p = {
+                                    questions: consultationQuestion,
+                                    
+                                  };
+                                  let arr = [...questionareList];
+                                  arr.push(p);
+                                  setQuestionareList(arr);
+                                } else if (questionareList.length == 4)
+                                  Alert.alert(
+                                    'Warning',
+                                    'You can only add max of 5 questions',
+                                  );
+                                setConsultationQuestion('');
+                              }}
+                            /> */}
+                          </View>
+                        ) : (
+                          <View style={{flex: 1}}>
+                            <CustomButton
+                              text={'+ Add More'}
+                              textstyle={{color: '#2b8ada', fontSize: 10}}
+                              style={{
+                                alignSelf: 'flex-end',
+                                width: 80,
+                                borderColor: '#2b8ada',
+                                borderWidth: 1,
+                                borderRadius: 5,
+                                padding: 3,
+                                paddingHorizontal: 10,
+                                marginTop: 10,
+                              }}
+                              onPress={() =>
+                                setaddMorePreConsultationQuestionaire(true)
+                              }
+                            />
+                          </View>
+                        )}
                       </View>
                     ) : null}
+
                     <View
                       style={{
                         flexDirection: 'row-reverse',
@@ -4046,24 +4425,6 @@ const DoctorRegistration2 = ({navigation}) => {
                         justifyContent: 'center',
                         width: '95%',
                       }}>
-                      {/* <CustomButton
-                        text={'Skip For Now'}
-                        textstyle={{fontSize: 12, color: '#2b8ada'}}
-                        style={[
-                          {
-                            flex: 0.5,
-                            borderColor: '#2b8ada',
-                            borderWidth: 1,
-                            padding: 5,
-                            borderRadius: 10,
-                          },
-                        ]}
-                        onPress={() => {
-                          setShowPreConsultationQuestionaire(false);
-                          setShowConsultFees(true);
-                          setdataSavedAddInfo(false);
-                        }}
-                      /> */}
                       <CustomButton
                         text={'Save'}
                         textstyle={{color: 'white', fontSize: 12}}
@@ -4094,268 +4455,6 @@ const DoctorRegistration2 = ({navigation}) => {
                   </View>
                 </View>
               </View>
-            ) : null}
-            {questionare ? (
-              <Modal
-                animationType="slide"
-                transparent={true}
-                visible={questionare}
-                onRequestClose={() => {
-                  setQuestionare(!questionare);
-                }}>
-                <View
-                  style={{
-                    height: '100%',
-                    backgroundColor: 'rgba(0,0,0,0.8)',
-                    flexDirection: 'row',
-                    justifyContent: 'center',
-                  }}>
-                  <View
-                    style={[
-                      styles.modalView,
-                      {
-                        borderRadius: 10,
-                        padding: 15,
-                      },
-                    ]}>
-                    <View
-                      style={{
-                        width: '100%',
-                        alignSelf: 'center',
-                        marginBottom: 20,
-                        borderBottomWidth: 1,
-                        borderBottomColor: 'gray',
-                      }}>
-                      <Text
-                        style={{
-                          fontWeight: 'bold',
-                          fontSize: 14,
-                          padding: 5,
-                          color: 'black',
-                        }}>
-                        Add Questions
-                      </Text>
-                      <FAIcon
-                        name="window-close"
-                        color="black"
-                        size={26}
-                        style={{
-                          position: 'absolute',
-                          top: 0,
-                          right: 0,
-                        }}
-                        onPress={() => setQuestionare(false)}
-                      />
-                    </View>
-                    <View
-                      style={{
-                        width: '95%',
-                        alignSelf: 'center',
-                        marginBottom: 10,
-                      }}>
-                      {questionareList.length > 0 ? (
-                        <View style={{marginBottom: 5}}>
-                          {/* Heading */}
-                          <View
-                            style={{
-                              flexDirection: 'column',
-                              borderWidth: 1,
-                              borderColor: '#d3d3d3',
-                            }}>
-                            <View
-                              style={{
-                                flexDirection: 'row',
-                                justifyContent: 'space-between',
-                                margin: 0,
-                                padding: 0,
-                              }}>
-                              <View style={[styles.cellHeading, {flex: 0.3}]}>
-                                <Text style={styles.cellHeadingText}>
-                                  S.No.
-                                </Text>
-                              </View>
-                              {/* <View style={styles.cellHeading}>
-                                <Text style={styles.cellHeadingText}>
-                                  Speciality
-                                </Text>
-                              </View> */}
-                              <View style={styles.cellHeading}>
-                                <Text style={styles.cellHeadingText}>
-                                  Question
-                                </Text>
-                              </View>
-
-                              <View
-                                style={{
-                                  flex: 0.4,
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  paddingHorizontal: 1,
-                                  paddingVertical: 1,
-                                  backgroundColor: '#2b8ada',
-                                }}>
-                                <Text style={styles.cellHeadingText}>
-                                  Actions
-                                </Text>
-                              </View>
-                            </View>
-                          </View>
-                          <RenderQuestion />
-                        </View>
-                      ) : null}
-
-                      {questionareList.length == 0 ||
-                      addMorePreConsultationQuestionaire ? (
-                        <View>
-                          {/* <View>
-                            <Text style={[styles.inputLabel, {marginTop: 0}]}>
-                              Select Speciality
-                            </Text>
-                            <SelectList
-                              boxStyles={{
-                                backgroundColor: '#e8f0fe',
-                                borderWidth: 0,
-                              }}
-                              dropdownTextStyles={{
-                                color: '#2b8ada',
-                                fontWeight: 'bold',
-                              }}
-                              setSelected={setquestionSpl}
-                              data={splArray}
-                            />
-                          </View> */}
-                          <View
-                            style={{
-                              width: '100%',
-                              alignSelf: 'center',
-                              marginBottom: 5,
-                            }}>
-                            <Text
-                              style={[
-                                styles.inputLabel,
-                                {marginBottom: 5, color: 'black'},
-                              ]}>
-                              Question
-                            </Text>
-
-                            <View
-                              style={{
-                                height: 80,
-                                textAlignVertical: 'top',
-                                width: '100%',
-                                borderWidth: 1,
-                                borderColor: 'gray',
-                                borderRadius: 5,
-                                alignSelf: 'center',
-                                justifyContent: 'center',
-                              }}>
-                              <TextInput
-                                placeholder="Write your Question Here..."
-                                style={{
-                                  textAlign: 'left',
-                                  alignSelf: 'center',
-                                  width: '90%',
-                                  fontSize: 11,
-                                  height: 60,
-                                }}
-                                maxLength={50}
-                                value={consultationQuestion}
-                                onChangeText={text =>
-                                  setConsultationQuestion(text)
-                                }
-                              />
-                            </View>
-                          </View>
-                          <Text style={{fontSize: 10, color: '#2b8ada'}}>
-                            {' Note:- Max limit is 50 characters. '}
-                            {50 - consultationQuestion.length}{' '}
-                            {'characters left'}
-                          </Text>
-                          <CustomButton
-                            text="Save"
-                            textstyle={{color: '#2B8ADA', fontSize: 10}}
-                            style={{
-                              borderColor: '#2B8ADA',
-                              borderWidth: 1,
-                              alignSelf: 'flex-end',
-                              marginVertical: 5,
-                              padding: 5,
-                              paddingHorizontal: 10,
-                              borderRadius: 5,
-                            }}
-                            onPress={() => {
-                              // if (questionSpl == '')
-                              //   Alert.alert(
-                              //     'Incomplete Details!',
-                              //     'Please select speciality before saving.',
-                              //   );
-                              if (consultationQuestion == '')
-                                Alert.alert(
-                                  'Incomplete Details!',
-                                  'Please fill question before saving.',
-                                );
-                              else if (
-                                consultationQuestion != '' &&
-                                questionareList.length < 4
-                              ) {
-                                // questionareList.push({
-                                //   questions: consultationQuestion,
-                                //   speciality: questionSpl,
-                                // });
-                                let p = {
-                                  questions: consultationQuestion,
-                                  //specialization: questionSpl,
-                                };
-                                let arr = [...questionareList];
-                                arr.push(p);
-                                setQuestionareList(arr);
-                              } else if (questionareList.length == 4)
-                                Alert.alert(
-                                  'Warning',
-                                  'You can only add max of 5 questions',
-                                );
-                              setConsultationQuestion('');
-                            }}
-                          />
-                        </View>
-                      ) : (
-                        <View style={{flex: 1}}>
-                          <CustomButton
-                            text={'+ Add More'}
-                            textstyle={{color: '#2b8ada', fontSize: 10}}
-                            style={{
-                              alignSelf: 'flex-end',
-                              width: 80,
-                              borderColor: '#2b8ada',
-                              borderWidth: 1,
-                              borderRadius: 5,
-                              padding: 3,
-                              paddingHorizontal: 10,
-                              marginTop: 10,
-                            }}
-                            onPress={() =>
-                              setaddMorePreConsultationQuestionaire(true)
-                            }
-                          />
-                        </View>
-                      )}
-                    </View>
-
-                    <CustomButton
-                      text="Done"
-                      textstyle={{color: 'white'}}
-                      style={{
-                        width: '95%',
-                        backgroundColor: '#2B8ADA',
-                        marginVertical: 5,
-                        paddingVertical: 5,
-                        borderRadius: 10,
-                      }}
-                      onPress={() => setQuestionare(false)}
-                    />
-                  </View>
-                </View>
-              </Modal>
             ) : null}
 
             {/* Consultation Fees Label*/}
@@ -4429,6 +4528,7 @@ const DoctorRegistration2 = ({navigation}) => {
                     flexDirection: 'column',
                     marginBottom: 10,
                   }}>
+                  {/* Physical Consulation Fees */}
                   <View style={{flexDirection: 'row'}}>
                     <View
                       style={{
@@ -4452,6 +4552,7 @@ const DoctorRegistration2 = ({navigation}) => {
                       />
                     </View>
                   </View>
+                  {/* E-Consultation Fees */}
                   <View style={{flexDirection: 'row'}}>
                     <View
                       style={{
@@ -4475,27 +4576,7 @@ const DoctorRegistration2 = ({navigation}) => {
                       />
                     </View>
                   </View>
-                  <View style={{flexDirection: 'row'}}>
-                    <View
-                      style={{
-                        flexDirection: 'column',
-                        width: '100%',
-                      }}>
-                      <View style={{flexDirection: 'row'}}>
-                        <Text style={styles.inputLabel}>Follow-Up Fees </Text>
-                        <Text style={[styles.inputLabel, {color: 'red'}]}>
-                          ( in ₹ )
-                        </Text>
-                      </View>
-                      <TextInput
-                        style={[styles.textInput]}
-                        keyboardType={'number-pad'}
-                        maxLength={5}
-                        onChangeText={text => setfollowUpFees(text)}
-                        value={followUpFees}
-                      />
-                    </View>
-                  </View>
+                  {/* Follow-Up Duration */}
                   <View style={{flexDirection: 'row'}}>
                     <View
                       style={{
@@ -4529,7 +4610,54 @@ const DoctorRegistration2 = ({navigation}) => {
                       />
                     </View>
                   </View>
-
+                  {/* Physical Follow-Up Fees */}
+                  <View style={{flexDirection: 'row'}}>
+                    <View
+                      style={{
+                        flexDirection: 'column',
+                        width: '100%',
+                      }}>
+                      <View style={{flexDirection: 'row'}}>
+                        <Text style={styles.inputLabel}>
+                          Physical Follow-Up Fees{' '}
+                        </Text>
+                        <Text style={[styles.inputLabel, {color: 'red'}]}>
+                          ( in ₹ )
+                        </Text>
+                      </View>
+                      <TextInput
+                        style={[styles.textInput]}
+                        keyboardType={'number-pad'}
+                        maxLength={5}
+                        onChangeText={text => setphysicalfollowUpFees(text)}
+                        value={physicalfollowUpFees}
+                      />
+                    </View>
+                  </View>
+                  {/* E-Consultation Follow-Up Fees */}
+                  <View style={{flexDirection: 'row'}}>
+                    <View
+                      style={{
+                        flexDirection: 'column',
+                        width: '100%',
+                      }}>
+                      <View style={{flexDirection: 'row'}}>
+                        <Text style={styles.inputLabel}>
+                          E-Consultation Follow-Up Fees{' '}
+                        </Text>
+                        <Text style={[styles.inputLabel, {color: 'red'}]}>
+                          ( in ₹ )
+                        </Text>
+                      </View>
+                      <TextInput
+                        style={[styles.textInput]}
+                        keyboardType={'number-pad'}
+                        maxLength={5}
+                        onChangeText={text => setefollowUpFees(text)}
+                        value={efollowUpFees}
+                      />
+                    </View>
+                  </View>
                   <View
                     style={[
                       {
@@ -4540,23 +4668,6 @@ const DoctorRegistration2 = ({navigation}) => {
                         width: '100%',
                       },
                     ]}>
-                    {/* <CustomButton
-                      text={'Skip For Now'}
-                      textstyle={{fontSize: 12, color: '#2b8ada'}}
-                      style={[
-                        {
-                          flex: 0.5,
-                          borderColor: '#2b8ada',
-                          borderWidth: 1,
-                          padding: 5,
-                          borderRadius: 10,
-                        },
-                      ]}
-                      onPress={() => {
-                        setShowConsultFees(false);
-                        setdataSavedConsultFees(false);
-                      }}
-                    /> */}
                     <CustomButton
                       text={'Save'}
                       textstyle={{color: 'white', fontSize: 12}}
@@ -4578,15 +4689,20 @@ const DoctorRegistration2 = ({navigation}) => {
                             'Incomplete Details!',
                             'Please fill e-consultation fees before saving',
                           );
-                        else if (followUpFees == '')
+                        else if (physicalfollowUpFees == '')
                           Alert.alert(
                             'Incomplete Details!',
-                            'Please fill follow-up fees before saving',
+                            'Please fill physical follow-up fees before saving',
+                          );
+                        else if (efollowUpFees == '')
+                          Alert.alert(
+                            'Incomplete Details!',
+                            'Please fill e-consultation follow-up fees before saving',
                           );
                         else if (showFollowUp == '')
                           Alert.alert(
                             'Incomplete Details!',
-                            'Please add Follow-Up duration before uploading',
+                            'Please add follow-up duration before uploading',
                           );
                         else {
                           postConsultFees();
@@ -4648,7 +4764,346 @@ const DoctorRegistration2 = ({navigation}) => {
             />
           </View>
         </ScrollView>
-
+        {docsModal ? (
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={docsModal}
+            onRequestClose={() => {
+              setdocsModal(!docsModal);
+            }}>
+            <View
+              style={{
+                height: '100%',
+                backgroundColor: 'rgba(0,0,0,0.8)',
+                flexDirection: 'row',
+                justifyContent: 'center',
+              }}>
+              <View
+                style={[
+                  styles.modalView,
+                  {
+                    borderRadius: 10,
+                  },
+                ]}>
+                <View
+                  style={{
+                    width: '100%',
+                    alignSelf: 'center',
+                    borderBottomWidth: 1,
+                    borderBottomColor: 'gray',
+                  }}>
+                  <Text
+                    style={{
+                      fontWeight: 'bold',
+                      fontSize: 16,
+                      padding: 5,
+                      color: 'black',
+                    }}>
+                    Document Viewer
+                  </Text>
+                  <FAIcon
+                    name="window-close"
+                    color="black"
+                    size={26}
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      right: 0,
+                    }}
+                    onPress={() => {
+                      setdocsModal(false);
+                      setdocPath(null);
+                      setZoom(1);
+                    }}
+                  />
+                </View>
+                <View style={{minHeight: 150, width: '100%'}}>
+                  <View
+                    style={{
+                      padding: 10,
+                      width: '100%',
+                      alignSelf: 'center',
+                      borderRadius: 7,
+                      marginVertical: 10,
+                      borderWidth: 2,
+                      borderColor: 'gray',
+                    }}>
+                    <Pdf
+                      source={{
+                        uri: docPath,
+                      }}
+                      style={{
+                        width: '100%',
+                        height: 275,
+                        alignSelf: 'center',
+                      }}
+                      //onLoadComplete={() => console.log('fully loaded')}
+                      scale={zoom}
+                    />
+                  </View>
+                  <View style={{alignSelf: 'center', flexDirection: 'column'}}>
+                    {/* Zoom Controls */}
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignContent: 'center',
+                        justifyContent: 'space-evenly',
+                        width: '95%',
+                      }}>
+                      <TouchableOpacity>
+                        <FAIcon
+                          name="minus-circle"
+                          size={20}
+                          color={'gray'}
+                          onPress={onZoomOut}
+                        />
+                      </TouchableOpacity>
+                      <Text>
+                        {zoom * 100}
+                        {' %'}
+                      </Text>
+                      <TouchableOpacity>
+                        <FAIcon
+                          name="plus-circle"
+                          size={20}
+                          color={'gray'}
+                          onPress={onZoomIn}
+                        />
+                      </TouchableOpacity>
+                    </View>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignSelf: 'center',
+                        marginVertical: 5,
+                      }}>
+                      <Text
+                        style={{
+                          fontSize: 13,
+                          fontWeight: 'bold',
+                          color: 'black',
+                          marginRight: 3,
+                        }}>
+                        File Name:-
+                      </Text>
+                      {docPath != null ? (
+                        <Text
+                          style={{
+                            fontSize: 13,
+                            color: 'black',
+                          }}>
+                          {docPath.split('/').pop()}
+                        </Text>
+                      ) : null}
+                    </View>
+                    <View
+                      style={{
+                        width: '85%',
+                        alignSelf: 'center',
+                        marginTop: 5,
+                      }}></View>
+                    <CustomButton
+                      textstyle={{color: 'white', fontSize: 12}}
+                      text={'Download'}
+                      style={{
+                        backgroundColor: 'limegreen',
+                        borderRadius: 10,
+                      }}
+                      onPress={async () => {
+                        let fileName = docPath.split('/').pop();
+                        //console.log(fileName);
+                        await RNFS.copyFile(
+                          docPath,
+                          `file://${RNFS.DownloadDirectoryPath}/` + fileName,
+                        );
+                        Alert.alert(
+                          'Downloaded',
+                          `Document has been downloaded under the name of:- ${fileName}`,
+                        );
+                      }}
+                    />
+                  </View>
+                </View>
+              </View>
+            </View>
+          </Modal>
+        ) : null}
+        {ImageViewer ? (
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={ImageViewer}
+            onRequestClose={() => {
+              setImageViewer(!ImageViewer);
+            }}>
+            <View
+              style={{
+                height: '100%',
+                backgroundColor: 'rgba(0,0,0,0.8)',
+                flexDirection: 'row',
+                justifyContent: 'center',
+              }}>
+              <View
+                style={[
+                  styles.modalView,
+                  {
+                    borderRadius: 10,
+                    padding: 15,
+                  },
+                ]}>
+                <View
+                  style={{
+                    width: '100%',
+                    alignSelf: 'center',
+                    borderBottomWidth: 1,
+                    borderBottomColor: 'gray',
+                  }}>
+                  <Text
+                    style={{
+                      fontWeight: 'bold',
+                      fontSize: 16,
+                      padding: 5,
+                      color: 'black',
+                    }}>
+                    Image Viewer
+                  </Text>
+                  <FAIcon
+                    name="window-close"
+                    color="black"
+                    size={26}
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      right: 0,
+                    }}
+                    onPress={() => {
+                      setImageViewer(false);
+                      setDisplayPhotoToken(0);
+                      setZoom(1);
+                    }}
+                  />
+                </View>
+                <View style={{minHeight: 150, width: '100%'}}>
+                  <ScrollView
+                    style={{
+                      padding: 10,
+                      width: '100%',
+                      alignSelf: 'center',
+                      borderRadius: 7,
+                      marginVertical: 10,
+                      borderWidth: 2,
+                      borderColor: 'gray',
+                      minHeight: 200,
+                    }}
+                    scrollEnabled={true}>
+                    {DisplayPhotoToken == 0 ? (
+                      <Image
+                        source={waiting}
+                        style={{
+                          alignSelf: 'center',
+                        }}
+                      />
+                    ) : (
+                      <Image
+                        source={{
+                          uri: `${apiConfig.baseUrl}/file/download?fileToken=${DisplayPhotoToken}&userId=${doctorId}`,
+                        }}
+                        style={{
+                          resizeMode: 'cover',
+                          width: '100%',
+                          height: 180,
+                        }}
+                      />
+                    )}
+                  </ScrollView>
+                  {/* <View style={{alignSelf: 'center', flexDirection: 'column'}}>
+                    {/* Zoom Controls 
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignContent: 'center',
+                        justifyContent: 'space-evenly',
+                        width: '95%',
+                      }}>
+                      <TouchableOpacity>
+                        <FAIcon
+                          name="minus-circle"
+                          size={20}
+                          color={'gray'}
+                          onPress={onZoomOut}
+                        />
+                      </TouchableOpacity>
+                      <Text>
+                        {zoom * 100}
+                        {' %'}
+                      </Text>
+                      <TouchableOpacity>
+                        <FAIcon
+                          name="plus-circle"
+                          size={20}
+                          color={'gray'}
+                          onPress={onZoomIn}
+                        />
+                      </TouchableOpacity>
+                    </View>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignSelf: 'center',
+                        marginVertical: 5,
+                      }}>
+                      <Text
+                        style={{
+                          fontSize: 13,
+                          fontWeight: 'bold',
+                          color: 'black',
+                          marginRight: 3,
+                        }}>
+                        File Name:-
+                      </Text>
+                      {docPath != null ? (
+                        <Text
+                          style={{
+                            fontSize: 13,
+                            color: 'black',
+                          }}>
+                          {docPath.split('/').pop()}
+                        </Text>
+                      ) : null}
+                    </View>
+                    <View
+                      style={{
+                        width: '85%',
+                        alignSelf: 'center',
+                        marginTop: 5,
+                      }}></View>
+                    <CustomButton
+                      textstyle={{color: 'white', fontSize: 12}}
+                      text={'Download'}
+                      style={{
+                        backgroundColor: 'limegreen',
+                        borderRadius: 10,
+                      }}
+                      onPress={async () => {
+                        let fileName = docPath.split('/').pop();
+                        //console.log(fileName);
+                        await RNFS.copyFile(
+                          docPath,
+                          `file://${RNFS.DownloadDirectoryPath}/` + fileName,
+                        );
+                        Alert.alert(
+                          'Downloaded',
+                          `Document has been downloaded under the name of:- ${fileName}`,
+                        );
+                      }}
+                    />
+                  </View> */}
+                </View>
+              </View>
+            </View>
+          </Modal>
+        ) : null}
         {isLoading && (
           <View
             style={{
@@ -4811,6 +5266,255 @@ const DoctorRegistration2 = ({navigation}) => {
             </View>
           </View>
         )}
+        {questionare ? (
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={questionare}
+            onRequestClose={() => {
+              setQuestionare(!questionare);
+            }}>
+            <View
+              style={{
+                height: '100%',
+                backgroundColor: 'rgba(0,0,0,0.8)',
+                flexDirection: 'row',
+                justifyContent: 'center',
+              }}>
+              <View
+                style={[
+                  styles.modalView,
+                  {
+                    borderRadius: 10,
+                    padding: 15,
+                  },
+                ]}>
+                <View
+                  style={{
+                    width: '100%',
+                    alignSelf: 'center',
+                    marginBottom: 20,
+                    borderBottomWidth: 1,
+                    borderBottomColor: 'gray',
+                  }}>
+                  <Text
+                    style={{
+                      fontWeight: 'bold',
+                      fontSize: 14,
+                      padding: 5,
+                      color: 'black',
+                    }}>
+                    Add Questions
+                  </Text>
+                  <FAIcon
+                    name="window-close"
+                    color="black"
+                    size={26}
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      right: 0,
+                    }}
+                    onPress={() => setQuestionare(false)}
+                  />
+                </View>
+                <View
+                  style={{
+                    width: '95%',
+                    alignSelf: 'center',
+                    marginBottom: 10,
+                  }}>
+                  {questionareList.length > 0 ? (
+                    <View style={{marginBottom: 5}}>
+                      {/* Heading */}
+                      <View
+                        style={{
+                          flexDirection: 'column',
+                          borderWidth: 1,
+                          borderColor: '#d3d3d3',
+                        }}>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                            margin: 0,
+                            padding: 0,
+                          }}>
+                          <View style={[styles.cellHeading, {flex: 0.3}]}>
+                            <Text style={styles.cellHeadingText}>S.No.</Text>
+                          </View>
+                          {/* <View style={styles.cellHeading}>
+                                <Text style={styles.cellHeadingText}>
+                                  Speciality
+                                </Text>
+                              </View> */}
+                          <View style={styles.cellHeading}>
+                            <Text style={styles.cellHeadingText}>Question</Text>
+                          </View>
+
+                          <View
+                            style={{
+                              flex: 0.4,
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              paddingHorizontal: 1,
+                              paddingVertical: 1,
+                              backgroundColor: '#2b8ada',
+                            }}>
+                            <Text style={styles.cellHeadingText}>Actions</Text>
+                          </View>
+                        </View>
+                      </View>
+                      <RenderQuestion />
+                    </View>
+                  ) : null}
+
+                  {questionareList.length == 0 ||
+                  addMorePreConsultationQuestionaire ? (
+                    <View>
+                      {/* <View>
+                            <Text style={[styles.inputLabel, {marginTop: 0}]}>
+                              Select Speciality
+                            </Text>
+                            <SelectList
+                              boxStyles={{
+                                backgroundColor: '#e8f0fe',
+                                borderWidth: 0,
+                              }}
+                              dropdownTextStyles={{
+                                color: '#2b8ada',
+                                fontWeight: 'bold',
+                              }}
+                              setSelected={setquestionSpl}
+                              data={splArray}
+                            />
+                          </View> */}
+                      <View
+                        style={{
+                          width: '100%',
+                          alignSelf: 'center',
+                          marginBottom: 5,
+                        }}>
+                        <Text
+                          style={[
+                            styles.inputLabel,
+                            {marginBottom: 5, color: 'black'},
+                          ]}>
+                          Question
+                        </Text>
+
+                        <View
+                          style={{
+                            height: 80,
+                            textAlignVertical: 'top',
+                            width: '100%',
+                            borderWidth: 1,
+                            borderColor: 'gray',
+                            borderRadius: 5,
+                            alignSelf: 'center',
+                            justifyContent: 'center',
+                          }}>
+                          <TextInput
+                            placeholder="Write your Question Here..."
+                            style={{
+                              textAlign: 'left',
+                              alignSelf: 'center',
+                              width: '90%',
+                              fontSize: 11,
+                              height: 60,
+                            }}
+                            maxLength={50}
+                            value={consultationQuestion}
+                            onChangeText={text => setConsultationQuestion(text)}
+                          />
+                        </View>
+                      </View>
+                      <Text style={{fontSize: 10, color: '#2b8ada'}}>
+                        {' Note:- Max limit is 50 characters. '}
+                        {50 - consultationQuestion.length} {'characters left'}
+                      </Text>
+                      <CustomButton
+                        text="Save"
+                        textstyle={{color: '#2B8ADA', fontSize: 10}}
+                        style={{
+                          borderColor: '#2B8ADA',
+                          borderWidth: 1,
+                          alignSelf: 'flex-end',
+                          marginVertical: 5,
+                          padding: 5,
+                          paddingHorizontal: 10,
+                          borderRadius: 5,
+                        }}
+                        onPress={() => {
+                          // if (questionSpl == '')
+                          //   Alert.alert(
+                          //     'Incomplete Details!',
+                          //     'Please select speciality before saving.',
+                          //   );
+                          if (consultationQuestion == '')
+                            Alert.alert(
+                              'Incomplete Details!',
+                              'Please fill question before saving.',
+                            );
+                          else if (
+                            consultationQuestion != '' &&
+                            questionareList.length < 4
+                          ) {
+                            let p = {
+                              questions: consultationQuestion,
+                              //specialization: questionSpl,
+                            };
+                            let arr = [...questionareList];
+                            arr.push(p);
+                            setQuestionareList(arr);
+                          } else if (questionareList.length == 4)
+                            Alert.alert(
+                              'Warning',
+                              'You can only add max of 5 questions',
+                            );
+                          setConsultationQuestion('');
+                        }}
+                      />
+                    </View>
+                  ) : (
+                    <View style={{flex: 1}}>
+                      <CustomButton
+                        text={'+ Add More'}
+                        textstyle={{color: '#2b8ada', fontSize: 10}}
+                        style={{
+                          alignSelf: 'flex-end',
+                          width: 80,
+                          borderColor: '#2b8ada',
+                          borderWidth: 1,
+                          borderRadius: 5,
+                          padding: 3,
+                          paddingHorizontal: 10,
+                          marginTop: 10,
+                        }}
+                        onPress={() =>
+                          setaddMorePreConsultationQuestionaire(true)
+                        }
+                      />
+                    </View>
+                  )}
+                </View>
+
+                <CustomButton
+                  text="Done"
+                  textstyle={{color: 'white'}}
+                  style={{
+                    width: '95%',
+                    backgroundColor: '#2B8ADA',
+                    marginVertical: 5,
+                    paddingVertical: 5,
+                    borderRadius: 10,
+                  }}
+                  onPress={() => setQuestionare(false)}
+                />
+              </View>
+            </View>
+          </Modal>
+        ) : null}
       </SafeAreaView>
     </KeyboardAvoidingView>
   );

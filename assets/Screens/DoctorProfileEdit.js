@@ -219,9 +219,6 @@ const EditProfile = ({navigation}) => {
   };
 
   const downloadCache = async (fileToken, userId, fileName) => {
-    // let op = {};
-    // if (Platform.OS == 'ios') op = {NSURLIsExcludedFromBackupKey: true};
-    // await RNFS.mkdir(`file://${RNFS.DownloadDirectoryPath}/Arogya`, op);
     let filePath = `file://${RNFS.CachesDirectoryPath}/`;
     let options = {
       fromUrl:
@@ -234,12 +231,7 @@ const EditProfile = ({navigation}) => {
     };
     await RNFS.downloadFile(options)
       .promise.then(response => {
-        //console.log(response);
         if (response.statusCode == 200) {
-          //  Alert.alert(
-          //   'File Downloaded',
-          //   `The file is downloaded. File name is ${fileName}.`,
-          // );
           setdocPath(filePath + fileName);
         } else
           Alert.alert(
