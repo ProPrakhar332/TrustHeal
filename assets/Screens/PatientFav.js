@@ -471,7 +471,7 @@ function PatientFav({navigation}) {
           <TouchableOpacity
             style={{flex: 0.1}}
             onPress={() => removeFavourite(item)}>
-            <FAIcons name="heart" color={'#2b8ada'} solid={true} size={25} />
+            <FAIcons name="heart" color={'red'} solid={true} size={25} />
           </TouchableOpacity>
         </View>
       </View>
@@ -527,7 +527,7 @@ function PatientFav({navigation}) {
           <HeaderPatient showMenu={false} title={'Favourite'} />
 
           {/* Search Bar */}
-          <View style={styles.searchBar}>
+          {/* <View style={styles.searchBar}>
             <TextInput
               placeholder="Search"
               style={styles.searchBarText}
@@ -537,10 +537,10 @@ function PatientFav({navigation}) {
             <TouchableOpacity style={styles.searchIcon} onPress={() => {}}>
               <FAIcons name="search" size={15} color="gray" />
             </TouchableOpacity>
-          </View>
+          </View> */}
 
           {/* Buttons */}
-          <View
+          {/* <View
             style={{
               flexDirection: 'row',
               width: '95%',
@@ -572,740 +572,7 @@ function PatientFav({navigation}) {
               />
               <Text style={[styles.ButtonsText, {color: 'white'}]}>Filter</Text>
             </TouchableOpacity>
-            {SortBy ? (
-              <Modal
-                animationType="slide"
-                transparent={true}
-                visible={SortBy}
-                onRequestClose={() => {
-                  setSortBy(!SortBy);
-                }}>
-                <View
-                  style={{
-                    height: '100%',
-                    backgroundColor: 'rgba(0,0,0,0.8)',
-                    flexDirection: 'row',
-                    justifyContent: 'center',
-                  }}>
-                  <View
-                    style={[
-                      styles.modalView,
-                      {
-                        borderRadius: 10,
-                        padding: 15,
-                      },
-                    ]}>
-                    <View
-                      style={{
-                        width: '100%',
-                        alignSelf: 'center',
-                        marginBottom: 20,
-                        borderBottomWidth: 1,
-                        borderBottomColor: 'gray',
-                      }}>
-                      <Text
-                        style={{
-                          fontWeight: 'bold',
-                          fontSize: 16,
-                          padding: 5,
-                          color: 'black',
-                        }}>
-                        Sort By
-                      </Text>
-
-                      <FAIcons
-                        name="window-close"
-                        color="black"
-                        size={26}
-                        style={{
-                          position: 'absolute',
-                          top: 0,
-                          right: 0,
-                        }}
-                        onPress={() => {
-                          setSortByAvailability(false);
-                          setSortByExperience(false);
-                          setSortByPriceLH(false);
-                          setSortByPriceHL(false);
-                          setSortBy(false);
-                        }}
-                      />
-                    </View>
-                    {/* Options */}
-                    <View>
-                      {/* Availability */}
-                      <View style={[styles.SortOptionsView]}>
-                        <Text style={{color: 'black', flex: 1}}>
-                          Earliest Availability
-                        </Text>
-                        <CheckBoxIcon
-                          checkedColor="#2b8ada"
-                          checkedIcon="dot-circle-o"
-                          uncheckedIcon="circle-o"
-                          checked={SortByAvailability}
-                          onIconPress={() =>
-                            setSortByAvailability(!SortByAvailability)
-                          }
-                        />
-                      </View>
-                      {/* Experience */}
-                      <View style={[styles.SortOptionsView]}>
-                        <Text style={{color: 'black', flex: 1}}>
-                          Most Experience
-                        </Text>
-                        <CheckBoxIcon
-                          checkedColor="#2b8ada"
-                          checkedIcon="dot-circle-o"
-                          uncheckedIcon="circle-o"
-                          checked={SortByExperience}
-                          onIconPress={() =>
-                            setSortByExperience(!SortByExperience)
-                          }
-                        />
-                      </View>
-                      {/* Low to High */}
-                      <View style={[styles.SortOptionsView]}>
-                        <Text style={{color: 'black', flex: 1}}>
-                          Doctor Fees ( Low to High )
-                        </Text>
-                        <CheckBoxIcon
-                          checkedColor="#2b8ada"
-                          checkedIcon="dot-circle-o"
-                          uncheckedIcon="circle-o"
-                          checked={SortByPriceLH}
-                          onIconPress={() => {
-                            setSortByPriceLH(!SortByPriceLH);
-                            setSortByPriceHL(false);
-                          }}
-                        />
-                      </View>
-                      {/* High to Low */}
-                      <View style={[styles.SortOptionsView]}>
-                        <Text style={{color: 'black', flex: 1}}>
-                          Doctor Fees ( High to Low )
-                        </Text>
-                        <CheckBoxIcon
-                          checkedColor="#2b8ada"
-                          checkedIcon="dot-circle-o"
-                          uncheckedIcon="circle-o"
-                          checked={SortByPriceHL}
-                          onIconPress={() => {
-                            setSortByPriceLH(false);
-                            setSortByPriceHL(!SortByPriceHL);
-                          }}
-                        />
-                      </View>
-                    </View>
-                    {SortByAvailability ||
-                    SortByExperience ||
-                    SortByPriceHL ||
-                    SortByPriceLH ? (
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          justifyContent: 'space-evenly',
-                          width: '95%',
-                          alignSelf: 'center',
-                        }}>
-                        <CustomButton
-                          text={'Apply'}
-                          textstyle={{
-                            color: 'white',
-                            fontSize: 14,
-                            fontWeight: 'bold',
-                          }}
-                          style={{
-                            flex: 0.45,
-                            backgroundColor: '#2b8ada',
-                            borderRadius: 10,
-                            padding: 5,
-                            borderColor: '#2b8ada',
-                            borderWidth: 2,
-                          }}
-                          onPress={() => {
-                            setSortBy(false);
-                          }}
-                        />
-                        <CustomButton
-                          text={'Cancel'}
-                          textstyle={{
-                            color: '#2b8ada',
-                            fontSize: 14,
-                            fontWeight: 'bold',
-                          }}
-                          style={{
-                            flex: 0.45,
-                            borderColor: '#2b8ada',
-                            borderWidth: 2,
-                            borderRadius: 10,
-                            padding: 5,
-                          }}
-                          onPress={() => {
-                            setSortByAvailability(false);
-                            setSortByExperience(false);
-                            setSortByPriceLH(false);
-                            setSortByPriceHL(false);
-                            setSortBy(false);
-                          }}
-                        />
-                      </View>
-                    ) : null}
-                  </View>
-                </View>
-              </Modal>
-            ) : null}
-            {Filter ? (
-              <Modal
-                animationType="slide"
-                transparent={true}
-                visible={Filter}
-                onRequestClose={() => {
-                  setFilter(!Filter);
-                }}>
-                <View
-                  style={{
-                    flex: 1,
-                    backgroundColor: '#e8f0fe',
-                    flexDirection: 'column',
-                  }}>
-                  {/* Header */}
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      alignSelf: 'center',
-                      backgroundColor: 'black',
-                      width: '100%',
-                      height: '8%',
-                    }}>
-                    <TouchableOpacity
-                      style={{
-                        paddingHorizontal: 10,
-                        flex: 0.6,
-                        flexDirection: 'row',
-                      }}
-                      onPress={() => {
-                        setFilter(false);
-                        setFilterExperience(false);
-                        setFilterFees(false);
-                        setFilterSpl(false);
-                        setFilterLocation(false);
-                        setFilterGender(false);
-                        setFilterMode(false);
-                      }}>
-                      <FAIcons
-                        name="chevron-left"
-                        color={'white'}
-                        size={20}
-                        style={{alignSelf: 'center', marginRight: 10}}
-                      />
-                      <Text
-                        style={{
-                          color: 'white',
-                          fontSize: 16,
-                          fontWeight: 'bold',
-                          alignSelf: 'center',
-                        }}>
-                        Filter
-                      </Text>
-                    </TouchableOpacity>
-                    {/* Button Actions */}
-                    <View
-                      style={{
-                        flex: 0.3,
-                        flexDirection: 'row',
-                      }}>
-                      <CustomButton
-                        text={'Clear Filter'}
-                        textstyle={{
-                          color: '#2b8ada',
-                          fontWeight: 'bold',
-                          fontSize: 12,
-                        }}
-                        style={{
-                          backgroundColor: 'white',
-                          width: 100,
-                          paddingVertical: 5,
-                          margin: 15,
-                        }}
-                        onPress={() => {
-                          setFilterExperienceValue(null);
-                          setFilterExperienceValueMax(null);
-                          setFilterExperienceValueMin(null);
-                          setFilterFeesValue(null);
-                          setFilterFeesValueMax(null);
-                          setFilterFeesValueMin(null);
-                          setFilterSplValue(null);
-                          setFilterSplValueText(null);
-                          setFilterLocationValue(null);
-                          setFilterGenderValue(null);
-                          setFilterModeValue(null);
-                          setFilterExperience(true);
-                          setFilterFees(false);
-                          setFilterSpl(false);
-                          setFilterLocation(false);
-                          setFilterGender(false);
-                          setFilterMode(false);
-                          //setFilter(false);
-                        }}
-                      />
-                    </View>
-                  </View>
-                  {/* Body */}
-                  <View style={{flexDirection: 'row', height: '84%'}}>
-                    {/* Filter Labels */}
-                    <View
-                      style={{
-                        flexDirection: 'column',
-                        flex: 0.45,
-                        backgroundColor: '#e8f0fe',
-                        justifyContent: 'space-evenly',
-                      }}>
-                      {/* Experience Label */}
-                      <TouchableOpacity
-                        style={[
-                          styles.filterOptionsView,
-                          {
-                            backgroundColor: FilterExperience
-                              ? 'white'
-                              : '#e8f0fe',
-                          },
-                        ]}
-                        onPress={() => {
-                          setFilterExperience(true);
-                          setFilterFees(false);
-                          setFilterSpl(false);
-                          setFilterLocation(false);
-                          setFilterGender(false);
-                          setFilterMode(false);
-                        }}>
-                        <Text
-                          style={[
-                            styles.filterOptionsText,
-                            {color: FilterExperience ? '#2b8ada' : '#033158'},
-                          ]}>
-                          Experience
-                        </Text>
-                        {/* <FAIcons
-                          name={
-                            FilterExperience ? 'chevron-right' : 'chevron-down'
-                          }
-                          color={FilterExperience ? '#2b8ada' : '#033158'}
-                          size={20}
-                        /> */}
-                      </TouchableOpacity>
-                      {/* Fees Label */}
-                      <TouchableOpacity
-                        style={[
-                          styles.filterOptionsView,
-                          {
-                            backgroundColor: FilterFees ? 'white' : '#e8f0fe',
-                          },
-                        ]}
-                        onPress={() => {
-                          setFilterExperience(false);
-                          setFilterFees(true);
-                          setFilterSpl(false);
-                          setFilterLocation(false);
-                          setFilterGender(false);
-                          setFilterMode(false);
-                        }}>
-                        <Text
-                          style={[
-                            styles.filterOptionsText,
-                            {color: FilterFees ? '#2b8ada' : '#033158'},
-                          ]}>
-                          Doctor Fees
-                        </Text>
-                        {/* <FAIcons
-                          name={FilterFees ? 'chevron-right' : 'chevron-down'}
-                          color={FilterFees ? '#2b8ada' : '#033158'}
-                          size={20}
-                        /> */}
-                      </TouchableOpacity>
-                      {/* Specialization Label */}
-                      <TouchableOpacity
-                        style={[
-                          styles.filterOptionsView,
-                          {
-                            backgroundColor: FilterSpl ? 'white' : '#e8f0fe',
-                          },
-                        ]}
-                        onPress={() => {
-                          setFilterExperience(false);
-                          setFilterFees(false);
-                          setFilterSpl(true);
-                          setFilterLocation(false);
-                          setFilterGender(false);
-                          setFilterMode(false);
-                        }}>
-                        <Text
-                          style={[
-                            styles.filterOptionsText,
-                            {color: FilterSpl ? '#2b8ada' : '#033158'},
-                          ]}>
-                          Specialization
-                        </Text>
-                        {/* <FAIcons
-                          name={FilterSpl ? 'chevron-right' : 'chevron-down'}
-                          color={FilterSpl ? '#2b8ada' : '#033158'}
-                          size={20}
-                        /> */}
-                      </TouchableOpacity>
-                      {/* Location Label */}
-                      <TouchableOpacity
-                        style={[
-                          styles.filterOptionsView,
-                          {
-                            backgroundColor: FilterLocation
-                              ? 'white'
-                              : '#e8f0fe',
-                          },
-                        ]}
-                        onPress={() => {
-                          setFilterExperience(false);
-                          setFilterFees(false);
-                          setFilterSpl(false);
-                          setFilterLocation(true);
-                          setFilterGender(false);
-                          setFilterMode(false);
-                        }}>
-                        <Text
-                          style={[
-                            styles.filterOptionsText,
-                            {color: FilterLocation ? '#2b8ada' : '#033158'},
-                          ]}>
-                          Location
-                        </Text>
-                        {/* <FAIcons
-                          name={
-                            FilterLocation ? 'chevron-right' : 'chevron-down'
-                          }
-                          color={FilterLocation ? '#2b8ada' : '#033158'}
-                          size={20}
-                        /> */}
-                      </TouchableOpacity>
-                      {/* Gender Label */}
-                      <TouchableOpacity
-                        style={[
-                          styles.filterOptionsView,
-                          {
-                            backgroundColor: FilterGender ? 'white' : '#e8f0fe',
-                          },
-                        ]}
-                        onPress={() => {
-                          setFilterExperience(false);
-                          setFilterFees(false);
-                          setFilterSpl(false);
-                          setFilterLocation(false);
-                          setFilterGender(true);
-                          setFilterMode(false);
-                        }}>
-                        <Text
-                          style={[
-                            styles.filterOptionsText,
-                            {color: FilterGender ? '#2b8ada' : '#033158'},
-                          ]}>
-                          Gender
-                        </Text>
-                        {/* <FAIcons
-                          name={
-                            FilterGender ? 'chevron-right' : 'chevron-down'
-                          }
-                          color={FilterGender ? '#2b8ada' : '#033158'}
-                          size={20}
-                        /> */}
-                      </TouchableOpacity>
-                      {/* Mode Label */}
-                      <TouchableOpacity
-                        style={[
-                          styles.filterOptionsView,
-                          {
-                            backgroundColor: FilterMode ? 'white' : '#e8f0fe',
-                          },
-                        ]}
-                        onPress={() => {
-                          setFilterExperience(false);
-                          setFilterFees(false);
-                          setFilterSpl(false);
-                          setFilterLocation(false);
-                          setFilterGender(false);
-                          setFilterMode(true);
-                        }}>
-                        <Text
-                          style={[
-                            styles.filterOptionsText,
-                            {color: FilterMode ? '#2b8ada' : '#033158'},
-                          ]}>
-                          Mode
-                        </Text>
-                        {/* <FAIcons
-                          name={
-                            FilterMode ? 'chevron-right' : 'chevron-down'
-                          }
-                          color={FilterMode ? '#2b8ada' : '#033158'}
-                          size={20}
-                        /> */}
-                      </TouchableOpacity>
-                    </View>
-                    {/* Filter Values */}
-                    <View
-                      style={{
-                        flexDirection: 'column',
-                        flex: 0.55,
-                        backgroundColor: 'white',
-                      }}>
-                      {/* Experience Values */}
-                      {FilterExperience ? (
-                        <View style={{flexDirection: 'column'}}>
-                          <FlatList
-                            data={dataExp}
-                            key={item => item.min}
-                            renderItem={renderExperienceList}
-                          />
-                        </View>
-                      ) : null}
-                      {/* Fees Values */}
-                      {FilterFees ? (
-                        <View style={{flexDirection: 'column'}}>
-                          <FlatList
-                            data={dataFees}
-                            key={item => item.min}
-                            renderItem={renderFeesList}
-                          />
-                        </View>
-                      ) : null}
-                      {/* Specialization Values */}
-                      {FilterSpl && FilterSplValue != 'Other' ? (
-                        <View style={{flexDirection: 'column'}}>
-                          <FlatList
-                            data={data}
-                            key={item => item.key}
-                            renderItem={renderSpecialityList}
-                          />
-                        </View>
-                      ) : null}
-                      {/* Specialization Other Value */}
-                      {FilterSpl && FilterSplValue == 'Other' ? (
-                        <View style={{marginTop: 20, flexDirection: 'column'}}>
-                          <Text
-                            style={{
-                              fontSize: 14,
-                              fontWeight: 'bold',
-                              paddingBottom: 3,
-                              marginBottom: 3,
-                              color: '#2b8ada',
-                              borderBottomWidth: 2,
-                              borderBottomColor: '#2b8ada',
-                              width: '95%',
-                              alignSelf: 'center',
-                            }}>
-                            Other Speciality
-                          </Text>
-                          <TextInput
-                            placeholder="Enter Speciality"
-                            onChangeText={text => setFilterSplValueText(text)}
-                            maxLength={20}
-                            value={FilterSplValueText}
-                            style={{
-                              marginTop: 10,
-                              borderColor: '#2b8ada',
-                              borderWidth: 2,
-                              borderRadius: 10,
-                              paddingHorizontal: 15,
-                              width: '95%',
-                              alignSelf: 'center',
-                            }}
-                          />
-                          <View
-                            style={{
-                              flexDirection: 'row',
-                              marginTop: 10,
-                              width: '100%',
-                              justifyContent: 'space-evenly',
-                            }}>
-                            <CustomButton
-                              text={'Done'}
-                              textstyle={{color: 'white', fontSize: 12}}
-                              style={{
-                                borderColor: '#2b8ada',
-                                borderWidth: 1,
-                                backgroundColor: '#2b8ada',
-                                padding: 5,
-                                paddingHorizontal: 20,
-                                borderRadius: 10,
-                              }}
-                              onPress={() => {
-                                setFilterSpl(false);
-                                setFilterLocation(true);
-                              }}
-                            />
-                            <CustomButton
-                              text={'Cancel'}
-                              textstyle={{color: '#2b8ada', fontSize: 12}}
-                              style={{
-                                borderColor: '#2b8ada',
-                                borderWidth: 1,
-                                padding: 5,
-                                paddingHorizontal: 20,
-                                borderRadius: 10,
-                              }}
-                              onPress={() => setFilterSplValue(null)}
-                            />
-                          </View>
-                        </View>
-                      ) : null}
-                      {/* Location Value */}
-                      {FilterLocation ? (
-                        <View style={{marginTop: 20, flexDirection: 'column'}}>
-                          <Text
-                            style={{
-                              fontSize: 14,
-                              fontWeight: 'bold',
-                              paddingBottom: 3,
-                              marginBottom: 3,
-                              color: '#2b8ada',
-                              borderBottomWidth: 2,
-                              borderBottomColor: '#2b8ada',
-                              width: '95%',
-                              alignSelf: 'center',
-                            }}>
-                            Location
-                          </Text>
-                          <TextInput
-                            placeholder="Enter City Name"
-                            onChangeText={text => setFilterLocationValue(text)}
-                            maxLength={20}
-                            value={FilterLocationValue}
-                            style={{
-                              marginTop: 10,
-                              borderColor: '#2b8ada',
-                              borderWidth: 2,
-                              borderRadius: 10,
-                              paddingHorizontal: 15,
-                              width: '95%',
-                              alignSelf: 'center',
-                            }}
-                          />
-                          <View
-                            style={{
-                              flexDirection: 'row',
-                              marginTop: 10,
-                              width: '100%',
-                              justifyContent: 'space-evenly',
-                            }}>
-                            <CustomButton
-                              text={'Done'}
-                              textstyle={{color: 'white', fontSize: 12}}
-                              style={{
-                                borderColor: '#2b8ada',
-                                borderWidth: 1,
-                                backgroundColor: '#2b8ada',
-                                padding: 5,
-                                paddingHorizontal: 20,
-                                borderRadius: 10,
-                              }}
-                              onPress={() => {
-                                setFilterLocation(false);
-                                setFilterGender(true);
-                              }}
-                            />
-                            <CustomButton
-                              text={'Cancel'}
-                              textstyle={{color: '#2b8ada', fontSize: 12}}
-                              style={{
-                                borderColor: '#2b8ada',
-                                borderWidth: 1,
-                                padding: 5,
-                                paddingHorizontal: 20,
-                                borderRadius: 10,
-                              }}
-                              onPress={() => setFilterLocationValue(null)}
-                            />
-                          </View>
-                        </View>
-                      ) : null}
-                      {/* Gender Values */}
-                      {FilterGender ? (
-                        <View style={{flexDirection: 'column'}}>
-                          <FlatList
-                            data={dataGender}
-                            key={item => item.key}
-                            renderItem={renderGenderList}
-                          />
-                        </View>
-                      ) : null}
-                      {/* Gender Values */}
-                      {FilterMode ? (
-                        <View style={{flexDirection: 'column'}}>
-                          <FlatList
-                            data={dataMode}
-                            key={item => item.key}
-                            renderItem={renderModeList}
-                          />
-                        </View>
-                      ) : null}
-                    </View>
-                  </View>
-                  {/* Footer */}
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      alignSelf: 'center',
-                      backgroundColor: '#2b8ada',
-                      width: '100%',
-                      height: '8%',
-                    }}>
-                    {/* Result Details */}
-                    <View
-                      style={{
-                        justifyContent: 'center',
-                        paddingHorizontal: 10,
-                        flex: 0.6,
-                      }}>
-                      <Text
-                        style={{
-                          color: 'white',
-                          fontSize: 12,
-                          fontWeight: 'bold',
-                        }}>
-                        412152
-                      </Text>
-                      <Text
-                        style={{
-                          color: 'white',
-                          fontSize: 12,
-                          fontWeight: 'bold',
-                        }}>
-                        Doctors Found
-                      </Text>
-                    </View>
-                    {/* Button Actions */}
-                    <View
-                      style={{
-                        flex: 0.3,
-                        flexDirection: 'row',
-                      }}>
-                      <CustomButton
-                        text={'Apply'}
-                        textstyle={{
-                          color: '#2b8ada',
-                          fontWeight: 'bold',
-                          fontSize: 12,
-                        }}
-                        style={{
-                          backgroundColor: 'white',
-                          width: 100,
-                          paddingVertical: 5,
-                          margin: 15,
-                        }}
-                        onPress={() => setFilter(false)}
-                      />
-                    </View>
-                  </View>
-                </View>
-              </Modal>
-            ) : null}
-          </View>
+          </View> */}
 
           {/* Doctor Cards */}
           <View>
@@ -1369,6 +636,733 @@ function PatientFav({navigation}) {
             </View>
           </View>
         )}
+        {SortBy ? (
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={SortBy}
+            onRequestClose={() => {
+              setSortBy(!SortBy);
+            }}>
+            <View
+              style={{
+                height: '100%',
+                backgroundColor: 'rgba(0,0,0,0.8)',
+                flexDirection: 'row',
+                justifyContent: 'center',
+              }}>
+              <View
+                style={[
+                  styles.modalView,
+                  {
+                    borderRadius: 10,
+                    padding: 15,
+                  },
+                ]}>
+                <View
+                  style={{
+                    width: '100%',
+                    alignSelf: 'center',
+                    marginBottom: 20,
+                    borderBottomWidth: 1,
+                    borderBottomColor: 'gray',
+                  }}>
+                  <Text
+                    style={{
+                      fontWeight: 'bold',
+                      fontSize: 16,
+                      padding: 5,
+                      color: 'black',
+                    }}>
+                    Sort By
+                  </Text>
+
+                  <FAIcons
+                    name="window-close"
+                    color="black"
+                    size={26}
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      right: 0,
+                    }}
+                    onPress={() => {
+                      setSortByAvailability(false);
+                      setSortByExperience(false);
+                      setSortByPriceLH(false);
+                      setSortByPriceHL(false);
+                      setSortBy(false);
+                    }}
+                  />
+                </View>
+                {/* Options */}
+                <View>
+                  {/* Availability */}
+                  <View style={[styles.SortOptionsView]}>
+                    <Text style={{color: 'black', flex: 1}}>
+                      Earliest Availability
+                    </Text>
+                    <CheckBoxIcon
+                      checkedColor="#2b8ada"
+                      checkedIcon="dot-circle-o"
+                      uncheckedIcon="circle-o"
+                      checked={SortByAvailability}
+                      onIconPress={() =>
+                        setSortByAvailability(!SortByAvailability)
+                      }
+                    />
+                  </View>
+                  {/* Experience */}
+                  <View style={[styles.SortOptionsView]}>
+                    <Text style={{color: 'black', flex: 1}}>
+                      Most Experience
+                    </Text>
+                    <CheckBoxIcon
+                      checkedColor="#2b8ada"
+                      checkedIcon="dot-circle-o"
+                      uncheckedIcon="circle-o"
+                      checked={SortByExperience}
+                      onIconPress={() => setSortByExperience(!SortByExperience)}
+                    />
+                  </View>
+                  {/* Low to High */}
+                  <View style={[styles.SortOptionsView]}>
+                    <Text style={{color: 'black', flex: 1}}>
+                      Doctor Fees ( Low to High )
+                    </Text>
+                    <CheckBoxIcon
+                      checkedColor="#2b8ada"
+                      checkedIcon="dot-circle-o"
+                      uncheckedIcon="circle-o"
+                      checked={SortByPriceLH}
+                      onIconPress={() => {
+                        setSortByPriceLH(!SortByPriceLH);
+                        setSortByPriceHL(false);
+                      }}
+                    />
+                  </View>
+                  {/* High to Low */}
+                  <View style={[styles.SortOptionsView]}>
+                    <Text style={{color: 'black', flex: 1}}>
+                      Doctor Fees ( High to Low )
+                    </Text>
+                    <CheckBoxIcon
+                      checkedColor="#2b8ada"
+                      checkedIcon="dot-circle-o"
+                      uncheckedIcon="circle-o"
+                      checked={SortByPriceHL}
+                      onIconPress={() => {
+                        setSortByPriceLH(false);
+                        setSortByPriceHL(!SortByPriceHL);
+                      }}
+                    />
+                  </View>
+                </View>
+                {SortByAvailability ||
+                SortByExperience ||
+                SortByPriceHL ||
+                SortByPriceLH ? (
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-evenly',
+                      width: '95%',
+                      alignSelf: 'center',
+                    }}>
+                    <CustomButton
+                      text={'Apply'}
+                      textstyle={{
+                        color: 'white',
+                        fontSize: 14,
+                        fontWeight: 'bold',
+                      }}
+                      style={{
+                        flex: 0.45,
+                        backgroundColor: '#2b8ada',
+                        borderRadius: 10,
+                        padding: 5,
+                        borderColor: '#2b8ada',
+                        borderWidth: 2,
+                      }}
+                      onPress={() => {
+                        setSortBy(false);
+                      }}
+                    />
+                    <CustomButton
+                      text={'Cancel'}
+                      textstyle={{
+                        color: '#2b8ada',
+                        fontSize: 14,
+                        fontWeight: 'bold',
+                      }}
+                      style={{
+                        flex: 0.45,
+                        borderColor: '#2b8ada',
+                        borderWidth: 2,
+                        borderRadius: 10,
+                        padding: 5,
+                      }}
+                      onPress={() => {
+                        setSortByAvailability(false);
+                        setSortByExperience(false);
+                        setSortByPriceLH(false);
+                        setSortByPriceHL(false);
+                        setSortBy(false);
+                      }}
+                    />
+                  </View>
+                ) : null}
+              </View>
+            </View>
+          </Modal>
+        ) : null}
+        {Filter ? (
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={Filter}
+            onRequestClose={() => {
+              setFilter(!Filter);
+            }}>
+            <View
+              style={{
+                flex: 1,
+                backgroundColor: '#e8f0fe',
+                flexDirection: 'column',
+              }}>
+              {/* Header */}
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignSelf: 'center',
+                  backgroundColor: 'black',
+                  width: '100%',
+                  height: '8%',
+                }}>
+                <TouchableOpacity
+                  style={{
+                    paddingHorizontal: 10,
+                    flex: 0.6,
+                    flexDirection: 'row',
+                  }}
+                  onPress={() => {
+                    setFilter(false);
+                    setFilterExperience(false);
+                    setFilterFees(false);
+                    setFilterSpl(false);
+                    setFilterLocation(false);
+                    setFilterGender(false);
+                    setFilterMode(false);
+                  }}>
+                  <FAIcons
+                    name="chevron-left"
+                    color={'white'}
+                    size={20}
+                    style={{alignSelf: 'center', marginRight: 10}}
+                  />
+                  <Text
+                    style={{
+                      color: 'white',
+                      fontSize: 16,
+                      fontWeight: 'bold',
+                      alignSelf: 'center',
+                    }}>
+                    Filter
+                  </Text>
+                </TouchableOpacity>
+                {/* Button Actions */}
+                <View
+                  style={{
+                    flex: 0.3,
+                    flexDirection: 'row',
+                  }}>
+                  <CustomButton
+                    text={'Clear Filter'}
+                    textstyle={{
+                      color: '#2b8ada',
+                      fontWeight: 'bold',
+                      fontSize: 12,
+                    }}
+                    style={{
+                      backgroundColor: 'white',
+                      width: 100,
+                      paddingVertical: 5,
+                      margin: 15,
+                    }}
+                    onPress={() => {
+                      setFilterExperienceValue(null);
+                      setFilterExperienceValueMax(null);
+                      setFilterExperienceValueMin(null);
+                      setFilterFeesValue(null);
+                      setFilterFeesValueMax(null);
+                      setFilterFeesValueMin(null);
+                      setFilterSplValue(null);
+                      setFilterSplValueText(null);
+                      setFilterLocationValue(null);
+                      setFilterGenderValue(null);
+                      setFilterModeValue(null);
+                      setFilterExperience(true);
+                      setFilterFees(false);
+                      setFilterSpl(false);
+                      setFilterLocation(false);
+                      setFilterGender(false);
+                      setFilterMode(false);
+                      //setFilter(false);
+                    }}
+                  />
+                </View>
+              </View>
+              {/* Body */}
+              <View style={{flexDirection: 'row', height: '84%'}}>
+                {/* Filter Labels */}
+                <View
+                  style={{
+                    flexDirection: 'column',
+                    flex: 0.45,
+                    backgroundColor: '#e8f0fe',
+                    justifyContent: 'space-evenly',
+                  }}>
+                  {/* Experience Label */}
+                  <TouchableOpacity
+                    style={[
+                      styles.filterOptionsView,
+                      {
+                        backgroundColor: FilterExperience ? 'white' : '#e8f0fe',
+                      },
+                    ]}
+                    onPress={() => {
+                      setFilterExperience(true);
+                      setFilterFees(false);
+                      setFilterSpl(false);
+                      setFilterLocation(false);
+                      setFilterGender(false);
+                      setFilterMode(false);
+                    }}>
+                    <Text
+                      style={[
+                        styles.filterOptionsText,
+                        {color: FilterExperience ? '#2b8ada' : '#033158'},
+                      ]}>
+                      Experience
+                    </Text>
+                    {/* <FAIcons
+                          name={
+                            FilterExperience ? 'chevron-right' : 'chevron-down'
+                          }
+                          color={FilterExperience ? '#2b8ada' : '#033158'}
+                          size={20}
+                        /> */}
+                  </TouchableOpacity>
+                  {/* Fees Label */}
+                  <TouchableOpacity
+                    style={[
+                      styles.filterOptionsView,
+                      {
+                        backgroundColor: FilterFees ? 'white' : '#e8f0fe',
+                      },
+                    ]}
+                    onPress={() => {
+                      setFilterExperience(false);
+                      setFilterFees(true);
+                      setFilterSpl(false);
+                      setFilterLocation(false);
+                      setFilterGender(false);
+                      setFilterMode(false);
+                    }}>
+                    <Text
+                      style={[
+                        styles.filterOptionsText,
+                        {color: FilterFees ? '#2b8ada' : '#033158'},
+                      ]}>
+                      Doctor Fees
+                    </Text>
+                    {/* <FAIcons
+                          name={FilterFees ? 'chevron-right' : 'chevron-down'}
+                          color={FilterFees ? '#2b8ada' : '#033158'}
+                          size={20}
+                        /> */}
+                  </TouchableOpacity>
+                  {/* Specialization Label */}
+                  <TouchableOpacity
+                    style={[
+                      styles.filterOptionsView,
+                      {
+                        backgroundColor: FilterSpl ? 'white' : '#e8f0fe',
+                      },
+                    ]}
+                    onPress={() => {
+                      setFilterExperience(false);
+                      setFilterFees(false);
+                      setFilterSpl(true);
+                      setFilterLocation(false);
+                      setFilterGender(false);
+                      setFilterMode(false);
+                    }}>
+                    <Text
+                      style={[
+                        styles.filterOptionsText,
+                        {color: FilterSpl ? '#2b8ada' : '#033158'},
+                      ]}>
+                      Specialization
+                    </Text>
+                    {/* <FAIcons
+                          name={FilterSpl ? 'chevron-right' : 'chevron-down'}
+                          color={FilterSpl ? '#2b8ada' : '#033158'}
+                          size={20}
+                        /> */}
+                  </TouchableOpacity>
+                  {/* Location Label */}
+                  <TouchableOpacity
+                    style={[
+                      styles.filterOptionsView,
+                      {
+                        backgroundColor: FilterLocation ? 'white' : '#e8f0fe',
+                      },
+                    ]}
+                    onPress={() => {
+                      setFilterExperience(false);
+                      setFilterFees(false);
+                      setFilterSpl(false);
+                      setFilterLocation(true);
+                      setFilterGender(false);
+                      setFilterMode(false);
+                    }}>
+                    <Text
+                      style={[
+                        styles.filterOptionsText,
+                        {color: FilterLocation ? '#2b8ada' : '#033158'},
+                      ]}>
+                      Location
+                    </Text>
+                    {/* <FAIcons
+                          name={
+                            FilterLocation ? 'chevron-right' : 'chevron-down'
+                          }
+                          color={FilterLocation ? '#2b8ada' : '#033158'}
+                          size={20}
+                        /> */}
+                  </TouchableOpacity>
+                  {/* Gender Label */}
+                  <TouchableOpacity
+                    style={[
+                      styles.filterOptionsView,
+                      {
+                        backgroundColor: FilterGender ? 'white' : '#e8f0fe',
+                      },
+                    ]}
+                    onPress={() => {
+                      setFilterExperience(false);
+                      setFilterFees(false);
+                      setFilterSpl(false);
+                      setFilterLocation(false);
+                      setFilterGender(true);
+                      setFilterMode(false);
+                    }}>
+                    <Text
+                      style={[
+                        styles.filterOptionsText,
+                        {color: FilterGender ? '#2b8ada' : '#033158'},
+                      ]}>
+                      Gender
+                    </Text>
+                    {/* <FAIcons
+                          name={
+                            FilterGender ? 'chevron-right' : 'chevron-down'
+                          }
+                          color={FilterGender ? '#2b8ada' : '#033158'}
+                          size={20}
+                        /> */}
+                  </TouchableOpacity>
+                  {/* Mode Label */}
+                  <TouchableOpacity
+                    style={[
+                      styles.filterOptionsView,
+                      {
+                        backgroundColor: FilterMode ? 'white' : '#e8f0fe',
+                      },
+                    ]}
+                    onPress={() => {
+                      setFilterExperience(false);
+                      setFilterFees(false);
+                      setFilterSpl(false);
+                      setFilterLocation(false);
+                      setFilterGender(false);
+                      setFilterMode(true);
+                    }}>
+                    <Text
+                      style={[
+                        styles.filterOptionsText,
+                        {color: FilterMode ? '#2b8ada' : '#033158'},
+                      ]}>
+                      Mode
+                    </Text>
+                    {/* <FAIcons
+                          name={
+                            FilterMode ? 'chevron-right' : 'chevron-down'
+                          }
+                          color={FilterMode ? '#2b8ada' : '#033158'}
+                          size={20}
+                        /> */}
+                  </TouchableOpacity>
+                </View>
+                {/* Filter Values */}
+                <View
+                  style={{
+                    flexDirection: 'column',
+                    flex: 0.55,
+                    backgroundColor: 'white',
+                  }}>
+                  {/* Experience Values */}
+                  {FilterExperience ? (
+                    <View style={{flexDirection: 'column'}}>
+                      <FlatList
+                        data={dataExp}
+                        key={item => item.min}
+                        renderItem={renderExperienceList}
+                      />
+                    </View>
+                  ) : null}
+                  {/* Fees Values */}
+                  {FilterFees ? (
+                    <View style={{flexDirection: 'column'}}>
+                      <FlatList
+                        data={dataFees}
+                        key={item => item.min}
+                        renderItem={renderFeesList}
+                      />
+                    </View>
+                  ) : null}
+                  {/* Specialization Values */}
+                  {FilterSpl && FilterSplValue != 'Other' ? (
+                    <View style={{flexDirection: 'column'}}>
+                      <FlatList
+                        data={data}
+                        key={item => item.key}
+                        renderItem={renderSpecialityList}
+                      />
+                    </View>
+                  ) : null}
+                  {/* Specialization Other Value */}
+                  {FilterSpl && FilterSplValue == 'Other' ? (
+                    <View style={{marginTop: 20, flexDirection: 'column'}}>
+                      <Text
+                        style={{
+                          fontSize: 14,
+                          fontWeight: 'bold',
+                          paddingBottom: 3,
+                          marginBottom: 3,
+                          color: '#2b8ada',
+                          borderBottomWidth: 2,
+                          borderBottomColor: '#2b8ada',
+                          width: '95%',
+                          alignSelf: 'center',
+                        }}>
+                        Other Speciality
+                      </Text>
+                      <TextInput
+                        placeholder="Enter Speciality"
+                        onChangeText={text => setFilterSplValueText(text)}
+                        maxLength={20}
+                        value={FilterSplValueText}
+                        style={{
+                          marginTop: 10,
+                          borderColor: '#2b8ada',
+                          borderWidth: 2,
+                          borderRadius: 10,
+                          paddingHorizontal: 15,
+                          width: '95%',
+                          alignSelf: 'center',
+                        }}
+                      />
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          marginTop: 10,
+                          width: '100%',
+                          justifyContent: 'space-evenly',
+                        }}>
+                        <CustomButton
+                          text={'Done'}
+                          textstyle={{color: 'white', fontSize: 12}}
+                          style={{
+                            borderColor: '#2b8ada',
+                            borderWidth: 1,
+                            backgroundColor: '#2b8ada',
+                            padding: 5,
+                            paddingHorizontal: 20,
+                            borderRadius: 10,
+                          }}
+                          onPress={() => {
+                            setFilterSpl(false);
+                            setFilterLocation(true);
+                          }}
+                        />
+                        <CustomButton
+                          text={'Cancel'}
+                          textstyle={{color: '#2b8ada', fontSize: 12}}
+                          style={{
+                            borderColor: '#2b8ada',
+                            borderWidth: 1,
+                            padding: 5,
+                            paddingHorizontal: 20,
+                            borderRadius: 10,
+                          }}
+                          onPress={() => setFilterSplValue(null)}
+                        />
+                      </View>
+                    </View>
+                  ) : null}
+                  {/* Location Value */}
+                  {FilterLocation ? (
+                    <View style={{marginTop: 20, flexDirection: 'column'}}>
+                      <Text
+                        style={{
+                          fontSize: 14,
+                          fontWeight: 'bold',
+                          paddingBottom: 3,
+                          marginBottom: 3,
+                          color: '#2b8ada',
+                          borderBottomWidth: 2,
+                          borderBottomColor: '#2b8ada',
+                          width: '95%',
+                          alignSelf: 'center',
+                        }}>
+                        Location
+                      </Text>
+                      <TextInput
+                        placeholder="Enter City Name"
+                        onChangeText={text => setFilterLocationValue(text)}
+                        maxLength={20}
+                        value={FilterLocationValue}
+                        style={{
+                          marginTop: 10,
+                          borderColor: '#2b8ada',
+                          borderWidth: 2,
+                          borderRadius: 10,
+                          paddingHorizontal: 15,
+                          width: '95%',
+                          alignSelf: 'center',
+                        }}
+                      />
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          marginTop: 10,
+                          width: '100%',
+                          justifyContent: 'space-evenly',
+                        }}>
+                        <CustomButton
+                          text={'Done'}
+                          textstyle={{color: 'white', fontSize: 12}}
+                          style={{
+                            borderColor: '#2b8ada',
+                            borderWidth: 1,
+                            backgroundColor: '#2b8ada',
+                            padding: 5,
+                            paddingHorizontal: 20,
+                            borderRadius: 10,
+                          }}
+                          onPress={() => {
+                            setFilterLocation(false);
+                            setFilterGender(true);
+                          }}
+                        />
+                        <CustomButton
+                          text={'Cancel'}
+                          textstyle={{color: '#2b8ada', fontSize: 12}}
+                          style={{
+                            borderColor: '#2b8ada',
+                            borderWidth: 1,
+                            padding: 5,
+                            paddingHorizontal: 20,
+                            borderRadius: 10,
+                          }}
+                          onPress={() => setFilterLocationValue(null)}
+                        />
+                      </View>
+                    </View>
+                  ) : null}
+                  {/* Gender Values */}
+                  {FilterGender ? (
+                    <View style={{flexDirection: 'column'}}>
+                      <FlatList
+                        data={dataGender}
+                        key={item => item.key}
+                        renderItem={renderGenderList}
+                      />
+                    </View>
+                  ) : null}
+                  {/* Gender Values */}
+                  {FilterMode ? (
+                    <View style={{flexDirection: 'column'}}>
+                      <FlatList
+                        data={dataMode}
+                        key={item => item.key}
+                        renderItem={renderModeList}
+                      />
+                    </View>
+                  ) : null}
+                </View>
+              </View>
+              {/* Footer */}
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignSelf: 'center',
+                  backgroundColor: '#2b8ada',
+                  width: '100%',
+                  height: '8%',
+                }}>
+                {/* Result Details */}
+                <View
+                  style={{
+                    justifyContent: 'center',
+                    paddingHorizontal: 10,
+                    flex: 0.6,
+                  }}>
+                  <Text
+                    style={{
+                      color: 'white',
+                      fontSize: 12,
+                      fontWeight: 'bold',
+                    }}>
+                    412152
+                  </Text>
+                  <Text
+                    style={{
+                      color: 'white',
+                      fontSize: 12,
+                      fontWeight: 'bold',
+                    }}>
+                    Doctors Found
+                  </Text>
+                </View>
+                {/* Button Actions */}
+                <View
+                  style={{
+                    flex: 0.3,
+                    flexDirection: 'row',
+                  }}>
+                  <CustomButton
+                    text={'Apply'}
+                    textstyle={{
+                      color: '#2b8ada',
+                      fontWeight: 'bold',
+                      fontSize: 12,
+                    }}
+                    style={{
+                      backgroundColor: 'white',
+                      width: 100,
+                      paddingVertical: 5,
+                      margin: 15,
+                    }}
+                    onPress={() => setFilter(false)}
+                  />
+                </View>
+              </View>
+            </View>
+          </Modal>
+        ) : null}
       </SafeAreaView>
     </KeyboardAvoidingView>
   );

@@ -1364,6 +1364,7 @@ function PatientProfile({navigation}) {
                         justifyContent: 'center',
                         alignSelf: 'center',
                         padding: 15,
+                        minHeight: 200,
                       },
                     ]}>
                     <View
@@ -1398,235 +1399,38 @@ function PatientProfile({navigation}) {
                         }}
                       />
                     </View>
-
-                    {familyMembers != '' ? (
-                      <RenderFamily />
-                    ) : (
-                      <Text
-                        style={{
-                          alignSelf: 'center',
-                          color: 'black',
-                          marginVertical: 10,
-                        }}>
-                        No Family Member Added
-                      </Text>
-                    )}
-                    {addMore ? (
-                      <View
-                        style={{
-                          // borderWidth: 1,
-                          // borderColor: '#2B8ADA',
-                          flexDirection: 'column',
-                          width: '100%',
-                          marginVertical: 10,
-                          borderRadius: 5,
-                        }}>
+                    <ScrollView
+                      style={{
+                        minHeight: 150,
+                        maxHeight: 300,
+                        width: '95%',
+                        marginBottom: 20,
+                      }}>
+                      {familyMembers != '' ? (
+                        <RenderFamily />
+                      ) : (
                         <Text
                           style={{
-                            marginTop: 5,
-                            fontWeight: 'bold',
-                            fontSize: 15,
-                            color: '#000080',
-                            borderBottomWidth: 1,
-                            borderBottomColor: '#000080',
-                            width: '90%',
                             alignSelf: 'center',
+                            color: 'black',
+                            marginVertical: 10,
                           }}>
-                          Basic Details
+                          No Family Member Added
                         </Text>
-                        <View style={{width: '95%', alignSelf: 'center'}}>
-                          <View
-                            style={{
-                              flexDirection: 'row',
-                              justifyContent: 'space-evenly',
-                              marginTop: 5,
-                            }}>
-                            <View
-                              style={[{flex: 0.95}, styles.detailsTextView]}>
-                              <Text style={[styles.inputLabel, {marginTop: 0}]}>
-                                Name
-                              </Text>
-                              <TextInput
-                                style={styles.detailsTextInput}
-                                placeholder="Name"
-                                onChangeText={text => setfamMemName(text)}
-                                value={famMemName}
-                              />
-                            </View>
-                          </View>
-                          <View
-                            style={{
-                              flexDirection: 'row',
-                              justifyContent: 'space-evenly',
-                            }}>
-                            <View
-                              style={[{flex: 0.45}, styles.detailsTextView]}>
-                              <Text style={[styles.inputLabel, {marginTop: 0}]}>
-                                Email
-                              </Text>
-                              <TextInput
-                                style={styles.detailsTextInput}
-                                placeholder="Email"
-                                onChangeText={text => setfamMemEmail(text)}
-                                value={famMemEmail}
-                                keyboardType={'email-address'}
-                              />
-                            </View>
-                            <View
-                              style={[{flex: 0.45}, styles.detailsTextView]}>
-                              <Text style={[styles.inputLabel, {marginTop: 0}]}>
-                                Mobile Number
-                              </Text>
-                              <TextInput
-                                style={[styles.detailsTextInput, {flex: 0.7}]}
-                                placeholder="Mobile Number"
-                                onChangeText={text => setfamMemMobile(text)}
-                                value={famMemMobile}
-                                keyboardType={'number-pad'}
-                                maxLength={10}
-                              />
-                            </View>
-                          </View>
-                          <View
-                            style={{
-                              flexDirection: 'row',
-
-                              justifyContent: 'space-evenly',
-                              //flex: 1,
-                            }}>
-                            <View
-                              style={[{flex: 0.45}, styles.detailsTextView]}>
-                              <Text style={[styles.inputLabel, {marginTop: 0}]}>
-                                Relation
-                              </Text>
-                              <SelectList
-                                placeholder={
-                                  famMemRelation == '' ? ' ' : famMemRelation
-                                }
-                                setSelected={val => setfamMemRelation(val)}
-                                data={dataRelations}
-                                save="value"
-                                boxStyles={[
-                                  {
-                                    backgroundColor: '#E8F0FE',
-                                    borderWidth: 0,
-                                    borderRadius: 5,
-                                  },
-                                ]}
-                                dropdownStyles={{
-                                  backgroundColor: 'white',
-                                  zIndex: 1,
-                                }}
-                                dropdownTextStyles={{
-                                  color: '#2b8ada',
-                                  fontWeight: 'bold',
-                                }}
-                                badgeStyles={{backgroundColor: '#2b8ada'}}
-                              />
-                            </View>
-                            <View
-                              style={[styles.detailsTextView, {flex: 0.45}]}>
-                              <Text style={[styles.inputLabel, {marginTop: 0}]}>
-                                Gender
-                              </Text>
-                              <SelectList
-                                placeholder={
-                                  famMemGender == '' ? ' ' : famMemGender
-                                }
-                                setSelected={val => setfamMemGender(val)}
-                                data={dataGender}
-                                save="value"
-                                boxStyles={[
-                                  {
-                                    backgroundColor: '#E8F0FE',
-                                    borderWidth: 0,
-                                    borderRadius: 5,
-                                  },
-                                ]}
-                                dropdownStyles={{
-                                  backgroundColor: 'white',
-                                  zIndex: 1,
-                                }}
-                                dropdownTextStyles={{
-                                  color: '#2b8ada',
-                                  fontWeight: 'bold',
-                                }}
-                                badgeStyles={{backgroundColor: '#2b8ada'}}
-                              />
-                            </View>
-                          </View>
-
-                          <View
-                            style={{
-                              flexDirection: 'row',
-                              justifyContent: 'space-evenly',
-                            }}>
-                            <View
-                              style={[styles.detailsTextView, {flex: 0.45}]}>
-                              <Text style={[styles.inputLabel, {marginTop: 0}]}>
-                                City
-                              </Text>
-                              <TextInput
-                                style={styles.detailsTextInput}
-                                placeholder="City"
-                                onChangeText={text => setfamMemCity(text)}
-                                value={famMemCity}
-                              />
-                            </View>
-                            <View
-                              style={[{flex: 0.45}, styles.detailsTextView]}>
-                              <Text style={[styles.inputLabel, {marginTop: 0}]}>
-                                Date of Birth
-                              </Text>
-                              <View
-                                style={{
-                                  flexDirection: 'row',
-                                  justifyContent: 'space-evenly',
-                                  backgroundColor: '#E8F0FE',
-                                  borderRadius: 5,
-                                }}>
-                                <TextInput
-                                  style={[styles.detailsTextInput, {flex: 0.7}]}
-                                  placeholder="Date Of Birth"
-                                  value={
-                                    famMemDob == ''
-                                      ? ''
-                                      : dayjs(famMemDob).format('DD-MM-YYYY')
-                                  }
-                                  editable={false}
-                                />
-                                <FAIcon
-                                  name="calendar-alt"
-                                  size={20}
-                                  color={'gray'}
-                                  style={{flex: 0.3, alignSelf: 'center'}}
-                                  onPress={() => {
-                                    showDatePicker();
-                                  }}
-                                />
-                                <DateTimePickerModal
-                                  isVisible={isDatePickerVisible}
-                                  mode="date"
-                                  display="spinner"
-                                  onConfirm={handleConfirm}
-                                  onCancel={hideDatePicker}
-                                  maximumDate={new Date()}
-                                  minimumDate={new Date('1940-01-01')}
-                                />
-                              </View>
-                            </View>
-                          </View>
-                        </View>
-
+                      )}
+                      {addMore ? (
                         <View
                           style={{
-                            marginTop: 5,
-                            width: '95%',
-                            alignSelf: 'center',
+                            // borderWidth: 1,
+                            // borderColor: '#2B8ADA',
                             flexDirection: 'column',
+                            width: '100%',
+                            marginVertical: 10,
+                            borderRadius: 5,
                           }}>
                           <Text
                             style={{
+                              marginTop: 5,
                               fontWeight: 'bold',
                               fontSize: 15,
                               color: '#000080',
@@ -1635,31 +1439,83 @@ function PatientProfile({navigation}) {
                               width: '90%',
                               alignSelf: 'center',
                             }}>
-                            Other Details (optional)
+                            Basic Details
                           </Text>
-                          <View
-                            style={{
-                              flexDirection: 'column',
-                              marginVertical: 10,
-                            }}>
+                          <View style={{width: '95%', alignSelf: 'center'}}>
                             <View
                               style={{
                                 flexDirection: 'row',
-                                alignSelf: 'center',
+                                justifyContent: 'space-evenly',
+                                marginTop: 5,
                               }}>
-                              <View style={{flex: 0.45, marginRight: '5%'}}>
+                              <View
+                                style={[{flex: 0.95}, styles.detailsTextView]}>
                                 <Text
                                   style={[styles.inputLabel, {marginTop: 0}]}>
-                                  Blood Group
+                                  Name
+                                </Text>
+                                <TextInput
+                                  style={styles.detailsTextInput}
+                                  placeholder="Name"
+                                  onChangeText={text => setfamMemName(text)}
+                                  value={famMemName}
+                                />
+                              </View>
+                            </View>
+                            <View
+                              style={{
+                                flexDirection: 'row',
+                                justifyContent: 'space-evenly',
+                              }}>
+                              <View
+                                style={[{flex: 0.45}, styles.detailsTextView]}>
+                                <Text
+                                  style={[styles.inputLabel, {marginTop: 0}]}>
+                                  Email
+                                </Text>
+                                <TextInput
+                                  style={styles.detailsTextInput}
+                                  placeholder="Email"
+                                  onChangeText={text => setfamMemEmail(text)}
+                                  value={famMemEmail}
+                                  keyboardType={'email-address'}
+                                />
+                              </View>
+                              <View
+                                style={[{flex: 0.45}, styles.detailsTextView]}>
+                                <Text
+                                  style={[styles.inputLabel, {marginTop: 0}]}>
+                                  Mobile Number
+                                </Text>
+                                <TextInput
+                                  style={[styles.detailsTextInput, {flex: 0.7}]}
+                                  placeholder="Mobile Number"
+                                  onChangeText={text => setfamMemMobile(text)}
+                                  value={famMemMobile}
+                                  keyboardType={'number-pad'}
+                                  maxLength={10}
+                                />
+                              </View>
+                            </View>
+                            <View
+                              style={{
+                                flexDirection: 'row',
+
+                                justifyContent: 'space-evenly',
+                                //flex: 1,
+                              }}>
+                              <View
+                                style={[{flex: 0.45}, styles.detailsTextView]}>
+                                <Text
+                                  style={[styles.inputLabel, {marginTop: 0}]}>
+                                  Relation
                                 </Text>
                                 <SelectList
                                   placeholder={
-                                    famMemBloodGroup == ''
-                                      ? ' '
-                                      : famMemBloodGroup
+                                    famMemRelation == '' ? ' ' : famMemRelation
                                   }
-                                  setSelected={val => setfamMemBloodGroup(val)}
-                                  data={dataBloodGroup}
+                                  setSelected={val => setfamMemRelation(val)}
+                                  data={dataRelations}
                                   save="value"
                                   boxStyles={[
                                     {
@@ -1679,134 +1535,298 @@ function PatientProfile({navigation}) {
                                   badgeStyles={{backgroundColor: '#2b8ada'}}
                                 />
                               </View>
-                              <View style={{flex: 0.45}}>
+                              <View
+                                style={[styles.detailsTextView, {flex: 0.45}]}>
                                 <Text
                                   style={[styles.inputLabel, {marginTop: 0}]}>
-                                  Occupation
+                                  Gender
                                 </Text>
-                                <TextInput
-                                  style={[
-                                    styles.otherDetailsTextInput,
-                                    {backgroundColor: '#E8F0FE'},
-                                  ]}
-                                  placeholderTextColor={'black'}
-                                  onChangeText={text =>
-                                    setfamMemOccupation(text)
+                                <SelectList
+                                  placeholder={
+                                    famMemGender == '' ? ' ' : famMemGender
                                   }
-                                  value={famMemOccupation}></TextInput>
+                                  setSelected={val => setfamMemGender(val)}
+                                  data={dataGender}
+                                  save="value"
+                                  boxStyles={[
+                                    {
+                                      backgroundColor: '#E8F0FE',
+                                      borderWidth: 0,
+                                      borderRadius: 5,
+                                    },
+                                  ]}
+                                  dropdownStyles={{
+                                    backgroundColor: 'white',
+                                    zIndex: 1,
+                                  }}
+                                  dropdownTextStyles={{
+                                    color: '#2b8ada',
+                                    fontWeight: 'bold',
+                                  }}
+                                  badgeStyles={{backgroundColor: '#2b8ada'}}
+                                />
                               </View>
                             </View>
+
                             <View
                               style={{
                                 flexDirection: 'row',
+                                justifyContent: 'space-evenly',
+                              }}>
+                              <View
+                                style={[styles.detailsTextView, {flex: 0.45}]}>
+                                <Text
+                                  style={[styles.inputLabel, {marginTop: 0}]}>
+                                  City
+                                </Text>
+                                <TextInput
+                                  style={styles.detailsTextInput}
+                                  placeholder="City"
+                                  onChangeText={text => setfamMemCity(text)}
+                                  value={famMemCity}
+                                />
+                              </View>
+                              <View
+                                style={[{flex: 0.45}, styles.detailsTextView]}>
+                                <Text
+                                  style={[styles.inputLabel, {marginTop: 0}]}>
+                                  Date of Birth
+                                </Text>
+                                <View
+                                  style={{
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-evenly',
+                                    backgroundColor: '#E8F0FE',
+                                    borderRadius: 5,
+                                  }}>
+                                  <TextInput
+                                    style={[
+                                      styles.detailsTextInput,
+                                      {flex: 0.7},
+                                    ]}
+                                    placeholder="Date Of Birth"
+                                    value={
+                                      famMemDob == ''
+                                        ? ''
+                                        : dayjs(famMemDob).format('DD-MM-YYYY')
+                                    }
+                                    editable={false}
+                                  />
+                                  <FAIcon
+                                    name="calendar-alt"
+                                    size={20}
+                                    color={'gray'}
+                                    style={{flex: 0.3, alignSelf: 'center'}}
+                                    onPress={() => {
+                                      showDatePicker();
+                                    }}
+                                  />
+                                  <DateTimePickerModal
+                                    isVisible={isDatePickerVisible}
+                                    mode="date"
+                                    display="spinner"
+                                    onConfirm={handleConfirm}
+                                    onCancel={hideDatePicker}
+                                    maximumDate={new Date()}
+                                    minimumDate={new Date('1940-01-01')}
+                                  />
+                                </View>
+                              </View>
+                            </View>
+                          </View>
+
+                          <View
+                            style={{
+                              marginTop: 5,
+                              width: '95%',
+                              alignSelf: 'center',
+                              flexDirection: 'column',
+                            }}>
+                            <Text
+                              style={{
+                                fontWeight: 'bold',
+                                fontSize: 15,
+                                color: '#000080',
+                                borderBottomWidth: 1,
+                                borderBottomColor: '#000080',
+                                width: '90%',
                                 alignSelf: 'center',
                               }}>
-                              <View style={{flex: 0.45, marginRight: '5%'}}>
-                                <Text style={styles.inputLabel}>Height</Text>
-                                <TextInput
-                                  style={[
-                                    styles.otherDetailsTextInput,
-                                    {backgroundColor: '#E8F0FE'},
-                                  ]}
-                                  placeholderTextColor={'black'}
-                                  onChangeText={text => setfamMemHeight(text)}
-                                  value={famMemHeight}
-                                  keyboardType={'number-pad'}></TextInput>
+                              Other Details (optional)
+                            </Text>
+                            <View
+                              style={{
+                                flexDirection: 'column',
+                                marginVertical: 10,
+                              }}>
+                              <View
+                                style={{
+                                  flexDirection: 'row',
+                                  alignSelf: 'center',
+                                }}>
+                                <View style={{flex: 0.45, marginRight: '5%'}}>
+                                  <Text
+                                    style={[styles.inputLabel, {marginTop: 0}]}>
+                                    Blood Group
+                                  </Text>
+                                  <SelectList
+                                    placeholder={
+                                      famMemBloodGroup == ''
+                                        ? ' '
+                                        : famMemBloodGroup
+                                    }
+                                    setSelected={val =>
+                                      setfamMemBloodGroup(val)
+                                    }
+                                    data={dataBloodGroup}
+                                    save="value"
+                                    boxStyles={[
+                                      {
+                                        backgroundColor: '#E8F0FE',
+                                        borderWidth: 0,
+                                        borderRadius: 5,
+                                      },
+                                    ]}
+                                    dropdownStyles={{
+                                      backgroundColor: 'white',
+                                      zIndex: 1,
+                                    }}
+                                    dropdownTextStyles={{
+                                      color: '#2b8ada',
+                                      fontWeight: 'bold',
+                                    }}
+                                    badgeStyles={{backgroundColor: '#2b8ada'}}
+                                  />
+                                </View>
+                                <View style={{flex: 0.45}}>
+                                  <Text
+                                    style={[styles.inputLabel, {marginTop: 0}]}>
+                                    Occupation
+                                  </Text>
+                                  <TextInput
+                                    style={[
+                                      styles.otherDetailsTextInput,
+                                      {backgroundColor: '#E8F0FE'},
+                                    ]}
+                                    placeholderTextColor={'black'}
+                                    onChangeText={text =>
+                                      setfamMemOccupation(text)
+                                    }
+                                    value={famMemOccupation}></TextInput>
+                                </View>
                               </View>
-                              <View style={{flex: 0.45}}>
-                                <Text style={styles.inputLabel}>Weight</Text>
-                                <TextInput
-                                  style={[
-                                    styles.otherDetailsTextInput,
-                                    {backgroundColor: '#E8F0FE'},
-                                  ]}
-                                  placeholderTextColor={'black'}
-                                  onChangeText={text => setfamMemWeight(text)}
-                                  value={famMemWeight}
-                                  keyboardType={'number-pad'}></TextInput>
+                              <View
+                                style={{
+                                  flexDirection: 'row',
+                                  alignSelf: 'center',
+                                }}>
+                                <View style={{flex: 0.45, marginRight: '5%'}}>
+                                  <Text style={styles.inputLabel}>Height</Text>
+                                  <TextInput
+                                    style={[
+                                      styles.otherDetailsTextInput,
+                                      {backgroundColor: '#E8F0FE'},
+                                    ]}
+                                    placeholderTextColor={'black'}
+                                    onChangeText={text => setfamMemHeight(text)}
+                                    value={famMemHeight}
+                                    keyboardType={'number-pad'}></TextInput>
+                                </View>
+                                <View style={{flex: 0.45}}>
+                                  <Text style={styles.inputLabel}>Weight</Text>
+                                  <TextInput
+                                    style={[
+                                      styles.otherDetailsTextInput,
+                                      {backgroundColor: '#E8F0FE'},
+                                    ]}
+                                    placeholderTextColor={'black'}
+                                    onChangeText={text => setfamMemWeight(text)}
+                                    value={famMemWeight}
+                                    keyboardType={'number-pad'}></TextInput>
+                                </View>
                               </View>
                             </View>
                           </View>
                         </View>
-                      </View>
-                    ) : null}
+                      ) : null}
 
-                    {/* Buttons */}
-                    {!addMore ? (
-                      <View
-                        style={{
-                          flex: 1,
-                          flexDirection: 'row',
-                          alignSelf: 'flex-end',
-                        }}>
-                        <CustomButton
-                          text={'+ Add '}
-                          textstyle={{color: 'white', fontSize: 12}}
+                      {/* Buttons */}
+                      {!addMore ? (
+                        <View
                           style={{
+                            flex: 1,
+                            flexDirection: 'row',
                             alignSelf: 'flex-end',
-                            width: 100,
-                            borderColor: '#2b8ada',
-                            borderWidth: 1,
-                            backgroundColor: '#2b8ada',
-                            borderRadius: 5,
-                            padding: 3,
-                            paddingHorizontal: 10,
-                            marginTop: 10,
-                            marginRight: 5,
-                          }}
-                          onPress={() => {
-                            reset();
-                            setaddMore(!addMore);
-                          }}
-                        />
-                      </View>
-                    ) : (
-                      <View
-                        style={{
-                          flex: 1,
-                          flexDirection: 'row',
-                          alignSelf: 'flex-end',
-                        }}>
-                        <CustomButton
-                          text={'Done'}
-                          textstyle={{color: 'white', fontSize: 12}}
+                          }}>
+                          <CustomButton
+                            text={'+ Add '}
+                            textstyle={{color: 'white', fontSize: 12}}
+                            style={{
+                              alignSelf: 'flex-end',
+                              width: 100,
+                              borderColor: '#2b8ada',
+                              borderWidth: 1,
+                              backgroundColor: '#2b8ada',
+                              borderRadius: 5,
+                              padding: 3,
+                              paddingHorizontal: 10,
+                              marginTop: 10,
+                              marginRight: 5,
+                            }}
+                            onPress={() => {
+                              reset();
+                              setaddMore(!addMore);
+                            }}
+                          />
+                        </View>
+                      ) : (
+                        <View
                           style={{
+                            flex: 1,
+                            flexDirection: 'row',
                             alignSelf: 'flex-end',
-                            width: 100,
-                            borderColor: '#2b8ada',
-                            borderWidth: 1,
-                            backgroundColor: '#2b8ada',
-                            borderRadius: 5,
-                            padding: 3,
-                            paddingHorizontal: 10,
-                            marginTop: 10,
-                            marginRight: 5,
-                          }}
-                          onPress={async () => {
-                            await postFamily();
-                          }}
-                        />
-                        <CustomButton
-                          text={'Cancel'}
-                          textstyle={{color: '#2b8ada', fontSize: 12}}
-                          style={{
-                            alignSelf: 'flex-end',
-                            width: 100,
-                            borderColor: '#2b8ada',
-                            borderWidth: 1,
-                            borderRadius: 5,
-                            padding: 3,
-                            paddingHorizontal: 10,
-                            marginTop: 10,
-                            marginRight: 5,
-                          }}
-                          onPress={() => {
-                            reset();
-                            setaddMore(false);
-                          }}
-                        />
-                      </View>
-                    )}
+                          }}>
+                          <CustomButton
+                            text={'Done'}
+                            textstyle={{color: 'white', fontSize: 12}}
+                            style={{
+                              alignSelf: 'flex-end',
+                              width: 100,
+                              borderColor: '#2b8ada',
+                              borderWidth: 1,
+                              backgroundColor: '#2b8ada',
+                              borderRadius: 5,
+                              padding: 3,
+                              paddingHorizontal: 10,
+                              marginTop: 10,
+                              marginRight: 5,
+                            }}
+                            onPress={async () => {
+                              await postFamily();
+                            }}
+                          />
+                          <CustomButton
+                            text={'Cancel'}
+                            textstyle={{color: '#2b8ada', fontSize: 12}}
+                            style={{
+                              alignSelf: 'flex-end',
+                              width: 100,
+                              borderColor: '#2b8ada',
+                              borderWidth: 1,
+                              borderRadius: 5,
+                              padding: 3,
+                              paddingHorizontal: 10,
+                              marginTop: 10,
+                              marginRight: 5,
+                            }}
+                            onPress={() => {
+                              reset();
+                              setaddMore(false);
+                            }}
+                          />
+                        </View>
+                      )}
+                    </ScrollView>
                   </View>
                 </View>
               </Modal>

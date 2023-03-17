@@ -35,21 +35,6 @@ function DoctorCard({DoctorsList}) {
   const [DoctorItem, setDoctorItem] = useState(null);
   const navigation = useNavigation();
 
-  const openURL = useCallback(async url => {
-    const supported = await Linking.canOpenURL(url);
-    if (supported) {
-      await Linking.openURL(url);
-    } else {
-      Alert.alert(`Don't know how to open this URL: ${url}`);
-    }
-  }, []);
-  const viewTermsConditions = () => {
-    openURL('https://www.google.com');
-  };
-  const viewPrivacyPolicy = () => {
-    openURL('https://www.google.com');
-  };
-
   const renderListOfDoctors = ({item}) => {
     return (
       <View
@@ -184,13 +169,15 @@ function DoctorCard({DoctorsList}) {
           </View>
         </View>
         {/* Fees Details */}
-        <View
+        <TouchableOpacity
           style={{
             flexDirection: 'column',
             justifyContent: 'space-evenly',
             marginTop: 10,
           }}>
+          {/* Fees */}
           <View style={{flexDirection: 'row', justifyContent: 'space-evenly'}}>
+            {/* P-Consultation */}
             <View
               style={{
                 flexDirection: 'row',
@@ -200,6 +187,7 @@ function DoctorCard({DoctorsList}) {
               <Text style={styles.feesDetailsLabel}>P-Consultation</Text>
               <Text style={styles.feesDetails}>₹ {item.pconsultationFees}</Text>
             </View>
+            {/* E-Consultation */}
             <View
               style={{
                 flexDirection: 'row',
@@ -210,17 +198,8 @@ function DoctorCard({DoctorsList}) {
               <Text style={styles.feesDetails}>₹ {item.econsultationFees}</Text>
             </View>
           </View>
-
+          {/* Follow-Up Duration */}
           <View style={{flexDirection: 'row', justifyContent: 'space-evenly'}}>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                flex: 0.45,
-              }}>
-              <Text style={styles.feesDetailsLabel}>Follow Up Fees</Text>
-              <Text style={styles.feesDetails}>₹ {item.followUpFees}</Text>
-            </View>
             <View
               style={{
                 flexDirection: 'row',
@@ -230,8 +209,42 @@ function DoctorCard({DoctorsList}) {
               <Text style={styles.feesDetailsLabel}>Follow Up Days</Text>
               <Text style={styles.feesDetails}>{item.followUpDuration}</Text>
             </View>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                flex: 0.45,
+              }}>
+              {/* <Text style={styles.feesDetailsLabel}>Follow Up Days</Text>
+              <Text style={styles.feesDetails}>{item.followUpDuration}</Text> */}
+            </View>
           </View>
-        </View>
+          {/*Follow-Up Fees */}
+          <View style={{flexDirection: 'row', justifyContent: 'space-evenly'}}>
+            {/* P-Consultation */}
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                flex: 0.45,
+              }}>
+              <Text style={styles.feesDetailsLabel}>P Follow-Up</Text>
+              <Text style={styles.feesDetails}>
+                ₹ {item.physicalFollowUpFees}
+              </Text>
+            </View>
+            {/* E-Consultation */}
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                flex: 0.45,
+              }}>
+              <Text style={styles.feesDetailsLabel}>E Follow-Up</Text>
+              <Text style={styles.feesDetails}>₹ {item.efollowUpFees}</Text>
+            </View>
+          </View>
+        </TouchableOpacity>
         {/* Buttons */}
         <View
           style={{
@@ -554,12 +567,14 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     fontSize: 12,
     color: 'gray',
+    alignSelf: 'center',
   },
   feesDetailsLabel: {
     textAlign: 'left',
     fontSize: 13,
     color: 'gray',
     fontWeight: 'bold',
+    alignSelf: 'center',
   },
 });
 

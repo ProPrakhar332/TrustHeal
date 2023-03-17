@@ -34,180 +34,6 @@ import {SelectList} from 'react-native-dropdown-select-list';
 import clinicMaker from '../API/ClincMaker';
 import DoctorBasicDetails from '../Components/DoctorBasicDetails';
 
-// const data = {
-//   name: 'Dr. Imran Singh',
-//   spl: 'Psychiatry',
-//   exp: '10 Years of experience',
-//   deg: 'MBBS, MD, FID, CCLHA',
-//   city: 'New Delhi',
-//   email: 'Imran@gmail.com',
-//   mobileNumber: '+945652154',
-//   contactVisibility: true,
-//   age: 36,
-//   dob: '03/02/1973',
-//   img: doctor_m,
-//   doctorConsultationFeesDTO: {
-//     eConsulationFees: 500,
-//     followUpFees: 0,
-//     physicalConsulationFees: 800,
-//   },
-//   doctorEducationsDTOs: [
-//     {
-//       degree: 'MBBS',
-//       degreePath: 'string',
-//       doctorEducationPkId: 0,
-//       passingYear: '1986',
-//       specialization: ['Psychiatry', 'Diabetologist', 'General Physician'],
-//       totalExperiencedInMonths: 0,
-//       university: 'IGNOU',
-//     },
-//   ],
-//   doctorMedicalRegistrationDTOs: [
-//     {
-//       certificatePath: 'xyz',
-//       registrationCouncil: 'Mumbai Medical College',
-//       registrationNo: 'MH0234sb',
-//       registrationYear: '1986',
-//     },
-//   ],
-// };
-const details = {
-  clinicInfo: [
-    {
-      clinicAddress: 'Rajpur Road',
-      clinicId: 1,
-      clinicName: 'Max Hospital',
-      specialInstruction: 'string',
-    },
-    {
-      clinicAddress: 'Lal Pul',
-      clinicId: 2,
-      clinicName: 'Mahant Indresh',
-      specialInstruction: 'string',
-    },
-    {
-      clinicAddress: 'Dilaram Bazar',
-      clinicId: 3,
-      clinicName: 'Vaish Nursing Home',
-      specialInstruction: 'string',
-    },
-  ],
-  languages: ['English', 'Hindi', 'Telgu'],
-  feesInfo: {
-    econsultationFees: 300,
-    followUpDuration: 10,
-    followUpFees: 100,
-    phyiscalConsultationFees: 500,
-  },
-  educationInfo: [
-    {
-      degree: 'MBBS',
-      passingYear: 1968,
-      specialization: 'ENT',
-      university: 'AIMS Delhi',
-    },
-  ],
-  exprienceInfo: [
-    {
-      exprienceInMonths: 39,
-      practiceCenter: 'AIMS Delhi',
-    },
-  ],
-  medicalInfo: {
-    registrationCouncil: 'AIMS Delhi',
-    registrationNo: 'bjs734ba8f',
-    registrationYear: 1968,
-  },
-  eslotDates: [
-    '2023-01-30',
-    '2023-01-31',
-    '2023-02-01',
-    '2023-02-02',
-    '2023-02-03',
-    '2023-02-04',
-    '2023-02-05',
-  ],
-};
-const slotsresponse = [
-  {
-    slotId: 38,
-    startTime: '09:00:00',
-    endTime: '09:30:00',
-    slotDate: '2023-01-30',
-    typeOfEConsultation: 'PHONE_CALL',
-    slotStatus: 'CREATED',
-  },
-  {
-    slotId: 39,
-    startTime: '09:50:00',
-    endTime: '10:20:00',
-    slotDate: '2023-01-30',
-    typeOfEConsultation: 'VIDEO_CALL',
-    slotStatus: 'CREATED',
-  },
-  {
-    slotId: 40,
-    startTime: '10:40:00',
-    endTime: '11:10:00',
-    slotDate: '2023-01-30',
-    typeOfEConsultation: 'PHONE_CALL',
-    slotStatus: 'CREATED',
-  },
-  {
-    slotId: 41,
-    startTime: '11:30:00',
-    endTime: '12:00:00',
-    slotDate: '2023-01-30',
-    typeOfEConsultation: 'PHONE_CALL',
-    slotStatus: 'CREATED',
-  },
-  {
-    slotId: 42,
-    startTime: '09:00:00',
-    endTime: '09:30:00',
-    slotDate: '2023-01-31',
-    typeOfEConsultation: 'PHONE_CALL',
-    slotStatus: 'CREATED',
-  },
-  {
-    slotId: 43,
-    startTime: '09:50:00',
-    endTime: '10:20:00',
-    slotDate: '2023-01-31',
-    typeOfEConsultation: 'PHONE_CALL',
-    slotStatus: 'CREATED',
-  },
-  {
-    slotId: 44,
-    startTime: '10:40:00',
-    endTime: '11:10:00',
-    slotDate: '2023-01-31',
-    typeOfEConsultation: 'PHONE_CALL',
-    slotStatus: 'CREATED',
-  },
-  {
-    slotId: 45,
-    startTime: '11:30:00',
-    endTime: '12:00:00',
-    slotDate: '2023-01-31',
-    typeOfEConsultation: 'PHONE_CALL',
-    slotStatus: 'CREATED',
-  },
-  {
-    slotId: 46,
-    startTime: '11:50:00',
-    endTime: '12:20:00',
-    slotDate: '2023-01-31',
-    typeOfEConsultation: 'PHONE_CALL',
-    slotStatus: 'CREATED',
-  },
-];
-const dataClinic = [
-  {key: '1', value: 'ABCD | Rajpur Road cjsabckasbc ashchjsabc bashv '},
-  {key: '2', value: 'XYZ'},
-  {key: '3', value: 'QWERTY'},
-];
-
 function DoctorDetails({navigation}) {
   const [DocObj, setDocObj] = useState(null); //from service
   const [DocDet, setDocDet] = useState(null); //from previous page
@@ -266,7 +92,9 @@ function DoctorDetails({navigation}) {
 
       setDocDet(x);
       setpatientDet(y);
-
+      console.log(
+        apiConfig.baseUrl + '/patient/doctor/details?doctorId=' + x.doctorId,
+      );
       axios
         .get(
           apiConfig.baseUrl + '/patient/doctor/details?doctorId=' + x.doctorId,
@@ -276,7 +104,7 @@ function DoctorDetails({navigation}) {
           if (response.status == 200) setDocObj(response.data);
         })
         .catch(error => {
-          Alert.alert('Error', `${error}`);
+          Alert.alert('Error Fetching', `${error}`);
         });
     };
 
@@ -380,70 +208,6 @@ function DoctorDetails({navigation}) {
       setFees(DocObj.feesInfo);
     }
   }, [DocObj]);
-
-  const languages = [
-    {
-      languageId: 2,
-      language: 'English',
-      doctorId: null,
-    },
-    {
-      languageId: 3,
-      language: 'Hindi',
-      doctorId: null,
-    },
-  ];
-
-  const addFavourite = async () => {
-    setisLoading(true);
-    axios
-      .delete(
-        apiConfig.baseUrl +
-          '/patient/favourite/doctor/save?doctorId=' +
-          DocDet.doctorId +
-          '&patientId=400',
-      )
-      .then(async response => {
-        if (response.status == 200) {
-          Alert.alert(
-            'Favourite Added',
-            `${DocDet.doctorName} has been added to Favourite List.`,
-          );
-
-          setisLoading(false);
-        }
-      })
-      .catch(error => {
-        setisLoading(false);
-        console.log('Error Favourite Add', `${error}`);
-      });
-    setisLoading(false);
-  };
-  const removeFavourite = async () => {
-    setisLoading(true);
-    axios
-      .delete(
-        apiConfig.baseUrl +
-          '/patient/favourite/doctor/delete?doctorId=' +
-          DocDet.doctorId +
-          '&patientId=400',
-      )
-      .then(async response => {
-        if (response.status == 200) {
-          Alert.alert(
-            'Doctor Removed',
-            `${DocDet.doctorName} has been removed from Favourite List.`,
-          );
-
-          setisLoading(false);
-        }
-      })
-      .catch(error => {
-        setisLoading(false);
-        console.log('Error Favourite Remove', `${error}`);
-      });
-    setisLoading(false);
-  };
 
   const ViewEducation = () => {
     return Education.map((Education, index) => {
