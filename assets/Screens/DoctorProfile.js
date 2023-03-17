@@ -870,7 +870,7 @@ const styles = StyleSheet.create({
   grayHeading: {color: 'gray', fontSize: 15, fontWeight: 'bold'},
   blueUnderText: {
     color: '#2B8ADA',
-    fontSize: 18,
+    fontSize: 15,
     fontWeight: 'bold',
   },
   whiteInnerBox: {

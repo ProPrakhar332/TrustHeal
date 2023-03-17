@@ -871,7 +871,8 @@ function PatientProfile({navigation}) {
                   <Text style={styles.whiteBoxRowText}>Family</Text>
                 </View>
               </TouchableOpacity>
-              <TouchableOpacity
+
+              {/* <TouchableOpacity
                 style={styles.whiteBoxRow}
                 onPress={() => {
                   setOtherDetailsModal(true);
@@ -882,7 +883,8 @@ function PatientProfile({navigation}) {
                 <View style={{flex: 0.6}}>
                   <Text style={styles.whiteBoxRowText}>Other Details</Text>
                 </View>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
+
               {/* <TouchableOpacity
                 style={styles.whiteBoxRow}
                 onPress={() => {
@@ -903,6 +905,7 @@ function PatientProfile({navigation}) {
                   <Text style={styles.whiteBoxRowText}>Notifications</Text>
                 </View>
               </TouchableOpacity> */}
+
               <TouchableOpacity
                 style={styles.whiteBoxRow}
                 onPress={() => {

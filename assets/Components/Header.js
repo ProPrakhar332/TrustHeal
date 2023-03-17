@@ -1172,12 +1172,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#E8F0FE',
     borderWidth: 1,
     borderColor: '#2b8ada',
-    padding: 10,
+    padding: 8,
     borderRadius: 5,
     margin: 2,
   },
   slotTitle: {
-    fontSize: 11,
+    fontSize: 10,
     color: 'black',
     textAlign: 'center',
     alignSelf: 'center',
@@ -1187,7 +1187,7 @@ const styles = StyleSheet.create({
     borderColor: '#2b8ada',
   },
   slotTitleActive: {
-    fontSize: 11,
+    fontSize: 10,
     color: '#fff',
     textAlign: 'center',
     alignSelf: 'center',

@@ -35,11 +35,13 @@ import axios from 'axios';
 //images
 import pfp1 from '../Resources/pfp1.jpg';
 import chatting from '../Resources/chattingMedium.png';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
 import DaysCreator from '../API/slotscreate';
 import {useIsFocused} from '@react-navigation/native';
 import clinicMaker from '../API/ClincMaker';
 import DayDateMaker from '../API/DayDateMaker';
+import dayjs from 'dayjs';
 
 const dataMode = [
   {key: 'VIDEO_CALL', value: 'Video'},
@@ -117,7 +119,53 @@ const ManageSchedule = () => {
   const [DisplayPhotoToken, setDisplayPhotoToken] = useState(0);
   const [ImageViewer, setImageViewer] = useState(false);
   const [ClinicViewer, setClinicViewer] = useState(null);
+  const [ECStartViewer, setECStartViewer] = useState(false);
+  const [ECEndViewer, setECEndViewer] = useState(false);
+  const [PCStartViewer, setPCStartViewer] = useState(false);
+  const [PCEndViewer, setPCEndViewer] = useState(false);
 
+  const showDatePicker = async () => {
+    //console.log("Pressed button");
+
+    setDatePickerVisibility(true);
+  };
+
+  const hideDatePicker = () => {
+    setDatePickerVisibility(false);
+  };
+
+  const handleConfirmECIn = async time => {
+    console.log(dayjs(time).format('HH:mm'));
+    let time1 = dayjs(time).format('HH:mm').split(':');
+    console.log(time1);
+    setECinTimeHH(time1[0]);
+    setECinTimeMM(time1[1]);
+    setECStartViewer(false);
+  };
+  const handleConfirmECOut = async time => {
+    console.log(dayjs(time).format('HH:mm'));
+    let time1 = dayjs(time).format('HH:mm').split(':');
+    console.log(time1);
+    setECoutTimeHH(time1[0]);
+    setECoutTimeMM(time1[1]);
+    setECEndViewer(false);
+  };
+  const handleConfirmPCIn = async time => {
+    console.log(dayjs(time).format('HH:mm'));
+    let time1 = dayjs(time).format('HH:mm').split(':');
+    console.log(time1);
+    setPCinTimeHH(time1[0]);
+    setPCinTimeMM(time1[1]);
+    setPCStartViewer(false);
+  };
+  const handleConfirmPCOut = async time => {
+    console.log(dayjs(time).format('HH:mm'));
+    let time1 = dayjs(time).format('HH:mm').split(':');
+    console.log(time1);
+    setPCoutTimeHH(time1[0]);
+    setPCoutTimeMM(time1[1]);
+    setPCEndViewer(false);
+  };
   useEffect(() => {
     const onLoadSetData = async () => {
       setDaysSlot(DaysCreator);
@@ -581,7 +629,7 @@ const ManageSchedule = () => {
     setPCinTimeMM('');
     setPCoutTimeHH('');
     setPCoutTimeMM('');
-    setPCduration(0);
+    setPCduration('');
 
     setECinTimeHH('');
     setECinTimeMM('');
@@ -762,7 +810,7 @@ const ManageSchedule = () => {
 
   //render slots and dates
   const renderDaysSlot = ({item}) => {
-    return item.isActive ? (
+    return item.date == selectedDate ? (
       <TouchableOpacity
         style={[
           styles.bubbleActive,
@@ -794,8 +842,8 @@ const ManageSchedule = () => {
         onPress={() => {
           setDaysSlotRefresh(!DaysSlotRefresh);
           setDays(item);
-          DaysSlot.forEach(x => (x.isActive = false));
-          item.isActive = true;
+          // DaysSlot.forEach(x => (x.isActive = false));
+          // item.isActive = true;
           console.log(item.date);
           setselectedDate(item.date);
           //console.log(JSON.stringify(DaysSlot));
@@ -1186,871 +1234,6 @@ const ManageSchedule = () => {
           showsVerticalScrollIndicator={false}>
           <Header showMenu={false} title={'Manage Schedule'} />
           <View style={{width: '95%', alignSelf: 'center', marginVertical: 10}}>
-            {/* Create Modal */}
-            {CreateSchedulesModal ? (
-              <Modal
-                animationType="slide"
-                transparent={true}
-                visible={CreateSchedulesModal}
-                onRequestClose={() => {
-                  setCreateSchedulesModal(false);
-                }}>
-                <View
-                  style={{
-                    height: '100%',
-                    backgroundColor: 'rgba(0,0,0,0.8)',
-                    flexDirection: 'row',
-                    justifyContent: 'center',
-                  }}>
-                  <View style={[styles.modalView, {flexDirection: 'column'}]}>
-                    <View
-                      style={{
-                        width: '100%',
-                        alignSelf: 'center',
-                        borderBottomWidth: 1,
-                        borderBottomColor: 'gray',
-                        marginBottom: 5,
-                      }}>
-                      <Text
-                        style={{
-                          fontWeight: 'bold',
-                          fontSize: 16,
-                          padding: 5,
-                          color: 'black',
-                        }}>
-                        Create Slots
-                      </Text>
-                      <FAIcon
-                        name="window-close"
-                        color="black"
-                        size={26}
-                        style={{position: 'absolute', top: 0, right: 0}}
-                        onPress={() => {
-                          setCreateSchedulesModal(false);
-                        }}
-                      />
-                    </View>
-                    {/* Buttons */}
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        marginVertical: 10,
-                        borderWidth: 1,
-                        borderRadius: 15,
-                        borderColor: '#2b8ada',
-                        width: '95%',
-                        alignSelf: 'center',
-                      }}>
-                      <CustomButton
-                        text={'E-CONSULTATIONS'}
-                        textstyle={[
-                          {fontSize: 13},
-                          CreateEConsultations
-                            ? {color: 'white'}
-                            : {color: '#2b8ada'},
-                        ]}
-                        style={[
-                          {flex: 0.5},
-                          CreateEConsultations
-                            ? {backgroundColor: '#2b8ada'}
-                            : {backgroundColor: 'white'},
-                        ]}
-                        onPress={() => {
-                          setselectedDate('');
-                          setCreateEConsultations(true);
-                          setCreatePConsultations(false);
-                        }}
-                      />
-                      <CustomButton
-                        text={'P-CONSULTATIONS'}
-                        textstyle={[
-                          {fontSize: 13},
-                          CreatePConsultations
-                            ? {color: 'white'}
-                            : {color: '#2b8ada'},
-                        ]}
-                        style={[
-                          {flex: 0.5},
-                          CreatePConsultations
-                            ? {backgroundColor: '#2b8ada'}
-                            : {backgroundColor: 'white'},
-                        ]}
-                        onPress={() => {
-                          setselectedDate('');
-                          setCreatePConsultations(true);
-                          setCreateEConsultations(false);
-                        }}
-                      />
-                    </View>
-
-                    {CreatePConsultations ? (
-                      <ScrollView
-                        showsVerticalScrollIndicator={false}
-                        style={{width: '95%', alignSelf: 'center'}}>
-                        <View
-                          style={{
-                            justifyContent: 'space-between',
-                            flexDirection: 'column',
-                            marginBottom: 10,
-                          }}>
-                          <View style={{flex: 1}}>
-                            <Text style={styles.inputLabel}>Select Clinic</Text>
-                            <SelectList
-                              //defaultOption={ClinicDet[0].key}
-                              placeholder={' '}
-                              setSelected={item => {
-                                setPCCreateClinicID(item);
-                              }}
-                              // onSelect={() => {
-                              //   var i = 0;
-                              //   while (i < ClinicDet.length) {
-                              //     if (ClinicDet[i].key == PCCreateClinicAddress)
-                              //       setPCCreateClinicName(ClinicDet[i].value);
-                              //     i++;
-                              //   }
-                              //   //setviewPSlots("");
-                              // }}
-                              data={ClinicDet}
-                              save={'key'}
-                              boxStyles={{
-                                backgroundColor: '#E8F0FE',
-                                borderWidth: 0,
-                                borderRadius: 5,
-                              }}
-                              dropdownStyles={{backgroundColor: 'white'}}
-                              dropdownTextStyles={{
-                                color: '#2b8ada',
-                                fontWeight: 'bold',
-                              }}
-                              badgeStyles={{backgroundColor: '#2b8ada'}}
-                            />
-                          </View>
-                        </View>
-                        <Text style={styles.inputLabel}>Dates</Text>
-                        <FlatList
-                          horizontal={true}
-                          data={DaysSlot}
-                          extraData={DaysSlotRefresh}
-                          keyExtractor={item => item.date}
-                          renderItem={renderDaysSlot}
-                          style={{marginBottom: 10}}
-                        />
-                        <View
-                          style={{
-                            flexDirection: 'row',
-                            marginBottom: 10,
-                            flex: 1,
-                          }}>
-                          <View
-                            style={{
-                              flexDirection: 'column',
-                              flex: 0.5,
-                              marginRight: '5%',
-                            }}>
-                            <Text
-                              style={[
-                                styles.inputLabel,
-                                {alignSelf: 'flex-start'},
-                              ]}>
-                              In Time (in 24Hrs)
-                            </Text>
-                            <View style={{flexDirection: 'row'}}>
-                              <TextInput
-                                placeholder="HH"
-                                maxLength={2}
-                                keyboardType={'number-pad'}
-                                style={[
-                                  styles.textInput,
-                                  {marginRight: '5%', textAlign: 'center'},
-                                ]}
-                                onChangeText={text => setPCinTimeHH(text)}
-                                value={PCinTimeHH}
-                              />
-                              <TextInput
-                                placeholder="MM"
-                                maxLength={2}
-                                keyboardType={'number-pad'}
-                                style={[
-                                  styles.textInput,
-                                  {textAlign: 'center'},
-                                ]}
-                                onChangeText={text => setPCinTimeMM(text)}
-                                value={PCinTimeMM}
-                              />
-                            </View>
-                          </View>
-                          <View style={{flexDirection: 'column', flex: 0.5}}>
-                            <Text
-                              style={[
-                                styles.inputLabel,
-                                {alignSelf: 'flex-start'},
-                              ]}>
-                              Out Time (in 24Hrs)
-                            </Text>
-                            <View style={{flexDirection: 'row'}}>
-                              <TextInput
-                                placeholder="HH"
-                                maxLength={2}
-                                keyboardType={'number-pad'}
-                                style={[
-                                  styles.textInput,
-                                  {marginRight: '5%', textAlign: 'center'},
-                                ]}
-                                onChangeText={text => setPCoutTimeHH(text)}
-                                value={PCoutTimeHH}
-                              />
-                              <TextInput
-                                placeholder="MM"
-                                maxLength={2}
-                                keyboardType={'number-pad'}
-                                style={[
-                                  styles.textInput,
-                                  {textAlign: 'center'},
-                                ]}
-                                onChangeText={text => setPCoutTimeMM(text)}
-                                value={PCoutTimeMM}
-                              />
-                            </View>
-                          </View>
-                        </View>
-                        <View style={{flexDirection: 'column', width: '100%'}}>
-                          <Text
-                            style={[
-                              styles.inputLabel,
-                              {alignSelf: 'flex-start'},
-                            ]}>
-                            Duration (in min)
-                          </Text>
-                          <TextInput
-                            keyboardType={'number-pad'}
-                            maxLength={2}
-                            onChangeText={text => setPCduration(text)}
-                            value={PCduration}
-                            style={styles.textInput}
-                          />
-                        </View>
-
-                        <CustomButton
-                          text="Save"
-                          textstyle={{color: 'white', fontSize: 12}}
-                          style={{
-                            width: '95%',
-                            alignSelf: 'center',
-                            backgroundColor: '#2B8ADA',
-                            borderRadius: 10,
-                            marginTop: 20,
-                          }}
-                          onPress={async () => {
-                            let p = {
-                              clinicAddress: PCCreateClinicAddress,
-                              clinicName: PCCreateClinicName,
-                              date: selectedDate,
-                              //doctoId: doctorId,
-                              duration: Number(PCduration),
-                              endTime:
-                                (PCoutTimeHH.length == 1
-                                  ? '0' + PCoutTimeHH
-                                  : PCoutTimeHH) +
-                                ':' +
-                                (PCoutTimeMM.length == 1
-                                  ? '0' + PCoutTimeMM
-                                  : PCoutTimeMM),
-                              startTime:
-                                (PCinTimeHH.length == 1
-                                  ? '0' + PCinTimeHH
-                                  : PCinTimeHH) +
-                                ':' +
-                                (PCinTimeMM.length == 1
-                                  ? '0' + PCinTimeMM
-                                  : PCinTimeMM),
-                            };
-                            console.log(p);
-
-                            if (PCCreateClinicID == '')
-                              Alert.alert(
-                                'Invalid Input',
-                                'Please select a hospital from the list',
-                              );
-                            else if (selectedDate == '')
-                              Alert.alert(
-                                'Invalid Input',
-                                'Please select date',
-                              );
-                            else if (
-                              PCinTimeHH == '' ||
-                              Number(PCinTimeHH) > 23 ||
-                              Number(PCinTimeHH) < 0
-                            )
-                              Alert.alert(
-                                'Invalid Input',
-                                'Please enter valid slot start time HH',
-                              );
-                            else if (
-                              PCinTimeMM == '' ||
-                              Number(PCinTimeMM) >= 60 ||
-                              Number(PCinTimeMM) < 0
-                            )
-                              Alert.alert(
-                                'Invalid Input',
-                                'Please enter valid slot start time MM',
-                              );
-                            else if (
-                              PCoutTimeHH == '' ||
-                              Number(PCoutTimeHH) > 23 ||
-                              Number(PCoutTimeHH) < 0
-                            )
-                              Alert.alert(
-                                'Invalid Input',
-                                'Please enter valid slot end time HH',
-                              );
-                            else if (
-                              PCoutTimeMM == '' ||
-                              Number(PCoutTimeMM) >= 60 ||
-                              Number(PCoutTimeMM) < 0
-                            )
-                              Alert.alert(
-                                'Invalid Input',
-                                'Please enter valid slot end time MM',
-                              );
-                            else if (
-                              PCduration == '' ||
-                              Number(PCduration) == 0
-                            )
-                              Alert.alert(
-                                'Invalid Input',
-                                'Please enter valid slot duration in minutes',
-                              );
-                            else {
-                              if (PCinTimeHH.length == 1)
-                                setPCinTimeHH('0' + PCinTimeHH);
-                              if (PCinTimeMM.length == 1)
-                                setPCinTimeMM('0' + PCinTimeMM);
-                              if (PCoutTimeHH.length == 1)
-                                setPCoutTimeHH('0' + PCoutTimeHH);
-                              if (PCoutTimeMM.length == 1)
-                                setPCoutTimeMM('0' + PCoutTimeMM);
-
-                              if (
-                                (Number(PCinTimeHH) == Number(PCoutTimeHH) &&
-                                  Number(PCinTimeMM) > Number(PCoutTimeMM)) ||
-                                Number(PCinTimeHH) > Number(PCoutTimeHH)
-                              )
-                                Alert.alert(
-                                  'Invalid Time',
-                                  'Please enter valid time slot range',
-                                );
-                              else {
-                                console.log(PCData);
-                                pushSlot();
-                                await reset();
-                              }
-                            }
-                          }}
-                        />
-                      </ScrollView>
-                    ) : (
-                      <ScrollView
-                        showsVerticalScrollIndicator={false}
-                        style={{width: '95%', alignSelf: 'center'}}>
-                        <Text style={styles.inputLabel}>Dates</Text>
-                        <FlatList
-                          horizontal={true}
-                          data={DaysSlot}
-                          extraData={DaysSlotRefresh}
-                          keyExtractor={item => item.date}
-                          renderItem={renderDaysSlot}
-                          style={{marginBottom: 10}}
-                        />
-                        <View
-                          style={{
-                            width: '100%',
-                            alignSelf: 'center',
-                            marginTop: 5,
-                          }}>
-                          <Text style={[styles.inputLabel]}>
-                            Consultation Mode
-                          </Text>
-                          <SelectList
-                            labelStyles={{height: 0}}
-                            setSelected={val => setEconsultMode(val)}
-                            data={dataMode}
-                            save="key"
-                            boxStyles={{
-                              backgroundColor: '#E8F0FE',
-                              borderWidth: 0,
-                            }}
-                            dropdownStyles={{backgroundColor: 'white'}}
-                            dropdownTextStyles={{
-                              color: '#2b8ada',
-                              fontWeight: 'bold',
-                            }}
-                            badgeStyles={{backgroundColor: '#2b8ada'}}
-                          />
-                        </View>
-
-                        <View style={{flexDirection: 'column'}}>
-                          <View style={{flexDirection: 'row'}}>
-                            <View
-                              style={{
-                                flexDirection: 'column',
-                                flex: 0.5,
-                                marginRight: '5%',
-                              }}>
-                              <Text
-                                style={[
-                                  styles.inputLabel,
-                                  {alignSelf: 'flex-start'},
-                                ]}>
-                                Start Time (in 24Hrs)
-                              </Text>
-                              <View
-                                style={{
-                                  flexDirection: 'row',
-                                  justifyContent: 'space-between',
-                                }}>
-                                <TextInput
-                                  placeholder="HH"
-                                  maxLength={2}
-                                  keyboardType={'number-pad'}
-                                  style={[
-                                    styles.textInput,
-                                    {textAlign: 'center'},
-                                  ]}
-                                  onChangeText={text => {
-                                    setECinTimeHH(text);
-                                  }}
-                                  value={ECinTimeHH}
-                                />
-                                <TextInput
-                                  placeholder="MM"
-                                  maxLength={2}
-                                  keyboardType={'number-pad'}
-                                  style={[
-                                    styles.textInput,
-                                    {textAlign: 'center'},
-                                  ]}
-                                  onChangeText={text => {
-                                    setECinTimeMM(text);
-                                  }}
-                                  value={ECinTimeMM}
-                                />
-                              </View>
-                            </View>
-                            <View style={{flexDirection: 'column', flex: 0.5}}>
-                              <Text
-                                style={[
-                                  styles.inputLabel,
-                                  {alignSelf: 'flex-start'},
-                                ]}>
-                                End Time (in 24Hrs)
-                              </Text>
-                              <View
-                                style={{
-                                  flexDirection: 'row',
-                                  justifyContent: 'space-between',
-                                }}>
-                                <TextInput
-                                  placeholder="HH"
-                                  maxLength={2}
-                                  keyboardType={'number-pad'}
-                                  style={[
-                                    styles.textInput,
-                                    {textAlign: 'center'},
-                                  ]}
-                                  onChangeText={text => {
-                                    setECoutTimeHH(text);
-                                  }}
-                                  value={ECoutTimeHH}
-                                />
-                                <TextInput
-                                  placeholder="MM"
-                                  maxLength={2}
-                                  keyboardType={'number-pad'}
-                                  style={[
-                                    styles.textInput,
-                                    {textAlign: 'center'},
-                                  ]}
-                                  onChangeText={text => {
-                                    setECoutTimeMM(text);
-                                  }}
-                                  value={ECoutTimeMM}
-                                />
-                              </View>
-                            </View>
-                          </View>
-                          <View
-                            style={{
-                              flexDirection: 'row',
-                              justifyContent: 'space-between',
-                            }}>
-                            <View
-                              style={{
-                                flexDirection: 'row',
-                                flex: 0.45,
-                              }}>
-                              <View style={{flexDirection: 'column', flex: 1}}>
-                                <Text style={[styles.inputLabel]}>
-                                  Duration (in min)
-                                </Text>
-                                <TextInput
-                                  placeholder="MM"
-                                  style={styles.textInput}
-                                  keyboardType={'number-pad'}
-                                  maxLength={2}
-                                  onChangeText={text => setECduration(text)}
-                                  value={ECduration}
-                                />
-                              </View>
-                            </View>
-                            <View
-                              style={{
-                                flexDirection: 'row',
-                                flex: 0.45,
-                              }}>
-                              <View style={{flexDirection: 'column', flex: 1}}>
-                                <Text style={[styles.inputLabel]}>
-                                  Gap (in min)
-                                </Text>
-                                <TextInput
-                                  placeholder="MM"
-                                  maxLength={2}
-                                  style={styles.textInput}
-                                  keyboardType={'number-pad'}
-                                  onChangeText={text => setECGap(text)}
-                                  value={ECGap}
-                                />
-                              </View>
-                            </View>
-                          </View>
-                        </View>
-
-                        <CustomButton
-                          text="Save"
-                          textstyle={{color: 'white', fontSize: 12}}
-                          style={{
-                            width: '90%',
-                            alignSelf: 'center',
-                            backgroundColor: '#2B8ADA',
-                            borderRadius: 10,
-                            marginVertical: 10,
-                          }}
-                          onPress={async () => {
-                            //setemodal(false);
-                            if (selectedDate == '')
-                              Alert.alert(
-                                'Invalid Input',
-                                'Please select slot date.',
-                              );
-                            else if (EconsultMode == '')
-                              Alert.alert(
-                                'Invalid Input',
-                                'Please select consultation mode from the dropdown',
-                              );
-                            else if (
-                              ECinTimeHH == '' ||
-                              Number(ECinTimeHH) > 23 ||
-                              Number(ECinTimeHH) < 0
-                            )
-                              Alert.alert(
-                                'Invalid Input',
-                                'Please enter valid slot start time HH',
-                              );
-                            else if (
-                              ECinTimeMM == '' ||
-                              Number(ECinTimeMM) >= 60 ||
-                              Number(ECinTimeMM) < 0
-                            )
-                              Alert.alert(
-                                'Invalid Input',
-                                'Please enter valid slot start time MM',
-                              );
-                            else if (
-                              ECoutTimeHH == '' ||
-                              Number(ECoutTimeHH) > 23 ||
-                              Number(ECoutTimeHH) < 0
-                            )
-                              Alert.alert(
-                                'Invalid Input',
-                                'Please enter valid slot end time HH',
-                              );
-                            else if (
-                              ECoutTimeMM == '' ||
-                              Number(ECoutTimeMM) >= 60 ||
-                              Number(ECoutTimeMM) < 0
-                            )
-                              Alert.alert(
-                                'Invalid Input',
-                                'Please enter valid slot end time MM',
-                              );
-                            else if (
-                              ECduration == '' ||
-                              Number(ECduration) == 0
-                            )
-                              Alert.alert(
-                                'Invalid Input',
-                                'Please enter valid slot duration time in minutes',
-                              );
-                            else if (ECGap == '' || Number(ECGap) == 0)
-                              Alert.alert(
-                                'Invalid Input',
-                                'Please enter valid gap time in minutes',
-                              );
-                            else {
-                              if (
-                                (Number(ECinTimeHH) == Number(ECoutTimeHH) &&
-                                  Number(ECinTimeMM) > Number(ECoutTimeMM)) ||
-                                Number(ECinTimeHH) > Number(ECoutTimeHH)
-                              )
-                                Alert.alert(
-                                  'Invalid Time',
-                                  'Please enter valid slot time range',
-                                );
-                              else {
-                                pushESlot();
-                                reset();
-                              }
-                            }
-                          }}
-                        />
-                      </ScrollView>
-                    )}
-                  </View>
-                </View>
-              </Modal>
-            ) : null}
-
-            {ClinicModal ? (
-              <Modal
-                animationType="slide"
-                transparent={true}
-                visible={ClinicModal}
-                onRequestClose={() => {
-                  setClinicModal(!ClinicModal);
-                }}>
-                <View
-                  style={{
-                    height: '100%',
-                    backgroundColor: 'rgba(0,0,0,0.8)',
-                    flexDirection: 'row',
-                    justifyContent: 'center',
-                  }}>
-                  <View
-                    style={[
-                      styles.modalView,
-                      {
-                        borderRadius: 10,
-                        padding: 15,
-                        height: 400,
-                      },
-                    ]}>
-                    <View
-                      style={{
-                        width: '100%',
-                        alignSelf: 'center',
-                        marginBottom: 20,
-                        borderBottomWidth: 1,
-                        borderBottomColor: 'gray',
-                      }}>
-                      <Text
-                        style={{
-                          fontWeight: 'bold',
-                          fontSize: 14,
-                          padding: 5,
-                          color: 'black',
-                        }}>
-                        {editClinic ? ' Edit' : 'Add More'} Clinic Details
-                      </Text>
-                      <FAIcon
-                        name="window-close"
-                        color="black"
-                        size={26}
-                        style={{
-                          position: 'absolute',
-                          top: 0,
-                          right: 0,
-                        }}
-                        onPress={() => {
-                          setclinicAddress('');
-                          setclinicName('');
-                          setclinicPhoto(0);
-                          setspecialInstruction('');
-                          setClinicModal(false);
-                        }}
-                      />
-                    </View>
-                    <ScrollView
-                      style={{
-                        width: '95%',
-                        alignSelf: 'center',
-                        flex: 1,
-                        minHeight: 200,
-                        maxHeight: 400,
-                      }}>
-                      {/* Clinic Photo */}
-                      <View style={{flexDirection: 'row'}}>
-                        <View style={{flexDirection: 'column', flex: 1}}>
-                          <Text style={[styles.inputLabel, {marginTop: 0}]}>
-                            Clinic Photo
-                          </Text>
-                          {clinicPhoto != 0 && clinicPhoto != null ? (
-                            <Image
-                              source={{
-                                uri: `${apiConfig.baseUrl}/file/download?fileToken=${clinicPhoto}&userId=${doctorId}`,
-                              }}
-                              style={{
-                                resizeMode: 'cover',
-                                width: '100%',
-                                height: 180,
-                              }}
-                            />
-                          ) : null}
-                          <TouchableOpacity
-                            style={[
-                              {
-                                backgroundColor: '#e8f0fe',
-                                padding: 10,
-                                justifyContent: 'center',
-                                borderRadius: 10,
-                                flexDirection: 'row',
-                                marginVertical: 10,
-                              },
-                              clinicPhoto != 0
-                                ? {
-                                    backgroundColor: 'white',
-                                    borderColor: '#21c47f',
-                                    borderWidth: 1,
-                                  }
-                                : null,
-                            ]}
-                            onPress={async () => {
-                              if (clinicName != '') await choosePhoto('Clinic');
-                              else
-                                Alert.alert(
-                                  'Incomplete Details!',
-                                  'Please enter clinic name before uploading picture',
-                                );
-                            }}>
-                            {clinicPhoto == 0 ? (
-                              <FAIcon
-                                name="camera"
-                                color={'gray'}
-                                size={15}
-                                style={{marginRight: 5, alignSelf: 'center'}}
-                              />
-                            ) : null}
-                            <Text
-                              style={[
-                                {alignSelf: 'center', fontSize: 12},
-                                clinicPhoto != 0 ? {color: '#21c47f'} : null,
-                              ]}>
-                              {clinicPhoto == 0
-                                ? 'Upload Clinic Photo'
-                                : '✓ File Selected'}
-                            </Text>
-                          </TouchableOpacity>
-                        </View>
-                      </View>
-                      {/* Clinic Name */}
-                      <View style={{flexDirection: 'row'}}>
-                        <View style={{flexDirection: 'column', flex: 1}}>
-                          <Text style={[styles.inputLabel, {marginTop: 0}]}>
-                            Clinic Name
-                          </Text>
-                          <TextInput
-                            style={[styles.textInput]}
-                            value={clinicName}
-                            onChangeText={text => setclinicName(text)}
-                          />
-                        </View>
-                      </View>
-                      {/* Clinic Address */}
-                      <View style={{flexDirection: 'row'}}>
-                        <View style={{flexDirection: 'column', flex: 1}}>
-                          <Text style={[styles.inputLabel, {marginTop: 0}]}>
-                            Clinic Address
-                          </Text>
-                          <TextInput
-                            style={[styles.textInput]}
-                            value={clinicAddress}
-                            onChangeText={text => setclinicAddress(text)}
-                          />
-                        </View>
-                      </View>
-                      {/* Special Instruction */}
-                      <View style={{flexDirection: 'row'}}>
-                        <View style={{flexDirection: 'column', flex: 1}}>
-                          <Text style={[styles.inputLabel, {marginTop: 0}]}>
-                            Special Instruction
-                          </Text>
-                          <TextInput
-                            style={[styles.textInput]}
-                            multiline={true}
-                            value={specialInstruction}
-                            onChangeText={text => setspecialInstruction(text)}
-                          />
-                        </View>
-                      </View>
-                    </ScrollView>
-
-                    <CustomButton
-                      text={editClinic ? 'Update' : 'Save'}
-                      textstyle={{color: 'white', fontSize: 12}}
-                      style={{
-                        width: '95%',
-                        backgroundColor: '#2B8ADA',
-                        marginVertical: 5,
-                        paddingVertical: 10,
-                        borderRadius: 10,
-                      }}
-                      onPress={() => {
-                        if (clinicName == '')
-                          Alert.alert(
-                            'Invalid Input',
-                            'Please fill Clinic Name ',
-                          );
-                        else if (clinicAddress == '')
-                          Alert.alert(
-                            'Invalid Input',
-                            'Please fill Clinic Address',
-                          );
-                        else {
-                          let p = {
-                            clinicAddress: clinicAddress,
-                            clinicName: clinicName,
-                            clinicPhoto: clinicPhoto,
-                            doctorId: doctorId,
-                            specialInstruction: specialInstruction,
-                          };
-                          if (
-                            editClinic ||
-                            ManageClinic.findIndex(
-                              v =>
-                                v.clinicName == p.clinicName &&
-                                v.clinicAddress == p.clinicAddress,
-                            ) == -1
-                          ) {
-                            if (editClinic) p.clinicId = clinicId;
-
-                            updateClinic(p);
-                            setclinicAddress('');
-                            setclinicName('');
-                            setclinicPhoto(0);
-                            setspecialInstruction('');
-                            setmanageClinicsLabel(false);
-                          } else {
-                            Alert.alert(
-                              'Duplicate Data',
-                              'Duplicate clinic details found.',
-                            );
-                          }
-                        }
-                      }}
-                    />
-                  </View>
-                </View>
-              </Modal>
-            ) : null}
-
             {/* Manage Clinics Label */}
             <TouchableOpacity
               style={styles.WhiteLabel}
@@ -2656,125 +1839,6 @@ const ManageSchedule = () => {
                 </View>
               </View>
             ) : null}
-
-            {QuestionsModal ? (
-              <Modal
-                animationType="slide"
-                transparent={true}
-                visible={QuestionsModal}
-                onRequestClose={() => {
-                  setQuestionsModal(!QuestionsModal);
-                }}>
-                <View
-                  style={{
-                    height: '100%',
-                    backgroundColor: 'rgba(0,0,0,0.8)',
-                    flexDirection: 'row',
-                    justifyContent: 'center',
-                  }}>
-                  <View
-                    style={[
-                      styles.modalView,
-                      {
-                        borderRadius: 10,
-                        padding: 15,
-                        height: 400,
-                      },
-                    ]}>
-                    <View
-                      style={{
-                        width: '100%',
-                        alignSelf: 'center',
-                        marginBottom: 20,
-                        borderBottomWidth: 1,
-                        borderBottomColor: 'gray',
-                      }}>
-                      <Text
-                        style={{
-                          fontWeight: 'bold',
-                          fontSize: 14,
-                          padding: 5,
-                        }}>
-                        {editQues ? ' Edit' : 'Add More'} Questions
-                      </Text>
-                      <FAIcon
-                        name="window-close"
-                        color="black"
-                        size={26}
-                        style={{
-                          position: 'absolute',
-                          top: 0,
-                          right: 0,
-                        }}
-                        onPress={() => setQuestionsModal(false)}
-                      />
-                    </View>
-                    <View style={{width: '95%', alignSelf: 'center', flex: 1}}>
-                      <View style={{flexDirection: 'column', flex: 1}}>
-                        <Text style={[styles.inputLabel, {marginTop: 0}]}>
-                          Question
-                        </Text>
-                        <TextInput
-                          style={{
-                            padding: 5,
-                            color: 'black',
-                            backgroundColor: '#E8F0FE',
-                            borderRadius: 10,
-                            fontSize: 14,
-                            marginVertical: 5,
-                          }}
-                          onChangeText={text => setquestions(text)}
-                          value={questions}
-                        />
-                      </View>
-                    </View>
-
-                    <CustomButton
-                      text={editQues ? 'Update' : 'Save'}
-                      textstyle={{color: 'white', fontSize: 12}}
-                      style={{
-                        width: '95%',
-                        backgroundColor: '#2B8ADA',
-                        marginVertical: 5,
-                        paddingVertical: 10,
-                        borderRadius: 10,
-                      }}
-                      onPress={async () => {
-                        if (questions == '')
-                          Alert.alert(
-                            'Invalid Input',
-                            'Please fill Clinic Name ',
-                          );
-                        else {
-                          let p = {
-                            doctorId: doctorId,
-                            questions: questions,
-                          };
-                          if (
-                            questionareList.findIndex(
-                              v => v.questions == p.questions,
-                            ) == -1
-                          ) {
-                            if (editQues) p.questionId = questionId;
-
-                            let arr = [];
-                            arr = [...arr, p];
-                            await updatePreConsultQues(arr);
-                            setquestions('');
-                            setquestionId(null);
-                          } else {
-                            Alert.alert(
-                              'Duplicate Data',
-                              'Duplicate clinic details found.',
-                            );
-                          }
-                        }
-                      }}
-                    />
-                  </View>
-                </View>
-              </Modal>
-            ) : null}
           </View>
         </ScrollView>
         {ImageViewer ? (
@@ -2884,6 +1948,1151 @@ const ManageSchedule = () => {
             </View>
           </Modal>
         ) : null}
+        {CreateSchedulesModal ? (
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={CreateSchedulesModal}
+            onRequestClose={() => {
+              setCreateSchedulesModal(false);
+            }}>
+            <View
+              style={{
+                height: '100%',
+                backgroundColor: 'rgba(0,0,0,0.8)',
+                flexDirection: 'row',
+                justifyContent: 'center',
+              }}>
+              <View style={[styles.modalView, {flexDirection: 'column'}]}>
+                <View
+                  style={{
+                    width: '100%',
+                    alignSelf: 'center',
+                    borderBottomWidth: 1,
+                    borderBottomColor: 'gray',
+                    marginBottom: 5,
+                  }}>
+                  <Text
+                    style={{
+                      fontWeight: 'bold',
+                      fontSize: 16,
+                      padding: 5,
+                      color: 'black',
+                    }}>
+                    Create Slots
+                  </Text>
+                  <FAIcon
+                    name="window-close"
+                    color="black"
+                    size={26}
+                    style={{position: 'absolute', top: 0, right: 0}}
+                    onPress={() => {
+                      setCreateSchedulesModal(false);
+                    }}
+                  />
+                </View>
+                {/* Buttons */}
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    marginVertical: 10,
+                    borderWidth: 1,
+                    borderRadius: 15,
+                    borderColor: '#2b8ada',
+                    width: '95%',
+                    alignSelf: 'center',
+                  }}>
+                  <CustomButton
+                    text={'E-CONSULTATIONS'}
+                    textstyle={[
+                      {fontSize: 13},
+                      CreateEConsultations
+                        ? {color: 'white'}
+                        : {color: '#2b8ada'},
+                    ]}
+                    style={[
+                      {flex: 0.5},
+                      CreateEConsultations
+                        ? {backgroundColor: '#2b8ada'}
+                        : {backgroundColor: 'white'},
+                    ]}
+                    onPress={() => {
+                      setselectedDate('');
+                      setCreateEConsultations(true);
+                      setCreatePConsultations(false);
+                    }}
+                  />
+                  <CustomButton
+                    text={'P-CONSULTATIONS'}
+                    textstyle={[
+                      {fontSize: 13},
+                      CreatePConsultations
+                        ? {color: 'white'}
+                        : {color: '#2b8ada'},
+                    ]}
+                    style={[
+                      {flex: 0.5},
+                      CreatePConsultations
+                        ? {backgroundColor: '#2b8ada'}
+                        : {backgroundColor: 'white'},
+                    ]}
+                    onPress={() => {
+                      setselectedDate('');
+                      setCreatePConsultations(true);
+                      setCreateEConsultations(false);
+                    }}
+                  />
+                </View>
+
+                {CreatePConsultations ? (
+                  <ScrollView
+                    showsVerticalScrollIndicator={false}
+                    style={{width: '95%', alignSelf: 'center'}}>
+                    <View
+                      style={{
+                        justifyContent: 'space-between',
+                        flexDirection: 'column',
+                        marginBottom: 10,
+                      }}>
+                      <View style={{flex: 1}}>
+                        <Text style={styles.inputLabel}>Select Clinic</Text>
+                        <SelectList
+                          //defaultOption={ClinicDet[0].key}
+                          placeholder={' '}
+                          setSelected={item => {
+                            setPCCreateClinicID(item);
+                          }}
+                          // onSelect={() => {
+                          //   var i = 0;
+                          //   while (i < ClinicDet.length) {
+                          //     if (ClinicDet[i].key == PCCreateClinicAddress)
+                          //       setPCCreateClinicName(ClinicDet[i].value);
+                          //     i++;
+                          //   }
+                          //   //setviewPSlots("");
+                          // }}
+                          data={ClinicDet}
+                          save={'key'}
+                          boxStyles={{
+                            backgroundColor: '#E8F0FE',
+                            borderWidth: 0,
+                            borderRadius: 5,
+                          }}
+                          dropdownStyles={{backgroundColor: 'white'}}
+                          dropdownTextStyles={{
+                            color: '#2b8ada',
+                            fontWeight: 'bold',
+                          }}
+                          badgeStyles={{backgroundColor: '#2b8ada'}}
+                        />
+                      </View>
+                    </View>
+                    <Text style={styles.inputLabel}>Dates</Text>
+                    <FlatList
+                      horizontal={true}
+                      data={DaysSlot}
+                      extraData={DaysSlotRefresh}
+                      keyExtractor={item => item.date}
+                      renderItem={renderDaysSlot}
+                      style={{marginBottom: 10}}
+                    />
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        marginBottom: 10,
+                        flex: 1,
+                      }}>
+                      <View
+                        style={{
+                          flexDirection: 'column',
+                          flex: 0.5,
+                          marginRight: '5%',
+                        }}>
+                        <Text
+                          style={[
+                            styles.inputLabel,
+                            {alignSelf: 'flex-start'},
+                          ]}>
+                          Start Time (in 24Hrs)
+                        </Text>
+                        {/* Input Start Time */}
+                        {PCinTimeHH != '' && PCinTimeMM != '' ? (
+                          <View
+                            style={{
+                              flexDirection: 'row',
+                              justifyContent: 'space-between',
+                            }}>
+                            <TextInput
+                              placeholder="HH"
+                              maxLength={2}
+                              keyboardType={'number-pad'}
+                              style={[styles.textInput, {textAlign: 'center'}]}
+                              onChangeText={text => {
+                                setPCinTimeHH(text);
+                              }}
+                              value={PCinTimeHH}
+                            />
+                            <TextInput
+                              placeholder="MM"
+                              maxLength={2}
+                              keyboardType={'number-pad'}
+                              style={[styles.textInput, {textAlign: 'center'}]}
+                              onChangeText={text => {
+                                setPCinTimeMM(text);
+                              }}
+                              value={PCinTimeMM}
+                            />
+                          </View>
+                        ) : null}
+                        {/* Button */}
+                        <TouchableOpacity
+                          style={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-evenly',
+                            marginTop: 5,
+                            backgroundColor: '#e8f0fe',
+                            padding: 10,
+                            borderRadius: 10,
+                          }}
+                          onPress={async () => {
+                            console.log('Opening time spinenr');
+                            setPCStartViewer(true);
+                          }}>
+                          <FAIcon
+                            name="clock"
+                            color={'black'}
+                            size={16}
+                            style={{
+                              justifyContent: 'center',
+                              alignSelf: 'center',
+                            }}
+                          />
+                          <Text
+                            style={[
+                              {
+                                color: 'black',
+                                alignSelf: 'center',
+                                fontSize: 12,
+                              },
+                            ]}>
+                            Start Time
+                          </Text>
+                        </TouchableOpacity>
+                        <DateTimePickerModal
+                          isVisible={PCStartViewer}
+                          mode="time"
+                          display="spinner"
+                          onConfirm={handleConfirmPCIn}
+                          onCancel={() => setPCStartViewer(false)}
+                        />
+                      </View>
+                      <View style={{flexDirection: 'column', flex: 0.5}}>
+                        <Text
+                          style={[
+                            styles.inputLabel,
+                            {alignSelf: 'flex-start'},
+                          ]}>
+                          End Time (in 24Hrs)
+                        </Text>
+                        {/* Input Start Time */}
+                        {PCoutTimeHH != '' && PCoutTimeMM != '' ? (
+                          <View
+                            style={{
+                              flexDirection: 'row',
+                              justifyContent: 'space-between',
+                            }}>
+                            <TextInput
+                              placeholder="HH"
+                              maxLength={2}
+                              keyboardType={'number-pad'}
+                              style={[styles.textInput, {textAlign: 'center'}]}
+                              onChangeText={text => {
+                                setPCoutTimeHH(text);
+                              }}
+                              value={PCoutTimeHH}
+                            />
+                            <TextInput
+                              placeholder="MM"
+                              maxLength={2}
+                              keyboardType={'number-pad'}
+                              style={[styles.textInput, {textAlign: 'center'}]}
+                              onChangeText={text => {
+                                setPCoutTimeMM(text);
+                              }}
+                              value={PCoutTimeMM}
+                            />
+                          </View>
+                        ) : null}
+                        {/* Button */}
+                        <TouchableOpacity
+                          style={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-evenly',
+                            marginTop: 5,
+                            backgroundColor: '#e8f0fe',
+                            padding: 10,
+                            borderRadius: 10,
+                          }}
+                          onPress={async () => {
+                            console.log('Opening time spinenr');
+                            setPCEndViewer(true);
+                          }}>
+                          <FAIcon
+                            name="clock"
+                            color={'black'}
+                            size={16}
+                            style={{
+                              justifyContent: 'center',
+                              alignSelf: 'center',
+                            }}
+                          />
+                          <Text
+                            style={[
+                              {
+                                color: 'black',
+                                alignSelf: 'center',
+                                fontSize: 12,
+                              },
+                            ]}>
+                            End Time
+                          </Text>
+                        </TouchableOpacity>
+                        <DateTimePickerModal
+                          isVisible={PCEndViewer}
+                          mode="time"
+                          display="spinner"
+                          onConfirm={handleConfirmPCOut}
+                          onCancel={() => setPCEndViewer(false)}
+                        />
+                      </View>
+                    </View>
+                    <View style={{flexDirection: 'column', width: '100%'}}>
+                      <Text
+                        style={[styles.inputLabel, {alignSelf: 'flex-start'}]}>
+                        Duration (in min)
+                      </Text>
+                      <TextInput
+                        keyboardType={'number-pad'}
+                        maxLength={2}
+                        onChangeText={text => setPCduration(text)}
+                        value={PCduration}
+                        style={styles.textInput}
+                      />
+                    </View>
+
+                    <CustomButton
+                      text="Save"
+                      textstyle={{color: 'white', fontSize: 12}}
+                      style={{
+                        width: '95%',
+                        alignSelf: 'center',
+                        backgroundColor: '#2B8ADA',
+                        borderRadius: 10,
+                        marginTop: 20,
+                      }}
+                      onPress={async () => {
+                        let p = {
+                          clinicAddress: PCCreateClinicAddress,
+                          clinicName: PCCreateClinicName,
+                          date: selectedDate,
+                          //doctoId: doctorId,
+                          duration: Number(PCduration),
+                          endTime:
+                            (PCoutTimeHH.length == 1
+                              ? '0' + PCoutTimeHH
+                              : PCoutTimeHH) +
+                            ':' +
+                            (PCoutTimeMM.length == 1
+                              ? '0' + PCoutTimeMM
+                              : PCoutTimeMM),
+                          startTime:
+                            (PCinTimeHH.length == 1
+                              ? '0' + PCinTimeHH
+                              : PCinTimeHH) +
+                            ':' +
+                            (PCinTimeMM.length == 1
+                              ? '0' + PCinTimeMM
+                              : PCinTimeMM),
+                        };
+                        console.log(p);
+
+                        if (PCCreateClinicID == '')
+                          Alert.alert(
+                            'Invalid Input',
+                            'Please select a hospital from the list',
+                          );
+                        else if (selectedDate == '')
+                          Alert.alert('Invalid Input', 'Please select date');
+                        else if (
+                          PCinTimeHH == '' ||
+                          Number(PCinTimeHH) > 23 ||
+                          Number(PCinTimeHH) < 0
+                        )
+                          Alert.alert(
+                            'Invalid Input',
+                            'Please enter valid slot start time HH',
+                          );
+                        else if (
+                          PCinTimeMM == '' ||
+                          Number(PCinTimeMM) >= 60 ||
+                          Number(PCinTimeMM) < 0
+                        )
+                          Alert.alert(
+                            'Invalid Input',
+                            'Please enter valid slot start time MM',
+                          );
+                        else if (
+                          PCoutTimeHH == '' ||
+                          Number(PCoutTimeHH) > 23 ||
+                          Number(PCoutTimeHH) < 0
+                        )
+                          Alert.alert(
+                            'Invalid Input',
+                            'Please enter valid slot end time HH',
+                          );
+                        else if (
+                          PCoutTimeMM == '' ||
+                          Number(PCoutTimeMM) >= 60 ||
+                          Number(PCoutTimeMM) < 0
+                        )
+                          Alert.alert(
+                            'Invalid Input',
+                            'Please enter valid slot end time MM',
+                          );
+                        else if (PCduration == '' || Number(PCduration) == 0)
+                          Alert.alert(
+                            'Invalid Input',
+                            'Please enter valid slot duration in minutes',
+                          );
+                        else {
+                          if (PCinTimeHH.length == 1)
+                            setPCinTimeHH('0' + PCinTimeHH);
+                          if (PCinTimeMM.length == 1)
+                            setPCinTimeMM('0' + PCinTimeMM);
+                          if (PCoutTimeHH.length == 1)
+                            setPCoutTimeHH('0' + PCoutTimeHH);
+                          if (PCoutTimeMM.length == 1)
+                            setPCoutTimeMM('0' + PCoutTimeMM);
+
+                          if (
+                            (Number(PCinTimeHH) == Number(PCoutTimeHH) &&
+                              Number(PCinTimeMM) > Number(PCoutTimeMM)) ||
+                            Number(PCinTimeHH) > Number(PCoutTimeHH)
+                          )
+                            Alert.alert(
+                              'Invalid Time',
+                              'Please enter valid time slot range',
+                            );
+                          else {
+                            console.log(PCData);
+                            pushSlot();
+                            await reset();
+                          }
+                        }
+                      }}
+                    />
+                  </ScrollView>
+                ) : (
+                  <ScrollView
+                    showsVerticalScrollIndicator={false}
+                    style={{width: '95%', alignSelf: 'center'}}>
+                    <Text style={styles.inputLabel}>Dates</Text>
+                    <FlatList
+                      horizontal={true}
+                      data={DaysSlot}
+                      extraData={DaysSlotRefresh}
+                      keyExtractor={item => item.date}
+                      renderItem={renderDaysSlot}
+                      style={{marginBottom: 10}}
+                    />
+                    <View
+                      style={{
+                        width: '100%',
+                        alignSelf: 'center',
+                        marginTop: 5,
+                      }}>
+                      <Text style={[styles.inputLabel]}>Consultation Mode</Text>
+                      <SelectList
+                        labelStyles={{height: 0}}
+                        setSelected={val => setEconsultMode(val)}
+                        data={dataMode}
+                        save="key"
+                        boxStyles={{
+                          backgroundColor: '#E8F0FE',
+                          borderWidth: 0,
+                        }}
+                        dropdownStyles={{backgroundColor: 'white'}}
+                        dropdownTextStyles={{
+                          color: '#2b8ada',
+                          fontWeight: 'bold',
+                        }}
+                        badgeStyles={{backgroundColor: '#2b8ada'}}
+                      />
+                    </View>
+
+                    <View style={{flexDirection: 'column'}}>
+                      <View style={{flexDirection: 'row'}}>
+                        <View
+                          style={{
+                            flexDirection: 'column',
+                            flex: 0.5,
+                            marginRight: '5%',
+                          }}>
+                          <Text
+                            style={[
+                              styles.inputLabel,
+                              {alignSelf: 'flex-start'},
+                            ]}>
+                            Start Time (in 24Hrs)
+                          </Text>
+                          {/* Input Start Time */}
+                          {ECinTimeHH != '' && ECinTimeMM != '' ? (
+                            <View
+                              style={{
+                                flexDirection: 'row',
+                                justifyContent: 'space-between',
+                              }}>
+                              <TextInput
+                                placeholder="HH"
+                                maxLength={2}
+                                keyboardType={'number-pad'}
+                                style={[
+                                  styles.textInput,
+                                  {textAlign: 'center'},
+                                ]}
+                                onChangeText={text => {
+                                  setECinTimeHH(text);
+                                }}
+                                value={ECinTimeHH}
+                              />
+                              <TextInput
+                                placeholder="MM"
+                                maxLength={2}
+                                keyboardType={'number-pad'}
+                                style={[
+                                  styles.textInput,
+                                  {textAlign: 'center'},
+                                ]}
+                                onChangeText={text => {
+                                  setECinTimeMM(text);
+                                }}
+                                value={ECinTimeMM}
+                              />
+                            </View>
+                          ) : null}
+                          {/* Button */}
+                          <TouchableOpacity
+                            style={{
+                              flexDirection: 'row',
+                              justifyContent: 'space-evenly',
+                              marginTop: 5,
+                              backgroundColor: '#e8f0fe',
+                              padding: 10,
+                              borderRadius: 10,
+                            }}
+                            onPress={async () => {
+                              console.log('Opening time spinenr');
+                              setECStartViewer(true);
+                            }}>
+                            <FAIcon
+                              name="clock"
+                              color={'black'}
+                              size={16}
+                              style={{
+                                justifyContent: 'center',
+                                alignSelf: 'center',
+                              }}
+                            />
+                            <Text
+                              style={[
+                                {
+                                  color: 'black',
+                                  alignSelf: 'center',
+                                  fontSize: 12,
+                                },
+                              ]}>
+                              Start Time
+                            </Text>
+                          </TouchableOpacity>
+                          <DateTimePickerModal
+                            isVisible={ECStartViewer}
+                            mode="time"
+                            display="spinner"
+                            onConfirm={handleConfirmECIn}
+                            onCancel={() => setECStartViewer(false)}
+                          />
+                        </View>
+                        <View style={{flexDirection: 'column', flex: 0.5}}>
+                          <Text
+                            style={[
+                              styles.inputLabel,
+                              {alignSelf: 'flex-start'},
+                            ]}>
+                            End Time (in 24Hrs)
+                          </Text>
+
+                          {/* Input End Time */}
+
+                          {ECoutTimeHH != '' && ECoutTimeMM != '' ? (
+                            <View
+                              style={{
+                                flexDirection: 'row',
+                                justifyContent: 'space-between',
+                              }}>
+                              <TextInput
+                                placeholder="HH"
+                                maxLength={2}
+                                keyboardType={'number-pad'}
+                                style={[
+                                  styles.textInput,
+                                  {textAlign: 'center'},
+                                ]}
+                                onChangeText={text => {
+                                  setECoutTimeHH(text);
+                                }}
+                                value={ECoutTimeHH}
+                              />
+                              <TextInput
+                                placeholder="MM"
+                                maxLength={2}
+                                keyboardType={'number-pad'}
+                                style={[
+                                  styles.textInput,
+                                  {textAlign: 'center'},
+                                ]}
+                                onChangeText={text => {
+                                  setECoutTimeMM(text);
+                                }}
+                                value={ECoutTimeMM}
+                              />
+                            </View>
+                          ) : null}
+
+                          {/* Button */}
+
+                          <TouchableOpacity
+                            style={{
+                              flexDirection: 'row',
+                              justifyContent: 'space-evenly',
+                              marginTop: 5,
+                              backgroundColor: '#e8f0fe',
+                              padding: 10,
+                              borderRadius: 10,
+                            }}
+                            onPress={async () => {
+                              console.log('Opening time spinenr');
+                              setECEndViewer(true);
+                            }}>
+                            <FAIcon
+                              name="clock"
+                              color={'black'}
+                              size={16}
+                              style={{
+                                justifyContent: 'center',
+                                alignSelf: 'center',
+                              }}
+                            />
+                            <Text
+                              style={[
+                                {
+                                  color: 'black',
+                                  alignSelf: 'center',
+                                  fontSize: 12,
+                                },
+                              ]}>
+                              End Time
+                            </Text>
+                          </TouchableOpacity>
+                          <DateTimePickerModal
+                            isVisible={ECEndViewer}
+                            mode="time"
+                            display="spinner"
+                            onConfirm={handleConfirmECOut}
+                            onCancel={() => setECEndViewer(false)}
+                          />
+                        </View>
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                        }}>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            flex: 0.45,
+                          }}>
+                          <View style={{flexDirection: 'column', flex: 1}}>
+                            <Text style={[styles.inputLabel]}>
+                              Duration (in min)
+                            </Text>
+                            <TextInput
+                              placeholder="MM"
+                              style={styles.textInput}
+                              keyboardType={'number-pad'}
+                              maxLength={2}
+                              onChangeText={text => setECduration(text)}
+                              value={ECduration}
+                            />
+                          </View>
+                        </View>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            flex: 0.45,
+                          }}>
+                          <View style={{flexDirection: 'column', flex: 1}}>
+                            <Text style={[styles.inputLabel]}>
+                              Gap (in min)
+                            </Text>
+                            <TextInput
+                              placeholder="MM"
+                              maxLength={2}
+                              style={styles.textInput}
+                              keyboardType={'number-pad'}
+                              onChangeText={text => setECGap(text)}
+                              value={ECGap}
+                            />
+                          </View>
+                        </View>
+                      </View>
+                    </View>
+
+                    <CustomButton
+                      text="Save"
+                      textstyle={{color: 'white', fontSize: 12}}
+                      style={{
+                        width: '90%',
+                        alignSelf: 'center',
+                        backgroundColor: '#2B8ADA',
+                        borderRadius: 10,
+                        marginVertical: 10,
+                      }}
+                      onPress={async () => {
+                        //setemodal(false);
+                        if (selectedDate == '')
+                          Alert.alert(
+                            'Invalid Input',
+                            'Please select slot date.',
+                          );
+                        else if (EconsultMode == '')
+                          Alert.alert(
+                            'Invalid Input',
+                            'Please select consultation mode from the dropdown',
+                          );
+                        else if (
+                          ECinTimeHH == '' ||
+                          Number(ECinTimeHH) > 23 ||
+                          Number(ECinTimeHH) < 0
+                        )
+                          Alert.alert(
+                            'Invalid Input',
+                            'Please enter valid slot start time HH',
+                          );
+                        else if (
+                          ECinTimeMM == '' ||
+                          Number(ECinTimeMM) >= 60 ||
+                          Number(ECinTimeMM) < 0
+                        )
+                          Alert.alert(
+                            'Invalid Input',
+                            'Please enter valid slot start time MM',
+                          );
+                        else if (
+                          ECoutTimeHH == '' ||
+                          Number(ECoutTimeHH) > 23 ||
+                          Number(ECoutTimeHH) < 0
+                        )
+                          Alert.alert(
+                            'Invalid Input',
+                            'Please enter valid slot end time HH',
+                          );
+                        else if (
+                          ECoutTimeMM == '' ||
+                          Number(ECoutTimeMM) >= 60 ||
+                          Number(ECoutTimeMM) < 0
+                        )
+                          Alert.alert(
+                            'Invalid Input',
+                            'Please enter valid slot end time MM',
+                          );
+                        else if (ECduration == '' || Number(ECduration) == 0)
+                          Alert.alert(
+                            'Invalid Input',
+                            'Please enter valid slot duration time in minutes',
+                          );
+                        else if (ECGap == '' || Number(ECGap) == 0)
+                          Alert.alert(
+                            'Invalid Input',
+                            'Please enter valid gap time in minutes',
+                          );
+                        else {
+                          if (
+                            (Number(ECinTimeHH) == Number(ECoutTimeHH) &&
+                              Number(ECinTimeMM) > Number(ECoutTimeMM)) ||
+                            Number(ECinTimeHH) > Number(ECoutTimeHH)
+                          )
+                            Alert.alert(
+                              'Invalid Time',
+                              'Please enter valid slot time range',
+                            );
+                          else {
+                            pushESlot();
+                            reset();
+                          }
+                        }
+                      }}
+                    />
+                  </ScrollView>
+                )}
+              </View>
+            </View>
+          </Modal>
+        ) : null}
+
+        {ClinicModal ? (
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={ClinicModal}
+            onRequestClose={() => {
+              setClinicModal(!ClinicModal);
+            }}>
+            <View
+              style={{
+                height: '100%',
+                backgroundColor: 'rgba(0,0,0,0.8)',
+                flexDirection: 'row',
+                justifyContent: 'center',
+              }}>
+              <View
+                style={[
+                  styles.modalView,
+                  {
+                    borderRadius: 10,
+                    padding: 15,
+                    height: 400,
+                  },
+                ]}>
+                <View
+                  style={{
+                    width: '100%',
+                    alignSelf: 'center',
+                    marginBottom: 20,
+                    borderBottomWidth: 1,
+                    borderBottomColor: 'gray',
+                  }}>
+                  <Text
+                    style={{
+                      fontWeight: 'bold',
+                      fontSize: 14,
+                      padding: 5,
+                      color: 'black',
+                    }}>
+                    {editClinic ? ' Edit' : 'Add More'} Clinic Details
+                  </Text>
+                  <FAIcon
+                    name="window-close"
+                    color="black"
+                    size={26}
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      right: 0,
+                    }}
+                    onPress={() => {
+                      setclinicAddress('');
+                      setclinicName('');
+                      setclinicPhoto(0);
+                      setspecialInstruction('');
+                      setClinicModal(false);
+                    }}
+                  />
+                </View>
+                <ScrollView
+                  style={{
+                    width: '95%',
+                    alignSelf: 'center',
+                    flex: 1,
+                    minHeight: 200,
+                    maxHeight: 400,
+                  }}>
+                  {/* Clinic Photo */}
+                  <View style={{flexDirection: 'row'}}>
+                    <View style={{flexDirection: 'column', flex: 1}}>
+                      <Text style={[styles.inputLabel, {marginTop: 0}]}>
+                        Clinic Photo
+                      </Text>
+                      {clinicPhoto != 0 && clinicPhoto != null ? (
+                        <Image
+                          source={{
+                            uri: `${apiConfig.baseUrl}/file/download?fileToken=${clinicPhoto}&userId=${doctorId}`,
+                          }}
+                          style={{
+                            resizeMode: 'cover',
+                            width: '100%',
+                            height: 180,
+                          }}
+                        />
+                      ) : null}
+                      <TouchableOpacity
+                        style={[
+                          {
+                            backgroundColor: '#e8f0fe',
+                            padding: 10,
+                            justifyContent: 'center',
+                            borderRadius: 10,
+                            flexDirection: 'row',
+                            marginVertical: 10,
+                          },
+                          clinicPhoto != 0
+                            ? {
+                                backgroundColor: 'white',
+                                borderColor: '#21c47f',
+                                borderWidth: 1,
+                              }
+                            : null,
+                        ]}
+                        onPress={async () => {
+                          if (clinicName != '') await choosePhoto('Clinic');
+                          else
+                            Alert.alert(
+                              'Incomplete Details!',
+                              'Please enter clinic name before uploading picture',
+                            );
+                        }}>
+                        {clinicPhoto == 0 ? (
+                          <FAIcon
+                            name="camera"
+                            color={'gray'}
+                            size={15}
+                            style={{marginRight: 5, alignSelf: 'center'}}
+                          />
+                        ) : null}
+                        <Text
+                          style={[
+                            {alignSelf: 'center', fontSize: 12},
+                            clinicPhoto != 0 ? {color: '#21c47f'} : null,
+                          ]}>
+                          {clinicPhoto == 0
+                            ? 'Upload Clinic Photo'
+                            : '✓ File Selected'}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                  {/* Clinic Name */}
+                  <View style={{flexDirection: 'row'}}>
+                    <View style={{flexDirection: 'column', flex: 1}}>
+                      <Text style={[styles.inputLabel, {marginTop: 0}]}>
+                        Clinic Name
+                      </Text>
+                      <TextInput
+                        style={[styles.textInput]}
+                        value={clinicName}
+                        onChangeText={text => setclinicName(text)}
+                      />
+                    </View>
+                  </View>
+                  {/* Clinic Address */}
+                  <View style={{flexDirection: 'row'}}>
+                    <View style={{flexDirection: 'column', flex: 1}}>
+                      <Text style={[styles.inputLabel, {marginTop: 0}]}>
+                        Clinic Address
+                      </Text>
+                      <TextInput
+                        style={[styles.textInput]}
+                        value={clinicAddress}
+                        onChangeText={text => setclinicAddress(text)}
+                      />
+                    </View>
+                  </View>
+                  {/* Special Instruction */}
+                  <View style={{flexDirection: 'row'}}>
+                    <View style={{flexDirection: 'column', flex: 1}}>
+                      <Text style={[styles.inputLabel, {marginTop: 0}]}>
+                        Special Instruction
+                      </Text>
+                      <TextInput
+                        style={[styles.textInput]}
+                        multiline={true}
+                        value={specialInstruction}
+                        onChangeText={text => setspecialInstruction(text)}
+                      />
+                    </View>
+                  </View>
+                </ScrollView>
+
+                <CustomButton
+                  text={editClinic ? 'Update' : 'Save'}
+                  textstyle={{color: 'white', fontSize: 12}}
+                  style={{
+                    width: '95%',
+                    backgroundColor: '#2B8ADA',
+                    marginVertical: 5,
+                    paddingVertical: 10,
+                    borderRadius: 10,
+                  }}
+                  onPress={() => {
+                    if (clinicName == '')
+                      Alert.alert('Invalid Input', 'Please fill Clinic Name ');
+                    else if (clinicAddress == '')
+                      Alert.alert(
+                        'Invalid Input',
+                        'Please fill Clinic Address',
+                      );
+                    else {
+                      let p = {
+                        clinicAddress: clinicAddress,
+                        clinicName: clinicName,
+                        clinicPhoto: clinicPhoto,
+                        doctorId: doctorId,
+                        specialInstruction: specialInstruction,
+                      };
+                      if (
+                        editClinic ||
+                        ManageClinic.findIndex(
+                          v =>
+                            v.clinicName == p.clinicName &&
+                            v.clinicAddress == p.clinicAddress,
+                        ) == -1
+                      ) {
+                        if (editClinic) p.clinicId = clinicId;
+
+                        updateClinic(p);
+                        setclinicAddress('');
+                        setclinicName('');
+                        setclinicPhoto(0);
+                        setspecialInstruction('');
+                        setmanageClinicsLabel(false);
+                      } else {
+                        Alert.alert(
+                          'Duplicate Data',
+                          'Duplicate clinic details found.',
+                        );
+                      }
+                    }
+                  }}
+                />
+              </View>
+            </View>
+          </Modal>
+        ) : null}
+        {QuestionsModal ? (
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={QuestionsModal}
+            onRequestClose={() => {
+              setQuestionsModal(!QuestionsModal);
+            }}>
+            <View
+              style={{
+                height: '100%',
+                backgroundColor: 'rgba(0,0,0,0.8)',
+                flexDirection: 'row',
+                justifyContent: 'center',
+              }}>
+              <View
+                style={[
+                  styles.modalView,
+                  {
+                    borderRadius: 10,
+                    padding: 15,
+                    height: 400,
+                  },
+                ]}>
+                <View
+                  style={{
+                    width: '100%',
+                    alignSelf: 'center',
+                    marginBottom: 20,
+                    borderBottomWidth: 1,
+                    borderBottomColor: 'gray',
+                  }}>
+                  <Text
+                    style={{
+                      fontWeight: 'bold',
+                      fontSize: 14,
+                      padding: 5,
+                    }}>
+                    {editQues ? ' Edit' : 'Add More'} Questions
+                  </Text>
+                  <FAIcon
+                    name="window-close"
+                    color="black"
+                    size={26}
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      right: 0,
+                    }}
+                    onPress={() => setQuestionsModal(false)}
+                  />
+                </View>
+                <View style={{width: '95%', alignSelf: 'center', flex: 1}}>
+                  <View style={{flexDirection: 'column', flex: 1}}>
+                    <Text style={[styles.inputLabel, {marginTop: 0}]}>
+                      Question
+                    </Text>
+                    <TextInput
+                      style={{
+                        padding: 5,
+                        color: 'black',
+                        backgroundColor: '#E8F0FE',
+                        borderRadius: 10,
+                        fontSize: 14,
+                        marginVertical: 5,
+                      }}
+                      onChangeText={text => setquestions(text)}
+                      value={questions}
+                    />
+                  </View>
+                </View>
+
+                <CustomButton
+                  text={editQues ? 'Update' : 'Save'}
+                  textstyle={{color: 'white', fontSize: 12}}
+                  style={{
+                    width: '95%',
+                    backgroundColor: '#2B8ADA',
+                    marginVertical: 5,
+                    paddingVertical: 10,
+                    borderRadius: 10,
+                  }}
+                  onPress={async () => {
+                    if (questions == '')
+                      Alert.alert('Invalid Input', 'Please fill Clinic Name ');
+                    else {
+                      let p = {
+                        doctorId: doctorId,
+                        questions: questions,
+                      };
+                      if (
+                        questionareList.findIndex(
+                          v => v.questions == p.questions,
+                        ) == -1
+                      ) {
+                        if (editQues) p.questionId = questionId;
+
+                        let arr = [];
+                        arr = [...arr, p];
+                        await updatePreConsultQues(arr);
+                        setquestions('');
+                        setquestionId(null);
+                      } else {
+                        Alert.alert(
+                          'Duplicate Data',
+                          'Duplicate clinic details found.',
+                        );
+                      }
+                    }
+                  }}
+                />
+              </View>
+            </View>
+          </Modal>
+        ) : null}
       </SafeAreaView>
     </KeyboardAvoidingView>
   );
@@ -2975,12 +3184,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#E8F0FE',
     borderWidth: 1,
     borderColor: '#2b8ada',
-    padding: 10,
+    padding: 8,
     borderRadius: 5,
     margin: 2,
   },
   slotTitle: {
-    fontSize: 11,
+    fontSize: 10,
     color: 'black',
     textAlign: 'center',
     alignSelf: 'center',
@@ -2990,7 +3199,7 @@ const styles = StyleSheet.create({
     borderColor: '#2b8ada',
   },
   slotTitleActive: {
-    fontSize: 11,
+    fontSize: 10,
     color: '#fff',
     textAlign: 'center',
     alignSelf: 'center',

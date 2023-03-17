@@ -2397,7 +2397,7 @@ const DoctorRegistration2 = ({navigation}) => {
                               else if (RegYear == '')
                                 Alert.alert(
                                   'Incomplete Details!',
-                                  'Please Select Registration Year',
+                                  'Please enter Registration Year',
                                 );
                               else {
                                 selectDocsMedReg();
