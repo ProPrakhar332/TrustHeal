@@ -127,21 +127,6 @@ function PreConsult({navigation}) {
     else setshowUploadDocsButton(false);
   }, [DocList]);
 
-  // useState(() => {
-  //   const checkanswers = () => {
-  //     console.log('======== checking answers typed============');
-  //     let flag = false;
-  //     QuestionList.forEach(element => {
-  //       console.log(element);
-  //       if (element.answers == '') flag = flag || false;
-  //       else flag = flag || true;
-  //     });
-  //     setanswerUploadedButton(flag);
-  //   };
-
-  //   checkanswers();
-  // }, [QuestionList]);
-
   const chooseProfileImage = async () => {
     Alert.alert('Select Files', 'Select option for uploading files', [
       {
@@ -258,7 +243,7 @@ function PreConsult({navigation}) {
           consultationId: consultationId,
           documentName: pickerResult.name,
           documentPath: response.fileToken,
-          uploadedDate: dayjs().format('YYYY-MM-DD'),
+          //uploadedDate: dayjs().format('YYYY-MM-DD'),
         };
         let arr = [...DocList, temp];
         setDocList(arr);
@@ -309,7 +294,7 @@ function PreConsult({navigation}) {
               consultationId: consultationId,
               documentName: pickerResult.name,
               documentPath: response.fileToken,
-              uploadedDate: dayjs().format('YYYY-MM-DD'),
+              //uploadedDate: dayjs().format('YYYY-MM-DD'),
             };
             let arr = [...DocList, temp];
             setDocList(arr);
@@ -447,32 +432,39 @@ function PreConsult({navigation}) {
   };
 
   const uploadAnswers = async () => {
-    const clone = JSON.parse(JSON.stringify(QuestionList));
-
-    clone.forEach(element => {
+    const temp = JSON.parse(JSON.stringify(QuestionList));
+    let clone = [];
+    temp.forEach(element => {
       delete element.question;
+      if (element.answers != '') clone.push(element);
     });
     console.log(
       '=============  Ques answer save  =====================\n',
       clone,
     );
-
-    await axios
-      .post(
-        apiConfig.baseUrl + '/patient/consultation/question/answer/save',
-        clone,
-      )
-      .then(response => {
-        if (response.status == 200)
-          Alert.alert(
-            'Done',
-            'Pre-Consultation Questionnaire submitted successfully!',
-          );
-        setanswersUploaded(true);
-      })
-      .catch(error => {
-        Alert.alert('Error', `${error}`);
-      });
+    if (clone.length > 0) {
+      await axios
+        .post(
+          apiConfig.baseUrl + '/patient/consultation/question/answer/save',
+          clone,
+        )
+        .then(response => {
+          if (response.status == 200)
+            Alert.alert(
+              'Done',
+              'Pre-Consultation Questionnaire submitted successfully!',
+            );
+          setanswersUploaded(true);
+        })
+        .catch(error => {
+          Alert.alert('Error', `${error}`);
+        });
+    } else {
+      Alert.alert(
+        'Warning',
+        'You have not answered any question. Please answer them or press skip',
+      );
+    }
   };
 
   const uploadDocs = async () => {
@@ -582,6 +574,28 @@ function PreConsult({navigation}) {
                     }}
                     onPress={async () => {
                       await uploadAnswers();
+                    }}
+                  />
+                  <CustomButton
+                    text={'Skip'}
+                    textstyle={{
+                      color: '#2b8ada',
+                      fontWeight: 'bold',
+                      fontSize: 12,
+                      alignSelf: 'center',
+                    }}
+                    style={{
+                      flex: 0.45,
+                      padding: 5,
+                      paddingHorizontal: 10,
+                      borderColor: '#2b8ada',
+                      borderWidth: 1,
+                      borderRadius: 10,
+                      //width: '50%',
+                      alignSelf: 'center',
+                    }}
+                    onPress={async () => {
+                      setanswersUploaded(true);
                     }}
                   />
                 </View>

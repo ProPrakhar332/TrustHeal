@@ -80,6 +80,7 @@ import ManageSchedule from './assets/Screens/ManageSchedule';
 
 import Prescription from './assets/Screens/Prescription';
 import About from './assets/Screens/About';
+import AboutDoctor from './assets/Screens/AboutDoctor';
 
 import CheifComplaints from './assets/Screens/CheifComplaints';
 import BodyScan from './assets/Screens/BodyScan';
@@ -504,7 +505,7 @@ function CustomDrawerContent(props) {
         )}
       />
       <DrawerItem
-        label="About Arogya"
+        label="About Trust Heal"
         labelStyle={styles.labelStyle}
         style={{marginVertical: 0, paddingVertical: 0}}
         onPress={() => props.navigation.navigate('About')}
@@ -723,18 +724,18 @@ function CustomDrawerContentPatient(props) {
         label="Help & Support"
         labelStyle={styles.labelStyle}
         style={{marginVertical: 0, paddingVertical: 0}}
-        // onPress={() => {
-        //   props.navigation.navigate('Support');
-        // }}
+        onPress={() => {
+          props.navigation.navigate('Support');
+        }}
         icon={({focused, color, size}) => (
           <Image source={help} style={{tintColor: '#033158'}} />
         )}
       />
       <DrawerItem
-        label="About Arogya"
+        label="About TrustHeal"
         labelStyle={styles.labelStyle}
         style={{marginVertical: 0, paddingVertical: 0}}
-        //onPress={() => props.navigation.navigate('About')}
+        onPress={() => props.navigation.navigate('About')}
         icon={({focused, color, size}) => (
           <Image source={about} style={{tintColor: '#033158'}} />
         )}
@@ -1097,6 +1098,14 @@ function App() {
         <Stack.Screen
           name="About"
           component={About}
+          options={{
+            headerShown: false,
+            headerBackButtonMenuEnabled: false,
+          }}
+        />
+        <Stack.Screen
+          name="AboutDoctor"
+          component={AboutDoctor}
           options={{
             headerShown: false,
             headerBackButtonMenuEnabled: false,

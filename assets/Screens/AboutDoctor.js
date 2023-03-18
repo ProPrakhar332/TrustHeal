@@ -14,7 +14,7 @@ import {
   StatusBar,
 } from 'react-native';
 import CustomButton from '../Components/CustomButton';
-import Header from '../Components/HeaderPatient';
+import Header from '../Components/Header';
 import {StyleSheet} from 'react-native';
 
 function About({navigation}) {

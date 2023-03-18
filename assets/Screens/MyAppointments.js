@@ -22,7 +22,7 @@ import HeaderPatient from '../Components/HeaderPatient';
 import FAIcons from 'react-native-vector-icons/FontAwesome5';
 import MIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import OptionsMenu from 'react-native-option-menu';
-import apiConfig from '../API/apiConfig';
+import apiConfig, {fileUpload} from '../API/apiConfig';
 
 //images
 import doctor_m from '../Resources/doctor_m.png';
@@ -35,6 +35,12 @@ import timeformatter from '../API/timeformatter';
 import waiting from '../Animations/waiting1.gif';
 import DocumentViewer from '../Components/DocumentViewer';
 import Pdf from 'react-native-pdf';
+import DocumentPicker, {
+  DirectoryPickerResponse,
+  DocumentPickerResponse,
+  isInProgress,
+  types,
+} from 'react-native-document-picker';
 
 function MyAppointment({navigation}) {
   const [isLoading, setisLoading] = useState(false);
@@ -51,9 +57,15 @@ function MyAppointment({navigation}) {
   const [docsList, setdocsList] = useState(null);
   const [quesAnsModal, setquesAnsModal] = useState(false);
   const [QuestionnaireList, setQuestionnaireList] = useState(null);
+  const [editQuestions, seteditQuestions] = useState(false);
+  const [editDocs, seteditDocs] = useState(false);
   const [consultationId, setconsultationId] = useState(null);
+  const [doctorId, setdoctorId] = useState(null);
   const [documentPath, setdocumentPath] = useState(null);
   const [documentName, setdocumentName] = useState(null);
+  const [fileName, setfileName] = useState('');
+  const [fileToken, setfileToken] = useState(null);
+  const [uploadDocsList, setuploadDocsList] = useState([]);
 
   const [PrescriptionModal, setPrescriptionModal] = useState(false);
   const [prescriptionId, setprescriptionId] = useState(false);
@@ -70,6 +82,7 @@ function MyAppointment({navigation}) {
     const LoadData = async () => {
       let x = JSON.parse(await AsyncStorage.getItem('UserPatientProfile'));
       setpatientDet(x);
+      console.log(x);
     };
     LoadData();
   }, []);
@@ -187,20 +200,88 @@ function MyAppointment({navigation}) {
       });
   };
   const getFiles = async id => {
+    let Quesflag = 1;
+    let Docsflag = 1;
     await axios
       .get(apiConfig.baseUrl + '/docs/current/uploaded?consultationId=' + id)
       .then(response => {
         console.log(response.data);
         if (response.status == 200) {
-          setdocsList(response.data.documents);
-          setQuestionnaireList(response.data.quesAns);
+          if (
+            response.data.documents == undefined ||
+            response.data.documents == ''
+          )
+            Docsflag = 0;
+          else setdocsList(response.data.documents);
+
+          if (response.data.quesAns == undefined || response.data.quesAns == '')
+            Quesflag = 0;
+          else setQuestionnaireList(response.data.quesAns);
+        }
+      })
+      .catch(error => {
+        Alert.alert('Error', `Error in fetching docs and ques.\n${error}`);
+      });
+    let p = [];
+    p.push(Docsflag);
+    p.push(Quesflag);
+    return p;
+  };
+  const getQuestions = async (id, consultationId) => {
+    await axios
+      .get(apiConfig.baseUrl + '/patient/doctor/questions?doctorId=' + id)
+      .then(response => {
+        console.log(response.data);
+        if (response.status == 200) {
+          //setdocsList(response.data.documents);
+          let temp = response.data;
+          temp.forEach(element => {
+            element.answers = '';
+            element.consultationId = consultationId;
+          });
+          setQuestionnaireList(temp);
         }
       })
       .catch(error => {
         Alert.alert('Error', `Error in fetching docs and ques.\n${error}`);
       });
   };
-
+  const saveQuestions = async () => {
+    const temp = JSON.parse(JSON.stringify(QuestionnaireList));
+    let clone = [];
+    temp.forEach(element => {
+      delete element.question;
+      if (element.answers != '') clone.push(element);
+    });
+    console.log(
+      '=============  Ques answer save  =====================\n',
+      clone,
+    );
+    if (clone.length > 0) {
+      await axios
+        .post(
+          apiConfig.baseUrl + '/patient/consultation/question/answer/save',
+          clone,
+        )
+        .then(response => {
+          if (response.status == 200) {
+            Alert.alert(
+              'Done',
+              'Pre-Consultation Questionnaire submitted successfully!',
+            );
+            seteditQuestions(false);
+          }
+          //setanswersUploaded(true);
+        })
+        .catch(error => {
+          Alert.alert('Error', `${error}`);
+        });
+    } else
+      Alert.alert(
+        'Warning',
+        'You have not answered any question. Please answer them or press cancel.',
+      );
+  };
   const getHistory = async () => {
     await axios
       .get(
@@ -349,12 +430,81 @@ function MyAppointment({navigation}) {
             width: '95%',
             alignSelf: 'center',
           }}>
+          <View style={{flexDirection: 'row', justifyContent: 'space-evenly'}}>
+            {/* Files */}
+            <TouchableOpacity
+              style={[
+                {
+                  flex: 0.45,
+                  flexDirection: 'row',
+                  padding: 3,
+                  paddingHorizontal: 5,
+                  justifyContent: 'center',
+                  borderWidth: 1,
+                  borderColor: '#000080',
+                  borderRadius: 5,
+                },
+              ]}
+              onPress={async () => {
+                setconsultationId(item.consultationId);
+                let p = await getFiles(item.consultationId);
+                setdocsModal(true);
+              }}>
+              <FAIcons
+                name="file-pdf"
+                color={'#000080'}
+                size={15}
+                style={{marginRight: 5, alignSelf: 'center'}}
+              />
+              <Text style={{fontSize: 12, color: '#000080'}}>Files</Text>
+            </TouchableOpacity>
+
+            {/* Preconsultation QuestionAnswers */}
+            <TouchableOpacity
+              style={[
+                {
+                  flex: 0.45,
+                  flexDirection: 'row',
+                  padding: 3,
+                  paddingHorizontal: 5,
+                  borderWidth: 1,
+                  borderColor: '#2b8ada',
+                  borderRadius: 5,
+                  justifyContent: 'center',
+                },
+              ]}
+              onPress={async () => {
+                setconsultationId(item.consultationId);
+                let p = await getFiles(item.consultationId);
+                if (p[1] == 0) {
+                  //await getQuestions(item.doctorId, item.consultationId);
+                  setconsultationId(item.consultationId);
+                  setdoctorId(item.doctorId);
+                  seteditQuestions(false);
+                  setquesAnsModal(true);
+                } else {
+                  setquesAnsModal(true);
+                }
+                //setdocsModal(true);
+              }}>
+              <MIcons
+                name="message-reply-text-outline"
+                color={'#2b8ada'}
+                size={15}
+                style={{alignSelf: 'center', marginRight: 5}}
+              />
+              <Text style={{fontSize: 12, color: '#2b8ada'}}>
+                Questionnaire
+              </Text>
+            </TouchableOpacity>
+          </View>
+
           {item.consultationType != 'PHYSICAL' ? (
             <View
               style={{
                 flexDirection: 'row',
                 justifyContent: 'space-evenly',
-                marginVertical: 5,
+                marginVertical: 7,
               }}>
               {/* Consult Now */}
 
@@ -392,11 +542,11 @@ function MyAppointment({navigation}) {
                   size={15}
                   style={{marginRight: 5}}
                 />
-                <Text style={{fontSize: 12, color: 'white'}}>Consult Now</Text>
+                <Text style={{fontSize: 12, color: 'white'}}>Consult</Text>
               </TouchableOpacity>
 
               {/* Reschedule */}
-              <TouchableOpacity
+              {/* <TouchableOpacity
                 style={{
                   flex: 0.45,
                   justifyContent: 'center',
@@ -447,69 +597,96 @@ function MyAppointment({navigation}) {
                   style={{marginRight: 5}}
                 />
                 <Text style={{fontSize: 12, color: 'white'}}>Re-Schedule</Text>
+              </TouchableOpacity> */}
+
+              {/* Cancel Booking */}
+              <TouchableOpacity
+                style={[
+                  {
+                    flex: 0.45,
+                    alignSelf: 'center',
+                    flexDirection: 'row',
+                    padding: 3,
+                    paddingHorizontal: 5,
+                    alignSelf: 'center',
+                    borderWidth: 1,
+                    borderColor: 'red',
+                    backgroundColor: 'red',
+                    borderRadius: 5,
+                    justifyContent: 'center',
+                  },
+                ]}
+                onPress={async () => {
+                  Alert.alert(
+                    'Cancel Booking',
+                    `Are you sure you want to cancel your appointment with ${item.doctorName}`,
+                    [
+                      {
+                        text: 'ok',
+                        onPress: async () => {
+                          let p = {
+                            cancelationReason: 'cancel',
+                            //clinicId: 0,
+                            consultationId: item.consultationId,
+                            consultationType: item.consultationType,
+                            doctorId: item.doctorId,
+                            doctorName: item.doctorName,
+                            //patientEmail: patientDet.email,
+                            patientId: patientDet.patientId,
+                            patientName: patientDet.patientName,
+                            slotDate: item.slotDate,
+                            slotEndTime: item.slotEndTime,
+                            slotId: item.slotId,
+                            slotStartTime: item.slotStartTime,
+                          };
+                          if (item.clinicId != null) p.clinicId = item.clinicId;
+                          if (patientDet.email != null)
+                            p.patientEmail = patientDet.email;
+                          await axios
+                            .post(
+                              apiConfig.baseUrl +
+                                '/patient/consultation/cancel',
+                              p,
+                            )
+                            .then(response => {
+                              if (response.status == 200)
+                                Alert.alert(
+                                  'Canceled',
+                                  `Your booking with ${item.doctorName} has been canceled`,
+                                  [
+                                    {
+                                      text: 'ok',
+                                      onPress: async () => {
+                                        await getUpcoming();
+                                      },
+                                    },
+                                  ],
+                                );
+                            })
+                            .catch(error => {
+                              Alert.alert('Error', `${error}`);
+                            });
+                        },
+                      },
+                      {
+                        text: 'cancel',
+                      },
+                    ],
+                  );
+                }}>
+                <MIcons
+                  name="close"
+                  color={'white'}
+                  size={15}
+                  style={{alignSelf: 'center', marginRight: 5}}
+                />
+                <Text style={{fontSize: 12, color: 'white'}}>
+                  Cancel Booking
+                </Text>
               </TouchableOpacity>
             </View>
           ) : null}
-          <View style={{flexDirection: 'row', justifyContent: 'space-evenly'}}>
-            {/* Files */}
-            <TouchableOpacity
-              style={[
-                {
-                  flex: 0.45,
-                  flexDirection: 'row',
-                  padding: 3,
-                  paddingHorizontal: 5,
-                  justifyContent: 'center',
-                  borderWidth: 1,
-                  borderColor: '#000080',
-                  borderRadius: 5,
-                },
-              ]}
-              onPress={async () => {
-                setconsultationId(item.consultationId);
-                await getFiles(item.consultationId);
-                setdocsModal(true);
-              }}>
-              <FAIcons
-                name="file-pdf"
-                color={'#000080'}
-                size={15}
-                style={{marginRight: 5, alignSelf: 'center'}}
-              />
-              <Text style={{fontSize: 12, color: '#000080'}}>Files</Text>
-            </TouchableOpacity>
 
-            {/* Preconsultation QuestionAnswers */}
-            <TouchableOpacity
-              style={[
-                {
-                  flex: 0.45,
-                  flexDirection: 'row',
-                  padding: 3,
-                  paddingHorizontal: 5,
-                  borderWidth: 1,
-                  borderColor: '#2b8ada',
-                  borderRadius: 5,
-                  justifyContent: 'center',
-                },
-              ]}
-              onPress={async () => {
-                setconsultationId(item.consultationId);
-                await getFiles(item.consultationId);
-                setquesAnsModal(true);
-                //setdocsModal(true);
-              }}>
-              <MIcons
-                name="message-reply-text-outline"
-                color={'#2b8ada'}
-                size={15}
-                style={{alignSelf: 'center', marginRight: 5}}
-              />
-              <Text style={{fontSize: 12, color: '#2b8ada'}}>
-                Questionnaire
-              </Text>
-            </TouchableOpacity>
-          </View>
           {/* <TouchableOpacity
             style={[
               {
@@ -765,7 +942,7 @@ function MyAppointment({navigation}) {
             }}
             onPress={async () => {
               setconsultationId(item.consultationId);
-              await getFiles(item.consultationId);
+              let p = await getFiles(item.consultationId);
               setdocsModal(true);
             }}>
             <FAIcons
@@ -791,7 +968,9 @@ function MyAppointment({navigation}) {
             }}
             onPress={async () => {
               setconsultationId(item.consultationId);
-              await getFiles(item.consultationId);
+              //await getFiles(item.consultationId);
+              let p = await getFiles(item.consultationId);
+              seteditQuestions(false);
               setquesAnsModal(true);
               //setdocsModal(true);
             }}>
@@ -841,7 +1020,7 @@ function MyAppointment({navigation}) {
       </TouchableOpacity>
     );
   };
-  const renderQuestionnaireList = ({item}) => {
+  const renderQuestionnaireList = ({item, index}) => {
     return (
       <View
         style={{
@@ -854,9 +1033,9 @@ function MyAppointment({navigation}) {
           style={{
             padding: 5,
             paddingHorizontal: 10,
-            backgroundColor: '#2b8ada',
+            backgroundColor: 'white',
             fontSize: 13,
-            color: 'white',
+            color: '#2b8ada',
             fontWeight: 'bold',
             borderTopRightRadius: 10,
             borderTopLeftRadius: 10,
@@ -864,18 +1043,189 @@ function MyAppointment({navigation}) {
           }}>
           {item.question}
         </Text>
-        <Text
+        <TextInput
           style={{
-            padding: 5,
-            paddingHorizontal: 10,
+            backgroundColor: '#e8f0fe',
+            padding: 0,
             fontSize: 12,
-            color: '#2b8ada',
-            fontWeight: 'bold',
-          }}>
-          {item.answer}
-        </Text>
+            borderRadius: 10,
+            paddingHorizontal: 15,
+            paddingVertical: 5,
+            color: 'black',
+          }}
+          onChangeText={text => handleInput(text, index)}
+          editable={editQuestions}
+          value={item.answer}
+        />
       </View>
     );
+  };
+  const handleInput = (text, index) => {
+    let temp = [...QuestionnaireList];
+    temp[index].answers = text;
+    setQuestionnaireList(temp);
+  };
+
+  const selectDocs = async () => {
+    try {
+      console.log('==============Inside select Docs==========');
+
+      const pickerResult = await DocumentPicker.pickSingle({
+        presentationStyle: 'fullScreen',
+        copyTo: 'cachesDirectory',
+        type: types.pdf,
+      });
+
+      if (pickerResult.size > 2097152)
+        Alert.alert(
+          'Size Error',
+          'The size of the file should be less than 2MB.',
+        );
+      else {
+        pickerResult.name = fileName + '.pdf';
+        console.log(pickerResult.name);
+        uploadDocsList.push(pickerResult);
+        setfileName('');
+      }
+    } catch (e) {
+      handleError(e);
+    }
+  };
+
+  const handleError = err => {
+    if (DocumentPicker.isCancel(err)) {
+      console.warn('cancelled');
+      // User cancelled the picker, exit any dialogs or menus and move on
+    } else if (isInProgress(err)) {
+      console.warn(
+        'multiple pickers were opened, only the last will be considered',
+      );
+    } else {
+      throw err;
+    }
+  };
+
+  const initiateUploadDocs = async () => {
+    var p = [];
+
+    if (uploadDocsList.length > 0) {
+      //generating token for each file
+      for (var i = 0; i < uploadDocsList.length; ++i) {
+        let formData = new FormData();
+        formData.append('directoryNames', 'PATIENT_DOCUMENT');
+        formData.append('file', uploadDocsList[i]);
+        formData.append('userId', patientDet.patientId);
+        const {error, response} = await fileUpload(formData);
+        if (error != null) {
+          console.log('======error======');
+          console.log(error);
+          Alert.alert(
+            'Error',
+            'There was a problem in selecting document. Please try again.',
+          );
+        } else {
+          console.log('======response======');
+          console.log(response.fileToken);
+          if (response.fileToken != null) {
+            //console.log(response.fileToken);
+            let x = {
+              consultationId: consultationId,
+              documentName: uploadDocsList[i].name,
+              documentPath: response.fileToken,
+            };
+            p.push(x);
+            console.log(p);
+          } else Alert.alert('Error', 'Please try again.');
+        }
+      }
+
+      console.log('File to be uploaded\n\n', p);
+
+      //uploading files
+      if (p.length > 0) await uploadDocs(p);
+    } else Alert.alert('Warning', 'Please select a file before uploading');
+  };
+  const uploadDocs = async p => {
+    console.log('inside uploading docs with\n\n', p);
+    await axios
+      .post(apiConfig.baseUrl + '/patient/consultation/document/save', p)
+      .then(response => {
+        if (response.status == 200) {
+          Alert.alert(
+            'Done',
+            'Selected files have been uploaded successfully',
+            [
+              {
+                text: 'ok',
+                onPress: async () => {
+                  let gar = await getFiles(consultationId);
+                  seteditDocs(false);
+                },
+              },
+            ],
+          );
+        }
+      })
+      .catch(error => {
+        Alert.alert('Error', `${error}`);
+      });
+  };
+
+  const ViewUploadList = () => {
+    return uploadDocsList.map((uploadDocsList, index) => {
+      return (
+        <View
+          style={{
+            flexDirection: 'column',
+            borderWidth: 1,
+            borderTopWidth: 0,
+            borderColor: '#d3d3d3',
+          }}
+          key={index}>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              margin: 0,
+              padding: 0,
+            }}>
+            {/*Serial Number*/}
+            <View style={styles.cellStyle}>
+              <Text style={{textAlign: 'center', fontSize: 10}}>
+                {index + 1}
+              </Text>
+            </View>
+            {/* File Name */}
+            <View style={styles.cellStyle}>
+              <Text style={{textAlign: 'center', fontSize: 10}}>
+                {uploadDocsList.name}
+              </Text>
+            </View>
+            {/*Actions */}
+            <TouchableOpacity
+              style={[
+                styles.cellStyle,
+                {
+                  flexDirection: 'row',
+                  justifyContent: 'space-around',
+                },
+              ]}>
+              <FAIcons
+                name="trash"
+                color={'red'}
+                size={15}
+                onPress={() => {
+                  removeDocsHandler(index);
+                }}
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
+      );
+    });
+  };
+  const removeDocsHandler = i => {
+    setuploadDocsList(uploadDocsList.filter((obj, e) => i !== e));
   };
 
   return (
@@ -1172,37 +1522,248 @@ function MyAppointment({navigation}) {
                     }}
                     onPress={() => {
                       setdocsModal(false);
+                      setdocsList(null);
+                      seteditDocs(false);
+                      setuploadDocsList([]);
                     }}
                   />
                 </View>
 
-                <View style={{minHeight: 150, width: '100%'}}>
-                  {docsList != '' && docsList != null ? (
-                    <FlatList
-                      data={docsList}
-                      keyExtractor={item => item.documentPath}
-                      renderItem={renderDocsList}
-                      style={{marginTop: 10}}
-                    />
-                  ) : (
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        flex: 1,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        alignSelf: 'center',
-                      }}>
-                      <Text
+                {editDocs == false ? (
+                  <View style={{minHeight: 150, width: '100%'}}>
+                    {docsList != '' && docsList != null ? (
+                      <View>
+                        <View style={{marginVertical: 10}}>
+                          <FlatList
+                            data={docsList}
+                            keyExtractor={item => item.documentPath}
+                            renderItem={renderDocsList}
+                            scrollEnabled={true}
+                          />
+                        </View>
+                      </View>
+                    ) : (
+                      <View
                         style={{
-                          color: 'black',
-                          fontSize: 15,
+                          flexDirection: 'column',
+                          flex: 1,
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          alignSelf: 'center',
                         }}>
-                        No Files uploaded by patient
-                      </Text>
+                        <View style={{flex: 0.9, justifyContent: 'center'}}>
+                          <Text
+                            style={{
+                              color: 'black',
+                              fontSize: 15,
+                            }}>
+                            No file(s) uploaded
+                          </Text>
+                        </View>
+                        <View style={{flex: 0.1}}>
+                          <CustomButton
+                            text={'Upload Now'}
+                            textstyle={{color: 'white', fontSize: 13}}
+                            style={{
+                              backgroundColor: '#2b8ada',
+                              padding: 5,
+                              borderRadius: 10,
+                              paddingHorizontal: 15,
+                            }}
+                            onPress={async () => {
+                              // await getQuestions(doctorId, consultationId);
+                              seteditDocs(true);
+                            }}
+                          />
+                        </View>
+                      </View>
+                    )}
+                  </View>
+                ) : (
+                  <View>
+                    <View style={{flexDirection: 'row'}}>
+                      <View
+                        style={{
+                          flexDirection: 'column',
+                          width: '95%',
+                          alignSelf: 'center',
+                          marginVertical: 5,
+                        }}>
+                        {uploadDocsList.length > 0 ? (
+                          <View>
+                            {/* Heading */}
+                            <View
+                              style={{
+                                flexDirection: 'column',
+                                borderWidth: 1,
+                                borderColor: '#d3d3d3',
+                              }}>
+                              <View
+                                style={{
+                                  flexDirection: 'row',
+                                  justifyContent: 'space-between',
+                                  margin: 0,
+                                  padding: 0,
+                                }}>
+                                <View style={styles.cellHeading}>
+                                  <Text style={styles.cellHeadingText}>
+                                    S. No.
+                                  </Text>
+                                </View>
+                                <View style={styles.cellHeading}>
+                                  <Text style={styles.cellHeadingText}>
+                                    File Name
+                                  </Text>
+                                </View>
+
+                                <View
+                                  style={{
+                                    flex: 1,
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    paddingHorizontal: 1,
+                                    paddingVertical: 1,
+                                    backgroundColor: '#2b8ada',
+                                  }}>
+                                  <Text style={styles.cellHeadingText}>
+                                    Actions
+                                  </Text>
+                                </View>
+                              </View>
+                            </View>
+                            <ViewUploadList />
+                          </View>
+                        ) : null}
+
+                        {/* File Name Label*/}
+                        <View>
+                          <Text
+                            style={{
+                              textAlign: 'left',
+                              fontSize: 12,
+                              marginBottom: 3,
+                              color: '#2b8ada',
+                              fontWeight: 'bold',
+                              paddingHorizontal: 10,
+                            }}>
+                            File Name
+                          </Text>
+                        </View>
+                        {/* File Name Input */}
+                        <View>
+                          <TextInput
+                            style={{
+                              backgroundColor: '#e8f0fe',
+                              borderRadius: 10,
+                              padding: 0,
+                              paddingHorizontal: 10,
+                            }}
+                            onChangeText={text => setfileName(text)}
+                            value={fileName}
+                          />
+                        </View>
+                        {/* File Select Button */}
+                        <TouchableOpacity
+                          style={[
+                            {
+                              flex: 0.45,
+                              justifyContent: 'center',
+                              flexDirection: 'row',
+                              borderWidth: 1,
+
+                              alignSelf: 'flex-end',
+                              borderRadius: 10,
+                              padding: 3,
+                              paddingHorizontal: 10,
+                              marginTop: 5,
+                            },
+                            fileToken == null
+                              ? {borderColor: '#2b8ada'}
+                              : {borderColor: '#21c47f'},
+                          ]}
+                          onPress={async () => {
+                            if (fileName != '') await selectDocs();
+                            else
+                              Alert.alert(
+                                'Incomplete Details!',
+                                'Please enter file name before selecting file',
+                              );
+                          }}>
+                          <FAIcons
+                            name="file-pdf"
+                            size={15}
+                            color={fileToken == null ? '#2b8ada' : '#21c47f'}
+                            style={{alignSelf: 'center', marginRight: 5}}
+                          />
+                          <Text
+                            style={[
+                              {
+                                fontSize: 12,
+                                alignSelf: 'center',
+                                color: '#2b8ada',
+                              },
+                              fileToken == null
+                                ? {color: '#2b8ada'}
+                                : {color: '#21c47f'},
+                            ]}>
+                            Add File
+                          </Text>
+                        </TouchableOpacity>
+
+                        {/* Submit Button */}
+                        <View
+                          style={{
+                            flexDirection: 'column',
+                            marginVertical: 5,
+                            marginTop: 20,
+                          }}>
+                          <CustomButton
+                            text={'Save'}
+                            textstyle={{
+                              color: 'white',
+                              fontSize: 15,
+                              fontWeight: 'bold',
+                            }}
+                            style={{
+                              flex: 1,
+                              backgroundColor: '#2b8ada',
+                              padding: 5,
+                              borderRadius: 10,
+                              paddingHorizontal: 15,
+                            }}
+                            onPress={async () => {
+                              // await saveQuestions();
+                              await initiateUploadDocs();
+                              seteditDocs(false);
+                            }}
+                          />
+                          <CustomButton
+                            text={'Cancel'}
+                            textstyle={{
+                              color: '#2b8ada',
+                              fontSize: 15,
+                              fontWeight: 'bold',
+                            }}
+                            style={{
+                              flex: 1,
+                              borderColor: '#2b8ada',
+                              borderWidth: 1,
+                              padding: 5,
+                              borderRadius: 10,
+                              paddingHorizontal: 15,
+                              marginTop: 10,
+                            }}
+                            onPress={async () => {
+                              //await saveQuestions();
+                              seteditDocs(false);
+                              setuploadDocsList([]);
+                            }}
+                          />
+                        </View>
+                      </View>
                     </View>
-                  )}
-                </View>
+                  </View>
+                )}
               </View>
             </View>
           </Modal>
@@ -1231,6 +1792,7 @@ function MyAppointment({navigation}) {
                 ]}>
                 <View
                   style={{
+                    flexDirection: 'row',
                     width: '100%',
                     alignSelf: 'center',
                     borderBottomWidth: 1,
@@ -1245,6 +1807,29 @@ function MyAppointment({navigation}) {
                     }}>
                     Questionnaire
                   </Text>
+                  {/* {upcomingActive && editQuestions == false ? (
+                    <Text
+                      style={{
+                        textDecorationColor: '#2b8ada',
+                        textDecorationStyle: 'solid',
+                        alignSelf: 'center',
+                        position: 'absolute',
+                        right: 35,
+                        textDecorationLine: 'underline',
+                        color: '#2b8ada',
+                        fontSize: 13,
+                        fontWeight: 'bold',
+                      }}
+                      onPress={() => {
+                        Alert.alert(
+                          'Edit Questionnaire',
+                          'You can now edit your response',
+                        );
+                        seteditQuestions(true);
+                      }}>
+                      Edit
+                    </Text>
+                  ) : null} */}
                   <FAIcons
                     name="window-close"
                     color="black"
@@ -1256,33 +1841,103 @@ function MyAppointment({navigation}) {
                     }}
                     onPress={() => {
                       setquesAnsModal(false);
+                      setQuestionnaireList([]);
+                      seteditQuestions(false);
+                      setdoctorId(null);
+                      setconsultationId(null);
                     }}
                   />
                 </View>
                 <View style={{minHeight: 150, width: '100%'}}>
                   {QuestionnaireList != '' && QuestionnaireList != null ? (
-                    <FlatList
-                      data={QuestionnaireList}
-                      keyExtractor={item => item.question}
-                      renderItem={renderQuestionnaireList}
-                      style={{marginTop: 10}}
-                    />
+                    <View>
+                      {/* QuestionList */}
+                      <View style={{marginVertical: 10}}>
+                        <FlatList
+                          data={QuestionnaireList}
+                          keyExtractor={item => item.question}
+                          renderItem={renderQuestionnaireList}
+                        />
+                      </View>
+
+                      {/* Submit Button */}
+                      {editQuestions ? (
+                        <View>
+                          <CustomButton
+                            text={'Save'}
+                            textstyle={{
+                              color: 'white',
+                              fontSize: 15,
+                              fontWeight: 'bold',
+                            }}
+                            style={{
+                              backgroundColor: '#2b8ada',
+                              padding: 5,
+                              borderRadius: 10,
+                              paddingHorizontal: 15,
+                            }}
+                            onPress={async () => {
+                              await saveQuestions();
+                            }}
+                          />
+                          <CustomButton
+                            text={'Cancel'}
+                            textstyle={{
+                              color: '#2b8ada',
+                              fontSize: 15,
+                              fontWeight: 'bold',
+                            }}
+                            style={{
+                              borderColor: '#2b8ada',
+                              borderWidth: 1,
+                              padding: 5,
+                              borderRadius: 10,
+                              paddingHorizontal: 15,
+                              marginTop: 10,
+                            }}
+                            onPress={async () => {
+                              //await saveQuestions();
+                              seteditQuestions(false);
+                              setQuestionnaireList(null);
+                            }}
+                          />
+                        </View>
+                      ) : null}
+                    </View>
                   ) : (
                     <View
                       style={{
-                        flexDirection: 'row',
+                        flexDirection: 'column',
                         flex: 1,
                         alignItems: 'center',
                         justifyContent: 'center',
                         alignSelf: 'center',
                       }}>
-                      <Text
-                        style={{
-                          color: 'black',
-                          fontSize: 15,
-                        }}>
-                        Not answered by patient
-                      </Text>
+                      <View style={{flex: 0.9, justifyContent: 'center'}}>
+                        <Text
+                          style={{
+                            color: 'black',
+                            fontSize: 15,
+                          }}>
+                          Not answered
+                        </Text>
+                      </View>
+                      <View style={{flex: 0.1}}>
+                        <CustomButton
+                          text={'Answer Now'}
+                          textstyle={{color: 'white', fontSize: 13}}
+                          style={{
+                            backgroundColor: '#2b8ada',
+                            padding: 5,
+                            borderRadius: 10,
+                            paddingHorizontal: 15,
+                          }}
+                          onPress={async () => {
+                            await getQuestions(doctorId, consultationId);
+                            seteditQuestions(true);
+                          }}
+                        />
+                      </View>
                     </View>
                   )}
                 </View>
@@ -1504,6 +2159,32 @@ const styles = StyleSheet.create({
       width: 0,
       height: 2,
     },
+  },
+  cellStyle: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRightWidth: 1,
+    borderColor: '#d3d3d3',
+    paddingHorizontal: 1,
+    paddingVertical: 1,
+  },
+  cellHeading: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRightWidth: 1,
+    borderColor: '#d3d3d3',
+    paddingHorizontal: 1,
+    paddingVertical: 1,
+    backgroundColor: '#2b8ada',
+  },
+  cellHeadingText: {
+    textAlign: 'center',
+    fontWeight: 'bold',
+    fontSize: 11,
+    marginVertical: 5,
+    color: 'white',
   },
 });
 
