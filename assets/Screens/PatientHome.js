@@ -758,7 +758,7 @@ function PatientHome({navigation}) {
                 </Text>
               </View>
               <Text style={{color: 'gray', fontSize: 12}}>
-                Select a symptom to book in 1 step
+                Select a category of symptom to book in 1 step
               </Text>
             </View>
             {/* Transparent Box */}
