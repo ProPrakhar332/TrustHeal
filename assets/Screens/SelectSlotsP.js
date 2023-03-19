@@ -646,9 +646,7 @@ function SelectSlotsP({navigation}) {
                               apiConfig.baseUrl +
                                 '/patient/slot/prebooked/delete?consultation=P_CONSULTATION' +
                                 '&slotId=' +
-                                slotId +
-                                '&userId=' +
-                                patientDet.patientId,
+                                slotId,
                             )
                             .then(response => {
                               if (response.status == 200) {

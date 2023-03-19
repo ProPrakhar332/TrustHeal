@@ -48,7 +48,7 @@ function AllSYmptoms({navigation}) {
   const [CategorySymptomsList, setCategorySymptomsList] = useState(null);
   const [searchSymptomList, setsearchSymptomList] = useState([]);
   const [searchSpecialityList, setsearchSpecialityList] = useState([]);
-  const [showLabel, setshowLabel] = useState(false);
+  const [showLabel, setshowLabel] = useState(true);
   const [DoctorsList, setDoctorsList] = useState(null);
   const layout = useWindowDimensions();
 
@@ -257,17 +257,18 @@ function AllSYmptoms({navigation}) {
     setCategorySymptomsList(temp);
   };
   const insertSymptom = (symptoms, speciality) => {
-    if (!searchSymptomList.includes(symptoms)) searchSymptomList.push(symptoms);
-    if (!searchSpecialityList.includes(speciality))
-      searchSpecialityList.push(speciality);
-    // console.log(
-    //   '============= Selected Symptoms are===========',
-    //   searchSymptomList,
-    // );
-    // console.log(
-    //   '============= Suggested Speciality are===========',
-    //   searchSpecialityList,
-    // );
+    // if (!searchSymptomList.includes(symptoms))
+    searchSymptomList.push(symptoms);
+    // if (!searchSpecialityList.includes(speciality))
+    searchSpecialityList.push(speciality);
+    console.log(
+      '============= Selected Symptoms are===========',
+      searchSymptomList,
+    );
+    console.log(
+      '============= Suggested Speciality are===========',
+      searchSpecialityList,
+    );
   };
 
   const deleteSymptom = (symptoms, speciality) => {
@@ -283,20 +284,24 @@ function AllSYmptoms({navigation}) {
       p.splice(index, 1);
       setsearchSpecialityList(p);
     }
-    // console.log(
-    //   '============= Selected Symptoms are===========',
-    //   searchSymptomList,
-    // );
-    // console.log(
-    //   '============= Suggested Speciality are===========',
-    //   searchSpecialityList,
-    // );
+    console.log(
+      '============= Selected Symptoms are===========',
+      searchSymptomList,
+    );
+    console.log(
+      '============= Suggested Speciality are===========',
+      searchSpecialityList,
+    );
   };
 
   const getDoctors = async () => {
     setisLoading(true);
     let x = '';
-    searchSpecialityList.forEach(element => {
+    let p = [...new Set(searchSpecialityList)];
+
+    console.log('Fetching doctors with\n', p);
+
+    p.forEach(element => {
       x += '&speciality=' + element;
     });
     await axios
@@ -410,36 +415,79 @@ function AllSYmptoms({navigation}) {
                             );
                           })}
                         </View>
-                        <TouchableOpacity
+                        <View
                           style={{
-                            zIndex: 3,
-                            backgroundColor: '#2b8ada',
-                            padding: 7,
-                            paddingHorizontal: 15,
-                            borderRadius: 5,
-                            alignSelf: 'center',
                             flexDirection: 'row',
-                            marginVertical: 10,
-                          }}
-                          onPress={async () => {
-                            // setDoctorsList(null);
-                            await getDoctors();
+                            justifyContent: 'space-evenly',
                           }}>
-                          <FAIcons
-                            name="search"
-                            size={15}
-                            color={'white'}
-                            style={{alignSelf: 'center', marginRight: 5}}
-                          />
-                          <Text
+                          <TouchableOpacity
                             style={{
-                              color: 'white',
-                              fontWeight: 'bold',
-                              fontSize: 12,
+                              zIndex: 3,
+                              flex: 0.45,
+                              justifyContent: 'center',
+                              backgroundColor: '#2b8ada',
+                              padding: 7,
+                              paddingHorizontal: 15,
+                              borderRadius: 5,
+                              alignSelf: 'center',
+                              flexDirection: 'row',
+                              marginVertical: 10,
+                            }}
+                            onPress={async () => {
+                              // setDoctorsList(null);
+                              await getDoctors();
                             }}>
-                            Find Doctors
-                          </Text>
-                        </TouchableOpacity>
+                            <FAIcons
+                              name="search"
+                              size={15}
+                              color={'white'}
+                              style={{alignSelf: 'center', marginRight: 5}}
+                            />
+                            <Text
+                              style={{
+                                color: 'white',
+                                fontWeight: 'bold',
+                                fontSize: 12,
+                              }}>
+                              Find Doctors
+                            </Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            style={{
+                              zIndex: 3,
+                              flex: 0.45,
+                              justifyContent: 'center',
+                              borderColor: '#2b8ada',
+                              borderWidth: 1,
+                              padding: 7,
+                              paddingHorizontal: 15,
+                              borderRadius: 5,
+                              alignSelf: 'center',
+                              flexDirection: 'row',
+                              marginVertical: 10,
+                            }}
+                            onPress={async () => {
+                              // setDoctorsList(null);
+                              // await getDoctors();
+                              setsearchSpecialityList([]);
+                              setsearchSymptomList([]);
+                            }}>
+                            {/* <FAIcons
+                              name="search"
+                              size={15}
+                              color={'white'}
+                              style={{alignSelf: 'center', marginRight: 5}}
+                            /> */}
+                            <Text
+                              style={{
+                                color: '#2b8ada',
+                                fontWeight: 'bold',
+                                fontSize: 12,
+                              }}>
+                              Clear All
+                            </Text>
+                          </TouchableOpacity>
+                        </View>
                       </View>
                     ) : (
                       <View>

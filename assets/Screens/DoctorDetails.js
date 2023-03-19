@@ -1811,9 +1811,7 @@ function DoctorDetails({navigation}) {
                                 '/patient/slot/prebooked/delete?consultation=' +
                                 mode +
                                 '&slotId=' +
-                                slotId +
-                                '&userId=' +
-                                patientDet.patientId,
+                                slotId,
                             )
                             .then(response => {
                               if (response.status == 200) {
