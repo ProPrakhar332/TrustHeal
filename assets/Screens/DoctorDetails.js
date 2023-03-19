@@ -1133,26 +1133,32 @@ function DoctorDetails({navigation}) {
                       </Text>
                     </View>
                     <View style={{flexDirection: 'column'}}>
+                      <Text style={styles.subHeading}>P Follow-Up Fees</Text>
+                      <Text style={{fontSize: 12}}>
+                        {'₹ '}
+                        {DocObj.feesInfo.physicalfollowUpFees}
+                      </Text>
+                    </View>
+                    <View style={{flexDirection: 'column'}}>
+                      <Text style={styles.subHeading}>Follow-Up Duration</Text>
+                      <Text style={{fontSize: 12}}>
+                        {DocObj.feesInfo.followUpDuration} {' days'}
+                      </Text>
+                    </View>
+                  </View>
+                  <View style={{flexDirection: 'column', flex: 0.5}}>
+                    <View style={{flexDirection: 'column'}}>
                       <Text style={styles.subHeading}>E-Consultation Fees</Text>
                       <Text style={{fontSize: 12}}>
                         {'₹ '}
                         {DocObj.feesInfo.econsultationFees}
                       </Text>
                     </View>
-                  </View>
-                  <View style={{flexDirection: 'column', flex: 0.5}}>
                     <View style={{flexDirection: 'column'}}>
-                      <Text style={styles.subHeading}>Follow-Up Fees</Text>
+                      <Text style={styles.subHeading}>E Follow-Up Fees</Text>
                       <Text style={{fontSize: 12}}>
                         {'₹ '}
-                        {DocObj.feesInfo.followUpFees}
-                      </Text>
-                    </View>
-                    <View style={{flexDirection: 'column'}}>
-                      <Text style={styles.subHeading}>Follow Up Duration</Text>
-                      <Text style={{fontSize: 12}}>
-                        {DocObj.feesInfo.followUpDuration}
-                        {' days'}
+                        {DocObj.feesInfo.efollowUpFees}
                       </Text>
                     </View>
                   </View>

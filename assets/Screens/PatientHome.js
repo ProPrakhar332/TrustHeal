@@ -44,6 +44,8 @@ function PatientHome({navigation}) {
   const [states, setStates] = useState(0);
   const [isLoading, setisLoading] = useState(false);
   const [patientDet, setpatientDet] = useState(null);
+  const [CategoryList, setCategoryList] = useState(null);
+  const [CategorySymptomsList, setCategorySymptomsList] = useState(null);
 
   const renderUpcomingConsultations = ({item}) => (
     <TouchableOpacity
@@ -53,8 +55,10 @@ function PatientHome({navigation}) {
         padding: 5,
         margin: 5,
         flexDirection: 'column',
-        width: 290,
-        height: 80,
+        width: width - 50,
+        //height: 100,
+        alignSelf: 'center',
+        justifyContent: 'space-evenly',
       }}
       onPress={() => navigation.navigate('Appointments')}
       key={item.consultationId}>
@@ -65,7 +69,7 @@ function PatientHome({navigation}) {
         {/* Image */}
         <View
           style={{
-            width: 80,
+            width: 100,
             flexDirection: 'column',
             alignSelf: 'center',
             margin: 5,
@@ -79,27 +83,39 @@ function PatientHome({navigation}) {
                   }
             }
             style={{
-              width: 60,
-              height: 60,
+              width: 90,
+              height: 90,
               borderRadius: 10,
               alignSelf: 'center',
             }}
           />
         </View>
         {/* Details */}
-        <View style={{width: 160, justifyContent: 'space-evenly'}}>
-          <Text style={{fontSize: 15, fontWeight: 'bold', color: 'black'}}>
-            {item.doctorName}
-          </Text>
-          <Text style={{fontSize: 10, color: 'gray'}}>
-            {item.specialization.map(index => {
-              return item.specialization.indexOf(index) !=
-                item.specialization.length - 1
-                ? index + ', '
-                : index;
-            })}
-          </Text>
-          <View style={{flexDirection: 'row'}}>
+        <View
+          style={{
+            flexDirection: 'column',
+            width: width - 175,
+            justifyContent: 'space-evenly',
+          }}>
+          {/* Doctor Name */}
+          <View style={{flexDirection: 'row', flex: 1, padding: 2}}>
+            <Text style={{fontSize: 15, fontWeight: 'bold', color: 'black'}}>
+              {item.doctorName}
+            </Text>
+          </View>
+          {/* Doctor Specialization */}
+          <View style={{flexDirection: 'row', flex: 1, padding: 2}}>
+            <Text style={{fontSize: 12, color: 'gray', fontWeight: 'bold'}}>
+              {item.specialization.map(index => {
+                return item.specialization.indexOf(index) !=
+                  item.specialization.length - 1
+                  ? index + ', '
+                  : index;
+              })}
+            </Text>
+          </View>
+          {/* Type of Consultation */}
+          <View style={{flexDirection: 'row', flex: 1, padding: 2}}>
             <FAIcons
               name={
                 item.consultationType == 'PHYSICAL'
@@ -116,17 +132,40 @@ function PatientHome({navigation}) {
                 marginRight: 5,
               }}
             />
-            <Text style={{fontSize: 10, color: '#2B8ADA'}}>
+            <Text style={{fontSize: 12, color: '#2B8ADA'}}>
               {item.consultationType == 'PHYSICAL'
                 ? 'P-Consultation'
                 : 'E-Consultation'}
             </Text>
           </View>
-          <Text style={{fontSize: 12, fontWeight: 'bold'}}>
-            {timeformatter(item.slotStartTime)}
-            {'  |  '}
-            {dayjs(item.date).format('DD-MMM-YY')}
-          </Text>
+          {/* Address if Physical */}
+          {item.clinicAddress != null ? (
+            <View style={{flexDirection: 'row', flex: 1, padding: 2}}>
+              <FAIcons
+                name={'hospital'}
+                color={'#2b8ada'}
+                size={12}
+                solid={false}
+                style={{
+                  alignSelf: 'center',
+                  marginRight: 5,
+                }}
+              />
+              <Text style={{fontSize: 12, color: '#2B8ADA'}}>
+                {item.clinicName}
+                {' | '}
+                {item.clinicAddress}
+              </Text>
+            </View>
+          ) : null}
+          {/* Date and Time */}
+          <View style={{flexDirection: 'row', flex: 1, padding: 2}}>
+            <Text style={{fontSize: 12, fontWeight: 'bold'}}>
+              {timeformatter(item.slotStartTime)}
+              {'  |  '}
+              {dayjs(item.date).format('DD MMM, YYYY')}
+            </Text>
+          </View>
         </View>
         {/* Chat Button */}
         {/* <TouchableOpacity style={{alignSelf: 'flex-start'}}>
@@ -151,9 +190,10 @@ function PatientHome({navigation}) {
         <TouchableOpacity
           key={data.specializationImage}
           style={{
+            flex: 1,
             flexDirection: 'column',
             alignSelf: 'center',
-            height: 70,
+
             width: 80,
             backgroundColor: 'white',
             justifyContent: 'space-evenly',
@@ -164,50 +204,107 @@ function PatientHome({navigation}) {
             navigation.navigate('AllSpeciality');
           }}>
           {/* <Image/> */}
-          <Image
-            source={{
-              uri: `${apiConfig.baseUrl}/file/admin/download?fileToken=${data.specializationImage}`,
-            }}
-            style={{height: 45, width: 45, alignSelf: 'center'}}
-          />
-          <Text style={{fontSize: 9, alignSelf: 'center'}}>
-            {data.specialization}
-          </Text>
+          <View style={{flex: 1, padding: 2, marginVertical: 2}}>
+            <Image
+              source={{
+                uri: `${apiConfig.baseUrl}/file/admin/download?fileToken=${data.specializationImage}`,
+              }}
+              style={{
+                height: 50,
+                width: 50,
+                alignSelf: 'center',
+              }}
+            />
+          </View>
+          <View style={{flex: 1, padding: 2, marginBottom: 2}}>
+            <Text
+              style={{
+                fontSize: 10,
+                alignSelf: 'center',
+                textAlign: 'center',
+              }}>
+              {data.specialization}
+            </Text>
+          </View>
         </TouchableOpacity>
       );
     });
   };
   const RenderSymptoms = () => {
-    return SymptomsData.map((data, index) => {
-      return (
-        <TouchableOpacity
-          key={data.symptomImage}
-          style={{
-            flexDirection: 'column',
-            alignSelf: 'center',
-            height: 70,
-            width: 80,
-            backgroundColor: '#2B8ADA',
-            justifyContent: 'space-evenly',
-            borderRadius: 15,
-            margin: 5,
-          }}
-          onPress={() => {
-            navigation.navigate('AllSymptoms');
-          }}>
-          {/* <Image/> */}
-          <Image
-            source={{
-              uri: `${apiConfig.baseUrl}/file/admin/download?fileToken=${data.symptomImage}`,
-            }}
-            style={{height: 45, width: 45, alignSelf: 'center'}}
-          />
-          <Text style={{fontSize: 10, alignSelf: 'center', color: 'white'}}>
-            {data.symptom}
-          </Text>
-        </TouchableOpacity>
-      );
-    });
+    return (
+      <View
+        style={{
+          flexDirection: 'column',
+          width: width - 50,
+          alignSelf: 'center',
+        }}>
+        {CategorySymptomsList.map((item, index) => {
+          return (
+            <View
+              style={{
+                flexDirection: 'column',
+                marginVertical: 5,
+              }}
+              key={item.category}>
+              {/* Heading */}
+              <Text
+                style={{
+                  fontSize: 15,
+                  color: '#2b8ada',
+                  fontWeight: 'bold',
+                  marginVertical: 5,
+                }}>
+                {item.category}
+              </Text>
+              {/* List of Symptoms */}
+              <View style={{flexDirection: 'row'}}>
+                {item.symptoms.map((data, index) => {
+                  return (
+                    <TouchableOpacity
+                      key={data.symptomImage}
+                      style={{
+                        flexDirection: 'column',
+                        alignSelf: 'center',
+                        width: 80,
+                        backgroundColor: '#379ae6',
+                        justifyContent: 'space-evenly',
+                        borderRadius: 15,
+                        margin: 5,
+                        padding: 5,
+                      }}
+                      onPress={() => {
+                        navigation.navigate('AllSymptoms');
+                      }}>
+                      {/* <Image/> */}
+                      <View style={{padding: 3}}>
+                        <Image
+                          source={{
+                            uri: `${apiConfig.baseUrl}/file/admin/download?fileToken=${data.symptomImage}`,
+                          }}
+                          style={{height: 50, width: 50, alignSelf: 'center'}}
+                        />
+                      </View>
+                      <View style={{padding: 3}}>
+                        <Text
+                          style={{
+                            fontSize: 12,
+                            alignSelf: 'center',
+                            color: 'white',
+                            fontWeight: 'bold',
+                            textAlign: 'center',
+                          }}>
+                          {data.symptom}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </View>
+          );
+        })}
+      </View>
+    );
   };
 
   const renderListOfDoctors = ({item}) => {
@@ -355,15 +452,18 @@ function PatientHome({navigation}) {
         });
     };
 
-    const getSymptoms = async () => {
+    const getCategory = async () => {
       axios
-        .get(apiConfig.baseUrl + '/suggest/symptom/dropdown?max=5&min=0')
+        .get(apiConfig.baseUrl + '/suggest/symptoms/category')
         .then(function (response) {
           console.log(
-            '\n=========================== SYMPTOMS DATA ====================================\n',
+            '\n=========================== CATEGORIES DATA ====================================\n',
           );
           console.log(response.data);
-          if (response.status == 200) setSymptomsData(response.data);
+          if (response.status == 200) {
+            //console.log(response.data);
+            setCategoryList(response.data.category);
+          }
         });
     };
 
@@ -381,7 +481,7 @@ function PatientHome({navigation}) {
     getPatientDet();
     getBanner();
     getSpeciality();
-    //getSymptoms();
+    getCategory();
     getDoctors();
   }, []);
 
@@ -395,7 +495,7 @@ function PatientHome({navigation}) {
         )
         .then(function (response) {
           console.log(
-            '\n=========================== UPCOMING CONSULTATIONS ====================================\n',
+            '\n=========================== UPCOMING CONSULTATIONS  ====================================\n',
           );
           console.log(response.data);
           if (response.status == 200) setUpcomingData(response.data);
@@ -404,6 +504,41 @@ function PatientHome({navigation}) {
 
     if (patientDet != null) getUpcoming();
   }, [patientDet]);
+
+  useEffect(() => {
+    const getSymptoms = async () => {
+      let p = [];
+
+      for (let i = 0; i < CategoryList.length && i < 5; ++i) {
+        await axios
+          .get(
+            apiConfig.baseUrl +
+              '/suggest/symptom/by/category?category=' +
+              CategoryList[i],
+          )
+          .then(response => {
+            console.log(
+              `\n\n=======    ${CategoryList[i]} ===========\n\n`,
+              response.data,
+            );
+
+            if (response.status == 200 && response.data != '') {
+              p.push({
+                category: CategoryList[i],
+                symptoms: response.data,
+              });
+            }
+          });
+      }
+      console.log(
+        '===============  CATEGORIES WITH SYMPTOMS=================\n\n',
+        p,
+      );
+      setCategorySymptomsList(p);
+    };
+
+    if (CategoryList != null) getSymptoms();
+  }, [CategoryList]);
 
   return (
     <KeyboardAvoidingView
@@ -471,8 +606,9 @@ function PatientHome({navigation}) {
             </View>
           </View>
 
-          {/* Buttons */}
-          <View
+          {/*Consultation Buttons */}
+
+          {/* <View
             style={{
               flexDirection: 'column',
               width: '80%',
@@ -504,7 +640,7 @@ function PatientHome({navigation}) {
                 navigation.navigate('Consult');
               }}
             />
-          </View>
+          </View> */}
 
           {/* Recent Consultation */}
           {/* <View style={styles.whiteBox}>
@@ -556,7 +692,7 @@ function PatientHome({navigation}) {
                 data={UpcomingData}
                 keyExtractor={item => item.consultationId}
                 renderItem={renderUpcomingConsultations}
-                horizontal={true}
+                horizontal={false}
               />
             </View>
           ) : null}
@@ -630,7 +766,7 @@ function PatientHome({navigation}) {
               style={{alignSelf: 'center', flexDirection: 'row'}}
               horizontal={true}
               showsHorizontalScrollIndicator={false}>
-              <RenderSymptoms />
+              {CategorySymptomsList != null ? <RenderSymptoms /> : null}
             </ScrollView>
             <Text
               style={{

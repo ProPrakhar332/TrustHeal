@@ -22,6 +22,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Header from '../Components/Header';
 import HeaderPatient from '../Components/HeaderPatient';
 import FAIcons from 'react-native-vector-icons/FontAwesome5';
+import MIcons from 'react-native-vector-icons/MaterialIcons';
 import apiConfig from '../API/apiConfig';
 import {
   SelectList,
@@ -40,10 +41,12 @@ import DoctorCard from '../Components/DoctorCard';
 function AllSpeciality({navigation}) {
   const [isLoading, setisLoading] = useState(false);
   const [List, setList] = useState([]);
+  const [newList, setnewList] = useState([]);
   const [DoctorsList, setDoctorsList] = useState(null);
   const [selectedSpeciality, setselectedSpeciality] = useState([]);
   const [consultationModeModal, setconsultationModeModal] = useState(false);
   const [DoctorItem, setDoctorItem] = useState(null);
+  const [search, setSearch] = useState('');
   const layout = useWindowDimensions();
 
   useEffect(() => {
@@ -75,6 +78,24 @@ function AllSpeciality({navigation}) {
 
     getAllSpeciality();
   }, []);
+
+  useEffect(() => {
+    const setSearchList = () => {
+      let p = [];
+      //console.log('Item to be searched  :   ', search.toLowerCase());
+
+      List.forEach(item => {
+        let x = item.value.toLowerCase();
+        //console.log(x);
+        if (x.indexOf(search.toLowerCase()) != -1) p.push(item);
+      });
+
+      //console.log('Results:-\n', p);
+
+      setnewList(p);
+    };
+    if (search != '') setSearchList();
+  }, [search]);
 
   const renderSpeciality = ({item}) => {
     return (
@@ -610,18 +631,50 @@ function AllSpeciality({navigation}) {
                 }}>
                 Select Speciality
               </Text>
+              <View
+                style={{
+                  marginBottom: 10,
+                  flexDirection: 'row',
+                  width: '95%',
+                  alignSelf: 'center',
+                }}>
+                <TextInput
+                  style={{
+                    backgroundColor: 'white',
+                    paddingVertical: 5,
+                    paddingHorizontal: 15,
+                    width: '100%',
+                    borderRadius: 10,
+                  }}
+                  placeholder={'Enter Speciality'}
+                  onChangeText={text => setSearch(text)}
+                  value={search}
+                />
+                <MIcons
+                  name="clear"
+                  size={20}
+                  color={'black'}
+                  style={{
+                    position: 'absolute',
+                    right: 0,
+                    marginRight: 10,
+                    alignSelf: 'center',
+                    justifyContent: 'center',
+                  }}
+                  onPress={() => setSearch('')}
+                />
+              </View>
               {selectedSpeciality != '' ? (
                 <TouchableOpacity
                   style={{
                     zIndex: 3,
-                    position: 'absolute',
-                    top: layout.height - 250,
                     backgroundColor: '#17CC9C',
                     padding: 7,
                     paddingHorizontal: 15,
                     borderRadius: 5,
                     alignSelf: 'center',
                     flexDirection: 'row',
+                    marginBottom: 10,
                   }}
                   onPress={() => {
                     setDoctorsList(null);
@@ -638,9 +691,9 @@ function AllSpeciality({navigation}) {
                   </Text>
                 </TouchableOpacity>
               ) : null}
-              <View style={{alignSelf: 'center', height: layout.height - 200}}>
+              <View style={{alignSelf: 'center', marginBottom: 30}}>
                 <FlatList
-                  data={List}
+                  data={search == '' ? List : newList}
                   key={item => item.key}
                   renderItem={renderSpeciality}
                   numColumns={Math.round(layout.width / 130)}
