@@ -155,7 +155,7 @@ const DoctorHome = ({navigation}) => {
     let p = {
       patientDet: obj,
       patientId: item.patientId,
-      patientNo: item.patientNumber,
+      //patientNo: item.patientNumber,
       consultationId: item.consultationId,
       clinicName: item.clinicName != null ? item.clinicName : '',
       clinicAddress: item.clinicAddress != null ? item.clinicAddress : '',
@@ -168,6 +168,9 @@ const DoctorHome = ({navigation}) => {
     // let op = {};
     // if (Platform.OS == 'ios') op = {NSURLIsExcludedFromBackupKey: true};
     // await RNFS.mkdir(`file://${RNFS.DownloadDirectoryPath}/Arogya`, op);
+
+    console.log('Downloading with user id ', userId);
+
     let filePath = `file://${RNFS.CachesDirectoryPath}/`;
     let options = {
       fromUrl:
@@ -585,6 +588,7 @@ const DoctorHome = ({navigation}) => {
             }}
             onPress={async () => {
               settodayId(item.consultationId);
+              setpatientId(item.patientId);
               await getTodaysDocs(item.consultationId);
               setTodaysModal(true);
             }}>
@@ -611,6 +615,7 @@ const DoctorHome = ({navigation}) => {
             ]}
             onPress={async () => {
               settodayId(item.consultationId);
+              setpatientId(item.patientId);
               await getTodaysDocs(item.consultationId);
               setConsultationQuestionnaire(true);
             }}>
@@ -970,6 +975,7 @@ const DoctorHome = ({navigation}) => {
             }}
             onPress={async () => {
               settodayId(item.consultationId);
+              setpatientId(item.patientId);
               await getTodaysDocs(item.consultationId);
               setTodaysModal(true);
             }}>
@@ -996,6 +1002,7 @@ const DoctorHome = ({navigation}) => {
             ]}
             onPress={async () => {
               settodayId(item.consultationId);
+              setpatientId(item.patientId);
               await getTodaysDocs(item.consultationId);
               setConsultationQuestionnaire(true);
             }}>
@@ -1537,6 +1544,7 @@ const DoctorHome = ({navigation}) => {
             }}
             onPress={async () => {
               settodayId(item.consultationId);
+              setpatientId(item.patientId);
               await getTodaysDocs(item.consultationId);
               setTodaysModal(true);
             }}>
@@ -1690,9 +1698,30 @@ const DoctorHome = ({navigation}) => {
           borderRadius: 15,
           padding: 10,
           backgroundColor: '#E8F0FE',
+        }}
+        onPress={async () => {
+          //console.log(apiConfig.baseUrl + item.documentPath);
+          // openURL(apiConfig.baseUrl + item.documentPath);
+
+          console.log(item.documentPath);
+
+          await downloadCache(
+            item.documentPath,
+            patientId,
+            item.documentName + '.pdf',
+          );
+          //setPrescriptionModal(true);
         }}>
-        <View style={{flexDirection: 'column'}}>
+        <View style={{flexDirection: 'column', alignSelf: 'center'}}>
           <Text style={styles.HistoryModalText}>{item.documentName}</Text>
+        </View>
+        <View style={{flexDirection: 'column', alignSelf: 'center'}}>
+          <Text style={styles.HistoryModalText}>
+            {dayjs(item.uploadedDate).format('DD MMM, YYYY')}
+          </Text>
+          <Text style={styles.HistoryModalText}>
+            {dayjs(item.uploadedDate).format('HH:mm A')}
+          </Text>
         </View>
         <View
           style={{
@@ -1703,17 +1732,7 @@ const DoctorHome = ({navigation}) => {
             size={20}
             color={'black'}
             style={{
-              marginHorizontal: 5,
-            }}
-            onPress={() => {
-              //console.log(apiConfig.baseUrl + item.documentPath);
-              // openURL(apiConfig.baseUrl + item.documentPath);
-              downloadCache(
-                item.documentPath,
-                patientId,
-                item.documentName + '.pdf',
-              );
-              setPrescriptionModal(true);
+              alignSelf: 'center',
             }}
           />
         </View>
@@ -1895,6 +1914,7 @@ const DoctorHome = ({navigation}) => {
       .then(function (response) {
         if (response.status == 200) {
           setTodaysDocs(response.data.documents);
+
           setPreconsultaionQuestionData(response.data.quesAns);
         }
         //console.log(TodaysDocs);
@@ -2570,7 +2590,7 @@ const DoctorHome = ({navigation}) => {
                           marginVertical: 10,
                         }}>
                         {TodaysDocs != '' && TodaysDocs != null ? (
-                          <View style={{width: '95%', alignSelf: 'center'}}>
+                          <View style={{width: '100%', alignSelf: 'center'}}>
                             <FlatList
                               data={TodaysDocs}
                               keyExtractor={item => item.documentName}

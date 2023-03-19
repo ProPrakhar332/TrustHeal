@@ -95,7 +95,7 @@ function PrescriptionPreview({navigation}) {
         setclinicName(h.clinicName);
         setclinicAddress(h.clinicAddress);
         setpatientID(h.patientId);
-        setpatientNumber(h.patientNo);
+        //setpatientNumber(h.patientNo);
         setconsultationId(h.consultationId);
         setpatientName(h.patientDet.patientName);
         setpatientAge(h.patientDet.age);
@@ -408,7 +408,7 @@ th{
                         <p class="p-nme mb-0"><b>Date :</b>` +
     dayjs(new Date()).format('DD MMM, YYYY') +
     `</p>
-                        <p class="p-nme mb-0"><b>Mobile Number:</b> ${patientNumber}</p>
+                        <p class="p-nme mb-0"><b>Mobile Number:</b> TH-000${patientID}</p>
                     </div>
                 </div>
                 <p class="mb-0 complaints"><b><u>Chief Complaints</u> :-  </b>` +

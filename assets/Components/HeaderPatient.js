@@ -77,6 +77,10 @@ const NotiSample = [
 const Header = ({title, showMenu}) => {
   const [patientName, setpatientName] = useState('');
   const [patientNumber, setpatientNumber] = useState('');
+  const [showOTP, setshowOTP] = useState(false);
+  const [showOTPResend, setshowOTPResend] = useState(false);
+  const [validOTP, setvalidOTP] = useState(false);
+  const [patientOTP, setpatientOTP] = useState('');
   const [mode, setMode] = useState('');
   const [date, setdate] = useState('');
   const [slot, setSlot] = useState('');
@@ -149,19 +153,62 @@ const Header = ({title, showMenu}) => {
         patientNumber: patientNumber,
       })
       .then(async function (response) {
+        // console.log(response);
         if (response.status == 200) {
           Alert.alert(
             'Shared Successfully',
             `The app has been shared with ${patientName} via message on mobile number ${patientNumber}`,
           );
-          setShareModal(false);
-          setpatientName('');
-          setpatientNumber('');
+          clearAll();
         }
       })
       .catch(function (error) {
         Alert.alert('Error', `${error}`);
       });
+  };
+
+  const sendOTP = async () => {
+    await axios
+      .post(apiConfig.baseUrl + '/app/otp/send?mobileNumber=' + patientNumber)
+      .then(response => {
+        if (response.status == 200) {
+          setshowOTP(true);
+          setshowOTPResend(true);
+        }
+      })
+      .catch(error => {
+        Alert.alert('Error in OTP', `${error}`);
+      });
+  };
+  const verifyOTP = async () => {
+    await axios
+      .post(apiConfig.baseUrl + '/app/otp/verify', {
+        mobileNumber: patientNumber,
+        otp: patientOTP,
+      })
+      .then(async response => {
+        console.log(response);
+        if (response.status == 200) {
+          Alert.alert(
+            'Existing User',
+            `There is an existing patient with this mobile number under the name of ${response.data.patientname}`,
+          );
+        } else if (response.status == 204) await Message();
+      })
+      .catch(error => {
+        Alert.alert('Invalid OTP', `Please enter valid OTP`);
+        return false;
+      });
+  };
+  const clearAll = () => {
+    setpatientName('');
+    setpatientNumber('');
+    setpatientOTP('');
+    setMsg('');
+    setshowOTP(false);
+    setshowOTPResend(false);
+    setvalidOTP(false);
+    setShareModal(false);
   };
 
   const Item = ({id, time}) => (
@@ -292,7 +339,8 @@ const Header = ({title, showMenu}) => {
                   borderTopRightRadius: 34,
                   borderTopLeftRadius: 34,
                   bottom: 0,
-                  height: 300,
+                  maxHeight: 350,
+                  padding: 20,
                 },
               ]}>
               <View
@@ -310,7 +358,7 @@ const Header = ({title, showMenu}) => {
                     alignSelf: 'center',
                     marginBottom: 10,
                   }}>
-                  Share with Patient
+                  Share App with patient
                 </Text>
                 <FAIcon
                   name="window-close"
@@ -318,10 +366,7 @@ const Header = ({title, showMenu}) => {
                   size={20}
                   style={{position: 'absolute', right: 0}}
                   onPress={() => {
-                    setpatientName('');
-                    setpatientNumber('');
-                    setMsg('');
-                    setShareModal(false);
+                    clearAll();
                   }}
                 />
               </View>
@@ -338,8 +383,8 @@ const Header = ({title, showMenu}) => {
                     alignSelf: 'center',
                     width: '100%',
                   }}>
-                  <View style={{flex: 0.45}}>
-                    <Text style={{fontSize: 12}}>Patient Name</Text>
+                  <View style={{flex: 1, marginBottom: 10}}>
+                    <Text style={styles.shareModalLabel}>Patient Name</Text>
                     <TextInput
                       style={{
                         backgroundColor: '#E8F0FE',
@@ -351,8 +396,18 @@ const Header = ({title, showMenu}) => {
                       value={patientName}
                     />
                   </View>
-                  <View style={{flex: 0.45}}>
-                    <Text style={{fontSize: 12}}>Patient Mobile No.</Text>
+                </View>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    alignSelf: 'center',
+                    width: '100%',
+                  }}>
+                  <View style={{flex: 0.475}}>
+                    <Text style={styles.shareModalLabel}>
+                      Patient Mobile No.
+                    </Text>
                     <TextInput
                       style={{
                         backgroundColor: '#E8F0FE',
@@ -365,7 +420,61 @@ const Header = ({title, showMenu}) => {
                       onChangeText={text => setpatientNumber(text)}
                       value={patientNumber}
                     />
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                      }}>
+                      {/* Send OTP */}
+                      <Text
+                        style={{
+                          fontSize: 12,
+                          color: '#2b8ada',
+                          marginVertical: 5,
+                        }}
+                        onPress={async () => {
+                          if (patientNumber.length != 10)
+                            Alert.alert(
+                              'Invalid Number',
+                              'Please enter valid 10 digit mobile number',
+                              [
+                                {
+                                  text: 'ok',
+                                  onPress: () => {
+                                    setshowOTP(false);
+                                    setpatientOTP('');
+                                    setpatientNumber('');
+                                  },
+                                },
+                              ],
+                            );
+                          else {
+                            await sendOTP();
+                            // setshowOTPResend(true);
+                            // setshowOTP(true);
+                          }
+                        }}>
+                        {!showOTPResend ? 'Send OTP' : 'Resend OTP'}
+                      </Text>
+                    </View>
                   </View>
+                  {showOTP ? (
+                    <View style={{flex: 0.475}}>
+                      <Text style={styles.shareModalLabel}>Enter OTP</Text>
+                      <TextInput
+                        style={{
+                          backgroundColor: '#E8F0FE',
+                          padding: 5,
+                          borderRadius: 5,
+                          color: 'black',
+                        }}
+                        keyboardType={'number-pad'}
+                        maxLength={4}
+                        onChangeText={text => setpatientOTP(text)}
+                        value={patientOTP}
+                      />
+                    </View>
+                  ) : null}
                 </View>
 
                 <View>
@@ -390,7 +499,29 @@ const Header = ({title, showMenu}) => {
                         marginTop: 10,
                       }}
                       onPress={async () => {
-                        await Message();
+                        if (patientName == '')
+                          Alert.alert(
+                            'Invalid Input',
+                            'Please enter patient name',
+                          );
+                        else if (patientNumber == '')
+                          Alert.alert(
+                            'Invalid Input',
+                            'Please enter patient mobile phone number',
+                          );
+                        else if (showOTP == false)
+                          Alert.alert(
+                            'Notice',
+                            'Please validate number by pressing Send OTP',
+                          );
+                        // else if (validOTP == false)
+                        //   Alert.alert(
+                        //     'Invalid OTP',
+                        //     'Please enter valid OTP as received on the given mobile number',
+                        //   );
+                        else {
+                          await verifyOTP();
+                        }
                       }}
                     />
                   </View>
@@ -603,6 +734,7 @@ const styles = StyleSheet.create({
     padding: 5,
     width: '90%',
   },
+  shareModalLabel: {fontSize: 13, marginBottom: 3, fontWeight: 'bold'},
 });
 
 export default Header;
