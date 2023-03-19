@@ -82,10 +82,15 @@ const dataMode = [
 const Header = ({title, showMenu}) => {
   const [name, setName] = useState('');
   const [mob, setMob] = useState('');
+  const [OTP, setOTP] = useState('');
+  const [showOTP, setshowOTP] = useState(false);
+  const [showOTPResend, setshowOTPResend] = useState(false);
+  const [validOTP, setvalidOTP] = useState(false);
   const [mode, setMode] = useState('');
   const [date, setdate] = useState(null);
   const [selectedDate, setselectedDate] = useState('');
   const [eslotsId, seteslotsId] = useState(null);
+  const [preveslotsId, setpreveslotsId] = useState(null);
   const [viewESlots, setviewESlots] = useState([]);
   const [viewESlotsDate, setviewESlotsDate] = useState([]);
   const [fees, setfees] = useState(0);
@@ -105,6 +110,7 @@ const Header = ({title, showMenu}) => {
   const [DaysSlotRefresh, setDaysSlotRefresh] = useState(false);
 
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const [DocDet, setDocDet] = useState(null);
 
   const showDatePicker = () => {
     //console.log("Pressed button");
@@ -123,11 +129,18 @@ const Header = ({title, showMenu}) => {
 
     setDatePickerVisibility(false);
   };
+
+  useEffect(() => {
+    const onLoadData = async () => {
+      let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
+      setDocDet(x);
+    };
+    onLoadData();
+  }, []);
+
   useEffect(() => {
     const getEDates = async () => {
-      let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
-
-      let doctorId = Number(x.doctorId);
+      let doctorId = Number(DocDet.doctorId);
       axios
         .get(apiConfig.baseUrl + '/slot/eslot/dates?doctorId=' + doctorId)
         .then(function (response) {
@@ -206,13 +219,25 @@ const Header = ({title, showMenu}) => {
           },
           item.slotId == eslotsId ? {backgroundColor: '#2b8ada'} : null,
         ]}
-        onPress={() => {
+        onPress={async () => {
           console.log(item);
-          setslotTime(timeformatter(item.startTime));
-          setslotStartTime(timeformatter(item.startTime));
-          setslotEndTime(timeformatter(item.endTime));
-          seteslotsId(item.slotId);
-          setMode(item.typeOfEConsultation);
+          let x = false;
+          if (eslotsId == null) {
+            seteslotsId(item.slotId);
+            x = await checkAvailable(item.slotId);
+          } else {
+            await unlockSlot(eslotsId);
+            setpreveslotsId(eslotsId);
+            seteslotsId(item.slotId);
+            x = await checkAvailable(item.slotId);
+          }
+          console.log(x);
+          if (x == true) {
+            setslotTime(timeformatter(item.startTime));
+            setslotStartTime(timeformatter(item.startTime));
+            setslotEndTime(timeformatter(item.endTime));
+            setMode(item.typeOfEConsultation);
+          }
         }}>
         {item.typeOfEConsultation != null ? (
           <FAIcon
@@ -233,86 +258,6 @@ const Header = ({title, showMenu}) => {
       </TouchableOpacity>
     );
   };
-  // const renderSlot = ({item}) => {
-  //   return item.slotStatus == 'BOOKED' ? (
-  //     <TouchableOpacity
-  //       style={[
-  //         styles.slotBackgroundActive,
-  //         {
-  //           justifyContent: 'center',
-  //           marginRight: 5,
-  //         },
-  //       ]}
-  //       onPress={() => {
-  //         Alert.alert(
-  //           'Already Booked',
-  //           'This slot is already booked. Please select another slot',
-  //         );
-  //       }}>
-  //       {item.typeOfEConsultation != null ? (
-  //         <FAIcon
-  //           name={
-  //             item.typeOfEConsultation == 'PHONE_CALL' ? 'phone-alt' : 'video'
-  //           }
-  //           size={12}
-  //           color={
-  //             item.slotStatus == 'BOOKED'
-  //               ? 'white'
-  //               : item.slotStatus == 'DELETED_BY_DOCTOR'
-  //               ? 'white'
-  //               : '#2b8ada'
-  //           }
-  //           style={{alignSelf: 'center', marginRight: 3}}
-  //         />
-  //       ) : null}
-  //       <Text style={styles.slotTitleActive}>
-  //         {timeformatter(item.startTime)} to {timeformatter(item.endTime)}
-  //       </Text>
-  //     </TouchableOpacity>
-  //   ) : (
-  //     <TouchableOpacity
-  //       style={[
-  //         styles.slotBackground,
-  //         {
-  //           justifyContent: 'center',
-  //           marginRight: 5,
-  //         },
-  //         item.slotId == eslotsId ? {backgroundColor: '#2b8ada'} : null,
-  //       ]}
-  //       onPress={() => {
-  //         console.log(item);
-  //         setslotTime(timeformatter(item.startTime));
-  //         setslotStartTime(timeformatter(item.startTime));
-  //         setslotEndTime(timeformatter(item.endTime));
-  //         seteslotsId(item.slotId);
-  //         setMode(item.typeOfEConsultation);
-  //       }}>
-  //       {item.typeOfEConsultation != null ? (
-  //         <FAIcon
-  //           name={
-  //             item.typeOfEConsultation == 'PHONE_CALL' ? 'phone-alt' : 'video'
-  //           }
-  //           size={12}
-  //           color={
-  //             item.slotStatus == 'BOOKED'
-  //               ? 'white'
-  //               : item.slotStatus == 'DELETED_BY_DOCTOR'
-  //               ? 'white'
-  //               : '#2b8ada'
-  //           }
-  //           style={{alignSelf: 'center', marginRight: 3}}
-  //         />
-  //       ) : null}
-  //       <Text
-  //         style={[
-  //           styles.slotTitle,
-  //           item.slotId == eslotsId ? {color: 'white'} : null,
-  //         ]}>
-  //         {timeformatter(item.startTime)} to {timeformatter(item.endTime)}
-  //       </Text>
-  //     </TouchableOpacity>
-  //   );
-  // };
 
   const renderEViewDaysSlot = ({item}) => {
     return (
@@ -367,11 +312,53 @@ const Header = ({title, showMenu}) => {
     console.log("Don't Allow");
   };
 
+  const checkAvailable = async id => {
+    return await axios
+      .post(
+        apiConfig.baseUrl +
+          `/doctor/slot/prebook?consultation=E_CONSULTATION&slotId=${id}&userId=${DocDet.doctorId}`,
+      )
+      .then(response => {
+        if (response.status == 200) {
+          Alert.alert(
+            'Success',
+            'This slot is available to be shared with patient',
+          );
+          return true;
+        }
+      })
+      .catch(error => {
+        Alert.alert(
+          'Oops',
+          'This slot is under transaction. Please choose another slot',
+        );
+        seteslotsId(null);
+        return false;
+      });
+  };
+  const unlockSlot = async id => {
+    await axios
+      .delete(
+        apiConfig.baseUrl +
+          `/doctor/slot/prebooked/delete?consultation=E_CONSULTATION&slotId=${id}`,
+      )
+      .then(response => {
+        if (response.status == 200) {
+          console.log(`Slot unlocked ${id}`);
+        }
+      })
+      .catch(error => {
+        Alert.alert('Error', `${error}`);
+        return false;
+      });
+  };
+
   const Message = async () => {
     let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
     var doctorId = Number(x.doctorId);
     let p = {
       consultationType: mode,
+      doctorEmail: x.email,
       doctorId: doctorId,
       doctorMobileNumber: x.mobileNumber,
       doctorName: x.doctorName,
@@ -402,10 +389,49 @@ const Header = ({title, showMenu}) => {
         Alert.alert('Error', `${error}`);
       });
   };
+  const sendOTP = async () => {
+    await axios
+      .post(apiConfig.baseUrl + '/app/otp/send?mobileNumber=' + mob)
+      .then(response => {
+        if (response.status == 200) {
+          Alert.alert('Success', `A 4 digit OTP has been shared on ${mob}.`);
+          setshowOTP(true);
+          setshowOTPResend(true);
+        }
+      })
+      .catch(error => {
+        Alert.alert('Error in OTP', `${error}`);
+      });
+  };
+  const verifyOTP = async () => {
+    await axios
+      .post(apiConfig.baseUrl + '/app/otp/verify', {
+        mobileNumber: mob,
+        otp: OTP,
+      })
+      .then(async response => {
+        //console.log(response);
+        if (response.status == 200) {
+          {
+            Alert.alert(
+              'Existing User',
+              `There is an existing patient with this mobile number under the name of ${response.data.patientname}`,
+            );
+            await unlockSlot(eslotsId);
+            reset();
+          }
+        } else if (response.status == 204) await Message();
+      })
+      .catch(error => {
+        Alert.alert('Invalid OTP', `Please enter valid OTP`);
+      });
+  };
 
   const reset = async () => {
-    seteslotsId('');
+    seteslotsId(null);
+    setpreveslotsId(null);
     setdate(null);
+    setshowOTPResend(false);
     setMode('');
     setslotTime('');
     setslotStartTime('');
@@ -413,32 +439,10 @@ const Header = ({title, showMenu}) => {
     setName('');
     setMob('');
     setfees('');
+    setOTP('');
     setviewESlots([]);
     setShareModal(false);
   };
-
-  // const Item = ({id, time}) => (
-  //   <View
-  //     style={{
-  //       backgroundColor: '#E8F0FE',
-  //       margin: 5,
-  //       borderRadius: 10,
-  //       padding: 10,
-  //     }}>
-  //     <Text
-  //       style={{
-  //         fontSize: 12,
-  //         textAlign: 'center',
-  //         color: 'black',
-  //       }}
-  //       onPress={() => {
-  //         setSlot(time);
-  //       }}>
-  //       {time}
-  //     </Text>
-  //   </View>
-  // );
-  // const renderItem = ({item}) => <Item id={item.id} time={item.time} />;
 
   return (
     <View
@@ -793,7 +797,7 @@ const Header = ({title, showMenu}) => {
                     }}>
                     Patient Details:-
                   </Text>
-                  {/* Name and Mobile Number */}
+
                   <View
                     style={{
                       // borderRadius: 15,
@@ -801,17 +805,19 @@ const Header = ({title, showMenu}) => {
                       padding: 10,
                       //borderWidth: 1,
                     }}>
+                    {/* Patient Name Row*/}
                     <View
                       style={{
                         flexDirection: 'row',
                         justifyContent: 'space-between',
                         marginBottom: 10,
                       }}>
+                      {/* Patient Name */}
                       <View
                         style={[
                           styles.inputField,
                           {paddingVertical: 0},
-                          {flex: 0.49},
+                          {flex: 1},
                         ]}>
                         <TextInput
                           onChangeText={text => setName(text)}
@@ -820,26 +826,13 @@ const Header = ({title, showMenu}) => {
                           style={{fontSize: 12}}
                           placeholder="Patient Name"></TextInput>
                       </View>
-                      <View
-                        style={[
-                          styles.inputField,
-                          {paddingVertical: 0},
-                          {flex: 0.49},
-                        ]}>
-                        <TextInput
-                          onChangeText={text => setMob(text)}
-                          value={mob}
-                          maxLength={10}
-                          style={{fontSize: 12}}
-                          placeholder="Mobile No."
-                          keyboardType={'number-pad'}></TextInput>
-                      </View>
                     </View>
                     {/* Amount Received */}
                     <View
                       style={{
                         flexDirection: 'row',
                         justifyContent: 'space-between',
+                        marginBottom: 10,
                       }}>
                       <View
                         style={[
@@ -855,6 +848,86 @@ const Header = ({title, showMenu}) => {
                           keyboardType={'number-pad'}
                           maxLength={4}></TextInput>
                       </View>
+                    </View>
+                    {/* Mobile Number and OTP Row*/}
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        marginBottom: 10,
+                      }}>
+                      {/* Mobile Number */}
+                      <View
+                        style={[
+                          styles.inputField,
+                          {paddingVertical: 0},
+                          {flex: 0.49, backgroundColor: 'white'},
+                        ]}>
+                        <TextInput
+                          onChangeText={text => setMob(text)}
+                          value={mob}
+                          maxLength={10}
+                          style={{
+                            fontSize: 12,
+                            backgroundColor: '#E8F0FE',
+                            borderRadius: 10,
+                            paddingHorizontal: 5,
+                          }}
+                          placeholder="Mobile No."
+                          keyboardType={'number-pad'}></TextInput>
+                        <Text
+                          style={{
+                            fontSize: 12,
+                            color: '#2b8ada',
+                            marginVertical: 5,
+                          }}
+                          onPress={async () => {
+                            if (mob.length != 10)
+                              Alert.alert(
+                                'Invalid Number',
+                                'Please enter valid 10 digit mobile number',
+                                [
+                                  {
+                                    text: 'ok',
+                                    onPress: () => {
+                                      setshowOTP(false);
+                                      setOTP('');
+                                      setMob('');
+                                    },
+                                  },
+                                ],
+                              );
+                            else {
+                              await sendOTP();
+                              // setshowOTPResend(true);
+                              // setshowOTP(true);
+                            }
+                          }}>
+                          {!showOTPResend ? 'Send OTP' : 'Resend OTP'}
+                        </Text>
+                      </View>
+                      {/* OTP */}
+                      {showOTP ? (
+                        <View
+                          style={[
+                            styles.inputField,
+                            {paddingVertical: 0},
+                            {flex: 0.49, backgroundColor: 'white'},
+                          ]}>
+                          <TextInput
+                            onChangeText={text => setOTP(text)}
+                            value={OTP}
+                            keyboardType={'number-pad'}
+                            maxLength={4}
+                            style={{
+                              fontSize: 12,
+                              backgroundColor: '#E8F0FE',
+                              borderRadius: 10,
+                              paddingHorizontal: 5,
+                            }}
+                            placeholder="Enter OTP"></TextInput>
+                        </View>
+                      ) : null}
                     </View>
                   </View>
                 </View>
@@ -901,8 +974,13 @@ const Header = ({title, showMenu}) => {
                           'Incomplete Details',
                           'Please select the time slot for e-consultation',
                         );
+                      else if (showOTP == false)
+                        Alert.alert(
+                          'Notice',
+                          'Please validate number by pressing Send OTP',
+                        );
                       else {
-                        await Message();
+                        await verifyOTP();
                       }
                     }}
                   />
