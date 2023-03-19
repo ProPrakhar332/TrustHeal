@@ -46,7 +46,7 @@ function PatientHome({navigation}) {
   const [patientDet, setpatientDet] = useState(null);
 
   const renderUpcomingConsultations = ({item}) => (
-    <View
+    <TouchableOpacity
       style={{
         backgroundColor: 'white',
         borderRadius: 10,
@@ -56,6 +56,7 @@ function PatientHome({navigation}) {
         width: 290,
         height: 80,
       }}
+      onPress={() => navigation.navigate('Appointments')}
       key={item.consultationId}>
       <View
         style={{
@@ -141,7 +142,7 @@ function PatientHome({navigation}) {
           />
         </TouchableOpacity> */}
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   const RenderSpeciality = () => {

@@ -83,6 +83,10 @@ function DoctorDetails({navigation}) {
   const [clinicName, setclinicName] = useState('');
   const [clinicAddress, setclinicAddress] = useState('');
 
+  //view images
+  const [DisplayPhotoToken, setDisplayPhotoToken] = useState(0);
+  const [ImageViewer, setImageViewer] = useState(false);
+
   const [mode, setMode] = useState(null);
   useEffect(() => {
     const getData = async () => {
@@ -100,7 +104,7 @@ function DoctorDetails({navigation}) {
           apiConfig.baseUrl + '/patient/doctor/details?doctorId=' + x.doctorId,
         )
         .then(response => {
-          //console.log(response.data);
+          console.log(response.data);
           if (response.status == 200) setDocObj(response.data);
         })
         .catch(error => {
@@ -202,7 +206,7 @@ function DoctorDetails({navigation}) {
     if (DocObj != null) {
       setMedRegDet(DocObj.medicalInfo);
       setEducation(DocObj.educationInfo);
-      setExperience(DocObj.exprienceInfo);
+      setExperience(DocObj.experienceInfo);
       setClinicDet(DocObj.clinicInfo);
       setLanguages(DocObj.languages);
       setFees(DocObj.feesInfo);
@@ -291,14 +295,14 @@ function DoctorDetails({navigation}) {
              */}
             {/* Total Experience */}
             <View style={styles.cellStyle}>
-              {Math.floor(Experience.exprienceInMonths / 12) > 0 ? (
+              {Math.floor(Experience.experienceInMonths / 12) > 0 ? (
                 <Text style={styles.cellText}>
-                  {Math.floor(Experience.exprienceInMonths / 12) + ' year(s)'}
+                  {Math.floor(Experience.experienceInMonths / 12) + ' year(s)'}
                 </Text>
               ) : null}
-              {parseInt(Experience.exprienceInMonths % 12) != 0 ? (
+              {parseInt(Experience.experienceInMonths % 12) != 0 ? (
                 <Text style={styles.cellText}>
-                  {parseInt(Experience.exprienceInMonths % 12) + ' month(s)'}
+                  {parseInt(Experience.experienceInMonths % 12) + ' month(s)'}
                 </Text>
               ) : null}
             </View>
@@ -325,6 +329,20 @@ function DoctorDetails({navigation}) {
               margin: 0,
               padding: 0,
             }}>
+            {/* Clinic Photo */}
+            <TouchableOpacity style={styles.cellStyle}>
+              <FAIcon
+                name="file-image"
+                size={15}
+                color={'#2b8ada'}
+                style={{marginRight: 10}}
+                onPress={async () => {
+                  setDisplayPhotoToken(ClinicDet.clinicPhoto);
+                  console.log(ClinicDet);
+                  setImageViewer(true);
+                }}
+              />
+            </TouchableOpacity>
             {/* Clinic Name */}
             <View style={styles.cellStyle}>
               <Text style={styles.cellText}>{ClinicDet.clinicName}</Text>
@@ -1210,6 +1228,9 @@ function DoctorDetails({navigation}) {
                         padding: 0,
                       }}>
                       <View style={styles.cellHeading}>
+                        <Text style={styles.cellHeadingText}>Photo</Text>
+                      </View>
+                      <View style={styles.cellHeading}>
                         <Text style={styles.cellHeadingText}>Name</Text>
                       </View>
                       <View style={styles.cellHeading}>
@@ -1557,6 +1578,100 @@ function DoctorDetails({navigation}) {
 
           {consultationModeModal ? <RenderModal /> : null}
         </ScrollView>
+
+        {ImageViewer ? (
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={ImageViewer}
+            onRequestClose={() => {
+              setImageViewer(!ImageViewer);
+            }}>
+            <View
+              style={{
+                height: '100%',
+                backgroundColor: 'rgba(0,0,0,0.8)',
+                flexDirection: 'row',
+                justifyContent: 'center',
+              }}>
+              <View
+                style={[
+                  styles.modalView,
+                  {
+                    borderRadius: 10,
+                    padding: 15,
+                  },
+                ]}>
+                <View
+                  style={{
+                    width: '100%',
+                    alignSelf: 'center',
+                    borderBottomWidth: 1,
+                    borderBottomColor: 'gray',
+                  }}>
+                  <Text
+                    style={{
+                      fontWeight: 'bold',
+                      fontSize: 16,
+                      padding: 5,
+                      color: 'black',
+                    }}>
+                    Image Viewer
+                  </Text>
+                  <FAIcon
+                    name="window-close"
+                    color="black"
+                    size={26}
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      right: 0,
+                    }}
+                    onPress={() => {
+                      setImageViewer(false);
+                      setDisplayPhotoToken(0);
+                    }}
+                  />
+                </View>
+                <View style={{minHeight: 150, width: '100%'}}>
+                  <ScrollView
+                    style={{
+                      padding: 10,
+                      width: '100%',
+                      alignSelf: 'center',
+                      borderRadius: 7,
+                      marginVertical: 10,
+                      borderWidth: 2,
+                      borderColor: 'gray',
+                      minHeight: 200,
+                    }}
+                    scrollEnabled={true}>
+                    {DisplayPhotoToken == 0 ? (
+                      <Image
+                        source={waiting}
+                        style={{
+                          alignSelf: 'center',
+                        }}
+                      />
+                    ) : (
+                      <Image
+                        source={{
+                          uri: `${apiConfig.baseUrl}/file/download?fileToken=${DisplayPhotoToken}&userId=${DocDet.doctorId}`,
+                        }}
+                        style={{
+                          resizeMode: 'cover',
+                          width: '100%',
+                          height: 180,
+                        }}
+                      />
+                    )}
+                  </ScrollView>
+                </View>
+              </View>
+            </View>
+          </Modal>
+        ) : null}
+
         {(selectedDate != null && selectedSlotId != null) ||
         (selectedPDate != null && selectedPSlotId != null && mode != null) ? (
           <View

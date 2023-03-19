@@ -338,6 +338,16 @@ const EditProfile = ({navigation}) => {
     setAge(x);
   };
 
+  calculateExpPresent = async () => {
+    let startDt = dayjs(startExpDate);
+    let endDt = dayjs();
+    let diffMonth = endDt.diff(startDt, 'month');
+    console.log(diffMonth);
+    setExperienceInMonths(diffMonth);
+    setTotalYear(Math.floor(diffMonth / 12));
+    setTotalMonths(parseInt(diffMonth % 12));
+  };
+
   const setDateData = () => {
     var d = new Date().getFullYear();
     //console.log(dob.substring(0, 4));
@@ -1396,6 +1406,7 @@ const EditProfile = ({navigation}) => {
                       setStartExpDate(Exp.startDate);
                       setEndExpDate(Exp.endDate);
                       setexperienceId(Exp.experienceId);
+                      setExperienceInMonths(Exp.experienceInMonths);
                       setexpPhotoPath(Exp.experiencePhoto);
                       setcheckPresent(Exp.currentlyThere);
                       seteditExp(true);
@@ -3681,6 +3692,8 @@ const EditProfile = ({navigation}) => {
                             'Please upload experience certificate.',
                           );
                         else {
+                          //calculateExp
+
                           let p = {
                             doctorId: Number(doctorId),
                             endDate: endExpDate,

@@ -8,6 +8,7 @@ import ZegoUIKitPrebuiltCall, {
 } from '@zegocloud/zego-uikit-prebuilt-call-rn';
 import apiConfig from '../API/apiConfig';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function CallPage(props) {
   const {route} = props;
@@ -16,6 +17,7 @@ export default function CallPage(props) {
 
   useEffect(() => {
     const statusUpdateDoctor = async () => {
+      Alert.alert('Start', 'Consultation Started');
       axios
         .post(
           apiConfig.baseUrl +
@@ -24,13 +26,14 @@ export default function CallPage(props) {
         )
         .then(response => {
           if (response.status == 200)
-            console.log('Meeting going on status updated doctor');
+            console.log('\n\n\nMeeting going on status updated doctor\n\n\n');
         })
         .catch(response => {
           console.log(response);
         });
     };
     const statusUpdatePatient = async () => {
+      Alert.alert('Start', 'Consultation Started');
       axios
         .post(
           apiConfig.baseUrl +
@@ -39,15 +42,15 @@ export default function CallPage(props) {
         )
         .then(response => {
           if (response.status == 200)
-            console.log('Meeting going on status updated patient');
+            console.log('\n\n\nMeeting going on status updated patient\n\n\n');
         })
         .catch(response => {
           console.log(response);
         });
     };
     if (userType == 'Doctor') statusUpdateDoctor();
-    else statusUpdatePatient();
-  }, []);
+    else if (userType == 'Patient') statusUpdatePatient();
+  }, [userType]);
 
   const statusUpdatePatientDisconnect = async () => {
     axios
@@ -102,8 +105,11 @@ export default function CallPage(props) {
                 );
                 props.navigation.goBack();
               } else {
-                await statusUpdatePatientDisconnect();
-                props.navigation.navigate('Consult');
+                //await statusUpdatePatientDisconnect();
+                let x = JSON.stringify(
+                  await AsyncStorage.getItem('UserPatientProfile'),
+                );
+                props.navigation.navigate('PatientHome', {patientObj: x});
               }
             },
           }}
@@ -127,8 +133,11 @@ export default function CallPage(props) {
                 );
                 props.navigation.goBack();
               } else {
-                await statusUpdatePatientDisconnect();
-                props.navigation.navigate('Consult');
+                //await statusUpdatePatientDisconnect();
+                let x = JSON.stringify(
+                  await AsyncStorage.getItem('UserPatientProfile'),
+                );
+                props.navigation.navigate('PatientHome', {patientObj: x});
               }
             },
           }}
