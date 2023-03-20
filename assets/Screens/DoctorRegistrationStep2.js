@@ -1989,7 +1989,7 @@ const DoctorRegistration2 = ({navigation}) => {
                   <FAIcon
                     name={showGenInfo ? 'chevron-down' : 'check-circle'}
                     style={[styles.label, {width: '10%', fontSize: 20}]}
-                    color={!showGenInfo ? '#2B8ADA' : 'gray'}></FAIcon>
+                    color={dataSavedGenInfo ? '#2B8ADA' : 'gray'}></FAIcon>
                 </TouchableOpacity>
               </View>
             </View>
@@ -5438,6 +5438,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
     padding: 5,
+    color: 'gray',
   },
   picker: {
     width: '90%',

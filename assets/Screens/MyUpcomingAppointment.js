@@ -1,9 +1,5 @@
-import React, {useEffect} from 'react';
-import {useState} from 'react';
-import {Alert, TextInput} from 'react-native';
-import {FlatList} from 'react-native';
+import React, {useEffect, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
-
 import {
   View,
   Text,
@@ -12,28 +8,33 @@ import {
   ScrollView,
   StyleSheet,
   Modal,
-  Linking,
   useWindowDimensions,
   KeyboardAvoidingView,
   Button,
   TouchableOpacity,
   StatusBar,
+  Alert,
+  Linking,
+  TextInput,
+  FlatList,
+  Pressable,
 } from 'react-native';
-
 import {useCallback} from 'react';
+
 import {CheckBox} from 'react-native-elements';
 import FAIcon from 'react-native-vector-icons/FontAwesome5';
+import Entypo from 'react-native-vector-icons/Entypo';
+import MIcons from 'react-native-vector-icons/MaterialIcons';
+import MCIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import CustomButton from '../Components/CustomButton';
 //images
 import pfp1 from '../Resources/patient.png';
-import pfp_female from '../Resources/patient_female.png';
+import chatting from '../Resources/chattingMedium.png';
 import payonclinic from '../Icons/payonclinic1.png';
 import prepaid from '../Icons/paid.png';
-// import pfp2 from "../Resources/pfp2.jpg";
-// import pfp3 from "../Resources/pfp3.jpg";
-// import pfp4 from "../Resources/pfp4.jpg";
-import chatting from '../Resources/chattingMedium.png';
+import waiting from '../Animations/waiting1.gif';
 import downloading from '../Animations/downloading.gif';
+
 import Header from '../Components/Header';
 import {
   SelectList,
@@ -42,9 +43,10 @@ import {
 import axios from 'axios';
 import apiConfig from '../API/apiConfig';
 import dateformatter from '../API/dateformatter';
-import dayjs from 'dayjs';
-
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import RNFS from 'react-native-fs';
+import dayjs from 'dayjs';
+import Pdf from 'react-native-pdf';
 
 const dataStatus = [
   {key: 'Yes', value: 'Yes'},
@@ -52,17 +54,27 @@ const dataStatus = [
 ];
 
 const MyUpcomingAppointment = ({navigation}) => {
+  // console.log("Doctor Home", route.params);
+  const [doctorObj, setDoctorObj] = useState(null);
+  const [doctorId, setdoctorId] = useState(null);
   //upcoming tab
-  const [Upcoming, setUpcoming] = useState(false);
+  const [Upcoming, setUpcoming] = useState(true);
   const [UpcomingData, setUpcomingData] = useState([]);
   const [UpcomingId, setUpcomingId] = useState(0);
   const [PreconsultaionQuestionData, setPreconsultaionQuestionData] = useState(
     [],
   );
-  const [doctorObj, setDoctorObj] = useState(null);
-
+  const [PreConsultaion, setPreConsultaion] = useState([]);
+  const [upcomingEConsultations, setupcomingEConsultations] = useState(false);
+  const [upcomingPConsultations, setupcomingPConsultations] = useState(false);
+  const [PrescriptionModal, setPrescriptionModal] = useState(false);
+  const [prescriptionId, setprescriptionId] = useState(null);
+  const [ChattingModal, setChattingModal] = useState(false);
   const [HistoryModal, setHistoryModal] = useState(false);
   const [historyData, sethistoryData] = useState([]);
+  const [patientId, setpatientId] = useState(0);
+  const [historyId, sethistoryId] = useState(0);
+  const [todayId, settodayId] = useState(0);
   const [upcomingConsultationId, setupcomingConsultationId] = useState(0);
   const [TodaysModal, setTodaysModal] = useState(false);
   const [TodaysDocs, setTodaysDocs] = useState([]);
@@ -71,25 +83,107 @@ const MyUpcomingAppointment = ({navigation}) => {
   //complete tab
   const [Complete, setComplete] = useState(false);
   const [CompleteData, setCompleteData] = useState([]);
-  //status tab
-  const [Status, setStatus] = useState(false);
-  const [StatusData, setStatusData] = useState([]);
-  const [ManageStatusModal, setManageStatusModal] = useState(false);
-  const [ManageStatus, setManageStatus] = useState('');
-  const [PrescriptionMade, setPrescriptionMade] = useState('');
+  const [CompleteDataMaster, setCompleteDataMaster] = useState([]);
   const [isFetching, setisFetching] = useState(false);
-  const [consultationId, setconsultationId] = useState(null);
-  const [patientId, setpatientId] = useState(null);
-  const [historyId, sethistoryId] = useState(0);
-  const [todayId, settodayId] = useState(0);
+  //Pending Prescription Modal
+
+  const [strtCC, setstrtCC] = useState(0);
+  const [endCC, setendCC] = useState(4);
+  const [endOfList, setendOfList] = useState(false);
+  const [zoom, setZoom] = useState(1);
+
+  const onZoomIn = () => {
+    if (zoom < 2.5) setZoom(zoom + 0.25);
+  };
+  const onZoomOut = () => {
+    if (zoom > 1) setZoom(zoom - 0.25);
+  };
 
   const layout = useWindowDimensions();
 
-  const dayextractor = date => {
-    var ch = new Date(date);
-    var days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const nav = useNavigation();
+  const onJoinPress = (
+    consultationType,
+    callID,
+    userID,
+    userName,
+    userType,
+  ) => {
+    nav.navigate('CallPage', {
+      consultationType: consultationType,
+      callID: callID,
+      userID: userID,
+      userName: userName,
+      userType: userType,
+    });
+  };
 
-    return days[ch.getDay()];
+  const onPressPrescription = async item => {
+    let obj = {
+      age:
+        item.familyUserDob != null
+          ? dayjs().diff(dayjs(item.familyUserDob), 'y')
+          : dayjs().diff(dayjs(item.patientDob), 'y'),
+
+      patientName:
+        item.familyUserName != null ? item.familyUserName : item.patientName,
+      profilePhoto:
+        item.familyUserPhoto != null ? item.familyUserPhoto : item.patientPhoto,
+    };
+    if (item.familyUsercity != null) obj.city = item.familyUsercity;
+    else if (item.patientCity != null) obj.city = item.patientCity;
+    else obj.city = null;
+
+    let p = {
+      patientDet: obj,
+      patientId: item.patientId,
+      //patientNo: item.patientNumber,
+      consultationId: item.consultationId,
+      clinicName: item.clinicName != null ? item.clinicName : '',
+      clinicAddress: item.clinicAddress != null ? item.clinicAddress : '',
+    };
+    await AsyncStorage.setItem('PrescriptionFor', JSON.stringify(p));
+    // navigation.navigate('CheifComplaints');
+  };
+
+  const downloadCache = async (fileToken, userId, fileName) => {
+    // let op = {};
+    // if (Platform.OS == 'ios') op = {NSURLIsExcludedFromBackupKey: true};
+    // await RNFS.mkdir(`file://${RNFS.DownloadDirectoryPath}/Arogya`, op);
+
+    console.log('Downloading with user id ', userId);
+
+    let filePath = `file://${RNFS.CachesDirectoryPath}/`;
+    let options = {
+      fromUrl:
+        apiConfig.baseUrl +
+        '/file/download?fileToken=' +
+        fileToken +
+        '&userId=' +
+        userId,
+      toFile: filePath + fileName,
+    };
+    await RNFS.downloadFile(options)
+      .promise.then(response => {
+        console.log(response);
+        if (response.statusCode == 200) {
+          //  Alert.alert(
+          //   'File Downloaded',
+          //   `The file is downloaded. File name is ${fileName}.`,
+          // );
+          setprescriptionId(filePath + fileName);
+          setPrescriptionModal(true);
+        } else if (response.statusCode == 204)
+          Alert.alert('Sorry', 'The file does not exist');
+        else
+          Alert.alert(
+            'Download Fail',
+            `Unable to download file. ${response.statusCode}`,
+          );
+      })
+      .catch(e => {
+        Alert.alert('Error', `${e}`);
+      });
   };
 
   const timeformatter = time => {
@@ -121,66 +215,71 @@ const MyUpcomingAppointment = ({navigation}) => {
       >
         <View
           style={{
+            flex: 1,
             flexDirection: 'row',
             marginTop: 10,
             paddingHorizontal: 10,
             justifyContent: 'space-between',
           }}>
-          <View styles={{flex: 0.5}}>
+          <View
+            styles={{
+              flex: 0.45,
+            }}>
             <Image
-              source={item.paymentStatus != 'PRE_PAID' ? payonclinic : prepaid}
+              source={
+                item.paymentStatus != 'PRE_PAID' &&
+                item.paymentStatus != 'SPECIAL_USER'
+                  ? payonclinic
+                  : prepaid
+              }
               style={{
                 width: 30,
                 height: 30,
                 tintColor:
-                  item.paymentStatus != 'PRE_PAID' ? '#2b8ada' : '#51e80c',
+                  item.paymentStatus != 'PRE_PAID' &&
+                  item.paymentStatus != 'SPECIAL_USER'
+                    ? '#2b8ada'
+                    : '#51e80c',
                 marginLeft: 10,
               }}
             />
           </View>
+
           <View
             style={{
               flexDirection: 'row',
-              flex: 0.5,
-              alignSelf: 'flex-end',
+              flex: 0.45,
+              justifyContent: 'flex-end',
             }}>
             <FAIcon
               name="prescription"
-              size={20}
-              style={{marginHorizontal: 5, alignSelf: 'center'}}
+              size={25}
+              style={{alignSelf: 'center'}}
               onPress={() => {
-                onPressPrescription(item);
+                Alert.alert(
+                  'Create Prescription',
+                  `Do you want to create prescription for ` +
+                    (item.familyUserName == null
+                      ? item.patientName
+                      : item.familyUserName) +
+                    ` right now?`,
+                  [
+                    {
+                      text: 'Yes',
+                      onPress: () => {
+                        onPressPrescription(item);
+                        navigation.navigate('CheifComplaints');
+                      },
+                    },
+                    {
+                      text: 'No',
+                      style: 'cancel',
+                    },
+                  ],
+                );
+                //onPressPrescription(item);
               }}
             />
-            <CustomButton
-              text="Pre Consultation"
-              textstyle={{color: 'white', fontSize: 10, alignSelf: 'center'}}
-              style={{
-                backgroundColor: '#2B8ADA',
-                padding: 5,
-                marginHorizontal: 5,
-                paddingHorizontal: 7,
-                padding: 4,
-              }}
-              onPress={() => {
-                setUpcomingId(item.consultationId);
-                setConsultationQuestionnaire(true);
-              }}
-            />
-            {/* <CustomButton
-              text="Manage Status"
-              textstyle={{color: '#2B8ADA', fontSize: 10}}
-              style={{
-                borderColor: '#2B8ADA',
-                borderWidth: 1,
-                backgroundColor: 'white',
-                padding: 5,
-                marginHorizontal: 5,
-                paddingHorizontal: 7,
-                padding: 4,
-              }}
-              onPress={() => setManageStatusModal(true)}
-            /> */}
           </View>
         </View>
         <View
@@ -190,19 +289,38 @@ const MyUpcomingAppointment = ({navigation}) => {
             // borderBottomWidth: 1,
             // justifyContent: 'space-around',
           }}>
-          <Image
-            source={pfp1}
-            style={{
-              width: 90,
-              height: 90,
-              alignSelf: 'center',
-              borderRadius: 5,
-              margin: 5,
-              marginHorizontal: 10,
-            }}
-          />
+          {item.patientPhoto == 0 || item.patientPhoto == null ? (
+            <Image
+              source={pfp1}
+              style={{
+                width: 90,
+                height: 90,
+                alignSelf: 'center',
+                borderRadius: 5,
+                margin: 5,
+                marginHorizontal: 10,
+              }}
+            />
+          ) : (
+            <Image
+              source={{
+                uri: `${apiConfig.baseUrl}/file/download?fileToken=${item.patientPhoto}&userId=${item.patientId}`,
+              }}
+              style={{
+                width: 90,
+                height: 90,
+                alignSelf: 'center',
+                borderRadius: 5,
+                margin: 5,
+                marginHorizontal: 10,
+              }}
+            />
+          )}
           <View
-            style={{flexDirection: 'column', justifyContent: 'space-around'}}>
+            style={{
+              flexDirection: 'column',
+              justifyContent: 'space-around',
+            }}>
             <Text
               style={{
                 flexDirection: 'row',
@@ -287,12 +405,16 @@ const MyUpcomingAppointment = ({navigation}) => {
                 <View
                   style={{
                     flexDirection: 'column',
-                    width: '20%',
+                    flex: 0.2,
                     marginRight: '5%',
                   }}>
                   <Text style={styles.cardText}>Symtoms</Text>
                 </View>
-                <View style={{flexDirection: 'column', width: '60%'}}>
+                <View
+                  style={{
+                    flexDirection: 'column',
+                    flex: 0.6,
+                  }}>
                   <Text style={styles.cardText}>{item.symptoms}</Text>
                 </View>
               </View>
@@ -308,7 +430,7 @@ const MyUpcomingAppointment = ({navigation}) => {
               </View>
               <View style={{flexDirection: 'column', width: '60%'}}>
                 <Text style={styles.cardText}>
-                  {dayjs(item.slotDate).format('DD-MMM-YYYY')}
+                  {dayjs(item.slotDate).format('DD MMM, YYYY')}
                 </Text>
               </View>
             </View>
@@ -323,8 +445,7 @@ const MyUpcomingAppointment = ({navigation}) => {
               </View>
               <View style={{flexDirection: 'column', width: '60%'}}>
                 <Text style={styles.cardText}>
-                  {dayjs(item.slotTime).format('HH:mm')}{' '}
-                  {dayextractor(item.slotDate)}
+                  {timeformatter(item.slotStartTime)}
                 </Text>
               </View>
             </View>
@@ -336,41 +457,14 @@ const MyUpcomingAppointment = ({navigation}) => {
             marginVertical: 10,
             flexDirection: 'row',
             justifyContent: 'space-evenly',
+            width: '95%',
+            alignSelf: 'center',
           }}>
           {item.consultationType !== 'PHYSICAL' ? (
             <TouchableOpacity
               style={{
-                flexDirection: 'row',
-                padding: 3,
-                paddingHorizontal: 5,
-                alignSelf: 'center',
-                borderWidth: 1,
-                borderColor: '#2B8ADA',
-                borderRadius: 5,
-              }}
-              onPress={() => {
-                onJoinPress(
-                  item.consultationType,
-                  item.consultationId + '',
-                  doctorObj.doctorId + '',
-                  doctorObj.doctorName,
-                );
-              }}>
-              <FAIcon
-                name={
-                  item.consultationType == 'VIDEO_CALL' ? 'video' : 'phone-alt'
-                }
-                color={'#2B8ADA'}
-                size={15}
-                style={{marginRight: 5}}
-              />
-              <Text style={{fontSize: 13, color: '#2B8ADA'}}>
-                E-Consultation
-              </Text>
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity
-              style={{
+                flex: 0.45,
+                justifyContent: 'center',
                 flexDirection: 'row',
                 padding: 3,
                 paddingHorizontal: 5,
@@ -379,6 +473,45 @@ const MyUpcomingAppointment = ({navigation}) => {
                 borderWidth: 1,
                 borderColor: '#2B8ADA',
                 borderRadius: 5,
+              }}
+              onPress={async () => {
+                await onPressPrescription(item);
+                console.log(item);
+                onJoinPress(
+                  item.consultationType,
+                  item.consultationId + '',
+                  doctorObj.doctorId + '',
+                  doctorObj.doctorName,
+                  'Doctor',
+                );
+              }}>
+              <FAIcon
+                name={
+                  item.consultationType == 'VIDEO_CALL' ? 'video' : 'phone-alt'
+                }
+                color={'white'}
+                size={15}
+                style={{marginRight: 5}}
+              />
+              <Text style={{fontSize: 12, color: 'white'}}>Consult Now</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              style={{
+                flex: 0.45,
+                justifyContent: 'center',
+                flexDirection: 'row',
+                padding: 3,
+                paddingHorizontal: 5,
+                alignSelf: 'center',
+                backgroundColor: '#2B8ADA',
+                borderWidth: 1,
+                borderColor: '#2B8ADA',
+                borderRadius: 5,
+              }}
+              onPress={async () => {
+                await onPressPrescription(item);
+                navigation.navigate('CheifComplaints');
               }}>
               <FAIcon
                 name="hospital"
@@ -386,10 +519,10 @@ const MyUpcomingAppointment = ({navigation}) => {
                 color={'white'}
                 style={{marginRight: 5}}
               />
-              <Text style={{fontSize: 13, color: 'white'}}>P-Consultation</Text>
+              <Text style={{fontSize: 12, color: 'white'}}>P-Consultation</Text>
             </TouchableOpacity>
           )}
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={{
               flexDirection: 'row',
               padding: 3,
@@ -411,10 +544,13 @@ const MyUpcomingAppointment = ({navigation}) => {
               size={15}
               style={{marginRight: 5}}
             />
-            <Text style={{fontSize: 13, color: '#000080'}}>History</Text>
-          </TouchableOpacity>
+            <Text style={{fontSize: 12, color: '#000080'}}>History</Text>
+          </TouchableOpacity> */}
+
           <TouchableOpacity
             style={{
+              flex: 0.2,
+              justifyContent: 'center',
               flexDirection: 'row',
               padding: 3,
               paddingHorizontal: 5,
@@ -423,8 +559,10 @@ const MyUpcomingAppointment = ({navigation}) => {
               borderColor: 'gray',
               borderRadius: 5,
             }}
-            onPress={() => {
+            onPress={async () => {
               settodayId(item.consultationId);
+              setpatientId(item.patientId);
+              await getTodaysDocs(item.consultationId);
               setTodaysModal(true);
             }}>
             <FAIcon
@@ -433,7 +571,326 @@ const MyUpcomingAppointment = ({navigation}) => {
               size={15}
               style={{marginRight: 5}}
             />
-            <Text style={{fontSize: 13}}>Today's Doc</Text>
+            <Text style={{fontSize: 12}}>Files</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              {
+                flex: 0.1,
+                justifyContent: 'center',
+                flexDirection: 'row',
+                padding: 3,
+                paddingHorizontal: 5,
+                borderWidth: 1,
+                borderColor: '#2b8ada',
+                borderRadius: 5,
+              },
+            ]}
+            onPress={async () => {
+              settodayId(item.consultationId);
+              setpatientId(item.patientId);
+              await getTodaysDocs(item.consultationId);
+              setConsultationQuestionnaire(true);
+            }}>
+            <MCIcons
+              name="clipboard-list"
+              color={'#2b8ada'}
+              size={15}
+              style={{alignSelf: 'center'}}
+            />
+            {/* <Text style={{fontSize: 12, color: '#2b8ada'}}>Questionnaire</Text> */}
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
+  const renderCardCompleted = ({item}) => {
+    return (
+      <View
+        style={{
+          backgroundColor: 'white',
+          width: '95%',
+          alignSelf: 'center',
+          borderRadius: 10,
+          marginVertical: 5,
+          padding: 10,
+        }}
+        // onPress={() => console.log(item.consultationId)}
+        key={item.consultationId}>
+        <View
+          style={{
+            flexDirection: 'row',
+            // borderBottomColor: "gray",
+            // borderBottomWidth: 1,
+          }}>
+          <Text
+            style={[
+              styles.tag,
+              {
+                backgroundColor: '#4DB707',
+              },
+            ]}>
+            Completed
+          </Text>
+          {item.patientPhoto == 0 || item.patientPhoto == null ? (
+            <Image
+              source={pfp1}
+              style={{
+                width: 90,
+                height: 90,
+                alignSelf: 'center',
+                borderRadius: 5,
+                margin: 5,
+                marginHorizontal: 10,
+              }}
+            />
+          ) : (
+            <Image
+              source={{
+                uri: `${apiConfig.baseUrl}/file/download?fileToken=${item.patientPhoto}&userId=${item.patientId}`,
+              }}
+              style={{
+                width: 90,
+                height: 90,
+                alignSelf: 'center',
+                borderRadius: 5,
+                margin: 5,
+                marginHorizontal: 10,
+              }}
+            />
+          )}
+          <View
+            style={{flexDirection: 'column', justifyContent: 'space-around'}}>
+            <Text
+              style={{
+                flexDirection: 'row',
+                fontSize: 20,
+                fontWeight: 'bold',
+                color: 'black',
+              }}>
+              {item.familyUserName == null
+                ? item.patientName
+                : item.familyUserName}
+            </Text>
+            {item.consultationType == 'PHYSICAL' ? (
+              <View style={{flexDirection: 'row'}}>
+                <View
+                  style={{
+                    flexDirection: 'column',
+                    width: '20%',
+                    marginRight: '5%',
+                  }}>
+                  {/* <Text style={styles.cardText}>Clinic</Text> */}
+                  <FAIcon
+                    name="hospital"
+                    size={15}
+                    color={'#2b8ada'}
+                    style={{}}
+                  />
+                </View>
+                <View style={{flexDirection: 'column', width: '60%'}}>
+                  <Text
+                    style={[
+                      styles.cardText,
+                      {color: '#2b8ada', fontWeight: 'bold'},
+                    ]}>
+                    {item.clinicName}
+                    {' | '} {item.clinicAddress}
+                  </Text>
+                </View>
+              </View>
+            ) : null}
+
+            {item.patientDob != null || item.familyUserDob != null ? (
+              <View style={{flexDirection: 'row'}}>
+                <View
+                  style={{
+                    flexDirection: 'column',
+                    width: '20%',
+                    marginRight: '5%',
+                  }}>
+                  <Text style={styles.cardText}>Age</Text>
+                </View>
+                <View style={{flexDirection: 'column', width: '60%'}}>
+                  <Text style={styles.cardText}>
+                    {item.familyUserDob == null
+                      ? dayjs().diff(dayjs(item.patientDob), 'y')
+                      : dayjs().diff(dayjs(item.familyUserDob), 'y')}
+                  </Text>
+                </View>
+              </View>
+            ) : null}
+            {item.familyUsercity != null || item.patientCity != null ? (
+              <View style={{flexDirection: 'row'}}>
+                <View
+                  style={{
+                    flexDirection: 'column',
+                    width: '20%',
+                    marginRight: '5%',
+                  }}>
+                  <Text style={styles.cardText}>Location</Text>
+                </View>
+                <View style={{flexDirection: 'column', width: '60%'}}>
+                  <Text style={styles.cardText}>
+                    {item.familyUsercity == null
+                      ? item.patientCity
+                      : item.familyUsercity}
+                  </Text>
+                </View>
+              </View>
+            ) : null}
+            {item.symptoms != null ? (
+              <View style={{flexDirection: 'row'}}>
+                <View
+                  style={{
+                    flexDirection: 'column',
+                    width: '20%',
+                    marginRight: '5%',
+                  }}>
+                  <Text style={styles.cardText}>Symtoms</Text>
+                </View>
+                <View style={{flexDirection: 'column', width: '60%'}}>
+                  <Text style={styles.cardText}>{item.symptoms}</Text>
+                </View>
+              </View>
+            ) : null}
+            <View style={{flexDirection: 'row'}}>
+              <View
+                style={{
+                  flexDirection: 'column',
+                  width: '20%',
+                  marginRight: '5%',
+                }}>
+                <Text style={styles.cardText}>Date</Text>
+              </View>
+              <View style={{flexDirection: 'column', width: '60%'}}>
+                <Text style={styles.cardText}>
+                  {dayjs(item.slotDate).format('DD MMM, YYYY')}
+                </Text>
+              </View>
+            </View>
+
+            <View style={{flexDirection: 'row'}}>
+              <View
+                style={{
+                  flexDirection: 'column',
+                  width: '20%',
+                  marginRight: '5%',
+                }}>
+                <Text style={styles.cardText}>Slot</Text>
+              </View>
+              <View style={{flexDirection: 'column', width: '60%'}}>
+                <Text style={styles.cardText}>
+                  {timeformatter(item.slotStartTime)}
+                  {' | '}
+                  {dayjs(item.slotDate).format('DD MMM, YYYY')}
+                </Text>
+              </View>
+            </View>
+          </View>
+        </View>
+        {/* Buttons */}
+        <View
+          style={{
+            marginTop: 10,
+            flexDirection: 'row',
+            justifyContent: 'space-evenly',
+          }}>
+          {item.consultationType !== 'PHYSICAL' ? (
+            <TouchableOpacity
+              style={{
+                flexDirection: 'row',
+                padding: 3,
+                paddingHorizontal: 15,
+                alignSelf: 'center',
+                borderWidth: 1,
+                borderColor: '#2b8ada',
+                backgroundColor: '#2B8ADA',
+                borderRadius: 5,
+              }}>
+              <FAIcon
+                name={
+                  item.consultationType == 'VIDEO_CALL' ? 'video' : 'phone-alt'
+                }
+                color={'white'}
+                size={15}
+                style={{marginRight: 5}}
+              />
+              <Text style={{fontSize: 13, color: 'white'}}>E-Consultation</Text>
+            </TouchableOpacity>
+          ) : (
+            <CustomButton
+              text="P-Consultation"
+              textstyle={{fontSize: 13, color: 'white'}}
+              style={{
+                borderWidth: 1,
+                borderColor: '#2b8ada',
+                backgroundColor: '#2B8ADA',
+                padding: 3,
+                alignSelf: 'center',
+                borderRadius: 5,
+                paddingHorizontal: 15,
+              }}
+            />
+          )}
+          <TouchableOpacity
+            style={{
+              flexDirection: 'row',
+              padding: 3,
+              paddingHorizontal: 15,
+              alignSelf: 'center',
+              borderWidth: 1,
+              borderColor: 'gray',
+              borderRadius: 5,
+            }}
+            onPress={async () => {
+              settodayId(item.consultationId);
+              setpatientId(item.patientId);
+              await getTodaysDocs(item.consultationId);
+              setTodaysModal(true);
+            }}>
+            <FAIcon
+              name="file-pdf"
+              color={'gray'}
+              size={15}
+              style={{marginRight: 5}}
+            />
+            <Text style={{fontSize: 13}}>Files</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{
+              flexDirection: 'row',
+              padding: 3,
+              paddingHorizontal: 15,
+              alignSelf: 'center',
+              borderWidth: 1,
+              borderColor: 'gray',
+              borderRadius: 5,
+            }}
+            onPress={() => {
+              // setprescriptionId(item.prescriptionPath);
+              // console.log(
+              //   `${apiConfig.baseUrl}/file/download?fileToken=${item.prescriptionPath}&userId=${doctorId}`,
+              // );
+              // setPrescriptionModal(true);
+              // openURL(
+              //   `${apiConfig.baseUrl}/file/download?fileToken=${item.prescriptionPath}&userId=${doctorId}`,
+              // );
+
+              downloadCache(
+                item.prescriptionPath,
+                doctorId,
+                item.consultationId + '_Prescription_' + item.slotDate + '.pdf',
+              );
+              // setPrescriptionModal(true);
+              //console.log(apiConfig.baseUrl + item.prescriptionPath);
+              // openURL(apiConfig.baseUrl + item.prescriptionPath);
+            }}>
+            <FAIcon
+              name="prescription"
+              size={15}
+              style={{marginHorizontal: 5}}
+            />
           </TouchableOpacity>
         </View>
       </View>
@@ -442,49 +899,37 @@ const MyUpcomingAppointment = ({navigation}) => {
 
   const renderQuestionAnswers = ({item}) => {
     return (
-      <View style={{width: '95%', alignSelf: 'center', marginBottom: 10}}>
-        <TouchableOpacity
-          style={[
-            styles.WhiteLabel,
-            {
-              borderWidth: 1,
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              marginBottom: 0,
-              backgroundColor: '#2B8ADA',
-            },
-          ]}>
-          <Text
-            style={[
-              {
-                fontWeight: 'bold',
-                fontSize: 14,
-                color: 'white',
-              },
-            ]}>
-            {item.question}
-          </Text>
-        </TouchableOpacity>
-        <View
+      <View
+        style={{
+          margin: 5,
+          backgroundColor: '#e8f0fe',
+          borderRadius: 10,
+        }}
+        key={item.question}>
+        <Text
           style={{
-            marginTop: -6,
             padding: 5,
-            borderWidth: 1,
-            borderTopWidth: 0,
-            width: '95%',
-            alignSelf: 'center',
-            borderBottomRightRadius: 5,
-            borderBottomLeftRadius: 5,
+            paddingHorizontal: 10,
+            backgroundColor: '#2b8ada',
+            fontSize: 13,
+            color: 'white',
+            fontWeight: 'bold',
+            borderTopRightRadius: 10,
+            borderTopLeftRadius: 10,
+            textTransform: 'capitalize',
           }}>
-          <Text
-            style={{
-              fontSize: 12,
-              padding: 5,
-              textAlign: 'justify',
-            }}>
-            {item.answers}
-          </Text>
-        </View>
+          {item.question}
+        </Text>
+        <Text
+          style={{
+            padding: 5,
+            paddingHorizontal: 10,
+            fontSize: 12,
+            color: '#2b8ada',
+            fontWeight: 'bold',
+          }}>
+          {item.answer}
+        </Text>
       </View>
     );
   };
@@ -533,8 +978,8 @@ const MyUpcomingAppointment = ({navigation}) => {
                   marginHorizontal: 5,
                 }}
                 onPress={() => {
-                  console.log(apiConfig.baseUrl + item.documentPath);
-                  openURL(apiConfig.baseUrl + item.documentPath);
+                  //console.log(apiConfig.baseUrl + item.documentPath);
+                  // openURL(apiConfig.baseUrl + item.documentPath);
                 }}
               />
               <Text style={styles.HistoryModalText}>{item.documentName}</Text>
@@ -554,9 +999,30 @@ const MyUpcomingAppointment = ({navigation}) => {
           borderRadius: 15,
           padding: 10,
           backgroundColor: '#E8F0FE',
+        }}
+        onPress={async () => {
+          //console.log(apiConfig.baseUrl + item.documentPath);
+          // openURL(apiConfig.baseUrl + item.documentPath);
+
+          console.log(item.documentPath);
+
+          await downloadCache(
+            item.documentPath,
+            patientId,
+            item.documentName + '.pdf',
+          );
+          //setPrescriptionModal(true);
         }}>
-        <View style={{flexDirection: 'column'}}>
+        <View style={{flexDirection: 'column', alignSelf: 'center'}}>
           <Text style={styles.HistoryModalText}>{item.documentName}</Text>
+        </View>
+        <View style={{flexDirection: 'column', alignSelf: 'center'}}>
+          <Text style={styles.HistoryModalText}>
+            {dayjs(item.uploadedDate).format('DD MMM, YYYY')}
+          </Text>
+          <Text style={styles.HistoryModalText}>
+            {dayjs(item.uploadedDate).format('HH:mm A')}
+          </Text>
         </View>
         <View
           style={{
@@ -567,11 +1033,7 @@ const MyUpcomingAppointment = ({navigation}) => {
             size={20}
             color={'black'}
             style={{
-              marginHorizontal: 5,
-            }}
-            onPress={() => {
-              console.log(apiConfig.baseUrl + item.documentPath);
-              openURL(apiConfig.baseUrl + item.documentPath);
+              alignSelf: 'center',
             }}
           />
         </View>
@@ -579,110 +1041,87 @@ const MyUpcomingAppointment = ({navigation}) => {
     );
   };
 
-  const openURL = useCallback(async url => {
-    const supported = await Linking.canOpenURL(url);
-    if (supported) {
-      await Linking.openURL(url);
-    } else {
-      Alert.alert('Error', `Don't know how to open this URL: ${url}`);
-    }
-  }, []);
-  const nav = useNavigation();
-  const onJoinPress = (consultationType, callID, userID, userName) => {
-    nav.navigate('CallPage', {
-      consultationType: consultationType,
-      callID: callID,
-      userID: userID,
-      userName: userName,
-    });
-  };
-
-  const onPressPrescription = async item => {
-    let obj = {
-      age:
-        item.familyUserDob != null
-          ? dayjs().diff(dayjs(item.familyUserDob), 'y')
-          : dayjs().diff(dayjs(item.patientDob), 'y'),
-
-      patientName:
-        item.familyUserName != null ? item.familyUserName : item.patientName,
-      profilePhoto:
-        item.familyUserPhoto != null ? item.familyUserPhoto : item.patientPhoto,
-    };
-    if (item.familyUsercity != null) obj.city = item.familyUsercity;
-    else if (item.patientCity != null) obj.city = item.patientCity;
-    else obj.city = null;
-
-    let p = {
-      patientDet: obj,
-      patientId: item.patientNumber,
-      consultationId: item.consultationId,
-      clinicName: item.clinicName != null ? item.clinicName : '',
-      clinicAddress: item.clinicAddress != null ? item.clinicAddress : '',
-    };
-    await AsyncStorage.setItem('PrescriptionFor', JSON.stringify(p));
-    navigation.navigate('CheifComplaints');
-  };
-
   useEffect(() => {
-    const getData = async () => {
+    const onLoadScreen = async () => {
       let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
-      setDoctorObj(x);
-      let doctorId = x.doctorId;
-      //console.log(doctorId);
-      setisFetching(true);
-      axios
-        .get(
-          apiConfig.baseUrl +
-            '/doctor/upcoming/consultation?doctorId=' +
-            doctorId,
-        )
-        .then(function (response) {
-          setisFetching(false);
-          if (response.status == 200) {
-            setUpcomingData(response.data);
-          }
-          //console.log(UpcomingData);
-        })
-        .catch(function (error) {
-          setisFetching(false);
-          Alert.alert(
-            'Error',
-            'An error occured while fetching upcoming details. Please try again later.',
-          );
-          console.log(
-            '=====Error in fetching upcoming consultation details=====',
-          );
-          console.log(error);
-        });
+
+      setdoctorId(x.doctorId);
     };
-    if (Upcoming == true) getData();
-  }, [Upcoming]);
+    onLoadScreen();
+  }, []);
+
   useEffect(() => {
-    const getPreconsultationQuestions = async () => {
-      console.log(UpcomingId);
-      axios
-        .get(
-          apiConfig.baseUrl +
-            '/docs/question/answers?consultationId =' +
-            UpcomingId,
-        )
-        .then(function (response) {
-          if (response.status == 200)
-            setPreconsultaionQuestionData(response.data);
-          // console.log(PreconsultaionQuestionData);
-        })
-        .catch(function (error) {
-          Alert.alert(
-            'Error',
-            'An error occured while fetching preconsultation questions. Please try again later.',
-          );
-          console.log('=====Error in fetching preconsultation questions=====');
-          console.log(error);
-        });
-    };
-    if (ConsultationQuestionnaire == true) getPreconsultationQuestions();
-  }, [ConsultationQuestionnaire]);
+    if (Upcoming == true) getUpcomingData();
+  }, [Upcoming]);
+  const getUpcomingData = async () => {
+    let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
+    setDoctorObj(x);
+    let doctorId = x.doctorId;
+    //console.log(doctorId);
+    setisFetching(true);
+    axios
+      .get(
+        apiConfig.baseUrl +
+          '/doctor/upcoming/consultation?doctorId=' +
+          doctorId,
+      )
+      .then(function (response) {
+        setisFetching(false);
+        if (response.status == 200) {
+          setUpcomingData(response.data);
+        }
+        console.log(UpcomingData);
+      })
+      .catch(function (error) {
+        setisFetching(false);
+        Alert.alert(
+          'Error',
+          'An error occured while fetching upcoming details. Please try again later.',
+        );
+        console.log(
+          '=====Error in fetching upcoming consultation details=====',
+        );
+        console.log(error);
+      });
+  };
+
+  useEffect(() => {
+    if (Complete == true) getCompletedData();
+  }, [Complete]);
+
+  const getCompletedData = async () => {
+    let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
+    let doctorId = x.doctorId;
+    //console.log("Completed");
+    setisFetching(true);
+    axios
+      .get(
+        apiConfig.baseUrl +
+          '/doctor/complete/consultation?doctorId=' +
+          doctorId +
+          '&start=' +
+          0 +
+          '&max=' +
+          10,
+      )
+      .then(function (response) {
+        setisFetching(false);
+        if (response.status == 200) setCompleteData(response.data);
+        //console.log(CompleteData);
+      })
+      .catch(function (error) {
+        setisFetching(false);
+        Alert.alert(
+          'Error',
+          'An error occured while fetching completed consultation details. Please try again later.',
+        );
+        console.log(
+          '=====Error in fetching completed consultation details=====',
+        );
+        console.log(error);
+      });
+  };
+
   useEffect(() => {
     const getHistoryDocs = async () => {
       console.log(historyId);
@@ -706,28 +1145,84 @@ const MyUpcomingAppointment = ({navigation}) => {
     if (HistoryModal == true) getHistoryDocs();
   }, [HistoryModal]);
 
-  useEffect(() => {
-    const getTodaysDocs = async () => {
-      console.log(todayId);
-      axios
-        .get(apiConfig.baseUrl + '/docs/current?consultationId=' + todayId)
-        .then(function (response) {
-          if (response.status == 200) setTodaysDocs(response.data);
-          //console.log(TodaysDocs);
-        })
-        .catch(function (error) {
-          Alert.alert(
-            'Error',
-            'An error occured while fetching previous documents of patient. Please try again later.',
-          );
-          console.log(
-            '=====Error in fetching previous documents of patient=====',
-          );
-          console.log(error);
-        });
-    };
-    if (TodaysModal == true) getTodaysDocs();
-  }, [TodaysModal]);
+  const getTodaysDocs = async todayId => {
+    console.log(todayId);
+    axios
+      .get(
+        apiConfig.baseUrl + '/docs/current/uploaded?consultationId=' + todayId,
+      )
+      .then(function (response) {
+        if (response.status == 200) {
+          setTodaysDocs(response.data.documents);
+
+          setPreconsultaionQuestionData(response.data.quesAns);
+        }
+        //console.log(TodaysDocs);
+      })
+      .catch(function (error) {
+        Alert.alert(
+          'Error',
+          'An error occured while fetching previous documents of patient. Please try again later.',
+        );
+        console.log(
+          '=====Error in fetching previous documents of patient=====',
+        );
+        console.log(error);
+      });
+  };
+
+  const onPrev = () => {
+    setendCC(strtCC - 1);
+    setstrtCC(strtCC - 5);
+    console.log('       START       :         ', strtCC);
+    console.log('       END         :         ', endCC);
+    getMoreConsultationQues();
+  };
+
+  const onNext = () => {
+    setstrtCC(endCC + 1);
+    setendCC(endCC + 5);
+    console.log('       START       :         ', strtCC);
+    console.log('       END         :         ', endCC);
+    getMoreConsultationQues();
+  };
+  const getMoreConsultationQues = async () => {
+    let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
+    let doctorId = x.doctorId;
+    //console.log("Completed");
+    setisFetching(true);
+    axios
+      .get(
+        apiConfig.baseUrl +
+          '/doctor/complete/consultation?doctorId=' +
+          doctorId +
+          '&start=' +
+          strtCC +
+          '&max=' +
+          endCC,
+      )
+      .then(function (response) {
+        setisFetching(false);
+        if (response.status == 200) {
+          if (response.data != '') {
+            setendOfList(true);
+            setCompleteData(response.data);
+          } else setendOfList(false);
+        }
+        //console.log(CompleteData);
+      })
+      .catch(function (error) {
+        setisFetching(false);
+        Alert.alert(
+          'Error',
+          'An error occured while fetching completed consultation details. Please try again later.',
+        );
+        console.log(
+          '=====Error in fetching completed consultation details=====',
+        );
+        console.log(error);
+      });
+  };
 
   return (
     <KeyboardAvoidingView
@@ -742,6 +1237,7 @@ const MyUpcomingAppointment = ({navigation}) => {
         <StatusBar animated={true} backgroundColor="#2B8ADA" />
         <ScrollView
           showsVerticalScrollIndicator={false}
+          nestedScrollEnabled={true}
           style={{
             width: '100%',
             backgroundColor: '#E8F0FE',
@@ -749,7 +1245,7 @@ const MyUpcomingAppointment = ({navigation}) => {
             alignSelf: 'center',
             // marginTop: 30,
           }}>
-          <Header showMenu={false} title={'My Appointments'} />
+          <Header showMenu={false} title={'Appointments'} />
           <View style={{width: '95%', alignSelf: 'center'}}>
             {/* Search Bar */}
             {/* <View style={styles.searchBar}>
@@ -776,28 +1272,92 @@ const MyUpcomingAppointment = ({navigation}) => {
               <Text style={{color: '#2B8ADA'}}>By Date</Text>
               <FAIcon name="caret-down" color={'#2B8ADA'} size={15} />
             </View> */}
-            {/* Upcoming Consultations White Label */}
-            <TouchableOpacity
-              style={[styles.WhiteLabel, {marginTop: 20}]}
-              onPress={() => setUpcoming(!Upcoming)}>
-              <Text
+
+            {/* Tab */}
+            <View
+              style={{
+                marginVertical: 10,
+                borderRadius: 30,
+                borderWidth: 1,
+                borderColor: '#2B8ADA',
+                flexDirection: 'row',
+                width: '90%',
+                alignSelf: 'center',
+              }}>
+              <TouchableOpacity
+                onPress={() => {
+                  setComplete(!Complete);
+                  setUpcoming(!Upcoming);
+                }}
                 style={[
-                  styles.label,
-                  {width: '80%'},
-                  Upcoming ? {color: '#2B8ADA'} : {color: 'black'},
+                  {
+                    flex: 1,
+                    borderRadius: 20,
+                    padding: 10,
+                  },
+                  Upcoming ? {backgroundColor: '#2B8ADA'} : null,
                 ]}>
-                Upcoming Consultations
-              </Text>
-              <FAIcon
-                name={Upcoming ? 'chevron-down' : 'chevron-right'}
-                size={20}
-                style={[Upcoming ? {color: '#2B8ADA'} : {color: 'black'}]}
-              />
-            </TouchableOpacity>
+                <Text
+                  style={[
+                    {
+                      textAlign: 'center',
+                    },
+                    Upcoming
+                      ? {color: 'white', fontWeight: 'bold'}
+                      : {color: 'black'},
+                  ]}>
+                  Upcoming
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  setComplete(!Complete);
+                  setUpcoming(!Upcoming);
+                }}
+                style={[
+                  {
+                    flex: 1,
+                    borderRadius: 20,
+                    padding: 10,
+                  },
+                  Complete ? {backgroundColor: '#2B8ADA'} : null,
+                ]}>
+                <Text
+                  style={[
+                    {
+                      textAlign: 'center',
+                    },
+                    Complete
+                      ? {color: 'white', fontWeight: 'bold'}
+                      : {color: 'black'},
+                  ]}>
+                  Completed
+                </Text>
+              </TouchableOpacity>
+            </View>
+
             {/* Upcoming Consultaions Data */}
             {Upcoming ? (
               <View style={{flexDirection: 'column'}}>
                 <View style={{backgroundColor: '#E8F0FE'}}>
+                  <TouchableOpacity
+                    style={{
+                      flexDirection: 'row',
+                      padding: 5,
+                      paddingHorizontal: 10,
+                      marginLeft: 10,
+                    }}
+                    onPress={getUpcomingData}>
+                    <FAIcon
+                      name="redo-alt"
+                      size={12}
+                      style={{alignSelf: 'center', marginRight: 5}}
+                      color={'#2b8ada'}
+                    />
+                    <Text style={{color: '#2b8ada', fontSize: 12}}>
+                      Refresh
+                    </Text>
+                  </TouchableOpacity>
                   {/* <View>
                     <Text
                       style={{
@@ -864,6 +1424,125 @@ const MyUpcomingAppointment = ({navigation}) => {
                 </View>
               </View>
             ) : null}
+
+            {/* Completed Consultaions Body Data */}
+            {Complete ? (
+              <View style={{flexDirection: 'column'}}>
+                <View style={{backgroundColor: '#E8F0FE'}}>
+                  <TouchableOpacity
+                    style={{
+                      flexDirection: 'row',
+                      padding: 5,
+                      paddingHorizontal: 10,
+                      marginLeft: 10,
+                    }}
+                    onPress={getCompletedData}>
+                    <FAIcon
+                      name="redo-alt"
+                      size={12}
+                      style={{alignSelf: 'center', marginRight: 5}}
+                      color={'#2b8ada'}
+                    />
+                    <Text style={{color: '#2b8ada', fontSize: 12}}>
+                      Refresh
+                    </Text>
+                  </TouchableOpacity>
+                  {/* {CompleteData != '' ? (
+                    <View>
+                      <Text
+                        style={{
+                          color: '#2B8ADA',
+                          textDecorationLine: 'underline',
+                          alignSelf: 'flex-end',
+                          margin: 5,
+                          marginHorizontal: 10,
+                          fontSize: 12,
+                        }}>
+                        View More
+                      </Text>
+                    </View>
+                  ) : null} */}
+
+                  <View>
+                    {/*Card Design Completed Consultaions */}
+                    {CompleteData != '' ? (
+                      <View>
+                        <FlatList
+                          data={CompleteData}
+                          keyExtractor={item => item.consultationId}
+                          renderItem={renderCardCompleted}
+                        />
+                      </View>
+                    ) : (
+                      <Text
+                        style={{
+                          marginVertical: 10,
+                          fontSize: 12,
+                          alignSelf: 'center',
+                          fontWeight: 'bold',
+                        }}>
+                        No Completed Consultations Data Found
+                      </Text>
+                    )}
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignSelf: 'center',
+                        marginVertical: 10,
+                      }}>
+                      {strtCC != 0 ? (
+                        <Pressable
+                          style={{flexDirection: 'row', marginRight: 10}}
+                          onPress={() => onPrev()}>
+                          <FAIcon
+                            size={15}
+                            name="chevron-left"
+                            style={{
+                              fontWeight: 'bold',
+                              alignSelf: 'center',
+                            }}
+                            color={strtCC == 0 ? '#E8F0FE' : 'black'}
+                          />
+                          <Text
+                            style={{
+                              fontSize: 12,
+                              alignSelf: 'center',
+                              color: strtCC == 0 ? '#E8F0FE' : 'black',
+                              marginLeft: 3,
+                            }}>
+                            Previous
+                          </Text>
+                        </Pressable>
+                      ) : null}
+                      {endOfList ? (
+                        <Pressable
+                          style={{flexDirection: 'row'}}
+                          onPress={() => onNext()}>
+                          <Text
+                            style={{
+                              fontSize: 12,
+                              alignSelf: 'center',
+                              marginRight: 3,
+                              color: 'black',
+                            }}>
+                            Next
+                          </Text>
+                          <FAIcon
+                            size={15}
+                            name="chevron-right"
+                            style={{
+                              fontWeight: 'bold',
+                              alignSelf: 'center',
+                            }}
+                          />
+                        </Pressable>
+                      ) : null}
+                    </View>
+                  </View>
+                </View>
+              </View>
+            ) : null}
+
             {/* History Modal */}
             {HistoryModal ? (
               <Modal
@@ -915,19 +1594,32 @@ const MyUpcomingAppointment = ({navigation}) => {
                         onPress={() => setHistoryModal(false)}
                       />
                     </View>
-                    {historyData != '' ? (
-                      <View style={{height: 270, width: '100%'}}>
-                        <FlatList
-                          data={historyData}
-                          keyExtractor={item => item.uploadedDate}
-                          renderItem={renderHistory}
-                        />
+                    <View style={{minHeight: 150, width: '100%'}}>
+                      <View
+                        style={{
+                          padding: 10,
+                          width: '100%',
+                          alignSelf: 'center',
+                          borderRadius: 7,
+                          marginVertical: 10,
+                        }}>
+                        {historyData != '' ? (
+                          <View style={{minHeight: 270, width: '100%'}}>
+                            <FlatList
+                              data={historyData}
+                              keyExtractor={item => item.uploadedDate}
+                              renderItem={renderHistory}
+                            />
+                          </View>
+                        ) : (
+                          <View>
+                            <Text style={{textAlign: 'center'}}>
+                              No previous record has been found
+                            </Text>
+                          </View>
+                        )}
                       </View>
-                    ) : (
-                      <View>
-                        <Text>No data found of the Patient</Text>
-                      </View>
-                    )}
+                    </View>
                   </View>
                 </View>
               </Modal>
@@ -968,8 +1660,9 @@ const MyUpcomingAppointment = ({navigation}) => {
                           fontWeight: 'bold',
                           fontSize: 16,
                           padding: 5,
+                          color: 'black',
                         }}>
-                        Today's Document
+                        Files
                       </Text>
                       <FAIcon
                         name="window-close"
@@ -983,7 +1676,7 @@ const MyUpcomingAppointment = ({navigation}) => {
                         onPress={() => setTodaysModal(false)}
                       />
                     </View>
-                    <View style={{height: 150, width: '100%'}}>
+                    <View style={{minHeight: 150, width: '100%'}}>
                       <View
                         style={{
                           padding: 10,
@@ -992,29 +1685,25 @@ const MyUpcomingAppointment = ({navigation}) => {
                           borderRadius: 7,
                           marginVertical: 10,
                         }}>
-                        {TodaysDocs != '' ? (
-                          <View style={{width: '95%', alignSelf: 'center'}}>
+                        {TodaysDocs != '' && TodaysDocs != null ? (
+                          <View style={{width: '100%', alignSelf: 'center'}}>
                             <FlatList
                               data={TodaysDocs}
                               keyExtractor={item => item.documentName}
                               renderItem={renderToday}
                               scrollEnabled={true}
                             />
-                            <CustomButton
-                              text="Download All"
-                              textstyle={{color: 'white'}}
-                              style={{
-                                backgroundColor: '#2B8ADA',
-                                width: '95%',
-                                alignSelf: 'center',
-                                paddingVertical: 5,
-                              }}
-                            />
                           </View>
                         ) : (
-                          <View>
-                            <Text>
-                              No Document has been uploaded by the Pateint{' '}
+                          <View
+                            style={{
+                              flex: 1,
+                              flexDirection: 'column',
+                              alignSelf: 'center',
+                              justifyContent: 'center',
+                            }}>
+                            <Text style={{color: 'black'}}>
+                              No document has been uploaded by the patient
                             </Text>
                           </View>
                         )}
@@ -1024,135 +1713,7 @@ const MyUpcomingAppointment = ({navigation}) => {
                 </View>
               </Modal>
             ) : null}
-            {ManageStatusModal ? (
-              <Modal
-                animationType="slide"
-                transparent={true}
-                visible={ManageStatusModal}
-                onRequestClose={() => {
-                  setManageStatusModal(!ManageStatusModal);
-                }}>
-                <View
-                  style={{
-                    height: '100%',
-                    backgroundColor: 'rgba(0,0,0,0.8)',
-                    flexDirection: 'row',
-                    justifyContent: 'center',
-                  }}>
-                  <View
-                    style={[
-                      styles.modalView,
-                      {
-                        borderRadius: 10,
-                      },
-                    ]}>
-                    <View
-                      style={{
-                        width: '100%',
-                        alignSelf: 'center',
-                        borderBottomWidth: 1,
-                        borderBottomColor: 'gray',
-                      }}>
-                      <Text
-                        style={{
-                          fontWeight: 'bold',
-                          fontSize: 16,
-                          padding: 5,
-                        }}>
-                        Manage Status
-                      </Text>
-                      <FAIcon
-                        name="window-close"
-                        color="black"
-                        size={26}
-                        style={{
-                          position: 'absolute',
-                          top: 0,
-                          right: 0,
-                        }}
-                        onPress={() => setManageStatusModal(false)}
-                      />
-                    </View>
-                    <View
-                      style={{
-                        width: '100%',
-                        alignSelf: 'center',
-                        borderRadius: 7,
-                        marginVertical: 10,
-                      }}>
-                      <Text style={{fontWeight: 'bold'}}>
-                        Consultation Completed?
-                      </Text>
-                      <SelectList
-                        defaultOption={'Yes'}
-                        placeholder={' '}
-                        setSelected={val => setManageStatus(val)}
-                        data={dataStatus}
-                        save="value"
-                        boxStyles={{
-                          backgroundColor: '#F3F7FE',
-                          borderWidth: 0,
-                          marginVertical: 5,
-                        }}
-                        dropdownStyles={{backgroundColor: 'white'}}
-                        dropdownTextStyles={{
-                          color: '#2b8ada',
-                          fontWeight: 'bold',
-                        }}
-                        badgeStyles={{backgroundColor: '#2b8ada'}}
-                      />
-                    </View>
-                    <View
-                      style={{
-                        width: '100%',
-                        alignSelf: 'center',
-                        borderRadius: 7,
-                        marginVertical: 10,
-                      }}>
-                      <Text style={{fontWeight: 'bold'}}>
-                        Have you made the prescription?
-                      </Text>
-                      <SelectList
-                        defaultOption={'Yes'}
-                        placeholder={' '}
-                        setSelected={val => setPrescriptionMade(val)}
-                        data={dataStatus}
-                        save="value"
-                        boxStyles={{
-                          backgroundColor: '#F3F7FE',
-                          borderWidth: 0,
-                          marginVertical: 5,
-                        }}
-                        dropdownStyles={{backgroundColor: 'white'}}
-                        dropdownTextStyles={{
-                          color: '#2b8ada',
-                          fontWeight: 'bold',
-                        }}
-                        badgeStyles={{backgroundColor: '#2b8ada'}}
-                      />
-                    </View>
-                    <CustomButton
-                      text="Save"
-                      textstyle={{color: 'white'}}
-                      style={{
-                        backgroundColor: '#2B8ADA',
-                        width: '95%',
-                        alignSelf: 'center',
-                      }}
-                      onPress={() => {
-                        setManageStatusModal(false);
-                        if (PrescriptionMade == 'No') {
-                          Alert.alert(
-                            'Please make Prescription for the patient',
-                          );
-                          navigation.navigate('CheifComplaints');
-                        }
-                      }}
-                    />
-                  </View>
-                </View>
-              </Modal>
-            ) : null}
+
             {ConsultationQuestionnaire ? (
               <Modal
                 animationType="slide"
@@ -1188,6 +1749,7 @@ const MyUpcomingAppointment = ({navigation}) => {
                           fontWeight: 'bold',
                           fontSize: 16,
                           padding: 5,
+                          color: 'black',
                         }}>
                         Consultation Questionnaire
                       </Text>
@@ -1203,13 +1765,173 @@ const MyUpcomingAppointment = ({navigation}) => {
                         onPress={() => setConsultationQuestionnaire(false)}
                       />
                     </View>
-                    <View style={{width: '100%', height: 200}}>
-                      <FlatList
-                        data={PreconsultaionQuestionData}
-                        keyExtractor={item => item.ques}
-                        renderItem={renderQuestionAnswers}
-                        scrollEnabled={true}
+                    <View
+                      style={{width: '100%', minHeight: 100, maxHeight: 300}}>
+                      {PreconsultaionQuestionData != '' &&
+                      PreconsultaionQuestionData != null ? (
+                        <FlatList
+                          data={PreconsultaionQuestionData}
+                          keyExtractor={item => item.question}
+                          renderItem={renderQuestionAnswers}
+                          scrollEnabled={true}
+                        />
+                      ) : (
+                        <View
+                          style={{
+                            flex: 1,
+                            flexDirection: 'column',
+                            alignSelf: 'center',
+                            justifyContent: 'center',
+                          }}>
+                          <Text
+                            style={{
+                              color: 'black',
+                            }}>
+                            Not answered by patient
+                          </Text>
+                        </View>
+                      )}
+                    </View>
+                  </View>
+                </View>
+              </Modal>
+            ) : null}
+            {PrescriptionModal ? (
+              <Modal
+                animationType="slide"
+                transparent={true}
+                visible={PrescriptionModal}
+                onRequestClose={() => {
+                  setPrescriptionModal(!PrescriptionModal);
+                }}>
+                <View
+                  style={{
+                    height: '100%',
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                  }}>
+                  <View
+                    style={[
+                      styles.modalView,
+                      {
+                        borderRadius: 10,
+                      },
+                    ]}>
+                    <View
+                      style={{
+                        width: '100%',
+                        alignSelf: 'center',
+                        borderBottomWidth: 1,
+                        borderBottomColor: 'gray',
+                      }}>
+                      <Text
+                        style={{
+                          fontWeight: 'bold',
+                          fontSize: 16,
+                          padding: 5,
+                          color: 'black',
+                        }}>
+                        Document
+                      </Text>
+                      <FAIcon
+                        name="window-close"
+                        color="black"
+                        size={26}
+                        style={{
+                          position: 'absolute',
+                          top: 0,
+                          right: 0,
+                        }}
+                        onPress={() => {
+                          setPrescriptionModal(false);
+                          setprescriptionId(null);
+                          setZoom(1);
+                        }}
                       />
+                    </View>
+                    <View style={{minHeight: 150, width: '100%'}}>
+                      <View
+                        style={{
+                          padding: 10,
+                          width: '100%',
+                          alignSelf: 'center',
+                          borderRadius: 7,
+                          marginVertical: 10,
+                          borderWidth: 2,
+                          borderColor: 'gray',
+                        }}>
+                        <Pdf
+                          source={{
+                            uri: prescriptionId,
+                          }}
+                          style={{
+                            width: '100%',
+                            height: 275,
+                            alignSelf: 'center',
+                          }}
+                          //onLoadComplete={() => console.log('fully loaded')}
+                          scale={zoom}
+                        />
+                      </View>
+                      <View
+                        style={{alignSelf: 'center', flexDirection: 'column'}}>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            alignContent: 'center',
+                            justifyContent: 'space-evenly',
+                            width: '95%',
+                          }}>
+                          <TouchableOpacity>
+                            <FAIcon
+                              name="minus-circle"
+                              size={20}
+                              color={'gray'}
+                              onPress={onZoomOut}
+                            />
+                          </TouchableOpacity>
+                          <Text>
+                            {zoom * 100}
+                            {' %'}
+                          </Text>
+                          <TouchableOpacity>
+                            <FAIcon
+                              name="plus-circle"
+                              size={20}
+                              color={'gray'}
+                              onPress={onZoomIn}
+                            />
+                          </TouchableOpacity>
+                        </View>
+                        <View
+                          style={{
+                            width: '85%',
+                            alignSelf: 'center',
+                            marginTop: 5,
+                          }}></View>
+                        <CustomButton
+                          textstyle={{color: 'white', fontSize: 12}}
+                          text={'Download'}
+                          style={{
+                            backgroundColor: 'limegreen',
+                            borderRadius: 10,
+                          }}
+                          onPress={async () => {
+                            let fileName = prescriptionId.split('/').pop();
+                            //console.log(fileName);
+                            await RNFS.copyFile(
+                              prescriptionId,
+                              `file://${RNFS.DownloadDirectoryPath}/` +
+                                fileName,
+                            );
+                            Alert.alert(
+                              'Downloaded',
+                              `Prescription has been downloaded under the name of:- ${fileName}`,
+                            );
+                          }}
+                        />
+                      </View>
                     </View>
                   </View>
                 </View>
@@ -1284,7 +2006,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'row',
-    alignItems: 'center',
+    //alignItems: "center",
     justifyContent: 'center',
     backgroundColor: '#e8f0fe',
   },
@@ -1310,7 +2032,7 @@ const styles = StyleSheet.create({
   searchIcon: {
     position: 'absolute',
     right: 0,
-    top: 0,
+    right: 0,
     margin: 15,
   },
   card: {

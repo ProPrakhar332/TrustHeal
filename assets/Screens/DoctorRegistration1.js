@@ -738,13 +738,27 @@ const DoctorRegistrationStep1 = ({navigation}) => {
               <Text
                 style={{
                   color: 'black',
-                  fontSize: 10,
+                  fontSize: 12,
                   marginVertical: 5,
                   marginLeft: 10,
                 }}>
+                <Text
+                  style={{
+                    color: 'red',
+                    fontSize: 12,
+                    marginVertical: 5,
+                    marginLeft: 10,
+                  }}>
+                  *
+                </Text>{' '}
                 All the fields are mandatory
               </Text>
-              <View style={{width: '90%', justifyContent: 'flex-start'}}>
+              <View
+                style={{
+                  width: '90%',
+                  justifyContent: 'flex-start',
+                  marginTop: 5,
+                }}>
                 <CheckBox
                   title={
                     <Text>
@@ -1091,7 +1105,12 @@ const styles = StyleSheet.create({
     padding: 10,
     color: '#2b8ada',
   },
-  inputLabel: {fontSize: 14, marginBottom: 6, fontWeight: 'bold'},
+  inputLabel: {
+    fontSize: 14,
+    marginBottom: 6,
+    fontWeight: 'bold',
+    color: 'black',
+  },
   card: {
     margin: 20,
     backgroundColor: '#e6e3e3',

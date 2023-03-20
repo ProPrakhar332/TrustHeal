@@ -19,6 +19,7 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {CheckBox} from 'react-native-elements';
+
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import {PermissionsAndroid} from 'react-native';
 import {
@@ -116,6 +117,8 @@ const ManageSchedule = () => {
   const [DaysSlotRefresh, setDaysSlotRefresh] = useState(false);
   const [Days, setDays] = useState(null);
   const [doctorId, setdoctorId] = useState(0);
+  const [consultationType, setconsultationType] = useState(null);
+  const [selectAll, setselectAll] = useState(false);
 
   //view images
   const [DisplayPhotoToken, setDisplayPhotoToken] = useState(0);
@@ -992,7 +995,7 @@ const ManageSchedule = () => {
             : item.slotStatus == 'DELETED_BY_DOCTOR'
             ? {backgroundColor: '#eb4034', borderWidth: 0}
             : null,
-          item.toDelete == true ? {backgroundColor: '#17CC9C'} : null,
+          item.toDelete == true ? {backgroundColor: '#eb4034'} : null,
         ]}
         onPress={() => {
           console.log(item.slotId, item.slotStatus);
@@ -1016,6 +1019,8 @@ const ManageSchedule = () => {
                 ? 'white'
                 : item.slotStatus == 'DELETED_BY_DOCTOR'
                 ? 'white'
+                : item.toDelete == true
+                ? 'white'
                 : '#2b8ada'
             }
             style={{alignSelf: 'center', marginRight: 3}}
@@ -1034,11 +1039,33 @@ const ManageSchedule = () => {
     );
   };
 
+  const selectAllESlots = () => {
+    let temp = [...viewESlots];
+    temp.forEach(e => {
+      if (e.slotStatus != 'BOOKED' && e.slotStatus != 'DELETED_BY_DOCTOR') {
+        e.toDelete = true;
+        DeleteSlotsList.push(e.slotId);
+      }
+    });
+    setviewESlots(temp);
+    setselectAll(true);
+  };
+  const deselectAllESlots = () => {
+    let temp = [...viewESlots];
+    temp.forEach(e => {
+      e.toDelete = false;
+    });
+    setviewESlots(temp);
+    setDeleteSlotsList([]);
+    setselectAll(false);
+  };
+
   const insertToDeleteE = (slotId, index) => {
     let temp = [...viewESlots];
     temp[index].toDelete = true;
     setviewESlots(temp);
     DeleteSlotsList.push(slotId);
+    //setselectAll(true);
   };
   const removeToDeleteE = (slotId, index) => {
     let temp = [...viewESlots];
@@ -1050,6 +1077,7 @@ const ManageSchedule = () => {
 
     if (x != -1) temp2.splice(x, 1);
     setDeleteSlotsList(temp2);
+    //setselectAll(false);
   };
 
   const renderPSlotDelete = ({item, index}) => {
@@ -1065,7 +1093,7 @@ const ManageSchedule = () => {
             : item.slotStatus == 'DELETED_BY_DOCTOR'
             ? {backgroundColor: '#eb4034', borderWidth: 0}
             : null,
-          item.toDelete == true ? {backgroundColor: '#17CC9C'} : null,
+          item.toDelete == true ? {backgroundColor: '#eb4034'} : null,
         ]}
         onPress={() => {
           console.log(item.slotId, item.slotStatus);
@@ -1089,6 +1117,8 @@ const ManageSchedule = () => {
                 ? 'white'
                 : item.slotStatus == 'DELETED_BY_DOCTOR'
                 ? 'white'
+                : item.toDelete == true
+                ? 'white'
                 : '#2b8ada'
             }
             style={{alignSelf: 'center', marginRight: 3}}
@@ -1105,6 +1135,26 @@ const ManageSchedule = () => {
         </Text>
       </TouchableOpacity>
     );
+  };
+  const selectAllPSlots = () => {
+    let temp = [...viewPSlots];
+    temp.forEach(e => {
+      if (e.slotStatus != 'BOOKED' && e.slotStatus != 'DELETED_BY_DOCTOR') {
+        e.toDelete = true;
+        DeleteSlotsList.push(e.slotId);
+      }
+    });
+    setviewPSlots(temp);
+    setselectAll(true);
+  };
+  const deselectAllPSlots = () => {
+    let temp = [...viewPSlots];
+    temp.forEach(e => {
+      e.toDelete = false;
+    });
+    setviewPSlots(temp);
+    setDeleteSlotsList([]);
+    setselectAll(false);
   };
 
   const insertToDeleteP = (slotId, index) => {
@@ -1127,20 +1177,43 @@ const ManageSchedule = () => {
   };
 
   const deleteSlots = async () => {
-    await axios
-      .delete(apiConfig.baseUrl + '/doctor/slots/delete', {
-        consultationType: 'PHONE_CALL',
-        doctorId: doctorId,
-        slotIds: [0],
-      })
+    let temp = [...new Set(DeleteSlotsList)];
+    // let temp = DeleteSlotsList.filter(
+    //   (value, index, array) => array.indexOf(value) === index,
+    // );
+    let x = {
+      consultationType: ViewEConsultations
+        ? 'E_CONSULTATION'
+        : 'P_CONSULTATION',
+      doctorId: Number(doctorId),
+      slotIds: temp,
+    };
+
+    console.log('Delete JSON\n\n', x);
+    console.log(typeof temp);
+    console.log(typeof temp[0]);
+    axios
+      .delete(apiConfig.baseUrl + '/doctor/slots/delete', x)
       .then(response => {
-        if (response.status == 200)
+        if (response.status == 200) {
           Alert.alert('Deleted', 'Selected slots are deleted successfully');
+          setDeleteSchedulesModal(false);
+        }
       })
       .catch(error => {
         Alert.alert('Error', `${error}`);
       });
   };
+
+  useEffect(() => {
+    if (DeleteSchedulesModal == false) {
+      setselectAll(false);
+      setDeleteSlotsList([]);
+      setconsultationType(null);
+    } else {
+      setselectedDate(null);
+    }
+  }, [DeleteSchedulesModal]);
 
   const ViewClinics = () => {
     return ManageClinic.map((ManageClinic, index) => {
@@ -3040,6 +3113,16 @@ const ManageSchedule = () => {
                             : null,
                         ]}
                         onPress={() => {
+                          if (DeleteSlotsList != '') {
+                            setDeleteSlotsList([]);
+
+                            setselectAll(false);
+                          }
+                          setconsultationType(
+                            ViewEConsultations
+                              ? 'E_CONSULTATION'
+                              : 'P_CONSULTATION',
+                          );
                           setViewEConsultations(true);
                           setViewPConsultations(false);
                           setCreateEConsultations(true);
@@ -3061,6 +3144,15 @@ const ManageSchedule = () => {
                             : null,
                         ]}
                         onPress={() => {
+                          if (DeleteSlotsList != '') {
+                            setDeleteSlotsList([]);
+                            setselectAll(false);
+                          }
+                          setconsultationType(
+                            ViewEConsultations
+                              ? 'E_CONSULTATION'
+                              : 'P_CONSULTATION',
+                          );
                           setViewPConsultations(true);
                           setViewEConsultations(false);
                           setCreateEConsultations(false);
@@ -3165,17 +3257,45 @@ const ManageSchedule = () => {
                             )}
                           </View>
                           {/* Slot Timings */}
-                          <Text
-                            style={[
-                              styles.inputLabel,
-                              {
-                                paddingBottom: 5,
-                                borderBottomWidth: 1,
-                                borderBottomColor: '#2b8ada',
-                              },
-                            ]}>
-                            Slots
-                          </Text>
+                          <View
+                            style={{
+                              flexDirection: 'row',
+                              paddingBottom: 5,
+                              borderBottomWidth: 1,
+                              borderBottomColor: '#2b8ada',
+                              justifyContent: 'space-between',
+                            }}>
+                            <Text style={[styles.inputLabel]}>Slots</Text>
+                            <CheckBox
+                              title={
+                                <Text style={[styles.inputLabel]}>
+                                  {!selectAll ? ' Select All' : 'Deselect All'}
+                                </Text>
+                              }
+                              containerStyle={{
+                                backgroundColor: 'white',
+                                borderWidth: 0,
+                                padding: 0,
+                                marginTop: 10,
+                                marginBottom: 2,
+                                alignSelf: 'center',
+                                justifyContent: 'center',
+                              }}
+                              size={15}
+                              checkedColor={'#2b8ada'}
+                              checked={selectAll}
+                              onPress={() => {
+                                if (selectedDate != '') {
+                                  if (!selectAll) selectAllPSlots();
+                                  else deselectAllPSlots();
+                                } else
+                                  Alert.alert(
+                                    'Warning',
+                                    'Please select the date for which slots are to be deleted',
+                                  );
+                              }}
+                            />
+                          </View>
                           <View
                             style={{
                               flexDirection: 'row',
@@ -3292,17 +3412,45 @@ const ManageSchedule = () => {
                             )}
                           </View>
                           {/* Slot Timings */}
-                          <Text
-                            style={[
-                              styles.inputLabel,
-                              {
-                                paddingBottom: 5,
-                                borderBottomWidth: 1,
-                                borderBottomColor: '#2b8ada',
-                              },
-                            ]}>
-                            Slots
-                          </Text>
+                          <View
+                            style={{
+                              flexDirection: 'row',
+                              paddingBottom: 5,
+                              borderBottomWidth: 1,
+                              borderBottomColor: '#2b8ada',
+                              justifyContent: 'space-between',
+                            }}>
+                            <Text style={[styles.inputLabel]}>Slots</Text>
+                            <CheckBox
+                              title={
+                                <Text style={[styles.inputLabel]}>
+                                  {!selectAll ? ' Select All' : 'Deselect All'}
+                                </Text>
+                              }
+                              containerStyle={{
+                                backgroundColor: 'white',
+                                borderWidth: 0,
+                                padding: 0,
+                                marginTop: 10,
+                                marginBottom: 2,
+                                alignSelf: 'center',
+                                justifyContent: 'center',
+                              }}
+                              size={15}
+                              checkedColor={'#2b8ada'}
+                              checked={selectAll}
+                              onPress={() => {
+                                if (selectedDate != '') {
+                                  if (!selectAll) selectAllESlots();
+                                  else deselectAllESlots();
+                                } else
+                                  Alert.alert(
+                                    'Warning',
+                                    'Please select the date for which slots are to be deleted',
+                                  );
+                              }}
+                            />
+                          </View>
                           <View
                             style={{
                               flexDirection: 'row',
@@ -3391,8 +3539,8 @@ const ManageSchedule = () => {
                           //setCreateSchedulesModal(!CreateSchedulesModal)
 
                           if (DeleteSlotsList != '') {
-                            // await deleteSlots();
                             console.log(DeleteSlotsList);
+                            await deleteSlots();
                           } else
                             Alert.alert(
                               'Alert',
