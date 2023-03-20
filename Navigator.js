@@ -457,7 +457,7 @@ function CustomDrawerContent(props) {
         label="About Trust Heal"
         labelStyle={styles.labelStyle}
         style={{marginVertical: 0, paddingVertical: 0}}
-        onPress={() => props.navigation.navigate('About')}
+        onPress={() => props.navigation.navigate('AboutDoctor')}
         icon={({focused, color, size}) => (
           <Image source={about} style={{tintColor: '#033158'}} />
         )}

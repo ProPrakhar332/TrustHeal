@@ -60,7 +60,7 @@ function About({navigation}) {
               </Text>
             </View>
             <View style={{alignSelf: 'center', width: '90%'}}>
-              <View style={{flex: 1, alignSelf: 'center'}}>
+              <View style={{flex: 1}}>
                 <Text style={styles.parStyles}>
                   TrustHeal is a healthcare platform with a mission to become
                   India's No. 1 health consultation platform. The platform aims
@@ -69,7 +69,7 @@ function About({navigation}) {
                   click of a button on mobile devices.
                 </Text>
               </View>
-              <View style={{flex: 1, alignSelf: 'center'}}>
+              <View style={{flex: 1}}>
                 <Text style={styles.parStyles}>
                   TrustHeal envisions itself to be the platform of choice for
                   all health consultation needs in India. Its mission is to
@@ -79,7 +79,7 @@ function About({navigation}) {
                   diagnostics, and rehabilitation centers on-demand.
                 </Text>
               </View>
-              <View style={{flex: 1, alignSelf: 'center'}}>
+              <View style={{flex: 1}}>
                 <Text style={styles.parStyles}>
                   TrustHeal's focus on accessibility and affordability makes it
                   an attractive option for people seeking quality healthcare
@@ -89,7 +89,7 @@ function About({navigation}) {
                   price.
                 </Text>
               </View>
-              <View style={{flex: 1, alignSelf: 'center'}}>
+              <View style={{flex: 1}}>
                 <Text style={styles.parStyles}>
                   Overall, TrustHeal's commitment to making quality healthcare
                   accessible to all is commendable, and it has the potential to
@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#e8f0fe',
   },
   parStyles: {
-    textAlign: 'center',
+    textAlign: 'left',
     fontSize: 13,
     marginVertical: 5,
     lineHeight: 15,

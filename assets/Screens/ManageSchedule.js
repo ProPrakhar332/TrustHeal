@@ -19,6 +19,8 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {CheckBox} from 'react-native-elements';
+import waiting from '../Animations/waiting1.gif';
+import searching from '../Animations/heartLoading1.gif';
 
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import {PermissionsAndroid} from 'react-native';
@@ -50,6 +52,11 @@ const dataMode = [
 ];
 
 const ManageSchedule = () => {
+  const [isLoading, setisLoading] = useState(false);
+  const [isChecking, setisChecking] = useState(false);
+  const [MsgHeading, setMsgHeading] = useState('');
+  const [MsgUnderText, setMsgUnderText] = useState('');
+
   const [manageSlotsLabel, setmanageSlotsLabel] = useState(false);
   const [manageClinicsLabel, setmanageClinicsLabel] = useState(false);
   const [managePreConsultQues, setmanagePreConsultQues] = useState(false);
@@ -102,7 +109,7 @@ const ManageSchedule = () => {
   const [PCCreateClinicID, setPCCreateClinicID] = useState('');
   const [PCCreateClinicName, setPCCreateClinicName] = useState('');
   const [PCCreateClinicAddress, setPCCreateClinicAddress] = useState('');
-  const [PCData, setPCData] = useState([]);
+  //const [PCData, setPCData] = useState([]);
   //CREATE E-CONSULTATION TAB
   const [CreateEConsultations, setCreateEConsultations] = useState(false);
   const [ECDate, setECDate] = useState('');
@@ -115,7 +122,7 @@ const ManageSchedule = () => {
   const [ECoutTimeMM, setECoutTimeMM] = useState('');
   const [ECduration, setECduration] = useState('');
   const [ECGap, setECGap] = useState('');
-  const [ECData, setECData] = useState([]);
+  //const [ECData, setECData] = useState([]);
 
   const [ClinicDet, setClinicDet] = useState([]);
   const [DaysSlot, setDaysSlot] = useState([]);
@@ -400,24 +407,119 @@ const ManageSchedule = () => {
   const pushSlot = async () => {
     let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
     let doctorId = Number(x.doctorId);
-
+    let PCData = [];
     let availablePslots = [];
-    console.log(
-      apiConfig.baseUrl +
-        `/slot/pslots/all?clinicId=${PCCreateClinicID}&date=${selectedDate}&doctorId=${doctorId}`,
-    );
+    setisChecking(true);
+    console.log(selectedDateArray);
 
-    await axios
-      .get(
+    DateArray = [...new Set(selectedDateArray)];
+
+    console.log(DateArray[0]);
+
+    for (let it = 0; it < DateArray.length; ++it) {
+      setMsgUnderText('Processing');
+
+      let availableEslots = [];
+
+      //get available slots by date
+      console.log(
         apiConfig.baseUrl +
-          `/slot/pslots/all?clinicId=${PCCreateClinicID}&date=${selectedDate}&doctorId=${doctorId}`,
-      )
-      .then(response => {
-        if (response.status == 200) availablePslots = response.data;
-      })
-      .catch(error => {
-        Alert.alert('Error in p/g phy', `${error}`);
-      });
+          '/doctor/total/slots?date=' +
+          DateArray[it] +
+          '&doctorId=' +
+          doctorId,
+      );
+
+      await axios
+        .get(
+          apiConfig.baseUrl +
+            '/doctor/total/slots?date=' +
+            DateArray[it] +
+            '&doctorId=' +
+            doctorId,
+        )
+        .then(response => {
+          if (response.status == 200) {
+            availableEslots = response.data;
+          }
+        })
+        .catch(error => {
+          Alert.alert('Error in push get', `${error}`);
+        });
+
+      console.log(`Available slots of ${DateArray[it]}\n`, availableEslots);
+
+      //setMsgHeading('Processing...');
+      setMsgUnderText('Checking for duplicate slots');
+
+      let p = {
+        clinicId: PCCreateClinicID,
+        date: selectedDate,
+        doctorId: doctorId,
+        duration: Number(PCduration),
+        endTime:
+          (PCoutTimeHH.length == 1 ? '0' + PCoutTimeHH : PCoutTimeHH) +
+          ':' +
+          (PCoutTimeMM.length == 1 ? '0' + PCoutTimeMM : PCoutTimeMM),
+        startTime:
+          (PCinTimeHH.length == 1 ? '0' + PCinTimeHH : PCinTimeHH) +
+          ':' +
+          (PCinTimeMM.length == 1 ? '0' + PCinTimeMM : PCinTimeMM),
+      };
+
+      if (availableEslots.length == 0) {
+        //console.log(p);
+        PCData.push(p);
+      } else {
+        let flag = 0;
+        for (var i = 0; i < availableEslots.length; ++i) {
+          let endTime = availableEslots[i].endTime;
+          let startTime = availableEslots[i].startTime;
+          let time1 = startTime.split(':');
+          let time2 = endTime.split(':');
+          if (
+            (Number(PCinTimeHH) <= Number(time1[0]) &&
+              Number(time1[0]) <= Number(PCinTimeHH)) ||
+            (Number(PCoutTimeHH) <= Number(time2[0]) &&
+              Number(time2[0]) <= Number(PCoutTimeHH))
+          ) {
+            if (availableEslots[i].slotStatus != 'DELETED_BY_DOCTOR') {
+              flag = 1;
+              break;
+            }
+          }
+        }
+        if (flag != 1) {
+          PCData.push(p);
+        }
+      }
+      setMsgUnderText('');
+    }
+
+    console.log('===============Final Push is===========\n', PCData);
+
+    if (PCData != '') {
+      await axios
+        .post(apiConfig.baseUrl + '/doctor/slots/e/create', PCData)
+        .then(function (response) {
+          console.log(response.status);
+          if (response.status == 200) {
+            Alert.alert('Done', 'Slot has been added successfully');
+            //setECData([]);
+            getPDates();
+            setisChecking(false);
+            resetDays();
+          } else Alert.alert('Error', 'There was some problem please try again');
+        })
+        .catch(function (error) {
+          console.log('=====Create eslots=====');
+          resetDays();
+          setisChecking(false);
+          console.log(error);
+        });
+    } else {
+      setisChecking(false);
+    }
 
     let p = {
       clinicId: PCCreateClinicID,
@@ -442,8 +544,8 @@ const ManageSchedule = () => {
         .then(function (response) {
           console.log(response.status);
           if (response.status == 201 || response.status == 200) {
-            Alert.alert('Done', 'Slot has been added successfully');
-            setPCData([]);
+            //Alert.alert('Done', 'Slot has been added successfully');
+
             getPDates();
           } else Alert.alert('Error', 'There was some problem please try again');
         })
@@ -455,7 +557,6 @@ const ManageSchedule = () => {
           );
 
           console.log(error);
-          setPCData([]);
         });
     } else {
       let flag = 0;
@@ -510,116 +611,124 @@ const ManageSchedule = () => {
   };
 
   const pushESlot = async () => {
+    setCreateSchedulesModal(false);
     let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
     let doctorId = Number(x.doctorId);
+    let ECData = [];
+    setisChecking(true);
+    console.log(selectedDateArray);
 
-    let availableEslots = [];
+    DateArray = [...new Set(selectedDateArray)];
 
-    //get available slots by date
-    console.log(
-      apiConfig.baseUrl +
-        '/slot/eslot/all?date=' +
-        selectedDate +
-        '&doctorId=' +
-        doctorId,
-    );
+    console.log(DateArray[0]);
 
-    await axios
-      .get(
+    for (let it = 0; it < DateArray.length; ++it) {
+      setMsgUnderText('Processing');
+
+      let availableEslots = [];
+
+      //get available slots by date
+      console.log(
         apiConfig.baseUrl +
-          '/slot/eslot/all?date=' +
-          selectedDate +
+          '/doctor/total/slots?date=' +
+          DateArray[it] +
           '&doctorId=' +
           doctorId,
-      )
-      .then(response => {
-        if (response.status == 200) {
-          availableEslots = response.data;
+      );
+
+      await axios
+        .get(
+          apiConfig.baseUrl +
+            '/doctor/total/slots?date=' +
+            DateArray[it] +
+            '&doctorId=' +
+            doctorId,
+        )
+        .then(response => {
+          if (response.status == 200) {
+            availableEslots = response.data;
+          }
+        })
+        .catch(error => {
+          Alert.alert('Error in push get', `${error}`);
+        });
+
+      console.log(`Available slots of ${DateArray[it]}\n`, availableEslots);
+
+      //setMsgHeading('Processing...');
+      setMsgUnderText('Checking for duplicate slots');
+
+      let p = {
+        consultationDate: DateArray[it],
+        consultationEndTime:
+          (ECoutTimeHH.length == 1 ? '0' + ECoutTimeHH : ECoutTimeHH) +
+          ':' +
+          (ECoutTimeMM.length == 1 ? '0' + ECoutTimeMM : ECoutTimeMM),
+        consultationStartTime:
+          (ECinTimeHH.length == 1 ? '0' + ECinTimeHH : ECinTimeHH) +
+          ':' +
+          (ECinTimeMM.length == 1 ? '0' + ECinTimeMM : ECinTimeMM),
+
+        doctorId: doctorId,
+        gap: Number(ECGap),
+        slotDuration: Number(ECduration),
+        typeOfEConsultation: EconsultMode,
+      };
+
+      if (availableEslots.length == 0) {
+        //console.log(p);
+        ECData.push(p);
+      } else {
+        let flag = 0;
+        for (var i = 0; i < availableEslots.length; ++i) {
+          let endTime = availableEslots[i].endTime;
+          let startTime = availableEslots[i].startTime;
+          let time1 = startTime.split(':');
+          let time2 = endTime.split(':');
+          if (
+            (Number(ECinTimeHH) <= Number(time1[0]) &&
+              Number(time1[0]) <= Number(ECinTimeHH)) ||
+            (Number(ECoutTimeHH) <= Number(time2[0]) &&
+              Number(time2[0]) <= Number(ECoutTimeHH))
+          ) {
+            if (availableEslots[i].slotStatus != 'DELETED_BY_DOCTOR') {
+              flag = 1;
+              break;
+            }
+          }
         }
-      })
-      .catch(error => {
-        Alert.alert('Error in push get', `${error}`);
-      });
+        if (flag != 1) {
+          ECData.push(p);
+        }
+      }
+      setMsgUnderText('');
+    }
 
-    console.log('Available slots\n', availableEslots);
+    console.log('===============Final Push is===========\n', ECData);
 
-    let p = {
-      consultationDate: selectedDate,
-      consultationEndTime:
-        (ECoutTimeHH.length == 1 ? '0' + ECoutTimeHH : ECoutTimeHH) +
-        ':' +
-        (ECoutTimeMM.length == 1 ? '0' + ECoutTimeMM : ECoutTimeMM),
-      consultationStartTime:
-        (ECinTimeHH.length == 1 ? '0' + ECinTimeHH : ECinTimeHH) +
-        ':' +
-        (ECinTimeMM.length == 1 ? '0' + ECinTimeMM : ECinTimeMM),
-      doctorId: doctorId,
-      gap: Number(ECGap),
-      slotDuration: Number(ECduration),
-      typeOfEConsultation: EconsultMode,
-    };
-
-    if (availableEslots.length == 0) {
-      //console.log(p);
-      ECData.push(p);
-      axios
+    if (ECData != '') {
+      await axios
         .post(apiConfig.baseUrl + '/doctor/slots/e/create', ECData)
         .then(function (response) {
           console.log(response.status);
           if (response.status == 200) {
             Alert.alert('Done', 'Slot has been added successfully');
-            setECData([]);
+            //setECData([]);
             getEDates();
+            setisChecking(false);
+            resetDays();
           } else Alert.alert('Error', 'There was some problem please try again');
         })
         .catch(function (error) {
-          console.log('=====Create Eslots Detail=====');
-
+          console.log('=====Create eslots=====');
+          resetDays();
+          setisChecking(false);
           console.log(error);
         });
     } else {
-      let flag = 0;
-      for (var i = 0; i < availableEslots.length; ++i) {
-        let endTime = availableEslots[i].endTime;
-        let startTime = availableEslots[i].startTime;
-        let time1 = startTime.split(':');
-        let time2 = endTime.split(':');
-        if (
-          (Number(ECinTimeHH) <= Number(time1[0]) &&
-            Number(time1[0]) <= Number(ECinTimeHH)) ||
-          (Number(ECoutTimeHH) <= Number(time2[0]) &&
-            Number(time2[0]) <= Number(ECoutTimeHH))
-        ) {
-          flag = 1;
-          break;
-        }
-      }
-      if (flag == 1) {
-        Alert.alert(
-          'Overlapping Slot',
-          'This time slot overlaps with the existing ones.\nPlease enter new time slot.',
-        );
-        await reset();
-      } else {
-        ECData.push(p);
-        axios
-          .post(apiConfig.baseUrl + '/doctor/slots/e/create', ECData)
-          .then(function (response) {
-            console.log(response.status);
-            if (response.status == 200) {
-              Alert.alert('Done', 'Slot has been added successfully');
-              setECData([]);
-              getEDates();
-            } else Alert.alert('Error', 'There was some problem please try again');
-          })
-          .catch(function (error) {
-            console.log('=====Create eslots=====');
-
-            console.log(error);
-          });
-        Alert.alert('Done', 'Slot has been added successfully');
-      }
+      setisChecking(false);
     }
+    //Alert.alert('Done', 'Slot has been added successfully');
   };
 
   const reset = async () => {
@@ -632,6 +741,10 @@ const ManageSchedule = () => {
     setPCoutTimeHH('');
     setPCoutTimeMM('');
     setPCduration('');
+    setECinTime('');
+    setECoutTime('');
+    setPCinTime('');
+    setPCoutTime('');
 
     setECinTimeHH('');
     setECinTimeMM('');
@@ -818,7 +931,7 @@ const ManageSchedule = () => {
         style={[
           item.active ? styles.bubbleActive : styles.bubble,
           {
-            width: 60,
+            width: 50,
             justifyContent: 'center',
             marginRight: 5,
           },
@@ -877,7 +990,7 @@ const ManageSchedule = () => {
         style={[
           styles.bubbleActive,
           {
-            width: 60,
+            width: 50,
             justifyContent: 'center',
             marginRight: 5,
           },
@@ -896,7 +1009,7 @@ const ManageSchedule = () => {
         style={[
           styles.bubble,
           {
-            width: 60,
+            width: 50,
             justifyContent: 'center',
             marginRight: 5,
           },
@@ -922,7 +1035,7 @@ const ManageSchedule = () => {
         style={[
           styles.bubbleActive,
           {
-            width: 60,
+            width: 50,
             justifyContent: 'center',
             marginRight: 5,
           },
@@ -941,7 +1054,7 @@ const ManageSchedule = () => {
         style={[
           styles.bubble,
           {
-            width: 60,
+            width: 50,
             justifyContent: 'center',
             marginRight: 5,
           },
@@ -2147,6 +2260,65 @@ const ManageSchedule = () => {
             ) : null}
           </View>
         </ScrollView>
+        {isChecking && (
+          <View
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 6,
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: 'rgba(0,0,0,0.4)',
+            }}>
+            <View
+              style={{
+                backgroundColor: 'white',
+                alignSelf: 'center',
+                borderRadius: 20,
+                width: 200,
+                height: 200,
+                justifyContent: 'center',
+                flexDirection: 'column',
+              }}>
+              <Image
+                source={searching}
+                style={{
+                  alignSelf: 'center',
+                  width: 80,
+                  height: 80,
+                  // borderRadius: 150,
+                }}
+              />
+              <Text
+                style={{
+                  alignSelf: 'center',
+                  textAlign: 'center',
+                  color: '#2B8ADA',
+                  fontSize: 18,
+                  fontWeight: 'bold',
+                  width: '100%',
+                  marginVertical: 5,
+                  // padding: 10,
+                }}>
+                {MsgHeading}
+              </Text>
+              <Text
+                style={{
+                  alignSelf: 'center',
+                  textAlign: 'center',
+                  color: 'black',
+                  fontSize: 12,
+                  width: '100%',
+                  paddingHorizontal: 15,
+                }}>
+                {MsgUnderText}
+              </Text>
+            </View>
+          </View>
+        )}
         {ImageViewer ? (
           <Modal
             animationType="slide"
@@ -2294,6 +2466,7 @@ const ManageSchedule = () => {
                     style={{position: 'absolute', top: 0, right: 0}}
                     onPress={() => {
                       setCreateSchedulesModal(false);
+                      reset();
                     }}
                   />
                 </View>
@@ -2421,7 +2594,7 @@ const ManageSchedule = () => {
                             styles.inputLabel,
                             {alignSelf: 'flex-start'},
                           ]}>
-                          Start Time (in 24Hrs)
+                          Start Time
                         </Text>
                         {/* Input Start Time */}
                         {PCinTimeHH != '' && PCinTimeMM != '' ? (
@@ -2495,7 +2668,7 @@ const ManageSchedule = () => {
                             styles.inputLabel,
                             {alignSelf: 'flex-start'},
                           ]}>
-                          End Time (in 24Hrs)
+                          End Time
                         </Text>
                         {/* Input End Time */}
                         {PCoutTimeHH != '' && PCoutTimeMM != '' ? (
@@ -2572,7 +2745,7 @@ const ManageSchedule = () => {
                                 fontSize: 12,
                               },
                             ]}>
-                            {PCoutTime == '' ? 'Start Time' : 'Change'}
+                            {PCoutTime == '' ? 'End Time' : 'Change'}
                           </Text>
                         </TouchableOpacity>
                         <DateTimePickerModal
@@ -2764,7 +2937,7 @@ const ManageSchedule = () => {
                               styles.inputLabel,
                               {alignSelf: 'flex-start'},
                             ]}>
-                            Start Time (in 24Hrs)
+                            Start Time
                           </Text>
                           {/* Input Start Time */}
                           {ECinTimeHH != '' && ECinTimeMM != '' ? (
@@ -2864,7 +3037,7 @@ const ManageSchedule = () => {
                               styles.inputLabel,
                               {alignSelf: 'flex-start'},
                             ]}>
-                            End Time (in 24Hrs)
+                            End Time
                           </Text>
 
                           {/* Input End Time */}
@@ -3021,7 +3194,7 @@ const ManageSchedule = () => {
                       }}
                       onPress={async () => {
                         //setemodal(false);
-                        if (selectedDate == '')
+                        if (selectedDateArray == '')
                           Alert.alert(
                             'Invalid Input',
                             'Please select slot date.',
@@ -4036,6 +4209,7 @@ const styles = StyleSheet.create({
   bubbleTitle: {
     color: 'black',
     padding: 5,
+    fontSize: 11,
     width: '90%',
     textAlign: 'center',
   },
@@ -4044,6 +4218,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     backgroundColor: '#2b8ada',
     padding: 5,
+    fontSize: 11,
     borderRadius: 15,
     marginVertical: 5,
     width: '100%',
@@ -4051,6 +4226,7 @@ const styles = StyleSheet.create({
   bubbleTitleActive: {
     color: '#fff',
     padding: 5,
+    fontSize: 12,
     width: '90%',
     textAlign: 'center',
   },

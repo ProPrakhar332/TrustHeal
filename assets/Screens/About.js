@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#e8f0fe',
   },
   parStyles: {
-    textAlign: 'center',
+    textAlign: 'left',
     fontSize: 13,
     marginVertical: 5,
     lineHeight: 15,
