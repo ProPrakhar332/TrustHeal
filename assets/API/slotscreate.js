@@ -17,6 +17,7 @@ function DaysCreator() {
     days.push({
       date: JSON.stringify(cur).substring(1, 11),
       day: day,
+      active: false,
     });
     ++i;
   }

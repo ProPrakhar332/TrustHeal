@@ -71,6 +71,7 @@ const ManageSchedule = () => {
   const [SlotView, setSlotView] = useState(false);
   const [ViewSchedulesModal, setViewSchedulesModal] = useState(false);
   const [selectedDate, setselectedDate] = useState('');
+  const [selectedDateArray, setselectedDateArray] = useState([]);
   //View E-consultation
   const [ViewEConsultations, setViewEConsultations] = useState(true);
   const [viewEDates, setviewEDates] = useState([]);
@@ -90,8 +91,10 @@ const ManageSchedule = () => {
   //CREATE P-CONSULTATION TAB
   const [CreatePConsultations, setCreatePConsultations] = useState(true);
   const [PCDate, setPCDate] = useState('');
+  const [PCinTime, setPCinTime] = useState('');
   const [PCinTimeHH, setPCinTimeHH] = useState('');
   const [PCinTimeMM, setPCinTimeMM] = useState('');
+  const [PCoutTime, setPCoutTime] = useState('');
   const [PCoutTimeHH, setPCoutTimeHH] = useState('');
   const [PCoutTimeMM, setPCoutTimeMM] = useState('');
   const [PCduration, setPCduration] = useState(0);
@@ -104,8 +107,10 @@ const ManageSchedule = () => {
   const [CreateEConsultations, setCreateEConsultations] = useState(false);
   const [ECDate, setECDate] = useState('');
   const [EconsultMode, setEconsultMode] = useState('');
+  const [ECinTime, setECinTime] = useState('');
   const [ECinTimeHH, setECinTimeHH] = useState('');
   const [ECinTimeMM, setECinTimeMM] = useState('');
+  const [ECoutTime, setECoutTime] = useState('');
   const [ECoutTimeHH, setECoutTimeHH] = useState('');
   const [ECoutTimeMM, setECoutTimeMM] = useState('');
   const [ECduration, setECduration] = useState('');
@@ -141,6 +146,7 @@ const ManageSchedule = () => {
 
   const handleConfirmECIn = async time => {
     console.log(dayjs(time).format('HH:mm'));
+    setECinTime(dayjs(time).format('hh:mm A'));
     let time1 = dayjs(time).format('HH:mm').split(':');
     console.log(time1);
     setECinTimeHH(time1[0]);
@@ -149,6 +155,7 @@ const ManageSchedule = () => {
   };
   const handleConfirmECOut = async time => {
     console.log(dayjs(time).format('HH:mm'));
+    setECoutTime(dayjs(time).format('hh:mm A'));
     let time1 = dayjs(time).format('HH:mm').split(':');
     console.log(time1);
     setECoutTimeHH(time1[0]);
@@ -157,6 +164,7 @@ const ManageSchedule = () => {
   };
   const handleConfirmPCIn = async time => {
     console.log(dayjs(time).format('HH:mm'));
+    setPCinTime(dayjs(time).format('hh:mm A'));
     let time1 = dayjs(time).format('HH:mm').split(':');
     console.log(time1);
     setPCinTimeHH(time1[0]);
@@ -165,6 +173,7 @@ const ManageSchedule = () => {
   };
   const handleConfirmPCOut = async time => {
     console.log(dayjs(time).format('HH:mm'));
+    setPCoutTime(dayjs(time).format('hh:mm A'));
     let time1 = dayjs(time).format('HH:mm').split(':');
     console.log(time1);
     setPCoutTimeHH(time1[0]);
@@ -802,11 +811,12 @@ const ManageSchedule = () => {
   };
 
   //render slots and dates
-  const renderDaysSlot = ({item}) => {
-    return item.date == selectedDate ? (
+  const renderDaysSlot = ({item, index}) => {
+    return (
       <TouchableOpacity
+        key={item.date}
         style={[
-          styles.bubbleActive,
+          item.active ? styles.bubbleActive : styles.bubble,
           {
             width: 60,
             justifyContent: 'center',
@@ -815,37 +825,50 @@ const ManageSchedule = () => {
         ]}
         onPress={() => {
           console.log(item.date);
-          setselectedDate(item.date);
-          //getSlots();
+
+          if (item.active) deleteSelectedDate(index);
+          else insertSelectedDate(index);
+
+          // setDaysSlotRefresh(!DaysSlotRefresh);
+          // setDays(item);
+          // setselectedDate(item.date);
         }}>
-        <Text style={styles.bubbleTitleActive}>
-          {item.day + '\n' + new Date(item.date).getDate()}
-        </Text>
-      </TouchableOpacity>
-    ) : (
-      <TouchableOpacity
-        style={[
-          styles.bubble,
-          {
-            width: 60,
-            justifyContent: 'center',
-            marginRight: 5,
-          },
-        ]}
-        onPress={() => {
-          setDaysSlotRefresh(!DaysSlotRefresh);
-          setDays(item);
-          // DaysSlot.forEach(x => (x.isActive = false));
-          // item.isActive = true;
-          console.log(item.date);
-          setselectedDate(item.date);
-          //console.log(JSON.stringify(DaysSlot));
-        }}>
-        <Text style={styles.bubbleTitle}>
-          {item.day + '\n' + new Date(item.date).getDate()}
+        <Text
+          style={item.active ? styles.bubbleTitleActive : styles.bubbleTitle}>
+          {dayjs(item.date).format('ddd') +
+            '\n' +
+            dayjs(item.date).format('DD')}
         </Text>
       </TouchableOpacity>
     );
+  };
+
+  const insertSelectedDate = index => {
+    let temp = [...DaysSlot];
+    temp[index].active = true;
+    selectedDateArray.push(temp[index].date);
+    setDaysSlot(temp);
+  };
+  const deleteSelectedDate = index => {
+    let temp = [...DaysSlot];
+    temp[index].active = false;
+
+    let x = selectedDateArray.indexOf(temp[index].date);
+    if (x != -1) {
+      let m = [...selectedDateArray];
+      m.splice(x, 1);
+      setselectedDateArray(m);
+    }
+    setDaysSlot(temp);
+  };
+
+  const resetDays = () => {
+    let temp = [...DaysSlot];
+    temp.forEach(element => {
+      element.active = false;
+    });
+    setDaysSlot(temp);
+    setselectedDateArray([]);
   };
 
   const renderEViewDaysSlot = ({item}) => {
@@ -2300,7 +2323,8 @@ const ManageSchedule = () => {
                         : {backgroundColor: 'white'},
                     ]}
                     onPress={() => {
-                      setselectedDate('');
+                      //setselectedDate('');
+                      resetDays();
                       setCreateEConsultations(true);
                       setCreatePConsultations(false);
                     }}
@@ -2320,7 +2344,8 @@ const ManageSchedule = () => {
                         : {backgroundColor: 'white'},
                     ]}
                     onPress={() => {
-                      setselectedDate('');
+                      //setselectedDate('');
+                      resetDays();
                       setCreatePConsultations(true);
                       setCreateEConsultations(false);
                     }}
@@ -2405,26 +2430,21 @@ const ManageSchedule = () => {
                               flexDirection: 'row',
                               justifyContent: 'space-between',
                             }}>
-                            <TextInput
-                              placeholder="HH"
-                              maxLength={2}
-                              keyboardType={'number-pad'}
-                              style={[styles.textInput, {textAlign: 'center'}]}
-                              onChangeText={text => {
-                                setPCinTimeHH(text);
-                              }}
-                              value={PCinTimeHH}
-                            />
-                            <TextInput
-                              placeholder="MM"
-                              maxLength={2}
-                              keyboardType={'number-pad'}
-                              style={[styles.textInput, {textAlign: 'center'}]}
-                              onChangeText={text => {
-                                setPCinTimeMM(text);
-                              }}
-                              value={PCinTimeMM}
-                            />
+                            <Text
+                              style={[
+                                {
+                                  width: '100%',
+                                  textAlign: 'center',
+                                  color: 'black',
+                                  borderColor: '#2b8ada',
+                                  borderRadius: 10,
+                                  borderWidth: 1,
+                                  marginVertical: 3,
+                                  paddingVertical: 5,
+                                },
+                              ]}>
+                              {PCinTime != '' ? PCinTime : null}
+                            </Text>
                           </View>
                         ) : null}
                         {/* Button */}
@@ -2458,7 +2478,7 @@ const ManageSchedule = () => {
                                 fontSize: 12,
                               },
                             ]}>
-                            Start Time
+                            {PCinTime == '' ? 'Start Time' : 'Change'}
                           </Text>
                         </TouchableOpacity>
                         <DateTimePickerModal
@@ -2477,14 +2497,14 @@ const ManageSchedule = () => {
                           ]}>
                           End Time (in 24Hrs)
                         </Text>
-                        {/* Input Start Time */}
+                        {/* Input End Time */}
                         {PCoutTimeHH != '' && PCoutTimeMM != '' ? (
                           <View
                             style={{
                               flexDirection: 'row',
                               justifyContent: 'space-between',
                             }}>
-                            <TextInput
+                            {/* <TextInput
                               placeholder="HH"
                               maxLength={2}
                               keyboardType={'number-pad'}
@@ -2503,7 +2523,22 @@ const ManageSchedule = () => {
                                 setPCoutTimeMM(text);
                               }}
                               value={PCoutTimeMM}
-                            />
+                            /> */}
+                            <Text
+                              style={[
+                                {
+                                  width: '100%',
+                                  textAlign: 'center',
+                                  color: 'black',
+                                  borderColor: '#2b8ada',
+                                  borderRadius: 10,
+                                  borderWidth: 1,
+                                  marginVertical: 3,
+                                  paddingVertical: 5,
+                                },
+                              ]}>
+                              {PCoutTime != '' ? PCoutTime : null}
+                            </Text>
                           </View>
                         ) : null}
                         {/* Button */}
@@ -2537,7 +2572,7 @@ const ManageSchedule = () => {
                                 fontSize: 12,
                               },
                             ]}>
-                            End Time
+                            {PCoutTime == '' ? 'Start Time' : 'Change'}
                           </Text>
                         </TouchableOpacity>
                         <DateTimePickerModal
@@ -2604,8 +2639,11 @@ const ManageSchedule = () => {
                             'Invalid Input',
                             'Please select a hospital from the list',
                           );
-                        else if (selectedDate == '')
-                          Alert.alert('Invalid Input', 'Please select date');
+                        else if (selectedDateArray == '')
+                          Alert.alert(
+                            'Invalid Input',
+                            'Please select at least date',
+                          );
                         else if (
                           PCinTimeHH == '' ||
                           Number(PCinTimeHH) > 23 ||
@@ -2732,10 +2770,10 @@ const ManageSchedule = () => {
                           {ECinTimeHH != '' && ECinTimeMM != '' ? (
                             <View
                               style={{
-                                flexDirection: 'row',
+                                flexDirection: 'column',
                                 justifyContent: 'space-between',
                               }}>
-                              <TextInput
+                              {/* <TextInput
                                 placeholder="HH"
                                 maxLength={2}
                                 keyboardType={'number-pad'}
@@ -2760,7 +2798,22 @@ const ManageSchedule = () => {
                                   setECinTimeMM(text);
                                 }}
                                 value={ECinTimeMM}
-                              />
+                              /> */}
+                              <Text
+                                style={[
+                                  {
+                                    width: '100%',
+                                    textAlign: 'center',
+                                    color: 'black',
+                                    borderColor: '#2b8ada',
+                                    borderRadius: 10,
+                                    borderWidth: 1,
+                                    marginVertical: 3,
+                                    paddingVertical: 5,
+                                  },
+                                ]}>
+                                {ECinTime != '' ? ECinTime : null}
+                              </Text>
                             </View>
                           ) : null}
                           {/* Button */}
@@ -2794,7 +2847,7 @@ const ManageSchedule = () => {
                                   fontSize: 12,
                                 },
                               ]}>
-                              Start Time
+                              {ECinTime == '' ? 'Start Time' : 'Change'}
                             </Text>
                           </TouchableOpacity>
                           <DateTimePickerModal
@@ -2822,7 +2875,7 @@ const ManageSchedule = () => {
                                 flexDirection: 'row',
                                 justifyContent: 'space-between',
                               }}>
-                              <TextInput
+                              {/* <TextInput
                                 placeholder="HH"
                                 maxLength={2}
                                 keyboardType={'number-pad'}
@@ -2847,7 +2900,22 @@ const ManageSchedule = () => {
                                   setECoutTimeMM(text);
                                 }}
                                 value={ECoutTimeMM}
-                              />
+                              /> */}
+                              <Text
+                                style={[
+                                  {
+                                    width: '100%',
+                                    textAlign: 'center',
+                                    color: 'black',
+                                    borderColor: '#2b8ada',
+                                    borderRadius: 10,
+                                    borderWidth: 1,
+                                    marginVertical: 3,
+                                    paddingVertical: 5,
+                                  },
+                                ]}>
+                                {ECoutTime != '' ? ECoutTime : null}
+                              </Text>
                             </View>
                           ) : null}
 
@@ -2883,7 +2951,7 @@ const ManageSchedule = () => {
                                   fontSize: 12,
                                 },
                               ]}>
-                              End Time
+                              {ECoutTime == '' ? 'End Time' : 'Change'}
                             </Text>
                           </TouchableOpacity>
                           <DateTimePickerModal
