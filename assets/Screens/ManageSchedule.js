@@ -1178,9 +1178,7 @@ const ManageSchedule = () => {
 
   const deleteSlots = async () => {
     let temp = [...new Set(DeleteSlotsList)];
-    // let temp = DeleteSlotsList.filter(
-    //   (value, index, array) => array.indexOf(value) === index,
-    // );
+
     let x = {
       consultationType: ViewEConsultations
         ? 'E_CONSULTATION'
@@ -1189,11 +1187,13 @@ const ManageSchedule = () => {
       slotIds: temp,
     };
 
-    console.log('Delete JSON\n\n', x);
-    console.log(typeof temp);
-    console.log(typeof temp[0]);
+    // console.log('Delete JSON\n\n', x);
+    // console.log(typeof temp);
+    // console.log(typeof temp[0]);
     axios
-      .delete(apiConfig.baseUrl + '/doctor/slots/delete', x)
+      .delete(apiConfig.baseUrl + '/doctor/slots/delete', {
+        data: x,
+      })
       .then(response => {
         if (response.status == 200) {
           Alert.alert('Deleted', 'Selected slots are deleted successfully');
@@ -1201,6 +1201,7 @@ const ManageSchedule = () => {
         }
       })
       .catch(error => {
+        console.log('Error');
         Alert.alert('Error', `${error}`);
       });
   };
