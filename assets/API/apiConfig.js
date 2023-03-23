@@ -4,6 +4,7 @@ var apiConfig = {
   zegoCloudAppId: 558378046,
   zegoCloudAppSign:
     '6a7186f7d654688499212a30b7b3b8202cf8b90b7bbbcb71889f3bdc5eb382bc',
+  AgoraAppId: 'a52ffd2fd11145278aac47b9e38c3e42',
 };
 
 export default apiConfig;

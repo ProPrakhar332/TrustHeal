@@ -839,6 +839,7 @@ const EditProfile = ({navigation}) => {
     mainOnj.doctorId = doctorId;
     mainOnj.doctorName = title + ' ' + name;
     mainOnj.email = email;
+    mainOnj.firebaseToken = await AsyncStorage.getItem('fcmToken');
     mainOnj.mobileNumber = doctorObj.mobileNumber;
     mainOnj.profilePhotoPath = profilePhotoPath;
     mainOnj.pinCode = pinCode;
@@ -852,21 +853,22 @@ const EditProfile = ({navigation}) => {
         setisUploading(false);
         if (response.status == 200) {
           //store the changes made in details to UserDoctorProfile
-          x.age = Number(age);
-          x.city = city;
-          x.contactVisibility = showMobNo;
-          x.dob = dob;
-          x.doctorName = title + ' ' + name;
-          x.email = email;
-          x.profilePhotoPath = profilePhotoPath;
-          x.pinCode = pinCode;
 
-          await AsyncStorage.setItem('UserDoctorProfile', JSON.stringify(x));
+          // x.age = Number(age);
+          // x.city = city;
+          // x.contactVisibility = showMobNo;
+          // x.dob = dob;
+          // x.doctorName = title + ' ' + name;
+          // x.email = email;
+          // x.profilePhotoPath = profilePhotoPath;
+          // x.pinCode = pinCode;
 
-          Alert.alert(
-            'Updated',
-            'All changes made in Genreal Information have been updated.',
-          );
+          //await AsyncStorage.setItem('UserDoctorProfile', JSON.stringify(x));
+
+          // Alert.alert(
+          //   'Updated',
+          //   'All changes made in Genreal Information have been updated.',
+          // );
           setGenInfoEdit(false);
           flag = true;
         } else Alert.alert('Updation Error', 'Could not Update Details. Please try again later.');
@@ -880,12 +882,21 @@ const EditProfile = ({navigation}) => {
       await axios
         .post(apiConfig.baseUrl + '/doctor/contact/visibility/update', {
           doctorId: x.doctorId,
+          doctorName: x.doctorName,
           doctorNumber: x.mobileNumber,
           email: x.email,
           visibility: showMobNo,
         })
-        .then(response => {
+        .then(async response => {
           if (response == 200);
+          {
+            Alert.alert(
+              'Profile Edited',
+              'Please log-in again to incoperate the changes',
+            );
+            await AsyncStorage.multiRemove(await AsyncStorage.getAllKeys());
+            navigation.navigate('RoleScreen');
+          }
         })
         .catch(error => {
           Alert.alert('Error', `${error}`);

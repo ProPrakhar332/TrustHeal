@@ -354,7 +354,7 @@ const DoctorRegistration2 = ({navigation}) => {
     let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
 
     //console.log('=================CACHE RESPONSE==================\n', x);
-
+    let token = await AsyncStorage.getItem('fcmToken');
     let req = {
       city: x.city,
       contactVisibility: x.contactVisibility,
@@ -363,6 +363,7 @@ const DoctorRegistration2 = ({navigation}) => {
       doctorId: x.doctorId,
       doctorName: x.doctorName != null ? x.doctorName : x.fullName,
       email: x.email,
+      firebaseToken: token,
       mobileNumber: x.mobileNumber,
       pinCode: x.pinCode,
       profilePhotoPath: phototoken,
@@ -974,15 +975,17 @@ const DoctorRegistration2 = ({navigation}) => {
                 'Your profile has been sent for verification',
               );
               setprofileCompleted(true);
-              await AsyncStorage.removeItem(doctorId + 'speciality');
-              let x = JSON.parse(
-                await AsyncStorage.getItem('UserDoctorProfile'),
-              );
-              x.profileCompleted = true;
-              await AsyncStorage.setItem(
-                'UserDoctorProfile',
-                JSON.stringify(x),
-              );
+              // await AsyncStorage.removeItem(doctorId + 'speciality');
+              // let x = JSON.parse(
+              //   await AsyncStorage.getItem('UserDoctorProfile'),
+              // );
+              // x.profileCompleted = true;
+              // await AsyncStorage.setItem(
+              //   'UserDoctorProfile',
+              //   JSON.stringify(x),
+              // );
+              await AsyncStorage.multiRemove(await AsyncStorage.getAllKeys());
+              navigation.navigate('RoleScreen');
             }
           })
           .catch(function (error) {

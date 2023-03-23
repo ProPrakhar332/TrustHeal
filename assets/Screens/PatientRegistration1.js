@@ -193,6 +193,9 @@ const PatientRegistration1 = ({navigation}) => {
 
   const postData = async () => {
     setisLoading(true);
+
+    let token = await AsyncStorage.getItem('fcmToken');
+
     let p = {
       age: age,
       allowWhatsAppNotification: false,
@@ -200,6 +203,7 @@ const PatientRegistration1 = ({navigation}) => {
       city: city,
       dob: dayjs(dob).format('YYYY-MM-DD'),
       // email: email,
+      firebaseToken: token,
       gender: gender,
       //height: Height,
       locationPermissions: 'DONT_ALLOW',

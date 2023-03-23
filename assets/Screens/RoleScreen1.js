@@ -18,6 +18,10 @@ import {useNavigation, StackActions} from '@react-navigation/native';
 import axios from 'axios';
 import apiConfig from '../API/apiConfig';
 import DeviceInfo from 'react-native-device-info';
+import {
+  requestUserPermission,
+  NotificationListner,
+} from '../API/PushNotification';
 
 import logo from '../Resources/TH_trans.png';
 //import logo from '../Resources/Logo.jpg';
@@ -54,6 +58,11 @@ const RoleScreen = ({navigation}) => {
       }
     };
     onLoadSetData();
+    //firebase fcm request
+  }, []);
+  useEffect(() => {
+    requestUserPermission();
+    NotificationListner();
   }, []);
 
   const onPatient = () => {
@@ -158,11 +167,13 @@ const RoleScreen = ({navigation}) => {
                       ? {backgroundColor: 'white', padding: 3}
                       : {backgroundColor: '#2b8ada', padding: 3}
                   }
-                  onPress={() =>
+                  onPress={() => {
                     navigation.push('OTPScreen', {
                       nextScreen: 'RegisterDoctor',
-                    })
-                  }
+                    });
+
+                    //navigation.navigate('CallAgora');
+                  }}
                 />
               </TouchableOpacity>
             </View>
@@ -196,20 +207,7 @@ const RoleScreen = ({navigation}) => {
                     navigation.push('OTPScreen', {
                       nextScreen: 'PatientRegistration',
                     });
-
-                    // navigation.navigate('CallPage', {
-                    //   consultationType: 'VIDEO_CALL',
-                    //   callID: '1',
-                    //   userID: 'Patient',
-                    //   userName: 'Patient',
-                    // });
-
-                    //navigation.navigate('PatientRegistration1');
-
-                    // Alert.alert(
-                    //   'Coming Soon',
-                    //   'This section would be available in next phase!',
-                    // );
+                    //navigation.navigate('CallAgora');
                   }}
                 />
               </TouchableOpacity>

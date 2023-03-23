@@ -176,6 +176,7 @@ const DoctorRegistrationStep1 = ({navigation}) => {
       );
     else {
       setisLoading(true);
+      let token = await AsyncStorage.getItem('fcmToken');
       if (Otherspeciality != '') speciality.push(Otherspeciality);
       let req = {
         age: parseInt(await AsyncStorage.getItem('age')),
@@ -186,6 +187,7 @@ const DoctorRegistrationStep1 = ({navigation}) => {
         digitalSignature: 0,
         dob: dob,
         email: email,
+        firebaseToken: token,
         fullName: title + ' ' + name,
         gender: gender,
         location: 'DONT_ALLOW',

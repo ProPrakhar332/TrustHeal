@@ -1,4 +1,5 @@
 apply plugin: "com.android.application"
+apply plugin: "com.google.gms.google-services"
 
 import com.android.build.OutputFile
 import org.apache.tools.ant.taskdefs.condition.Os
@@ -135,7 +136,7 @@ android {
     compileSdkVersion rootProject.ext.compileSdkVersion
 
     defaultConfig {
-        applicationId "com.newjarogyaapp"
+        applicationId "com.trusthealapp"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
@@ -218,10 +219,16 @@ android {
             keyPassword 'android'
         }
         release {
-            storeFile file(AROGYA)
-            storePassword AROGYA_STORE_PASSWORD
-            keyAlias AROGYA_KEY_ALIAS
-            keyPassword AROGYA_KEY_PASSWORD
+            // storeFile file(AROGYA)
+            // storePassword AROGYA_STORE_PASSWORD
+            // keyAlias AROGYA_KEY_ALIAS
+            // keyPassword AROGYA_KEY_PASSWORD
+            if (project.hasProperty('MYAPP_RELEASE_STORE_FILE')) {
+            storeFile file(MYAPP_RELEASE_STORE_FILE)
+            storePassword MYAPP_RELEASE_STORE_PASSWORD
+            keyAlias MYAPP_RELEASE_KEY_ALIAS
+            keyPassword MYAPP_RELEASE_KEY_PASSWORD
+        }
         }
     }
     buildTypes {
@@ -271,6 +278,9 @@ dependencies {
     implementation "com.facebook.react:react-native:+"  // From node_modules
     implementation 'com.squareup.okhttp3:okhttp:3.4.1'
     implementation project(':react-native-fs')
+
+    implementation platform('com.google.firebase:firebase-bom:31.2.3')
+    implementation 'com.google.firebase:firebase-analytics-ktx'
     
 
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"

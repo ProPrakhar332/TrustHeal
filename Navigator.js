@@ -27,6 +27,7 @@ import {useNavigation} from '@react-navigation/native';
 //Screens
 
 import CallPage from './assets/Screens/CallPage';
+import CallAgora from './assets/Screens/CallAgora';
 import doctor from './assets/Resources/doctor2x.png';
 import patient from './assets/Resources/patient2x.png';
 import doctor_female from './assets/Resources/doctor_female.png';
@@ -790,6 +791,11 @@ function App() {
         <Stack.Screen
           name="CallPage"
           component={CallPage}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="CallAgora"
+          component={CallAgora}
           options={{headerShown: false}}
         />
         <Stack.Screen

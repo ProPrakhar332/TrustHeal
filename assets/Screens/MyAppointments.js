@@ -154,7 +154,7 @@ function MyAppointment({navigation}) {
     userName,
     userType,
   ) => {
-    navigation.navigate('CallPage', {
+    navigation.navigate('CallAgora', {
       consultationType: consultationType,
       callID: callID,
       userID: userID,

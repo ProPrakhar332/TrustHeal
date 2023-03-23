@@ -127,7 +127,7 @@ const DoctorHome = ({navigation}) => {
     userName,
     userType,
   ) => {
-    nav.navigate('CallPage', {
+    nav.navigate('CallAgora', {
       consultationType: consultationType,
       callID: callID,
       userID: userID,
