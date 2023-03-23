@@ -17,12 +17,13 @@ async function GetFCMToken() {
   let fcmToken = await AsyncStorage.getItem('fcmToken');
   console.log('Old Token\n', fcmToken);
   try {
+    console.log(!fcmToken);
     if (!fcmToken) {
       let fcmToken = await messaging().getToken();
 
       if (fcmToken) {
         {
-          console.log('FCM Token\n', fcmToken);
+          console.log('New FCM Token\n', fcmToken);
           await AsyncStorage.setItem('fcmToken', fcmToken);
         }
       }

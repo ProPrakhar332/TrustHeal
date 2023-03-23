@@ -48,6 +48,7 @@ function AllSYmptoms({navigation}) {
   const [CategorySymptomsList, setCategorySymptomsList] = useState(null);
   const [searchSymptomList, setsearchSymptomList] = useState([]);
   const [searchSpecialityList, setsearchSpecialityList] = useState([]);
+  const [DisplaySpecialityList, setDisplaySpecialityList] = useState([]);
   const [showLabel, setshowLabel] = useState(true);
   const [DoctorsList, setDoctorsList] = useState(null);
   const layout = useWindowDimensions();
@@ -298,7 +299,7 @@ function AllSYmptoms({navigation}) {
     setisLoading(true);
     let x = '';
     let p = [...new Set(searchSpecialityList)];
-
+    setDisplaySpecialityList(p);
     console.log('Fetching doctors with\n', p);
 
     p.forEach(element => {
@@ -452,7 +453,7 @@ function AllSYmptoms({navigation}) {
                               Find Doctors
                             </Text>
                           </TouchableOpacity>
-                          <TouchableOpacity
+                          {/* <TouchableOpacity
                             style={{
                               zIndex: 3,
                               flex: 0.45,
@@ -472,12 +473,7 @@ function AllSYmptoms({navigation}) {
                               setsearchSpecialityList([]);
                               setsearchSymptomList([]);
                             }}>
-                            {/* <FAIcons
-                              name="search"
-                              size={15}
-                              color={'white'}
-                              style={{alignSelf: 'center', marginRight: 5}}
-                            /> */}
+                           
                             <Text
                               style={{
                                 color: '#2b8ada',
@@ -486,7 +482,7 @@ function AllSYmptoms({navigation}) {
                               }}>
                               Clear All
                             </Text>
-                          </TouchableOpacity>
+                          </TouchableOpacity> */}
                         </View>
                       </View>
                     ) : (
@@ -532,7 +528,7 @@ function AllSYmptoms({navigation}) {
                     fontSize: 15,
                   }}>
                   Showing results for{' '}
-                  {searchSpecialityList.length == 1
+                  {DisplaySpecialityList.length == 1
                     ? 'speciality'
                     : 'specialities'}
                 </Text>
@@ -546,7 +542,7 @@ function AllSYmptoms({navigation}) {
                     flexWrap: 'wrap',
                     marginVertical: 5,
                   }}>
-                  {searchSpecialityList.map(index => {
+                  {DisplaySpecialityList.map(index => {
                     return (
                       <Text
                         key={index}

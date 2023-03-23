@@ -230,81 +230,53 @@ function PatientHome({navigation}) {
       );
     });
   };
-  const RenderSymptoms = () => {
-    return (
-      <View
-        style={{
-          flexDirection: 'column',
-          width: width - 50,
-          alignSelf: 'center',
-        }}>
-        {CategorySymptomsList.map((item, index) => {
-          return (
-            <View
-              style={{
-                flexDirection: 'column',
-                marginVertical: 5,
-              }}
-              key={item.category}>
-              {/* Heading */}
-              <Text
-                style={{
+  const RenderCategories = () => {
+    return CategoryList.map((data, index) => {
+      return (
+        <TouchableOpacity
+          style={{
+            backgroundColor: 'white',
+            borderRadius: 10,
+            justifyContent: 'space-between',
+            flexDirection: 'row',
+            padding: 5,
+            margin: 5,
+          }}
+          key={data}
+          onPress={() => {
+            navigation.navigate('AllSymptoms');
+          }}>
+          <View>
+            <Text
+              style={[
+                {
                   fontSize: 15,
-                  color: '#2b8ada',
-                  fontWeight: 'bold',
                   marginVertical: 5,
-                }}>
-                {item.category}
-              </Text>
-              {/* List of Symptoms */}
-              <View style={{flexDirection: 'row'}}>
-                {item.symptoms.map((data, index) => {
-                  return (
-                    <TouchableOpacity
-                      key={data.symptomImage}
-                      style={{
-                        flexDirection: 'column',
-                        alignSelf: 'center',
-                        width: 80,
-                        backgroundColor: '#379ae6',
-                        justifyContent: 'space-evenly',
-                        borderRadius: 15,
-                        margin: 5,
-                        padding: 5,
-                      }}
-                      onPress={() => {
-                        navigation.navigate('AllSymptoms');
-                      }}>
-                      {/* <Image/> */}
-                      <View style={{padding: 3}}>
-                        <Image
-                          source={{
-                            uri: `${apiConfig.baseUrl}/file/admin/download?fileToken=${data.symptomImage}`,
-                          }}
-                          style={{height: 50, width: 50, alignSelf: 'center'}}
-                        />
-                      </View>
-                      <View style={{padding: 3}}>
-                        <Text
-                          style={{
-                            fontSize: 12,
-                            alignSelf: 'center',
-                            color: 'white',
-                            fontWeight: 'bold',
-                            textAlign: 'center',
-                          }}>
-                          {data.symptom}
-                        </Text>
-                      </View>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-            </View>
-          );
-        })}
-      </View>
-    );
+                  fontWeight: 'bold',
+                  paddingHorizontal: 10,
+                },
+                {color: 'gray'},
+              ]}>
+              {data}
+            </Text>
+          </View>
+          <View style={{justifyContent: 'center'}}>
+            <FAIcons
+              name={'chevron-right'}
+              size={20}
+              style={[
+                {
+                  alignSelf: 'center',
+                  justifyContent: 'center',
+                  marginRight: 10,
+                },
+                {color: 'black'},
+              ]}
+            />
+          </View>
+        </TouchableOpacity>
+      );
+    });
   };
 
   const renderListOfDoctors = ({item}) => {
@@ -505,41 +477,6 @@ function PatientHome({navigation}) {
     if (patientDet != null) getUpcoming();
   }, [patientDet]);
 
-  useEffect(() => {
-    const getSymptoms = async () => {
-      let p = [];
-
-      for (let i = 0; i < CategoryList.length && i < 5; ++i) {
-        await axios
-          .get(
-            apiConfig.baseUrl +
-              '/suggest/symptom/by/category?category=' +
-              CategoryList[i],
-          )
-          .then(response => {
-            console.log(
-              `\n\n=======    ${CategoryList[i]} ===========\n\n`,
-              response.data,
-            );
-
-            if (response.status == 200 && response.data != '') {
-              p.push({
-                category: CategoryList[i],
-                symptoms: response.data,
-              });
-            }
-          });
-      }
-      console.log(
-        '===============  CATEGORIES WITH SYMPTOMS=================\n\n',
-        p,
-      );
-      setCategorySymptomsList(p);
-    };
-
-    if (CategoryList != null) getSymptoms();
-  }, [CategoryList]);
-
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -735,7 +672,11 @@ function PatientHome({navigation}) {
           </View>
 
           {/* Consult Doctor Via Symptom */}
-          <View style={[styles.whiteBox, {marginVertical: 10}]}>
+          <View
+            style={[
+              styles.whiteBox,
+              {marginVertical: 10, backgroundColor: '#e8f0fe'},
+            ]}>
             {/* Heading */}
             <View
               style={{
@@ -757,16 +698,20 @@ function PatientHome({navigation}) {
                   Consult Doctor Via Symptom
                 </Text>
               </View>
-              <Text style={{color: 'gray', fontSize: 12}}>
+              <Text style={{color: 'black', fontSize: 12}}>
                 Select a category of symptom to book in 1 step
               </Text>
             </View>
             {/* Transparent Box */}
             <ScrollView
-              style={{alignSelf: 'center', flexDirection: 'row'}}
+              style={{alignSelf: 'center', flexDirection: 'column'}}
               horizontal={true}
               showsHorizontalScrollIndicator={false}>
-              {CategorySymptomsList != null ? <RenderSymptoms /> : null}
+              {CategoryList != null ? (
+                <View style={{flexDirection: 'column', width: '100%'}}>
+                  <RenderCategories />
+                </View>
+              ) : null}
             </ScrollView>
             <Text
               style={{

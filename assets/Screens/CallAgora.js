@@ -26,10 +26,22 @@ const CallAgora = props => {
   const [remoteUid, setRemoteUid] = useState(0); // Uid of the remote user
   const [message, setMessage] = useState(''); // Message to the user
 
-  useEffect(() => {
+  useEffect(async () => {
     // Initialize Agora engine when the app starts
-    if (consultationType == 'PHONE_CALL') setupVoiceSDKEngine();
+    if (consultationType == 'PHONE_CALL') {
+      await getPermission();
+      await setupVoiceSDKEngine();
+      await join();
+    }
   }, [consultationType]);
+
+  const getPermission = async () => {
+    if (Platform.OS === 'android') {
+      await PermissionsAndroid.requestMultiple([
+        PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+      ]);
+    }
+  };
 
   const setupVoiceSDKEngine = async () => {
     try {
@@ -56,6 +68,32 @@ const CallAgora = props => {
       agoraEngine.initialize({
         appId: apiConfig.AgoraAppId,
       });
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const join = async () => {
+    if (isJoined) {
+      return;
+    }
+    try {
+      agoraEngineRef.current?.setChannelProfile(
+        ChannelProfileType.ChannelProfileCommunication,
+      );
+      agoraEngineRef.current?.joinChannel(token, channelName, uid, {
+        clientRoleType: ClientRoleType.ClientRoleBroadcaster,
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  const leave = () => {
+    try {
+      agoraEngineRef.current?.leaveChannel();
+      setRemoteUid(0);
+      setIsJoined(false);
+      showMessage('You left the channel');
     } catch (e) {
       console.log(e);
     }

@@ -271,6 +271,7 @@ const PatientProfileEdit = ({navigation}) => {
   const postData = async () => {
     setisLoading(true);
     let token = await AsyncStorage.getItem('fcmToken');
+    console.log(token);
     let p = {
       age: dayjs().diff(dayjs(dob), 'y'),
       allowWhatsAppNotification: false,

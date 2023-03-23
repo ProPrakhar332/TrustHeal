@@ -47,6 +47,7 @@ function AllSpeciality({navigation}) {
   const [consultationModeModal, setconsultationModeModal] = useState(false);
   const [DoctorItem, setDoctorItem] = useState(null);
   const [search, setSearch] = useState('');
+  const [showLabel, setshowLabel] = useState(false);
   const layout = useWindowDimensions();
 
   useEffect(() => {
@@ -620,22 +621,162 @@ function AllSpeciality({navigation}) {
                 width: '95%',
                 alignSelf: 'center',
               }}>
-              <Text
-                style={{
-                  marginVertical: 20,
-                  backgroundColor: '#2b8ada',
-                  padding: 10,
-                  color: 'white',
-                  fontWeight: 'bold',
-                  borderRadius: 10,
+              <TouchableOpacity
+                style={[
+                  {
+                    backgroundColor: '#2b8ada',
+                    justifyContent: 'space-between',
+                    flexDirection: 'row',
+                    padding: 5,
+                    marginTop: 10,
+                  },
+                  showLabel
+                    ? {borderTopLeftRadius: 10, borderTopRightRadius: 10}
+                    : {borderRadius: 10},
+                ]}
+                onPress={() => {
+                  setshowLabel(!showLabel);
                 }}>
-                Select Speciality
-              </Text>
+                <View>
+                  <Text
+                    style={[
+                      {
+                        fontSize: 15,
+                        fontWeight: 'bold',
+                        marginVertical: 5,
+                        paddingHorizontal: 10,
+                        color: 'white',
+                      },
+                    ]}>
+                    Selected Speciality
+                  </Text>
+                </View>
+                <View style={{justifyContent: 'center'}}>
+                  <FAIcons
+                    name={showLabel ? 'chevron-down' : 'chevron-right'}
+                    size={20}
+                    style={[
+                      {
+                        alignSelf: 'center',
+                        justifyContent: 'center',
+                        marginRight: 10,
+                      },
+                      {color: 'white'},
+                    ]}
+                  />
+                </View>
+              </TouchableOpacity>
+              {showLabel ? (
+                <View style={styles.whiteBodyView}>
+                  {selectedSpeciality != '' ? (
+                    <View>
+                      <View style={{flexWrap: 'wrap', flexDirection: 'row'}}>
+                        {selectedSpeciality.map(index => {
+                          return (
+                            <Text
+                              key={index}
+                              style={{
+                                padding: 5,
+                                paddingHorizontal: 10,
+                                backgroundColor: '#17CC9C',
+                                color: 'white',
+                                borderRadius: 10,
+                                fontSize: 13,
+                                margin: 3,
+                              }}>
+                              {index}
+                            </Text>
+                          );
+                        })}
+                      </View>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-evenly',
+                        }}>
+                        <TouchableOpacity
+                          style={{
+                            zIndex: 3,
+                            flex: 0.45,
+                            justifyContent: 'center',
+                            backgroundColor: '#2b8ada',
+                            padding: 7,
+                            paddingHorizontal: 15,
+                            borderRadius: 5,
+                            alignSelf: 'center',
+                            flexDirection: 'row',
+                            marginVertical: 10,
+                          }}
+                          // onPress={async () => {
+                          //   // setDoctorsList(null);
+                          //   await getDoctors();
+                          // }}
+                          onPress={() => {
+                            setDoctorsList(null);
+                            getDoctors();
+                          }}>
+                          <FAIcons
+                            name="search"
+                            size={15}
+                            color={'white'}
+                            style={{alignSelf: 'center', marginRight: 5}}
+                          />
+                          <Text
+                            style={{
+                              color: 'white',
+                              fontWeight: 'bold',
+                              fontSize: 12,
+                            }}>
+                            Find Doctors
+                          </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={{
+                            zIndex: 3,
+                            flex: 0.45,
+                            justifyContent: 'center',
+                            borderColor: '#2b8ada',
+                            borderWidth: 1,
+                            padding: 7,
+                            paddingHorizontal: 15,
+                            borderRadius: 5,
+                            alignSelf: 'center',
+                            flexDirection: 'row',
+                            marginVertical: 10,
+                          }}
+                          onPress={async () => {
+                            setselectedSpeciality([]);
+                          }}>
+                          <Text
+                            style={{
+                              color: '#2b8ada',
+                              fontWeight: 'bold',
+                              fontSize: 12,
+                            }}>
+                            Clear All
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  ) : (
+                    <View>
+                      <Text
+                        style={{
+                          alignSelf: 'center',
+                          fontSize: 12,
+                          color: 'black',
+                        }}>
+                        Please select symptoms from the list below
+                      </Text>
+                    </View>
+                  )}
+                </View>
+              ) : null}
               <View
                 style={{
-                  marginBottom: 10,
+                  marginVertical: 10,
                   flexDirection: 'row',
-                  width: '95%',
+                  width: '100%',
                   alignSelf: 'center',
                 }}>
                 <TextInput
@@ -664,7 +805,7 @@ function AllSpeciality({navigation}) {
                   onPress={() => setSearch('')}
                 />
               </View>
-              {selectedSpeciality != '' ? (
+              {/* {selectedSpeciality != '' ? (
                 <TouchableOpacity
                   style={{
                     zIndex: 3,
@@ -690,7 +831,7 @@ function AllSpeciality({navigation}) {
                     Find Doctors
                   </Text>
                 </TouchableOpacity>
-              ) : null}
+              ) : null} */}
               <View style={{alignSelf: 'center', marginBottom: 30}}>
                 <FlatList
                   data={search == '' ? List : newList}
@@ -888,6 +1029,13 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: 'gray',
     fontWeight: 'bold',
+  },
+  whiteBodyView: {
+    backgroundColor: 'white',
+    padding: 10,
+    borderBottomRightRadius: 10,
+    borderBottomLeftRadius: 10,
+    marginBottom: 10,
   },
 });
 

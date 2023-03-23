@@ -214,7 +214,7 @@ const PatientRegistration1 = ({navigation}) => {
       pincode: pincode,
       termsAndConditions: true,
       //weight: Weight,
-      whatsAppNumber: 'string',
+      whatsAppNumber: mobno,
     };
     DeviceInfo.getIpAddress().then(ip => {
       p.phoneIp = ip;
