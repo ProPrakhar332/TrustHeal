@@ -787,7 +787,7 @@ const PatientRegistration1 = ({navigation}) => {
                   <Text
                     style={[styles.textLink]}
                     onPress={async () => {
-                      downloadTerms();
+                      //downloadTerms();
                       setTermsView(true);
                     }}>
                     Terms & Conditions
@@ -935,6 +935,9 @@ const PatientRegistration1 = ({navigation}) => {
                   styles.modalView,
                   {
                     borderRadius: 10,
+                    width: '90%',
+                    alignSelf: 'center',
+                    padding: 25,
                   },
                 ]}>
                 <View
@@ -965,92 +968,31 @@ const PatientRegistration1 = ({navigation}) => {
                     onPress={() => {
                       setTermsView(false);
 
-                      setZoom(1);
+                      //setZoom(1);
                     }}
                   />
                 </View>
-                <View style={{minHeight: 150, width: '100%'}}>
-                  <View
-                    style={{
-                      padding: 10,
-                      width: '100%',
-                      alignSelf: 'center',
-                      borderRadius: 7,
-                      marginVertical: 10,
-                      borderWidth: 2,
-                      borderColor: 'gray',
-                    }}>
-                    <Pdf
-                      source={{uri: File}}
-                      //source={require('../Terms/Doctor.pdf')}
-                      style={{
-                        width: '100%',
-                        height: 275,
-                        alignSelf: 'center',
-                      }}
-                      scale={zoom}
-                    />
+                <View
+                  style={{minHeight: 150, width: '90%', alignSelf: 'center'}}>
+                  <View style={{flex: 1}}>
+                    <Text style={[styles.parStyles, {marginTop: 10}]}>
+                      By proceeding, I agree that I have read and understood the
+                      terms & conditions of usage of this platform and consent
+                      to / accept the same. I am voluntarily availing the
+                      services provided on this platform. I am fully aware that
+                      on this platform I will not be undergoing any physical
+                      examination by a physician who may recommend medical tests
+                      and/or treatment and/or the prescribe OTC drugs.
+                    </Text>
                   </View>
-                  <View style={{alignSelf: 'center', flexDirection: 'column'}}>
-                    {/* Zoom Controls */}
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        alignContent: 'center',
-                        justifyContent: 'space-evenly',
-                        width: '95%',
-                      }}>
-                      <TouchableOpacity>
-                        <FAIcon
-                          name="minus-circle"
-                          size={20}
-                          color={'gray'}
-                          onPress={onZoomOut}
-                        />
-                      </TouchableOpacity>
-                      <Text>
-                        {zoom * 100}
-                        {' %'}
-                      </Text>
-                      <TouchableOpacity>
-                        <FAIcon
-                          name="plus-circle"
-                          size={20}
-                          color={'gray'}
-                          onPress={onZoomIn}
-                        />
-                      </TouchableOpacity>
-                    </View>
-                    <View style={{flexDirection: 'row', marginTop: 20}}>
-                      <CustomButton
-                        text="Decline"
-                        textstyle={{color: '#2B8ADA', fontSize: 13}}
-                        style={{
-                          borderWidth: 1,
-                          borderColor: '#2B8ADA',
-                          flex: 0.45,
-                          marginRight: '5%',
-                          alignSelf: 'center',
-                          padding: 5,
-                        }}
-                        onPress={() => setTermsView(false)}
-                      />
-                      <CustomButton
-                        text="Accept"
-                        textstyle={{color: 'white', fontSize: 13}}
-                        style={{
-                          backgroundColor: '#2B8ADA',
-                          flex: 0.45,
-                          alignSelf: 'center',
-                          padding: 5,
-                        }}
-                        onPress={() => {
-                          //  PostData();
-                          setCheckTerms(true);
-                          setTermsView(false);
-                        }}
-                      />
-                    </View>
+                  <View style={{flex: 1}}>
+                    <Text style={styles.parStyles}>
+                      I am also aware that the consultation on this platform
+                      does not remove the need for me to visit a physician and
+                      opt for physical examination at any point in time and I am
+                      free to request for the same. Such a physical examination
+                      may even be advised by the consulting physician.
+                    </Text>
                   </View>
                 </View>
               </View>
@@ -1127,6 +1069,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginVertical: 5,
 
+    color: 'black',
+  },
+  parStyles: {
+    textAlign: 'left',
+    fontSize: 13,
+    marginVertical: 5,
+    lineHeight: 15,
     color: 'black',
   },
   inputLabel: {

@@ -47,7 +47,7 @@ function AllSpeciality({navigation}) {
   const [consultationModeModal, setconsultationModeModal] = useState(false);
   const [DoctorItem, setDoctorItem] = useState(null);
   const [search, setSearch] = useState('');
-  const [showLabel, setshowLabel] = useState(false);
+  const [showLabel, setshowLabel] = useState(true);
   const layout = useWindowDimensions();
 
   useEffect(() => {

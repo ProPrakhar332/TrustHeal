@@ -495,7 +495,7 @@ const Header = ({title, showMenu}) => {
       </View>
       <View style={[{flexDirection: 'column'}]}>
         <View style={{flexDirection: 'row'}}>
-          <FAIcon
+          {/* <FAIcon
             style={styles.icon}
             name="user-circle"
             size={20}
@@ -504,7 +504,8 @@ const Header = ({title, showMenu}) => {
               console.log('Profile');
               navigation.navigate('Profile');
             }}
-          />
+          /> */}
+
           {/* <IonIcons
             style={styles.icon}
             name="ios-location-outline"

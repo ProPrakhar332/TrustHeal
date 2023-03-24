@@ -1136,7 +1136,7 @@ function DoctorDetails({navigation}) {
                       <Text style={styles.subHeading}>P Follow-Up Fees</Text>
                       <Text style={{fontSize: 12}}>
                         {'₹ '}
-                        {DocObj.feesInfo.physicalfollowUpFees}
+                        {DocObj.feesInfo.physicalFollowUpFees}
                       </Text>
                     </View>
                     <View style={{flexDirection: 'column'}}>

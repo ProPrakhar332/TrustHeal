@@ -760,10 +760,13 @@ const DoctorRegistration2 = ({navigation}) => {
       } else {
         const data = [
           {key: 'Dermatologist', value: 'Dermatologist'},
-          {key: 'Dietician & Nutition', value: 'Dietician & Nutition'},
+          {
+            key: 'Dietician and Nutritionist',
+            value: 'Dietician and Nutritionist',
+          },
           {key: 'ENT', value: 'ENT'},
           {key: 'Endocrinologist', value: 'Endocrinologist'},
-          {key: 'Gastoentrologist', value: 'Gastoentrologist'},
+          {key: 'Gastroenterologist', value: 'Gastroenterologist'},
           {key: 'Gynecologist', value: 'Gynecologist'},
           {key: 'Lifestyle Diseases', value: 'Lifestyle Diseases'},
           {key: 'Ophthalmologist', value: 'Ophthalmologist'},
@@ -774,6 +777,7 @@ const DoctorRegistration2 = ({navigation}) => {
             key: 'Psychological Counselling',
             value: 'Psychological Counselling',
           },
+          {key: 'Other', value: 'Other'},
         ];
         setdataSpecialization(data);
       }
@@ -787,6 +791,9 @@ const DoctorRegistration2 = ({navigation}) => {
     };
     onLoadSetData();
   }, []);
+
+  //useEffect(()=>{})
+
   //check data uploaded
   useEffect(() => {
     const checkMedical = async () => {
@@ -3842,52 +3849,7 @@ const DoctorRegistration2 = ({navigation}) => {
                     {/* Add Clinic */}
                     {ClinicDet.length == 0 || addMoreAddInfo ? (
                       <View style={{width: '95%', alignSelf: 'center'}}>
-                        {/* Clinic Photo */}
-
-                        <TouchableOpacity
-                          style={[
-                            {
-                              backgroundColor: '#e8f0fe',
-                              padding: 10,
-                              justifyContent: 'center',
-                              borderRadius: 10,
-                              flexDirection: 'row',
-                            },
-                            clinicPhoto != null
-                              ? {
-                                  backgroundColor: 'white',
-                                  borderColor: '#21c47f',
-                                  borderWidth: 1,
-                                }
-                              : null,
-                          ]}
-                          onPress={async () => {
-                            if (clinicName != '') await choosePhoto('Clinic');
-                            else
-                              Alert.alert(
-                                'Incomplete Details!',
-                                'Please enter clinic name before uploading picture',
-                              );
-                          }}>
-                          {clinicPhoto == null ? (
-                            <FAIcon
-                              name="camera"
-                              color={'gray'}
-                              size={15}
-                              style={{marginRight: 5, alignSelf: 'center'}}
-                            />
-                          ) : null}
-                          <Text
-                            style={[
-                              {alignSelf: 'center', fontSize: 12},
-                              clinicPhoto != null ? {color: '#21c47f'} : null,
-                            ]}>
-                            {clinicPhoto == null
-                              ? 'Upload Clinic Photo'
-                              : '✓ File Selected'}
-                          </Text>
-                        </TouchableOpacity>
-
+                        {/* Clinic Name */}
                         <View style={{flexDirection: 'column'}}>
                           <View style={{flexDirection: 'row'}}>
                             <Text style={styles.inputLabel}>Clinic Name</Text>
@@ -3902,6 +3864,7 @@ const DoctorRegistration2 = ({navigation}) => {
                             onChangeText={text => setClinicName(text)}
                           />
                         </View>
+                        {/* Clinic Address */}
                         <View style={{flexDirection: 'column'}}>
                           <View style={{flexDirection: 'row'}}>
                             <Text style={styles.inputLabel}>
@@ -3918,6 +3881,72 @@ const DoctorRegistration2 = ({navigation}) => {
                             onChangeText={text => setClinicAddress(text)}
                           />
                         </View>
+                        {/* Clinic Photo */}
+                        <View style={{flexDirection: 'column'}}>
+                          <View style={{flexDirection: 'row'}}>
+                            <Text style={styles.inputLabel}>Clinic Proof</Text>
+                            <Text style={[styles.inputLabel, {color: 'red'}]}>
+                              *
+                            </Text>
+                          </View>
+                          <Text
+                            style={[
+                              styles.inputLabel,
+                              {
+                                fontSize: 10,
+                                color: 'red',
+                                marginTop: 0,
+                                marginVertical: 5,
+                              },
+                            ]}>
+                            Note:- Photo of recent Electricity Bill or Clinic
+                            Board photo
+                          </Text>
+                          <TouchableOpacity
+                            style={[
+                              {
+                                backgroundColor: '#e8f0fe',
+                                padding: 10,
+                                justifyContent: 'center',
+                                borderRadius: 10,
+                                flexDirection: 'row',
+                              },
+                              clinicPhoto != null
+                                ? {
+                                    backgroundColor: 'white',
+                                    borderColor: '#21c47f',
+                                    borderWidth: 1,
+                                  }
+                                : null,
+                            ]}
+                            onPress={async () => {
+                              if (clinicName != '') await choosePhoto('Clinic');
+                              else
+                                Alert.alert(
+                                  'Incomplete Details!',
+                                  'Please enter clinic name before uploading picture',
+                                );
+                            }}>
+                            {clinicPhoto == null ? (
+                              <FAIcon
+                                name="camera"
+                                color={'gray'}
+                                size={15}
+                                style={{marginRight: 5, alignSelf: 'center'}}
+                              />
+                            ) : null}
+                            <Text
+                              style={[
+                                {alignSelf: 'center', fontSize: 12},
+                                clinicPhoto != null ? {color: '#21c47f'} : null,
+                              ]}>
+                              {clinicPhoto == null
+                                ? 'Upload Photo'
+                                : '✓ File Selected'}
+                            </Text>
+                          </TouchableOpacity>
+                        </View>
+                        {/* Special Instruction */}
                         <View style={{flexDirection: 'column'}}>
                           <Text style={styles.inputLabel}>
                             Special Instruction
@@ -3930,6 +3959,7 @@ const DoctorRegistration2 = ({navigation}) => {
                             onChangeText={text => setSpecialInstruction(text)}
                           />
                         </View>
+
                         <CustomButton
                           text="Add To List"
                           textstyle={{color: 'white', fontSize: 12}}

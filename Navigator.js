@@ -70,6 +70,8 @@ import ManageSchedule from './assets/Screens/ManageSchedule';
 import Prescription from './assets/Screens/Prescription';
 import About from './assets/Screens/About';
 import AboutDoctor from './assets/Screens/AboutDoctor';
+import TCDoctor from './assets/Screens/TCDoctor';
+import TCPatient from './assets/Screens/TCPatient';
 
 import CheifComplaints from './assets/Screens/CheifComplaints';
 import BodyScan from './assets/Screens/BodyScan';
@@ -307,7 +309,7 @@ const openURL = async url => {
 };
 
 const viewTermsConditions = () => {
-  openURL('https://www.google.com');
+  openURL('http://trustheal.in/TrustHeal_Agreement_with_Doctor.pdf');
 };
 
 function CustomDrawerContent(props) {
@@ -468,7 +470,8 @@ function CustomDrawerContent(props) {
         labelStyle={styles.labelStyle}
         style={{marginVertical: 0, paddingVertical: 0}}
         onPress={() => {
-          viewTermsConditions();
+          // viewTermsConditions();
+          props.navigation.navigate('TCDoctor');
         }}
         icon={({focused, color, size}) => (
           <Image source={terms} style={{tintColor: '#033158'}} />
@@ -611,7 +614,7 @@ function CustomDrawerContentPatient(props) {
       <View style={styles.Heading}>
         <Text style={styles.HeadingText}>Record</Text>
       </View>
-      <DrawerItem
+      {/* <DrawerItem
         label="Notification"
         labelStyle={styles.labelStyle}
         style={{marginVertical: 0, paddingVertical: 0}}
@@ -619,7 +622,7 @@ function CustomDrawerContentPatient(props) {
         icon={({focused, color, size}) => (
           <Image source={bell} style={{tintColor: '#033158'}} />
         )}
-      />
+      /> */}
       <DrawerItem
         label="Appointment"
         labelStyle={styles.labelStyle}
@@ -629,7 +632,7 @@ function CustomDrawerContentPatient(props) {
           <Image source={appointment} style={{tintColor: '#033158'}} />
         )}
       />
-      <DrawerItem
+      {/* <DrawerItem
         label="Profile"
         labelStyle={styles.labelStyle}
         style={{marginVertical: 0, paddingVertical: 0}}
@@ -637,7 +640,7 @@ function CustomDrawerContentPatient(props) {
         icon={({focused, color, size}) => (
           <Image source={myprofile} style={{tintColor: '#033158'}} />
         )}
-      />
+      /> */}
       {/* <DrawerItem
         label="Invoices"
         labelStyle={styles.labelStyle}
@@ -676,7 +679,8 @@ function CustomDrawerContentPatient(props) {
         labelStyle={styles.labelStyle}
         style={{marginVertical: 0, paddingVertical: 0}}
         onPress={() => {
-          viewTermsConditions();
+          // viewTermsConditions();
+          props.navigation.navigate('TCPatient');
         }}
         icon={({focused, color, size}) => (
           <Image source={terms} style={{tintColor: '#033158'}} />
@@ -832,6 +836,22 @@ function App() {
         <Stack.Screen
           name="AboutDoctor"
           component={AboutDoctor}
+          options={{
+            headerShown: false,
+            headerBackButtonMenuEnabled: false,
+          }}
+        />
+        <Stack.Screen
+          name="TCDoctor"
+          component={TCDoctor}
+          options={{
+            headerShown: false,
+            headerBackButtonMenuEnabled: false,
+          }}
+        />
+        <Stack.Screen
+          name="TCPatient"
+          component={TCPatient}
           options={{
             headerShown: false,
             headerBackButtonMenuEnabled: false,

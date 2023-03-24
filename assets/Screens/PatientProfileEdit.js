@@ -307,12 +307,19 @@ const PatientProfileEdit = ({navigation}) => {
       .post(apiConfig.baseUrl + '/patient/update', p)
       .then(async function (response) {
         if (response.status == 200) {
-          p.isSpecialPatient = isSpecial;
+          // p.isSpecialPatient = isSpecial;
 
-          await AsyncStorage.setItem('UserPatientProfile', JSON.stringify(p));
+          //await AsyncStorage.setItem('UserPatientProfile', JSON.stringify(p));
+
+          // await AsyncStorage.multiRemove(await AsyncStorage.getAllKeys());
+
           setisLoading(false);
-          Alert.alert('Done', 'Your details have been saved successfully.');
-          navigation.goBack();
+          Alert.alert(
+            'Profile Edited',
+            'Please log-in again to incoperate the changes',
+          );
+          await AsyncStorage.multiRemove(await AsyncStorage.getAllKeys());
+          navigation.navigate('RoleScreen');
         }
       })
       .catch(error => {
