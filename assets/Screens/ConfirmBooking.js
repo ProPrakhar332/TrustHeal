@@ -43,55 +43,8 @@ import dayjs from 'dayjs';
 import timeformatter from '../API/timeformatter';
 import RazorpayCheckout from 'react-native-razorpay';
 import DoctorBasicDetails from '../Components/DoctorBasicDetails';
+import waiting from '../Animations/waiting1.gif';
 
-const data = {
-  name: 'Dr. Imran Singh',
-  spl: 'Psychiatry',
-  exp: '10 Years of experience',
-  deg: 'MBBS, MD, FID, CCLHA',
-  city: 'New Delhi',
-  email: 'Imran@gmail.com',
-  pres: '',
-  age: 36,
-  dob: '03/02/1973',
-  img: doctor_m,
-  doctorConsultationFeesDTO: {
-    eConsulationFees: 500,
-    followUpFees: 0,
-    physicalConsulationFees: 800,
-  },
-  doctorEducationsDTOs: [
-    {
-      degree: 'MBBS',
-      degreePath: 'string',
-      doctorEducationPkId: 0,
-      passingYear: '1986',
-      specialization: ['Psychiatry', 'Diabetologist', 'General Physician'],
-      totalExperiencedInMonths: 0,
-      university: 'IGNOU',
-    },
-  ],
-  doctorClinicDetailsDTOs: [
-    {
-      doctorclinicpkid: 1,
-      clinicName: 'ABCD',
-      clinicAddress: 'Ashok Road',
-      specialInstruction: 'wear mask',
-    },
-    {
-      doctorclinicpkid: 2,
-      clinicName: 'XYZ',
-      clinicAddress: 'rohtak road',
-      specialInstruction: 'wear mask',
-    },
-    {
-      doctorclinicpkid: 3,
-      clinicName: 'QWERTY',
-      clinicAddress: 'Rajpur Road',
-      specialInstruction: 'wear mask',
-    },
-  ],
-};
 const dataBloodGroup = [
   {key: 'A+', value: 'A+'},
   {key: 'A-', value: 'A-'},
@@ -143,6 +96,7 @@ function ConfirmBoking({navigation}) {
   const [AppointmentFor, setAppointmentFor] = useState([]);
   const [THOrderId, setTHOrderId] = useState(0);
   const [PayonClinic, setPayonClinic] = useState(false);
+  const [isLoading, setisLoading] = useState(false);
 
   const [termsView, setTermsView] = useState(false);
   const [zoom, setZoom] = useState(1);
@@ -428,7 +382,9 @@ function ConfirmBoking({navigation}) {
     await AsyncStorage.removeItem('Order');
   };
 
+  const window = useWindowDimensions();
   const bookConsultation = async () => {
+    setisLoading(true);
     let p = {
       // clinicId: 0,
       consultationType: PrevPageData.consultationType,
@@ -477,6 +433,7 @@ function ConfirmBoking({navigation}) {
             '================== CONSULTATION BOOKED ==================\n',
             response.data,
           );
+          setisLoading(false);
 
           PrevPageData.booked = response.data;
 
@@ -488,9 +445,15 @@ function ConfirmBoking({navigation}) {
             'Success',
             `Your consultation with ${PrevPageData.doctorDet.doctorName} is booked.\n Now fill preconsultation questionnaire and upload documents to help doctor consult you better.`,
           );
+
           navigation.navigate('PreConsult');
         }
+      })
+      .catch(error => {
+        Alert.alert('Error', `${error}`);
+        setisLoading(false);
       });
+    //setisLoading(false);
   };
 
   return (
@@ -872,7 +835,7 @@ function ConfirmBoking({navigation}) {
                     <Text
                       style={[styles.textLink]}
                       onPress={async () => {
-                        await downloadTerms();
+                        //await downloadTerms();
                         setTermsView(true);
                       }}>
                       Terms and Conditions
@@ -1002,6 +965,7 @@ function ConfirmBoking({navigation}) {
                   styles.modalView,
                   {
                     borderRadius: 10,
+                    padding: 25,
                   },
                 ]}>
                 <View
@@ -1036,100 +1000,197 @@ function ConfirmBoking({navigation}) {
                     }}
                   />
                 </View>
-                <View style={{minHeight: 150, width: '100%'}}>
-                  <View
-                    style={{
-                      padding: 10,
-                      width: '100%',
-                      alignSelf: 'center',
-                      borderRadius: 7,
-                      marginVertical: 10,
-                      borderWidth: 2,
-                      borderColor: 'gray',
-                    }}>
-                    <Pdf
-                      source={{
-                        uri: File,
-                      }}
-                      //source={require('../Terms/Doctor.pdf')}
-                      style={{
-                        width: '100%',
-                        height: 275,
-                        alignSelf: 'center',
-                      }}
-                      onLoadComplete={() => console.log('fully loaded')}
-                      scale={zoom}
-                    />
-                  </View>
-                  <View style={{alignSelf: 'center', flexDirection: 'column'}}>
-                    {/* Zoom Controls */}
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        alignContent: 'center',
-                        justifyContent: 'space-evenly',
-                        width: '95%',
-                      }}>
-                      <TouchableOpacity>
-                        <FAIcons
-                          name="minus-circle"
-                          size={20}
-                          color={'gray'}
-                          onPress={onZoomOut}
-                        />
-                      </TouchableOpacity>
-                      <Text>
-                        {zoom * 100}
-                        {' %'}
+                <ScrollView
+                  style={{
+                    minHeight: 150,
+                    width: '100%',
+                    maxHeight: window.height - 200,
+                  }}>
+                  <View style={{alignSelf: 'center', width: '90%'}}>
+                    {/* Terms and Conditions for Refund and Cancellation */}
+                    <View style={{flex: 1}}>
+                      <Text
+                        style={{
+                          fontSize: 20,
+                          textAlign: 'center',
+                          color: 'black',
+                          fontWeight: 'bold',
+                          marginTop: 20,
+                        }}>
+                        Terms and Conditions for Refund and Cancellation
                       </Text>
-                      <TouchableOpacity>
-                        <FAIcons
-                          name="plus-circle"
-                          size={20}
-                          color={'gray'}
-                          onPress={onZoomIn}
-                        />
-                      </TouchableOpacity>
                     </View>
-                    <View style={{flexDirection: 'row', marginTop: 20}}>
-                      <CustomButton
-                        text="Decline"
-                        textstyle={{color: '#2B8ADA', fontSize: 13}}
+
+                    {/* 1.	Cancellations Policy:  */}
+                    <View style={{flex: 1}}>
+                      <Text
                         style={{
-                          borderWidth: 1,
-                          borderColor: '#2B8ADA',
-                          flex: 0.45,
-                          marginRight: '5%',
-                          alignSelf: 'center',
-                          padding: 5,
-                        }}
-                        onPress={() => {
-                          setprivatePolicy(false);
-                          setTermsView(false);
-                        }}
-                      />
-                      <CustomButton
-                        text="Accept"
-                        textstyle={{color: 'white', fontSize: 13}}
+                          fontSize: 14,
+                          textAlign: 'left',
+                          color: 'black',
+                          fontWeight: 'bold',
+                          marginVertical: 5,
+                        }}>
+                        1. Cancellations Policy:
+                      </Text>
+                      <View style={{flex: 1}}>
+                        <Text style={styles.parStyles}>
+                          • If the patient cancels the teleconsultation
+                          appointment with at least 24 hours' advance written
+                          notice, the full amount paid by him / her will be
+                          refunded.
+                        </Text>
+                        <Text style={styles.parStyles}>
+                          • If the patient cancels the appointment with less
+                          than 24 hours' notice, no refund will be provided.
+                        </Text>
+                        <Text style={styles.parStyles}>
+                          • If the teleconsultation appointment is missed
+                          without any prior timely cancellation, no refund will
+                          be provided.
+                        </Text>
+                      </View>
+                    </View>
+                    {/* 2.	Refunds Policy:   */}
+                    <View style={{flex: 1}}>
+                      <Text
                         style={{
-                          backgroundColor: '#2B8ADA',
-                          flex: 0.45,
-                          alignSelf: 'center',
-                          padding: 5,
-                        }}
-                        onPress={() => {
-                          //  PostData();
-                          setprivatePolicy(true);
-                          setTermsView(false);
-                        }}
-                      />
+                          fontSize: 14,
+                          textAlign: 'left',
+                          color: 'black',
+                          fontWeight: 'bold',
+                          marginVertical: 5,
+                        }}>
+                        2. Refunds Policy:
+                      </Text>
+                      <View style={{flex: 1}}>
+                        <Text style={styles.parStyles}>
+                          • In the event that technical difficulties at our end
+                          prevent the teleconsultation appointment from taking
+                          place, the full amount paid by the patient will be
+                          refunded.
+                        </Text>
+                        <Text style={styles.parStyles}>
+                          • If the teleconsultation appointment is
+                          unsatisfactory, the patient may send in a reasoned
+                          written request for a partial or full refund, which
+                          will be reviewed and may be granted on a case-by-case
+                          basis at our sole discretion.
+                        </Text>
+                      </View>
+                    </View>
+                    {/* 3.	Acceptance of Terms and Conditions:  */}
+                    <View style={{flex: 1}}>
+                      <Text
+                        style={{
+                          fontSize: 14,
+                          textAlign: 'left',
+                          color: 'black',
+                          fontWeight: 'bold',
+                          marginVertical: 5,
+                        }}>
+                        3. Acceptance of Terms and Conditions:
+                      </Text>
+                      <View style={{flex: 1}}>
+                        <Text style={styles.parStyles}>
+                          • By using this teleconsultation service, you agree to
+                          the terms and conditions outlined in this policy.
+                        </Text>
+                      </View>
+                    </View>
+                    {/* 4.	Changes to Policy:   */}
+                    <View style={{flex: 1}}>
+                      <Text
+                        style={{
+                          fontSize: 14,
+                          textAlign: 'left',
+                          color: 'black',
+                          fontWeight: 'bold',
+                          marginVertical: 5,
+                        }}>
+                        4. Changes to Policy:
+                      </Text>
+                      <View style={{flex: 1}}>
+                        <Text style={styles.parStyles}>
+                          • We reserve the right to modify this policy at any
+                          time, and any changes will be updated / posted on this
+                          page. By using the teleconsultation service after any
+                          changes have been made, you agree to the updated
+                          policy.
+                        </Text>
+                      </View>
+                    </View>
+                    {/* 5.	Contact Us:  */}
+                    <View style={{flex: 1}}>
+                      <Text
+                        style={{
+                          fontSize: 14,
+                          textAlign: 'left',
+                          color: 'black',
+                          fontWeight: 'bold',
+                          marginVertical: 5,
+                        }}>
+                        5. Contact Us:
+                      </Text>
+                      <View style={{flex: 1}}>
+                        <Text style={styles.parStyles}>
+                          • If you have any questions or concerns about this
+                          policy, please contact us at info@trustheal.in
+                        </Text>
+                      </View>
                     </View>
                   </View>
-                </View>
+                </ScrollView>
               </View>
             </View>
           </Modal>
         ) : null}
+        {isLoading && (
+          <View
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: 'rgba(0,0,0,0.4)',
+            }}>
+            <View
+              style={{
+                backgroundColor: 'white',
+                alignSelf: 'center',
+                borderRadius: 20,
+                width: 150,
+                height: 150,
+                justifyContent: 'center',
+                flexDirection: 'column',
+              }}>
+              <Image
+                source={waiting}
+                style={{
+                  alignSelf: 'center',
+                  width: 80,
+                  height: 80,
+                  // borderRadius: 150,
+                }}
+              />
+              <Text
+                style={{
+                  alignSelf: 'center',
+                  textAlign: 'center',
+                  color: '#2B8ADA',
+                  fontSize: 15,
+                  fontWeight: 'bold',
+                  width: '100%',
+                  // padding: 10,
+                }}>
+                Please Wait...
+              </Text>
+            </View>
+          </View>
+        )}
       </SafeAreaView>
     </KeyboardAvoidingView>
   );
@@ -1184,6 +1245,13 @@ const styles = StyleSheet.create({
     marginVertical: 15,
     marginHorizontal: 10,
     textAlign: 'center',
+  },
+  parStyles: {
+    textAlign: 'left',
+    fontSize: 13,
+    marginVertical: 5,
+    lineHeight: 15,
+    color: 'black',
   },
 });
 

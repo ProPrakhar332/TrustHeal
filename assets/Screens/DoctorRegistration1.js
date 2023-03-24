@@ -2562,6 +2562,13 @@ const styles = StyleSheet.create({
     borderWidth: 0,
     alignSelf: 'flex-start',
   },
+  parStyles: {
+    textAlign: 'left',
+    fontSize: 13,
+    marginVertical: 5,
+    lineHeight: 15,
+    color: 'black',
+  },
 });
 
 export default DoctorRegistrationStep1;

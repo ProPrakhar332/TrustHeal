@@ -37,29 +37,6 @@ import DocumentPicker, {
 import CustomButton from '../Components/CustomButton';
 import dayjs from 'dayjs';
 
-const sampleQuesList = [
-  {
-    question: 'Are you a sugar patient?',
-    questionId: 1,
-  },
-  {
-    question: 'Do you take BP medicines?',
-    questionId: 2,
-  },
-  {
-    question: 'Were you infected with covid?',
-    questionId: 3,
-  },
-  {
-    question: 'What is your BMI?',
-    questionId: 4,
-  },
-  {
-    question: 'Does it hurt when she dont reply?',
-    questionId: 5,
-  },
-];
-
 function PreConsult({navigation}) {
   const [PrevPageData, setPrevPageData] = useState(null);
   const [patientDet, setpatientDet] = useState(null);
@@ -70,9 +47,11 @@ function PreConsult({navigation}) {
   const [answerUploadedButton, setanswerUploadedButton] = useState(false);
   const [answersUploaded, setanswersUploaded] = useState(false);
   const [DocsUploaded, setDocsUploaded] = useState(false);
+  const [docName, setdocName] = useState('');
   const [showUploadDocsButton, setshowUploadDocsButton] = useState(false);
   const [consultationId, setconsultationId] = useState(null);
 
+  const window = useWindowDimensions();
   const openURL = useCallback(async url => {
     const supported = await Linking.canOpenURL(url);
     if (supported) {
@@ -121,6 +100,26 @@ function PreConsult({navigation}) {
     };
     LoadData();
   }, []);
+
+  useEffect(() => {
+    const complete = async () => {
+      Alert.alert(
+        'Success',
+        `Your response has been successfully shared with doctor.`,
+      );
+      await AsyncStorage.multiRemove([
+        'ConfirmBookingDoctor',
+        'bookSlot',
+        'viewProfile',
+      ]);
+      let x = JSON.parse(await AsyncStorage.getItem('UserPatientProfile'));
+      navigation.navigate('PatientHome', {patientObj: x});
+    };
+
+    if (DocsUploaded == true && answersUploaded == true) {
+      complete();
+    }
+  }, [DocsUploaded, answersUploaded]);
 
   useState(() => {
     if (DocList.length > 0) setshowUploadDocsButton(true);
@@ -269,6 +268,10 @@ function PreConsult({navigation}) {
           'The size of the file should be less than 2MB.',
         );
       else {
+        if (docName.split('.').pop() != 'pdf')
+          pickerResult.name = docName + '.pdf';
+        else pickerResult.name = docName;
+
         console.log(pickerResult.name);
 
         let formData = new FormData();
@@ -298,6 +301,7 @@ function PreConsult({navigation}) {
             };
             let arr = [...DocList, temp];
             setDocList(arr);
+            setdocName('');
           } else Alert.alert('Error', 'Please try again.');
         }
       }
@@ -347,6 +351,7 @@ function PreConsult({navigation}) {
             fontSize: 12,
             borderRadius: 10,
             paddingHorizontal: 15,
+            color: 'black',
           }}
           onChangeText={text => handleInput(text, index)}
           editable={!answersUploaded}
@@ -391,10 +396,11 @@ function PreConsult({navigation}) {
               fontSize: 12,
               borderRadius: 10,
               paddingHorizontal: 15,
+              color: 'black',
             }}
             onChangeText={text => handleRename(text, index)}
             value={item.documentName}
-            editable={!DocsUploaded}
+            editable={false}
             placeholderTextColor={'black'}
           />
         </View>
@@ -472,17 +478,25 @@ function PreConsult({navigation}) {
       '=============  Uploading Docs  =====================\n',
       DocList,
     );
-
-    await axios
-      .post(apiConfig.baseUrl + '/patient/consultation/document/save', DocList)
-      .then(response => {
-        if (response.status == 200)
-          Alert.alert('Done', 'Documents submitted successfully');
-        setDocsUploaded(true);
-      })
-      .catch(error => {
-        Alert.alert('Error', `${error}`);
-      });
+    if (DocList.length > 0) {
+      await axios
+        .post(
+          apiConfig.baseUrl + '/patient/consultation/document/save',
+          DocList,
+        )
+        .then(response => {
+          if (response.status == 200)
+            Alert.alert('Done', 'Documents submitted successfully');
+          setDocsUploaded(true);
+        })
+        .catch(error => {
+          Alert.alert('Error', `${error}`);
+        });
+    } else
+      Alert.alert(
+        'Warning',
+        'You have not selected any document. Please select them or press skip',
+      );
   };
 
   const removeDocsHandler = i => {
@@ -640,14 +654,33 @@ function PreConsult({navigation}) {
               </View>
 
               {!DocsUploaded ? (
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    width: '90%',
-                    alignSelf: 'center',
-                    justifyContent: 'space-evenly',
-                    marginVertical: 10,
-                  }}>
+                <View style={{flexDirection: 'column'}}>
+                  <View style={{width: '90%', alignSelf: 'center'}}>
+                    <Text
+                      style={{
+                        flex: 1,
+                        fontSize: 12,
+                        marginBottom: 5,
+                        color: '#2b8ada',
+                        fontWeight: 'bold',
+                        paddingHorizontal: 10,
+                      }}>
+                      File Name:-
+                    </Text>
+                    <TextInput
+                      style={{
+                        backgroundColor: '#e8f0fe',
+                        padding: 0,
+                        fontSize: 12,
+                        borderRadius: 10,
+                        paddingHorizontal: 15,
+                      }}
+                      onChangeText={text => setdocName(text)}
+                      value={docName}
+                      placeholderTextColor={'black'}
+                    />
+                  </View>
+
                   <TouchableOpacity
                     style={{
                       flex: 0.45,
@@ -655,17 +688,22 @@ function PreConsult({navigation}) {
                       flexDirection: 'row',
                       borderWidth: 1,
                       borderColor: '#2b8ada',
-                      alignSelf: 'center',
+                      alignSelf: 'flex-end',
                       borderRadius: 10,
                       padding: 3,
                       paddingHorizontal: 10,
+                      marginRight: 20,
+                      marginTop: 10,
                     }}
                     onPress={async () => {
                       if (DocList.length < 3) {
                         // await chooseProfileImage();
-
-                        await selectDocs();
-                        // setshowUploadDocsButton(true);
+                        if (docName != '') await selectDocs();
+                        else
+                          Alert.alert(
+                            'Incomplete Details',
+                            'Please enter file name before selecting file.',
+                          );
                       } else
                         Alert.alert(
                           'Warning',
@@ -687,28 +725,58 @@ function PreConsult({navigation}) {
                       Add File
                     </Text>
                   </TouchableOpacity>
-
-                  <CustomButton
-                    text={'Submit'}
-                    textstyle={{
-                      color: 'white',
-                      fontWeight: 'bold',
-                      fontSize: 12,
-                    }}
+                  <View
                     style={{
-                      flex: 0.45,
-                      padding: 5,
-                      paddingHorizontal: 10,
-                      backgroundColor: '#2b8ada',
-                      borderRadius: 10,
-                      marginVertical: 10,
-                      //width: '50%',
+                      flexDirection: 'row',
+                      width: '90%',
                       alignSelf: 'center',
-                    }}
-                    onPress={async () => {
-                      await uploadDocs();
-                    }}
-                  />
+                      justifyContent: 'space-evenly',
+                      marginVertical: 10,
+                    }}>
+                    <CustomButton
+                      text={'Submit'}
+                      textstyle={{
+                        color: 'white',
+                        fontWeight: 'bold',
+                        fontSize: 12,
+                      }}
+                      style={{
+                        flex: 0.45,
+                        padding: 5,
+                        paddingHorizontal: 10,
+                        backgroundColor: '#2b8ada',
+                        borderRadius: 10,
+                        marginVertical: 10,
+                        //width: '50%',
+                        alignSelf: 'center',
+                      }}
+                      onPress={async () => {
+                        await uploadDocs();
+                      }}
+                    />
+                    <CustomButton
+                      text={'Skip'}
+                      textstyle={{
+                        color: '#2b8ada',
+                        fontWeight: 'bold',
+                        fontSize: 12,
+                        alignSelf: 'center',
+                      }}
+                      style={{
+                        flex: 0.45,
+                        padding: 5,
+                        paddingHorizontal: 10,
+                        borderColor: '#2b8ada',
+                        borderWidth: 1,
+                        borderRadius: 10,
+                        //width: '50%',
+                        alignSelf: 'center',
+                      }}
+                      onPress={async () => {
+                        setDocsUploaded(true);
+                      }}
+                    />
+                  </View>
                 </View>
               ) : null}
             </View>
