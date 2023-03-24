@@ -890,7 +890,9 @@ const PatientRegistration1 = ({navigation}) => {
                 borderRadius: 10,
               }}
               onPress={async () => {
+                let fcmToken = await AsyncStorage.getItem('fcmToken');
                 await AsyncStorage.multiRemove(await AsyncStorage.getAllKeys());
+                await AsyncStorage.setItem('fcmToken', fcmToken);
                 navigation.navigate('RoleScreen');
               }}
             />

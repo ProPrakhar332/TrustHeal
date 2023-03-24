@@ -9,10 +9,12 @@ import {
   Button,
   SafeAreaView,
   Image,
+  BackHandler,
   FlatList,
   TouchableOpacity,
   KeyboardAvoidingView,
 } from 'react-native';
+import {useIsFocused} from '@react-navigation/native';
 import {LogBox} from 'react-native';
 LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
 import {StyleSheet} from 'react-native';
@@ -457,25 +459,58 @@ function PatientHome({navigation}) {
     getDoctors();
   }, []);
 
-  useEffect(() => {
-    const getUpcoming = async () => {
-      axios
-        .get(
-          apiConfig.baseUrl +
-            '/patient/upcoming/consultations?patientId=' +
-            patientDet.patientId,
-        )
-        .then(function (response) {
-          console.log(
-            '\n=========================== UPCOMING CONSULTATIONS  ====================================\n',
-          );
-          console.log(response.data);
-          if (response.status == 200) setUpcomingData(response.data);
-        });
-    };
+  const isFocused = useIsFocused();
 
-    if (patientDet != null) getUpcoming();
-  }, [patientDet]);
+  useEffect(() => {
+    if (isFocused && patientDet != null) {
+      //Update the state you want to be updated
+      getUpcoming();
+    }
+  }, [isFocused, patientDet]);
+
+  // useEffect(() => {
+  //   const backAction = () => {
+  //     Alert.alert('Exit App', 'Exiting the application', [
+  //       {
+  //         text: 'Cancel',
+  //         onPress: () => console.log('Cancel Pressed'),
+  //         style: 'cancel',
+  //       },
+  //       {
+  //         text: 'OK',
+  //         onPress: () => BackHandler.exitApp(),
+  //       },
+  //     ]);
+  //     return true;
+  //   };
+
+  //   const backHandler = BackHandler.addEventListener(
+  //     'hardwareBackPress',
+  //     backAction,
+  //   );
+
+  //   return () => backHandler.remove();
+  // }, []);
+
+  // useEffect(() => {
+
+  //   if (patientDet != null) getUpcoming();
+  // }, [patientDet]);
+  const getUpcoming = async () => {
+    axios
+      .get(
+        apiConfig.baseUrl +
+          '/patient/upcoming/consultations?patientId=' +
+          patientDet.patientId,
+      )
+      .then(function (response) {
+        console.log(
+          '\n=========================== UPCOMING CONSULTATIONS  ====================================\n',
+        );
+        console.log(response.data);
+        if (response.status == 200) setUpcomingData(response.data);
+      });
+  };
 
   return (
     <KeyboardAvoidingView

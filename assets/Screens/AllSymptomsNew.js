@@ -187,7 +187,12 @@ function AllSYmptoms({navigation}) {
               </TouchableOpacity>
               {/* List of Symptoms */}
               {item.active ? (
-                <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    flexWrap: 'wrap',
+                    marginTop: 5,
+                  }}>
                   {item.symptoms.map((data, i) => {
                     return (
                       <TouchableOpacity
@@ -197,7 +202,8 @@ function AllSYmptoms({navigation}) {
                             flexDirection: 'column',
                             alignSelf: 'center',
                             width: 80,
-
+                            height: 120,
+                            //flex: 1,
                             justifyContent: 'space-evenly',
                             borderRadius: 15,
                             margin: 5,
@@ -219,13 +225,13 @@ function AllSYmptoms({navigation}) {
                             source={{
                               uri: `${apiConfig.baseUrl}/file/admin/download?fileToken=${data.symptomImage}`,
                             }}
-                            style={{height: 50, width: 50, alignSelf: 'center'}}
+                            style={{height: 60, width: 60, alignSelf: 'center'}}
                           />
                         </View>
                         <View style={{padding: 3}}>
                           <Text
                             style={{
-                              fontSize: 12,
+                              fontSize: 11,
                               alignSelf: 'center',
                               color: 'white',
                               fontWeight: 'bold',

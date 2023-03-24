@@ -16,7 +16,7 @@ import {
   ChannelProfileType,
 } from 'react-native-agora';
 
-const CallAgora = props => {
+export default function CallAgora(props) {
   const {route} = props;
   const {params} = route;
   const {consultationType, callID, userID, userName, userType} = params;
@@ -111,7 +111,7 @@ const CallAgora = props => {
       } else {
         await statusUpdatePatientDisconnect();
       }
-      navigation.goBack();
+      props.navigation.goBack();
     },
     joinChannel: () => {
       if (userType == 'Doctor') statusUpdateDoctor();
@@ -181,44 +181,44 @@ const CallAgora = props => {
       });
   };
 
-  // useEffect(() => {
-  //   const statusUpdateDoctor = async () => {
-  //     Alert.alert('Start', 'Consultation Started');
-  //     axios
-  //       .post(
-  //         apiConfig.baseUrl +
-  //           '/doctor/consultation/join?consultationId=' +
-  //           callID,
-  //       )
-  //       .then(response => {
-  //         if (response.status == 200)
-  //           console.log('\n\n\nMeeting going on status updated doctor\n\n\n');
-  //       })
-  //       .catch(response => {
-  //         console.log(response);
-  //       });
-  //   };
-  //   const statusUpdatePatient = async () => {
-  //     Alert.alert('Start', 'Consultation Started');
-  //     axios
-  //       .post(
-  //         apiConfig.baseUrl +
-  //           '/patient/consultation/join?consultationId=' +
-  //           callID,
-  //       )
-  //       .then(response => {
-  //         if (response.status == 200)
-  //           console.log('\n\n\nMeeting going on status updated patient\n\n\n');
-  //       })
-  //       .catch(response => {
-  //         console.log(response);
-  //       });
-  //   };
-  //   if (userType == 'Doctor') statusUpdateDoctor();
-  //   else if (userType == 'Patient') statusUpdatePatient();
-  // }, [userType]);
+  useEffect(() => {
+    const statusUpdateDoctor = async () => {
+      Alert.alert('Start', 'Consultation Started');
+      axios
+        .post(
+          apiConfig.baseUrl +
+            '/doctor/consultation/join?consultationId=' +
+            callID,
+        )
+        .then(response => {
+          if (response.status == 200)
+            console.log('\n\n\nMeeting going on status updated doctor\n\n\n');
+        })
+        .catch(response => {
+          console.log(response);
+        });
+    };
+    const statusUpdatePatient = async () => {
+      Alert.alert('Start', 'Consultation Started');
+      axios
+        .post(
+          apiConfig.baseUrl +
+            '/patient/consultation/join?consultationId=' +
+            callID,
+        )
+        .then(response => {
+          if (response.status == 200)
+            console.log('\n\n\nMeeting going on status updated patient\n\n\n');
+        })
+        .catch(response => {
+          console.log(response);
+        });
+    };
+    if (userType == 'Doctor') statusUpdateDoctor();
+    else if (userType == 'Patient') statusUpdatePatient();
+  }, [userType]);
 
-  return consultationType == 'VIDEO_CALL' ? (
+  return (
     <AgoraUIKit
       connectionData={{
         appId: apiConfig.AgoraAppId,
@@ -230,34 +230,5 @@ const CallAgora = props => {
         displayUsername: true,
       }}
     />
-  ) : (
-    <SafeAreaView style={styles.main}>
-      <Text style={styles.head}>Agora Video Calling Quickstart</Text>
-      <View style={styles.btnContainer}>
-        <Text onPress={join} style={styles.button}>
-          Join
-        </Text>
-        <Text onPress={leave} style={styles.button}>
-          Leave
-        </Text>
-      </View>
-      <ScrollView
-        style={styles.scroll}
-        contentContainerStyle={styles.scrollContainer}>
-        {isJoined ? (
-          <Text>Local user uid: {uid}</Text>
-        ) : (
-          <Text>Join a channel</Text>
-        )}
-        {isJoined && remoteUid !== 0 ? (
-          <Text>Remote user uid: {remoteUid}</Text>
-        ) : (
-          <Text>Waiting for a remote user to join</Text>
-        )}
-        <Text>{message}</Text>
-      </ScrollView>
-    </SafeAreaView>
   );
-};
-
-export default CallAgora;
+}

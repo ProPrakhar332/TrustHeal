@@ -118,6 +118,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginVertical: 5,
     lineHeight: 15,
+    color: 'black',
   },
 });
 

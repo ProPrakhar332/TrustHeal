@@ -64,6 +64,7 @@ function PrescriptionPreview({navigation}) {
   const [clinicName, setclinicName] = useState('');
   const [clinicAddress, setclinicAddress] = useState('');
   const [patientName, setpatientName] = useState('');
+  const [referredByDoctor, setreferredByDoctor] = useState('');
   const [consultationId, setconsultationId] = useState(null);
   const [patientID, setpatientID] = useState('');
   const [patientNumber, setpatientNumber] = useState('');
@@ -98,6 +99,7 @@ function PrescriptionPreview({navigation}) {
         //setpatientNumber(h.patientNo);
         setconsultationId(h.consultationId);
         setpatientName(h.patientDet.patientName);
+        setreferredByDoctor(h.referredByDoctor);
         setpatientAge(h.patientDet.age);
       }
       //setting cheifcomplaint
@@ -408,7 +410,7 @@ th{
                         <p class="p-nme mb-0"><b>Date :</b>` +
     dayjs(new Date()).format('DD MMM, YYYY') +
     `</p>
-                        <p class="p-nme mb-0"><b>Mobile Number:</b> TH-000${patientID}</p>
+                        <p class="p-nme mb-0"><b>Trust Heal ID:</b> TH-000${patientID}</p>
                     </div>
                 </div>
                 <p class="mb-0 complaints"><b><u>Chief Complaints</u> :-  </b>` +
@@ -468,7 +470,8 @@ th{
       Advice != null &&
       FollowUpDate != null &&
       doctorName != null &&
-      doctorFlag == true
+      doctorFlag == true &&
+      doctorEducationDisp != null
     )
       stackOverflowPDF();
   }, [
@@ -479,6 +482,7 @@ th{
     FollowUpDate,
     doctorName,
     doctorFlag,
+    doctorEducationDisp,
   ]);
 
   //pdf  generator
@@ -593,6 +597,7 @@ th{
       patientId: patientID,
       patientName: patientName,
       prescription: path,
+      referredByDoctor: referredByDoctor,
     };
 
     console.log();

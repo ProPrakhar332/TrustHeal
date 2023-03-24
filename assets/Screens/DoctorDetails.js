@@ -330,7 +330,7 @@ function DoctorDetails({navigation}) {
               padding: 0,
             }}>
             {/* Clinic Photo */}
-            {/* <TouchableOpacity style={styles.cellStyle}>
+            <TouchableOpacity style={styles.cellStyle}>
               <FAIcon
                 name="file-image"
                 size={15}
@@ -342,7 +342,7 @@ function DoctorDetails({navigation}) {
                   setImageViewer(true);
                 }}
               />
-            </TouchableOpacity> */}
+            </TouchableOpacity>
             {/* Clinic Name */}
             <View style={styles.cellStyle}>
               <Text style={styles.cellText}>{ClinicDet.clinicName}</Text>
@@ -1233,9 +1233,9 @@ function DoctorDetails({navigation}) {
                         margin: 0,
                         padding: 0,
                       }}>
-                      {/* <View style={styles.cellHeading}>
+                      <View style={styles.cellHeading}>
                         <Text style={styles.cellHeadingText}>Photo</Text>
-                      </View> */}
+                      </View>
                       <View style={styles.cellHeading}>
                         <Text style={styles.cellHeadingText}>Name</Text>
                       </View>

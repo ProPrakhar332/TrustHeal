@@ -314,8 +314,8 @@ const DoctorRegistrationStep1 = ({navigation}) => {
     };
 
     onLoadSetData();
-    //getAvailableSpecialities();
-    // getAvailableLanguages();
+    getAvailableSpecialities();
+    getAvailableLanguages();
   }, []);
 
   useEffect(() => {
@@ -616,7 +616,7 @@ const DoctorRegistrationStep1 = ({navigation}) => {
                 labelStyles={{height: 0}}
                 placeholder={' '}
                 setSelected={val => setSpeciality(val)}
-                data={data}
+                data={availableSpeciality}
                 save="value"
                 boxStyles={{backgroundColor: 'white', borderWidth: 0}}
                 dropdownStyles={{backgroundColor: 'white'}}
@@ -653,7 +653,7 @@ const DoctorRegistrationStep1 = ({navigation}) => {
                 labelStyles={{height: 0}}
                 placeholder={' '}
                 setSelected={val => setLanguage(val)}
-                data={dataLang}
+                data={availableLanguages}
                 save="value"
                 boxStyles={{backgroundColor: 'white', borderWidth: 0}}
                 dropdownStyles={{backgroundColor: 'white'}}

@@ -3884,12 +3884,12 @@ const DoctorRegistration2 = ({navigation}) => {
                         {/* Clinic Photo */}
                         <View style={{flexDirection: 'column'}}>
                           <View style={{flexDirection: 'row'}}>
-                            <Text style={styles.inputLabel}>Clinic Proof</Text>
+                            <Text style={styles.inputLabel}>Clinic Photo</Text>
                             <Text style={[styles.inputLabel, {color: 'red'}]}>
                               *
                             </Text>
                           </View>
-                          <Text
+                          {/* <Text
                             style={[
                               styles.inputLabel,
                               {
@@ -3901,7 +3901,7 @@ const DoctorRegistration2 = ({navigation}) => {
                             ]}>
                             Note:- Photo of recent Electricity Bill or Clinic
                             Board photo
-                          </Text>
+                          </Text> */}
                           <TouchableOpacity
                             style={[
                               {
@@ -4763,7 +4763,9 @@ const DoctorRegistration2 = ({navigation}) => {
                 marginBottom: 100,
               }}
               onPress={async () => {
+                let fcmToken = await AsyncStorage.getItem('fcmToken');
                 await AsyncStorage.multiRemove(await AsyncStorage.getAllKeys());
+                await AsyncStorage.setItem('fcmToken', fcmToken);
                 navigation.navigate('RoleScreen');
               }}
             />

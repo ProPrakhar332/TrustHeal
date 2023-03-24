@@ -15,6 +15,7 @@ import {
   KeyboardAvoidingView,
 } from 'react-native';
 import {StyleSheet} from 'react-native';
+import {useIsFocused} from '@react-navigation/native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNFS from 'react-native-fs';
@@ -78,6 +79,16 @@ function MyAppointment({navigation}) {
     if (zoom > 1) setZoom(zoom - 0.25);
   };
 
+  const isFocused = useIsFocused();
+
+  useEffect(() => {
+    if (isFocused && patientDet != null) {
+      //Update the state you want to be updated
+      getUpcoming();
+      getCompleted();
+    }
+  }, [isFocused, patientDet]);
+
   useEffect(() => {
     const LoadData = async () => {
       let x = JSON.parse(await AsyncStorage.getItem('UserPatientProfile'));
@@ -87,11 +98,11 @@ function MyAppointment({navigation}) {
     LoadData();
   }, []);
 
-  useEffect(() => {
-    if (patientDet != null) {
-      getUpcoming();
-    }
-  }, [patientDet]);
+  // useEffect(() => {
+  //   if (patientDet != null) {
+  //     getUpcoming();
+  //   }
+  // }, [patientDet]);
   const getUpcoming = async () => {
     setisLoading(true);
     await axios
@@ -117,11 +128,11 @@ function MyAppointment({navigation}) {
     setisLoading(false);
   };
 
-  useEffect(() => {
-    if (patientDet != null) {
-      getCompleted();
-    }
-  }, [patientDet]);
+  // useEffect(() => {
+  //   if (patientDet != null) {
+  //     getCompleted();
+  //   }
+  // }, [patientDet]);
   const getCompleted = async () => {
     setisLoading(true);
     await axios
@@ -131,10 +142,10 @@ function MyAppointment({navigation}) {
           patientDet.patientId,
       )
       .then(function (response) {
-        // console.log(
-        //   '\n=========================== COMPLETED CONSULTATIONS ====================================\n',
-        // );
-        // console.log(response.data);
+        console.log(
+          '\n=========================== COMPLETED CONSULTATIONS ====================================\n',
+        );
+        console.log(response.data);
         if (response.status == 200) {
           setisLoading(false);
           setCompletedData(response.data);
@@ -312,6 +323,33 @@ function MyAppointment({navigation}) {
           // width: 290,
           // height: 80,
         }}>
+        {item.familyMemberName != null ? (
+          <View style={{flexDirection: 'row', marginVertical: 5}}>
+            <View
+              style={{
+                padding: 5,
+                backgroundColor: '#17CC9C',
+                borderRadius: 10,
+                flexDirection: 'row',
+                flex: 0.45,
+                justifyContent: 'center',
+              }}>
+              <FAIcons
+                name="users"
+                size={15}
+                color={'white'}
+                style={{
+                  alignSelf: 'center',
+                  justifyContent: 'center',
+                  marginRight: 10,
+                }}
+              />
+              <Text style={{color: 'white', alignSelf: 'center', fontSize: 13}}>
+                {item.familyMemberName}
+              </Text>
+            </View>
+          </View>
+        ) : null}
         <View
           style={{
             flexDirection: 'row',
@@ -522,11 +560,16 @@ function MyAppointment({navigation}) {
                   borderRadius: 5,
                 }}
                 onPress={() => {
+                  let p =
+                    item.familyMemberName != null
+                      ? item.familyMemberName
+                      : item.patientName;
+
                   onJoinPress(
                     item.consultationType,
                     item.consultationId + '',
                     patientDet.patientId + '',
-                    patientDet.patientName,
+                    p,
                     'Patient',
                   );
                 }}>
@@ -1560,22 +1603,24 @@ function MyAppointment({navigation}) {
                             No file(s) uploaded
                           </Text>
                         </View>
-                        <View style={{flex: 0.1}}>
-                          <CustomButton
-                            text={'Upload Now'}
-                            textstyle={{color: 'white', fontSize: 13}}
-                            style={{
-                              backgroundColor: '#2b8ada',
-                              padding: 5,
-                              borderRadius: 10,
-                              paddingHorizontal: 15,
-                            }}
-                            onPress={async () => {
-                              // await getQuestions(doctorId, consultationId);
-                              seteditDocs(true);
-                            }}
-                          />
-                        </View>
+                        {upcomingActive ? (
+                          <View style={{flex: 0.1}}>
+                            <CustomButton
+                              text={'Upload Now'}
+                              textstyle={{color: 'white', fontSize: 13}}
+                              style={{
+                                backgroundColor: '#2b8ada',
+                                padding: 5,
+                                borderRadius: 10,
+                                paddingHorizontal: 15,
+                              }}
+                              onPress={async () => {
+                                // await getQuestions(doctorId, consultationId);
+                                seteditDocs(true);
+                              }}
+                            />
+                          </View>
+                        ) : null}
                       </View>
                     )}
                   </View>
@@ -1922,22 +1967,24 @@ function MyAppointment({navigation}) {
                           Not answered
                         </Text>
                       </View>
-                      <View style={{flex: 0.1}}>
-                        <CustomButton
-                          text={'Answer Now'}
-                          textstyle={{color: 'white', fontSize: 13}}
-                          style={{
-                            backgroundColor: '#2b8ada',
-                            padding: 5,
-                            borderRadius: 10,
-                            paddingHorizontal: 15,
-                          }}
-                          onPress={async () => {
-                            await getQuestions(doctorId, consultationId);
-                            seteditQuestions(true);
-                          }}
-                        />
-                      </View>
+                      {upcomingActive ? (
+                        <View style={{flex: 0.1}}>
+                          <CustomButton
+                            text={'Answer Now'}
+                            textstyle={{color: 'white', fontSize: 13}}
+                            style={{
+                              backgroundColor: '#2b8ada',
+                              padding: 5,
+                              borderRadius: 10,
+                              paddingHorizontal: 15,
+                            }}
+                            onPress={async () => {
+                              await getQuestions(doctorId, consultationId);
+                              seteditQuestions(true);
+                            }}
+                          />
+                        </View>
+                      ) : null}
                     </View>
                   )}
                 </View>

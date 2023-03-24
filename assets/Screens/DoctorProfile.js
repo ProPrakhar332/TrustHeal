@@ -62,10 +62,14 @@ function BasicDesign({navigation}) {
   const logout = async () => {
     console.log('Logging out');
     console.log(await AsyncStorage.getAllKeys());
-    await AsyncStorage.removeItem('UserDoctorProfile');
-    await AsyncStorage.removeItem('mobileNumber');
-    await AsyncStorage.removeItem('countryName');
-    await AsyncStorage.removeItem('age');
+    let fcmToken = await AsyncStorage.getItem('fcmToken');
+    await AsyncStorage.multiRemove(await AsyncStorage.getAllKeys());
+
+    await AsyncStorage.setItem('fcmToken', fcmToken);
+    // await AsyncStorage.removeItem('UserDoctorProfile');
+    // await AsyncStorage.removeItem('mobileNumber');
+    // await AsyncStorage.removeItem('countryName');
+    // await AsyncStorage.removeItem('age');
     console.log(await AsyncStorage.getAllKeys());
     navigation.navigate('RoleScreen');
   };

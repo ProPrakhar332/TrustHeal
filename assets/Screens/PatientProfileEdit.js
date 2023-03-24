@@ -318,7 +318,9 @@ const PatientProfileEdit = ({navigation}) => {
             'Profile Edited',
             'Please log-in again to incoperate the changes',
           );
+          let fcmToken = await AsyncStorage.getItem('fcmToken');
           await AsyncStorage.multiRemove(await AsyncStorage.getAllKeys());
+          await AsyncStorage.setItem('fcmToken', fcmToken);
           navigation.navigate('RoleScreen');
         }
       })

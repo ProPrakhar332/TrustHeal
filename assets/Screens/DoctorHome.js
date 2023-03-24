@@ -18,6 +18,7 @@ import {
   TextInput,
   FlatList,
   Pressable,
+  BackHandler,
 } from 'react-native';
 import {useCallback} from 'react';
 
@@ -159,7 +160,9 @@ const DoctorHome = ({navigation}) => {
       consultationId: item.consultationId,
       clinicName: item.clinicName != null ? item.clinicName : '',
       clinicAddress: item.clinicAddress != null ? item.clinicAddress : '',
+      referredByDoctor: item.referredByDoctor,
     };
+    console.log(p);
     await AsyncStorage.setItem('PrescriptionFor', JSON.stringify(p));
     // navigation.navigate('CheifComplaints');
   };
@@ -1749,6 +1752,30 @@ const DoctorHome = ({navigation}) => {
     onLoadScreen();
   }, []);
 
+  // useEffect(() => {
+  //   const backAction = () => {
+  //     Alert.alert('Exit App', 'Exiting the application', [
+  //       {
+  //         text: 'Cancel',
+  //         onPress: () => console.log('Cancel Pressed'),
+  //         style: 'cancel',
+  //       },
+  //       {
+  //         text: 'OK',
+  //         onPress: () => BackHandler.exitApp(),
+  //       },
+  //     ]);
+  //     return true;
+  //   };
+
+  //   const backHandler = BackHandler.addEventListener(
+  //     'hardwareBackPress',
+  //     backAction,
+  //   );
+
+  //   return () => backHandler.remove();
+  // }, []);
+
   useEffect(() => {
     if (Upcoming == true) getUpcomingData();
   }, [Upcoming]);
@@ -2208,7 +2235,7 @@ const DoctorHome = ({navigation}) => {
                           alignSelf: 'center',
                           fontWeight: 'bold',
                         }}>
-                        No Data Available for Upcoming Consultations
+                        No Data Available for Pending Prescriptions
                       </Text>
                     )}
                   </View>
