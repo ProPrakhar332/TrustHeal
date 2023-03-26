@@ -230,9 +230,22 @@ const DoctorHome = ({navigation}) => {
     }
     return HH + ':' + MM + PM;
   };
+  const shouldShow = item => {
+    if (dayjs(item.slotDate).diff(dayjs(), 'd') > 0) return true;
+    else if (dayjs(item.slotDate).diff(dayjs(), 'd') == 0) {
+      if (item.slotDate != dayjs().format('YYYY-MM-DD')) return true;
+      else {
+        let slotEndArray = item.slotEndTime.split(':');
+        return (
+          Number(dayjs().format('HH')) <= slotEndArray[0] &&
+          Number(dayjs().format('mm')) <= slotEndArray[1]
+        );
+      }
+    }
+  };
 
   const renderCard = ({item}) => {
-    return (
+    return shouldShow(item) ? (
       <View
         style={{
           backgroundColor: 'white',
@@ -505,15 +518,25 @@ const DoctorHome = ({navigation}) => {
                 borderRadius: 5,
               }}
               onPress={async () => {
-                await onPressPrescription(item);
-                console.log(item);
-                onJoinPress(
-                  item.consultationType,
-                  item.consultationId + '',
-                  doctorObj.doctorId + '',
-                  doctorObj.doctorName,
-                  'Doctor',
-                );
+                if (hasStarted(item)) {
+                  await onPressPrescription(item);
+                  console.log(item);
+                  onJoinPress(
+                    item.consultationType,
+                    item.consultationId + '',
+                    doctorObj.doctorId + '',
+                    doctorObj.doctorName,
+                    'Doctor',
+                  );
+                } else
+                  Alert.alert(
+                    'Hold on',
+                    `Your consultaion starts at ${timeformatter(
+                      item.slotStartTime,
+                    )} on ${dayjs(item.slotDate).format(
+                      'DD MMM, YYYY',
+                    )}.\nPlease join at the scheduled time.`,
+                  );
               }}>
               <FAIcon
                 name={
@@ -632,7 +655,7 @@ const DoctorHome = ({navigation}) => {
           </TouchableOpacity>
         </View>
       </View>
-    );
+    ) : null;
   };
   const renderCardPending = ({item}) => {
     return (
@@ -1751,6 +1774,23 @@ const DoctorHome = ({navigation}) => {
     };
     onLoadScreen();
   }, []);
+  const hasStarted = item => {
+    if (item.slotDate == dayjs().format('YYYY-MM-DD')) {
+      let slotStrtArray = item.slotStartTime.split(':');
+      let slotEndArray = item.slotEndTime.split(':');
+      let start =
+        Number(slotStrtArray[0]) <= Number(dayjs().format('HH')) &&
+        Number(slotEndArray[0]) >= Number(dayjs().format('HH'));
+      let end =
+        Number(slotStrtArray[1]) <= Number(dayjs().format('mm')) &&
+        Number(slotEndArray[1]) >= Number(dayjs().format('mm'));
+      // console.log('Start Array\t', Number(dayjs().format('HH')));
+      // console.log('End Array\t', Number(dayjs().format('mm')));
+      // console.log('Current Time is : \t', dayjs().format('HH:mm'));
+
+      return start && end;
+    } else return false;
+  };
 
   // useEffect(() => {
   //   const backAction = () => {

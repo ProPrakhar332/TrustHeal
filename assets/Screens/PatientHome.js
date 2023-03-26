@@ -48,103 +48,97 @@ function PatientHome({navigation}) {
   const [patientDet, setpatientDet] = useState(null);
   const [CategoryList, setCategoryList] = useState(null);
   const [CategorySymptomsList, setCategorySymptomsList] = useState(null);
-
-  const renderUpcomingConsultations = ({item}) => (
-    <TouchableOpacity
-      style={{
-        backgroundColor: 'white',
-        borderRadius: 10,
-        padding: 5,
-        margin: 5,
-        flexDirection: 'column',
-        width: width - 50,
-        //height: 100,
-        alignSelf: 'center',
-        justifyContent: 'space-evenly',
-      }}
-      onPress={() => navigation.navigate('Appointments')}
-      key={item.consultationId}>
-      <View
+  const shouldShow = item => {
+    if (dayjs(item.slotDate).diff(dayjs(), 'd') > 0) return true;
+    else if (dayjs(item.slotDate).diff(dayjs(), 'd') == 0) {
+      if (item.slotDate != dayjs().format('YYYY-MM-DD')) return true;
+      else {
+        let slotEndArray = item.slotEndTime.split(':');
+        return (
+          Number(dayjs().format('HH')) <= slotEndArray[0] &&
+          Number(dayjs().format('mm')) <= slotEndArray[1]
+        );
+      }
+    }
+  };
+  const renderUpcomingConsultations = ({item}) => {
+    return shouldShow(item) == true ? (
+      <TouchableOpacity
         style={{
-          flexDirection: 'row',
-        }}>
-        {/* Image */}
+          backgroundColor: 'white',
+          borderRadius: 10,
+          padding: 5,
+          margin: 5,
+          flexDirection: 'column',
+          width: width - 50,
+          //height: 100,
+          alignSelf: 'center',
+          justifyContent: 'space-evenly',
+        }}
+        onPress={() => navigation.navigate('Appointments')}
+        key={item.consultationId}>
         <View
           style={{
-            width: 100,
-            flexDirection: 'column',
-            alignSelf: 'center',
-            margin: 5,
+            flexDirection: 'row',
           }}>
-          <Image
-            source={
-              item.photoPath == 0
-                ? defaultDoctor
-                : {
-                    uri: `${apiConfig.baseUrl}/file/download?fileToken=${item.photoPath}&userId=${item.doctorId}`,
-                  }
-            }
+          {/* Image */}
+          <View
             style={{
-              width: 90,
-              height: 90,
-              borderRadius: 10,
+              width: 100,
+              flexDirection: 'column',
               alignSelf: 'center',
-            }}
-          />
-        </View>
-        {/* Details */}
-        <View
-          style={{
-            flexDirection: 'column',
-            width: width - 175,
-            justifyContent: 'space-evenly',
-          }}>
-          {/* Doctor Name */}
-          <View style={{flexDirection: 'row', flex: 1, padding: 2}}>
-            <Text style={{fontSize: 15, fontWeight: 'bold', color: 'black'}}>
-              {item.doctorName}
-            </Text>
-          </View>
-          {/* Doctor Specialization */}
-          <View style={{flexDirection: 'row', flex: 1, padding: 2}}>
-            <Text style={{fontSize: 12, color: 'gray', fontWeight: 'bold'}}>
-              {item.specialization.map(index => {
-                return item.specialization.indexOf(index) !=
-                  item.specialization.length - 1
-                  ? index + ', '
-                  : index;
-              })}
-            </Text>
-          </View>
-          {/* Type of Consultation */}
-          <View style={{flexDirection: 'row', flex: 1, padding: 2}}>
-            <FAIcons
-              name={
-                item.consultationType == 'PHYSICAL'
-                  ? 'users'
-                  : item.consultationType == 'PHONE_CALL'
-                  ? 'phone-alt'
-                  : 'video'
+              margin: 5,
+            }}>
+            <Image
+              source={
+                item.photoPath == 0
+                  ? defaultDoctor
+                  : {
+                      uri: `${apiConfig.baseUrl}/file/download?fileToken=${item.photoPath}&userId=${item.doctorId}`,
+                    }
               }
-              color={'#2b8ada'}
-              size={12}
-              solid={false}
               style={{
+                width: 90,
+                height: 90,
+                borderRadius: 10,
                 alignSelf: 'center',
-                marginRight: 5,
               }}
             />
-            <Text style={{fontSize: 12, color: '#2B8ADA'}}>
-              {item.consultationType == 'PHYSICAL'
-                ? 'P-Consultation'
-                : 'E-Consultation'}
-            </Text>
           </View>
-          {/* Address if Physical */}
-          {item.clinicAddress != null ? (
+          {/* Details */}
+          <View
+            style={{
+              flexDirection: 'column',
+              width: width - 175,
+              justifyContent: 'space-evenly',
+            }}>
+            {/* Doctor Name */}
+            <View style={{flexDirection: 'row', flex: 1, padding: 2}}>
+              <Text style={{fontSize: 15, fontWeight: 'bold', color: 'black'}}>
+                {item.doctorName}
+              </Text>
+            </View>
+            {/* Doctor Specialization */}
+            <View style={{flexDirection: 'row', flex: 1, padding: 2}}>
+              <Text style={{fontSize: 12, color: 'gray', fontWeight: 'bold'}}>
+                {item.specialization.map(index => {
+                  return item.specialization.indexOf(index) !=
+                    item.specialization.length - 1
+                    ? index + ', '
+                    : index;
+                })}
+              </Text>
+            </View>
+            {/* Type of Consultation */}
             <View style={{flexDirection: 'row', flex: 1, padding: 2}}>
               <FAIcons
-                name={'hospital'}
+                name={
+                  item.consultationType == 'PHYSICAL'
+                    ? 'users'
+                    : item.consultationType == 'PHONE_CALL'
+                    ? 'phone-alt'
+                    : 'video'
+                }
                 color={'#2b8ada'}
                 size={12}
                 solid={false}
@@ -154,23 +148,42 @@ function PatientHome({navigation}) {
                 }}
               />
               <Text style={{fontSize: 12, color: '#2B8ADA'}}>
-                {item.clinicName}
-                {' | '}
-                {item.clinicAddress}
+                {item.consultationType == 'PHYSICAL'
+                  ? 'P-Consultation'
+                  : 'E-Consultation'}
               </Text>
             </View>
-          ) : null}
-          {/* Date and Time */}
-          <View style={{flexDirection: 'row', flex: 1, padding: 2}}>
-            <Text style={{fontSize: 12, fontWeight: 'bold'}}>
-              {timeformatter(item.slotStartTime)}
-              {'  |  '}
-              {dayjs(item.date).format('DD MMM, YYYY')}
-            </Text>
+            {/* Address if Physical */}
+            {item.clinicAddress != null ? (
+              <View style={{flexDirection: 'row', flex: 1, padding: 2}}>
+                <FAIcons
+                  name={'hospital'}
+                  color={'#2b8ada'}
+                  size={12}
+                  solid={false}
+                  style={{
+                    alignSelf: 'center',
+                    marginRight: 5,
+                  }}
+                />
+                <Text style={{fontSize: 12, color: '#2B8ADA'}}>
+                  {item.clinicName}
+                  {' | '}
+                  {item.clinicAddress}
+                </Text>
+              </View>
+            ) : null}
+            {/* Date and Time */}
+            <View style={{flexDirection: 'row', flex: 1, padding: 2}}>
+              <Text style={{fontSize: 12, fontWeight: 'bold'}}>
+                {timeformatter(item.slotStartTime)}
+                {'  |  '}
+                {dayjs(item.slotDate).format('DD MMM, YYYY')}
+              </Text>
+            </View>
           </View>
-        </View>
-        {/* Chat Button */}
-        {/* <TouchableOpacity style={{alignSelf: 'flex-start'}}>
+          {/* Chat Button */}
+          {/* <TouchableOpacity style={{alignSelf: 'flex-start'}}>
           <Entypo
             name="chat"
             color={'white'}
@@ -182,9 +195,10 @@ function PatientHome({navigation}) {
             }}
           />
         </TouchableOpacity> */}
-      </View>
-    </TouchableOpacity>
-  );
+        </View>
+      </TouchableOpacity>
+    ) : null;
+  };
 
   const RenderSpeciality = () => {
     return SplData.map((data, index) => {

@@ -4364,7 +4364,7 @@ const DoctorRegistration2 = ({navigation}) => {
                                       );
                                     else if (
                                       consultationQuestion != '' &&
-                                      questionareList.length < 4
+                                      questionareList.length < 10
                                     ) {
                                       let p = {
                                         questions: consultationQuestion,
@@ -4373,10 +4373,10 @@ const DoctorRegistration2 = ({navigation}) => {
                                       let arr = [...questionareList];
                                       arr.push(p);
                                       setQuestionareList(arr);
-                                    } else if (questionareList.length == 4)
+                                    } else if (questionareList.length == 10)
                                       Alert.alert(
                                         'Warning',
-                                        'You can only add max of 5 questions',
+                                        'You can only add max of 10 questions',
                                       );
                                     setConsultationQuestion('');
                                   }}
@@ -4585,6 +4585,30 @@ const DoctorRegistration2 = ({navigation}) => {
                       />
                     </View>
                   </View>
+                  {/* Physical Follow-Up Fees */}
+                  <View style={{flexDirection: 'row'}}>
+                    <View
+                      style={{
+                        flexDirection: 'column',
+                        width: '100%',
+                      }}>
+                      <View style={{flexDirection: 'row'}}>
+                        <Text style={styles.inputLabel}>
+                          Physical Follow-Up Fees{' '}
+                        </Text>
+                        <Text style={[styles.inputLabel, {color: 'red'}]}>
+                          ( in ₹ )
+                        </Text>
+                      </View>
+                      <TextInput
+                        style={[styles.textInput]}
+                        keyboardType={'number-pad'}
+                        maxLength={5}
+                        onChangeText={text => setphysicalfollowUpFees(text)}
+                        value={physicalfollowUpFees}
+                      />
+                    </View>
+                  </View>
                   {/* E-Consultation Fees */}
                   <View style={{flexDirection: 'row'}}>
                     <View
@@ -4606,6 +4630,31 @@ const DoctorRegistration2 = ({navigation}) => {
                         keyboardType={'number-pad'}
                         onChangeText={text => seteConsulationFees(text)}
                         value={eConsulationFees}
+                      />
+                    </View>
+                  </View>
+
+                  {/* E-Consultation Follow-Up Fees */}
+                  <View style={{flexDirection: 'row'}}>
+                    <View
+                      style={{
+                        flexDirection: 'column',
+                        width: '100%',
+                      }}>
+                      <View style={{flexDirection: 'row'}}>
+                        <Text style={styles.inputLabel}>
+                          E-Consultation Follow-Up Fees{' '}
+                        </Text>
+                        <Text style={[styles.inputLabel, {color: 'red'}]}>
+                          ( in ₹ )
+                        </Text>
+                      </View>
+                      <TextInput
+                        style={[styles.textInput]}
+                        keyboardType={'number-pad'}
+                        maxLength={5}
+                        onChangeText={text => setefollowUpFees(text)}
+                        value={efollowUpFees}
                       />
                     </View>
                   </View>
@@ -4640,54 +4689,6 @@ const DoctorRegistration2 = ({navigation}) => {
                         maxLength={2}
                         onChangeText={text => setshowFollowUp(text)}
                         value={showFollowUp}
-                      />
-                    </View>
-                  </View>
-                  {/* Physical Follow-Up Fees */}
-                  <View style={{flexDirection: 'row'}}>
-                    <View
-                      style={{
-                        flexDirection: 'column',
-                        width: '100%',
-                      }}>
-                      <View style={{flexDirection: 'row'}}>
-                        <Text style={styles.inputLabel}>
-                          Physical Follow-Up Fees{' '}
-                        </Text>
-                        <Text style={[styles.inputLabel, {color: 'red'}]}>
-                          ( in ₹ )
-                        </Text>
-                      </View>
-                      <TextInput
-                        style={[styles.textInput]}
-                        keyboardType={'number-pad'}
-                        maxLength={5}
-                        onChangeText={text => setphysicalfollowUpFees(text)}
-                        value={physicalfollowUpFees}
-                      />
-                    </View>
-                  </View>
-                  {/* E-Consultation Follow-Up Fees */}
-                  <View style={{flexDirection: 'row'}}>
-                    <View
-                      style={{
-                        flexDirection: 'column',
-                        width: '100%',
-                      }}>
-                      <View style={{flexDirection: 'row'}}>
-                        <Text style={styles.inputLabel}>
-                          E-Consultation Follow-Up Fees{' '}
-                        </Text>
-                        <Text style={[styles.inputLabel, {color: 'red'}]}>
-                          ( in ₹ )
-                        </Text>
-                      </View>
-                      <TextInput
-                        style={[styles.textInput]}
-                        keyboardType={'number-pad'}
-                        maxLength={5}
-                        onChangeText={text => setefollowUpFees(text)}
-                        value={efollowUpFees}
                       />
                     </View>
                   </View>

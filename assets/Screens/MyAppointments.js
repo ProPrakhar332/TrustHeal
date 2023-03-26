@@ -21,6 +21,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNFS from 'react-native-fs';
 import HeaderPatient from '../Components/HeaderPatient';
 import FAIcons from 'react-native-vector-icons/FontAwesome5';
+import FAIcon from 'react-native-vector-icons/FontAwesome';
 import MIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import OptionsMenu from 'react-native-option-menu';
 import apiConfig, {fileUpload} from '../API/apiConfig';
@@ -52,6 +53,9 @@ function MyAppointment({navigation}) {
   const [rescheduleModal, setrescheduleModal] = useState(false);
   const [doctorItem, setDoctorItem] = useState(null);
   const [patientDet, setpatientDet] = useState(null);
+  const [cancelModal, setCancelModal] = useState(false);
+  const [cancelReason, setcancelReason] = useState('');
+  const [cancelItem, setCancelItem] = useState(null);
 
   const [showDocumentViewer, setshowDocumentViewer] = useState(false);
   const [docsModal, setdocsModal] = useState(false);
@@ -311,8 +315,65 @@ function MyAppointment({navigation}) {
       });
   };
 
+  const hasStarted = item => {
+    if (item.slotDate == dayjs().format('YYYY-MM-DD')) {
+      let slotStrtArray = item.slotStartTime.split(':');
+      let slotEndArray = item.slotEndTime.split(':');
+      let start =
+        Number(slotStrtArray[0]) <= Number(dayjs().format('HH')) &&
+        Number(slotEndArray[0]) >= Number(dayjs().format('HH'));
+      let end =
+        Number(slotStrtArray[1]) <= Number(dayjs().format('mm')) &&
+        Number(slotEndArray[1]) >= Number(dayjs().format('mm'));
+      // console.log('Start Array\t', Number(dayjs().format('HH')));
+      // console.log('End Array\t', Number(dayjs().format('mm')));
+      // console.log('Current Time is : \t', dayjs().format('HH:mm'));
+
+      return start && end;
+    } else return false;
+  };
+
+  const shouldShow = item => {
+    if (dayjs(item.slotDate).diff(dayjs(), 'd') > 0) return true;
+    else if (dayjs(item.slotDate).diff(dayjs(), 'd') == 0) {
+      if (item.slotDate != dayjs().format('YYYY-MM-DD')) return true;
+      else {
+        let slotEndArray = item.slotEndTime.split(':');
+        return (
+          Number(dayjs().format('HH')) <= slotEndArray[0] &&
+          Number(dayjs().format('mm')) <= slotEndArray[1]
+        );
+      }
+    }
+  };
+  const shouldShowCancel = item => {
+    if (dayjs(item.slotDate).diff(dayjs(), 'd') > 0) return true;
+    else if (dayjs(item.slotDate).diff(dayjs(), 'd') == 0) {
+      if (item.slotDate != dayjs().format('YYYY-MM-DD')) return true;
+      else {
+        let slotStrtArray = item.slotStartTime.split(':');
+        //let slotEndArray = item.slotEndTime.split(':');
+        return (
+          Number(dayjs().format('HH')) <= slotStrtArray[0] &&
+          Number(dayjs().format('mm')) <= slotStrtArray[1]
+        );
+      }
+    }
+  };
+
+  const validForRefund = item => {
+    console.log(dayjs(item.slotDate).diff(dayjs().format('YYYY-MM-DD'), 'd'));
+    if (dayjs(item.slotDate).diff(dayjs().format('YYYY-MM-DD'), 'd') > 0)
+      return true;
+    else if (item.slotDate != dayjs().format('YYYY-MM-DD')) {
+      let slotStrtArray = item.slotStartTime.split(':');
+      console.log((Number(dayjs().format('HH')) + 12) % 24);
+      return (Number(dayjs().format('HH')) + 12) % 24 == slotStrtArray[0];
+    } else return false;
+  };
+
   const renderUpcomingConsultations = ({item}) => {
-    return (
+    return shouldShow(item) ? (
       <View
         style={{
           backgroundColor: 'white',
@@ -432,16 +493,16 @@ function MyAppointment({navigation}) {
 
             {item.consultationType == 'PHYSICAL' ? (
               <View style={{flexDirection: 'row'}}>
-                <Text style={{fontSize: 12}}>
+                <Text style={{fontSize: 12, color: 'black'}}>
                   {item.clinicName + ' | ' + item.clinicAddress}
                 </Text>
               </View>
             ) : null}
 
-            <Text style={{fontSize: 12, fontWeight: 'bold'}}>
+            <Text style={{fontSize: 12, fontWeight: 'bold', color: 'gray'}}>
               {timeformatter(item.slotStartTime)}
               {'  |  '}
-              {dayjs(item.slotDate).format('DD-MMM-YY')}
+              {dayjs(item.slotDate).format('DD MMM, YYYY')}
             </Text>
             {/* <View style={{flexDirection: 'row', marginVertical: 3}}>
               {item.slotStartTime == dayjs().format('HH:mm') ? (
@@ -546,47 +607,74 @@ function MyAppointment({navigation}) {
               }}>
               {/* Consult Now */}
 
-              <TouchableOpacity
-                style={{
-                  flex: 0.45,
-                  justifyContent: 'center',
-                  flexDirection: 'row',
-                  padding: 3,
-                  paddingHorizontal: 5,
-                  alignSelf: 'center',
-                  borderWidth: 1,
-                  borderColor: '#2b8ada',
-                  backgroundColor: '#2b8ada',
-                  borderRadius: 5,
-                }}
-                onPress={() => {
-                  let p =
-                    item.familyMemberName != null
-                      ? item.familyMemberName
-                      : item.patientName;
+              {
+                <TouchableOpacity
+                  style={[
+                    {
+                      flex: 0.45,
+                      justifyContent: 'center',
+                      flexDirection: 'row',
+                      padding: 3,
+                      paddingHorizontal: 5,
+                      alignSelf: 'center',
+                      borderWidth: 1,
+                      //borderColor: '#2b8ada',
 
-                  onJoinPress(
-                    item.consultationType,
-                    item.consultationId + '',
-                    patientDet.patientId + '',
-                    p,
-                    'Patient',
-                  );
-                }}>
-                <FAIcons
-                  name={
-                    item.consultationType == 'PHYSICAL'
-                      ? 'users'
-                      : item.consultationType == 'PHONE_CALL'
-                      ? 'phone-alt'
-                      : 'video'
-                  }
-                  color={'white'}
-                  size={15}
-                  style={{marginRight: 5}}
-                />
-                <Text style={{fontSize: 12, color: 'white'}}>Consult</Text>
-              </TouchableOpacity>
+                      borderRadius: 5,
+                    },
+                    hasStarted(item)
+                      ? {
+                          backgroundColor: '#17CC9C',
+                          borderColor: '#17CC9C',
+                          flex: 0.95,
+                        }
+                      : {backgroundColor: '#2b8ada', borderColor: '#2b8ada'},
+                  ]}
+                  onPress={() => {
+                    console.log(
+                      '================Consultation started==========',
+                      hasStarted(item),
+                    );
+
+                    if (hasStarted(item)) {
+                      let p =
+                        item.familyMemberName != null
+                          ? item.familyMemberName
+                          : item.patientName;
+
+                      onJoinPress(
+                        item.consultationType,
+                        item.consultationId + '',
+                        patientDet.patientId + '',
+                        p,
+                        'Patient',
+                      );
+                    } else {
+                      Alert.alert(
+                        'Hold on',
+                        `Your consultaion starts at ${timeformatter(
+                          item.slotStartTime,
+                        )} on ${dayjs(item.slotDate).format(
+                          'DD MMM, YYYY',
+                        )}.\nPlease join at the scheduled time.`,
+                      );
+                    }
+                  }}>
+                  <FAIcons
+                    name={
+                      item.consultationType == 'PHYSICAL'
+                        ? 'users'
+                        : item.consultationType == 'PHONE_CALL'
+                        ? 'phone-alt'
+                        : 'video'
+                    }
+                    color={'white'}
+                    size={15}
+                    style={{marginRight: 5}}
+                  />
+                  <Text style={{fontSize: 12, color: 'white'}}>Consult</Text>
+                </TouchableOpacity>
+              }
 
               {/* Reschedule */}
               {/* <TouchableOpacity
@@ -642,7 +730,6 @@ function MyAppointment({navigation}) {
                 <Text style={{fontSize: 12, color: 'white'}}>Re-Schedule</Text>
               </TouchableOpacity> */}
 
-              {/* Cancel Booking */}
               <TouchableOpacity
                 style={[
                   {
@@ -660,62 +747,29 @@ function MyAppointment({navigation}) {
                   },
                 ]}
                 onPress={async () => {
-                  Alert.alert(
-                    'Cancel Booking',
-                    `Are you sure you want to cancel your appointment with ${item.doctorName}`,
-                    [
-                      {
-                        text: 'ok',
-                        onPress: async () => {
-                          let p = {
-                            cancelationReason: 'cancel',
-                            //clinicId: 0,
-                            consultationId: item.consultationId,
-                            consultationType: item.consultationType,
-                            doctorId: item.doctorId,
-                            doctorName: item.doctorName,
-                            //patientEmail: patientDet.email,
-                            patientId: patientDet.patientId,
-                            patientName: patientDet.patientName,
-                            slotDate: item.slotDate,
-                            slotEndTime: item.slotEndTime,
-                            slotId: item.slotId,
-                            slotStartTime: item.slotStartTime,
-                          };
-                          if (item.clinicId != null) p.clinicId = item.clinicId;
-                          if (patientDet.email != null)
-                            p.patientEmail = patientDet.email;
-                          await axios
-                            .post(
-                              apiConfig.baseUrl +
-                                '/patient/consultation/cancel',
-                              p,
-                            )
-                            .then(response => {
-                              if (response.status == 200)
-                                Alert.alert(
-                                  'Canceled',
-                                  `Your booking with ${item.doctorName} has been canceled`,
-                                  [
-                                    {
-                                      text: 'ok',
-                                      onPress: async () => {
-                                        await getUpcoming();
-                                      },
-                                    },
-                                  ],
-                                );
-                            })
-                            .catch(error => {
-                              Alert.alert('Error', `${error}`);
-                            });
+                  if (shouldShowCancel(item)) {
+                    Alert.alert(
+                      'Cancel Booking',
+                      `Are you sure you want to cancel your appointment with ${item.doctorName}`,
+                      [
+                        {
+                          text: 'ok',
+                          onPress: async () => {
+                            setCancelItem(item);
+                            setCancelModal(true);
+                          },
                         },
-                      },
-                      {
-                        text: 'cancel',
-                      },
-                    ],
-                  );
+                        {
+                          text: 'cancel',
+                        },
+                      ],
+                    );
+                  } else {
+                    Alert.alert(
+                      'Cancel Booking',
+                      'Sorry! You can not cancel the booking now',
+                    );
+                  }
                 }}>
                 <MIcons
                   name="close"
@@ -770,7 +824,7 @@ function MyAppointment({navigation}) {
           </TouchableOpacity> */}
         </View>
       </View>
-    );
+    ) : null;
   };
 
   const renderCompleted = ({item}) => {
@@ -1412,52 +1466,7 @@ function MyAppointment({navigation}) {
             </View>
           )}
         </ScrollView>
-        {isLoading && (
-          <View
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              justifyContent: 'center',
-              alignItems: 'center',
-              backgroundColor: 'rgba(0,0,0,0.4)',
-            }}>
-            <View
-              style={{
-                backgroundColor: 'white',
-                alignSelf: 'center',
-                borderRadius: 20,
-                width: 150,
-                height: 150,
-                justifyContent: 'center',
-                flexDirection: 'column',
-              }}>
-              <Image
-                source={waiting}
-                style={{
-                  alignSelf: 'center',
-                  width: 80,
-                  height: 80,
-                  // borderRadius: 150,
-                }}
-              />
-              <Text
-                style={{
-                  alignSelf: 'center',
-                  textAlign: 'center',
-                  color: '#2B8ADA',
-                  fontSize: 15,
-                  fontWeight: 'bold',
-                  width: '100%',
-                  // padding: 10,
-                }}>
-                Loading...
-              </Text>
-            </View>
-          </View>
-        )}
+
         {rescheduleModal ? (
           <Modal
             animationType="slide"
@@ -2130,6 +2139,230 @@ function MyAppointment({navigation}) {
                       }}
                     />
                   </View>
+                </View>
+              </View>
+            </View>
+          </Modal>
+        ) : null}
+
+        {cancelModal ? (
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={cancelModal}
+            onRequestClose={() => {
+              setCancelModal(!cancelModal);
+            }}>
+            <View
+              style={{
+                height: '100%',
+                backgroundColor: 'rgba(0,0,0,0.8)',
+                flexDirection: 'row',
+                justifyContent: 'center',
+              }}>
+              <View
+                style={[
+                  styles.modalView,
+                  {
+                    borderRadius: 10,
+                  },
+                ]}>
+                <View
+                  style={{
+                    width: '100%',
+                    alignSelf: 'center',
+                    borderBottomWidth: 1,
+                    borderBottomColor: 'gray',
+                  }}>
+                  <Text
+                    style={{
+                      fontWeight: 'bold',
+                      fontSize: 16,
+                      padding: 5,
+                      color: 'black',
+                    }}>
+                    Cancel Booking
+                  </Text>
+                  <FAIcons
+                    name="window-close"
+                    color="black"
+                    size={26}
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      right: 0,
+                    }}
+                    onPress={() => {
+                      setCancelModal(false);
+                      setcancelReason('');
+                      setCancelItem(null);
+                    }}
+                  />
+                </View>
+                <View style={{minHeight: 150, width: '100%'}}>
+                  <View style={{width: '100%'}}>
+                    {!validForRefund(cancelItem) ? (
+                      <View
+                        style={{
+                          flex: 1,
+                          flexDirection: 'row',
+                          backgroundColor: 'red',
+                          padding: 10,
+                          borderRadius: 10,
+                          marginTop: 10,
+                          width: '100%',
+                          alignSelf: 'center',
+                        }}>
+                        <FAIcon
+                          name="warning"
+                          size={20}
+                          color={'white'}
+                          style={{
+                            alignSelf: 'center',
+                            justifyContent: 'center',
+                          }}
+                        />
+                        <Text
+                          style={{
+                            alignSelf: 'center',
+                            fontSize: 13,
+                            fontWeight: 'bold',
+                            color: 'white',
+                            paddingHorizontal: 10,
+                          }}>
+                          You are not eligible for getting Refund based on
+                          Organization Policy
+                        </Text>
+                      </View>
+                    ) : (
+                      <View
+                        style={{
+                          flex: 1,
+                          flexDirection: 'row',
+                          backgroundColor: '#17CC9C',
+                          padding: 10,
+                          borderRadius: 10,
+                          marginTop: 10,
+                          width: '100%',
+                          alignSelf: 'center',
+                        }}>
+                        <FAIcon
+                          name="warning"
+                          size={20}
+                          color={'white'}
+                          style={{
+                            alignSelf: 'center',
+                            justifyContent: 'center',
+                          }}
+                        />
+                        <Text
+                          style={{
+                            alignSelf: 'center',
+                            fontSize: 13,
+                            fontWeight: 'bold',
+                            color: 'white',
+                            paddingHorizontal: 10,
+                          }}>
+                          You are eligible for getting Refund based on
+                          Organization Policy
+                        </Text>
+                      </View>
+                    )}
+
+                    <Text
+                      style={{
+                        fontSize: 13,
+                        color: '#2b8ada',
+                        marginVertical: 5,
+                        fontWeight: 'bold',
+                      }}>
+                      Reason for cancellation
+                    </Text>
+                    <View
+                      style={{
+                        backgroundColor: '#e8f0fe',
+                        height: 100,
+                        borderRadius: 10,
+                        marginBottom: 10,
+                      }}>
+                      <TextInput
+                        style={{
+                          padding: 5,
+                          backgroundColor: '#e8f0fe',
+                          paddingHorizontal: 15,
+                          //height: 100,
+                          borderRadius: 10,
+                          fontSize: 12,
+                          textAlign: 'left',
+                          marginTop: 5,
+                        }}
+                        onChangeText={text => setcancelReason(text)}
+                        value={cancelReason}
+                        multiline={true}
+                      />
+                    </View>
+                  </View>
+                  <CustomButton
+                    style={{
+                      backgroundColor: '#2b8ada',
+                      padding: 5,
+                      paddingHorizontal: 15,
+                    }}
+                    text={'Proceed'}
+                    textstyle={{color: 'white', fontSize: 15}}
+                    //onPress={() => setCancelModal(false)}
+                    onPress={async () => {
+                      let p = {
+                        cancelationReason: cancelReason,
+                        //clinicId: 0,
+                        consultationId: cancelItem.consultationId,
+                        consultationType: cancelItem.consultationType,
+                        doctorId: cancelItem.doctorId,
+                        doctorName: cancelItem.doctorName,
+                        //patientEmail: patientDet.email,
+                        patientId: patientDet.patientId,
+                        patientName: patientDet.patientName,
+                        slotDate: cancelItem.slotDate,
+                        slotEndTime: cancelItem.slotEndTime,
+                        slotId: cancelItem.slotId,
+                        slotStartTime: cancelItem.slotStartTime,
+                      };
+                      if (cancelItem.clinicId != null)
+                        p.clinicId = cancelItem.clinicId;
+                      if (patientDet.email != null)
+                        p.patientEmail = patientDet.email;
+                      await axios
+                        .post(
+                          apiConfig.baseUrl + '/patient/consultation/cancel',
+                          p,
+                        )
+                        .then(response => {
+                          if (response.status == 200) {
+                            Alert.alert(
+                              'Canceled',
+                              `Your booking with ${cancelItem.doctorName} has been canceled`,
+                              [
+                                {
+                                  text: 'ok',
+                                  onPress: async () => {
+                                    setCancelModal(false);
+                                    setCancelItem(null);
+                                    setcancelReason('');
+                                    await getUpcoming();
+                                  },
+                                },
+                              ],
+                            );
+                          }
+                        })
+                        .catch(error => {
+                          Alert.alert('Error', `${error}`);
+                          setCancelModal(false);
+                          setCancelItem(null);
+                          setcancelReason('');
+                        });
+                    }}
+                  />
                 </View>
               </View>
             </View>

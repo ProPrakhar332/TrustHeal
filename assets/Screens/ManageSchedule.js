@@ -405,6 +405,7 @@ const ManageSchedule = () => {
   };
 
   const pushSlot = async () => {
+    setCreateSchedulesModal(false);
     let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
     let doctorId = Number(x.doctorId);
     let PCData = [];
@@ -454,7 +455,7 @@ const ManageSchedule = () => {
 
       let p = {
         clinicId: PCCreateClinicID,
-        date: selectedDate,
+        date: DateArray[it],
         doctorId: doctorId,
         duration: Number(PCduration),
         endTime:
@@ -500,7 +501,7 @@ const ManageSchedule = () => {
 
     if (PCData != '') {
       await axios
-        .post(apiConfig.baseUrl + '/doctor/slots/e/create', PCData)
+        .post(apiConfig.baseUrl + '/doctor/slots/p/create', PCData)
         .then(function (response) {
           console.log(response.status);
           if (response.status == 200) {
@@ -512,101 +513,13 @@ const ManageSchedule = () => {
           } else Alert.alert('Error', 'There was some problem please try again');
         })
         .catch(function (error) {
-          console.log('=====Create eslots=====');
+          console.log('=====Create pslots=====');
           resetDays();
           setisChecking(false);
           console.log(error);
         });
     } else {
       setisChecking(false);
-    }
-
-    let p = {
-      clinicId: PCCreateClinicID,
-      date: selectedDate,
-      doctorId: doctorId,
-      duration: Number(PCduration),
-      endTime:
-        (PCoutTimeHH.length == 1 ? '0' + PCoutTimeHH : PCoutTimeHH) +
-        ':' +
-        (PCoutTimeMM.length == 1 ? '0' + PCoutTimeMM : PCoutTimeMM),
-      startTime:
-        (PCinTimeHH.length == 1 ? '0' + PCinTimeHH : PCinTimeHH) +
-        ':' +
-        (PCinTimeMM.length == 1 ? '0' + PCinTimeMM : PCinTimeMM),
-    };
-    console.log(p);
-
-    if (availablePslots.length == 0) {
-      PCData.push(p);
-      axios
-        .post(apiConfig.baseUrl + '/doctor/slots/p/create', PCData)
-        .then(function (response) {
-          console.log(response.status);
-          if (response.status == 201 || response.status == 200) {
-            //Alert.alert('Done', 'Slot has been added successfully');
-
-            getPDates();
-          } else Alert.alert('Error', 'There was some problem please try again');
-        })
-        .catch(function (error) {
-          console.log('=====Get Create PSlots=====');
-          Alert.alert(
-            'Error',
-            `There was some problem please try again.\n ${error}`,
-          );
-
-          console.log(error);
-        });
-    } else {
-      let flag = 0;
-      for (var i = 0; i < availablePslots.length; ++i) {
-        let endTime = availablePslots[i].endTime;
-        let startTime = availablePslots[i].startTime;
-        let time1 = startTime.split(':');
-        let time2 = endTime.split(':');
-        if (
-          (Number(PCinTimeHH) <= Number(time1[0]) &&
-            Number(time1[0]) <= Number(PCinTimeHH)) ||
-          (Number(PCoutTimeHH) <= Number(time2[0]) &&
-            Number(time2[0]) <= Number(PCoutTimeHH))
-        ) {
-          flag = 1;
-          break;
-        }
-      }
-
-      if (flag == 1) {
-        Alert.alert(
-          'Overlapping Slot',
-          'This time slot overlaps with the existing ones.\nPlease enter new time slot.',
-        );
-        setPCData([]);
-        await reset();
-      } else {
-        PCData.push(p);
-        axios
-          .post(apiConfig.baseUrl + '/doctor/slots/p/create', PCData)
-          .then(function (response) {
-            console.log(response.status);
-            if (response.status == 201 || response.status == 200) {
-              Alert.alert('Done', 'Slot has been added successfully');
-              setPCData([]);
-              getPDates();
-            } else Alert.alert('Error', 'There was some problem please try again');
-          })
-          .catch(function (error) {
-            Alert.alert(
-              'Error',
-              `There was some problem please try again.\n ${error}`,
-            );
-            console.log('=====Create p slots=====');
-
-            console.log(error);
-            //setPCData([]);
-          });
-      }
-      console.log(PCData);
     }
   };
 
@@ -2878,9 +2791,9 @@ const ManageSchedule = () => {
                               'Please enter valid time slot range',
                             );
                           else {
-                            console.log(PCData);
+                            //console.log(PCData);
                             pushSlot();
-                            await reset();
+                            reset();
                           }
                         }
                       }}

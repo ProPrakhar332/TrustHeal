@@ -398,6 +398,7 @@ function ConfirmBoking({navigation}) {
       isSpecialUser: SpecialUser,
       patientId: patientDet.patientId,
       patientName: patientDet.patientName,
+      patientNumber: patientDet.mobileNumber,
       patientSymtoms: symptoms,
       paymentStatus: SpecialUser
         ? 'SPECIAL_USER'
@@ -831,7 +832,7 @@ function ConfirmBoking({navigation}) {
               <CheckBox
                 title={
                   <Text style={{fontSize: 12, fontWeight: 'bold'}}>
-                    I agree to Aarogya{' '}
+                    I agree to Trust Heal{' '}
                     <Text
                       style={[styles.textLink]}
                       onPress={async () => {
