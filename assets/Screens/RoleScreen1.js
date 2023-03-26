@@ -23,8 +23,8 @@ import {
   NotificationListner,
 } from '../API/PushNotification';
 
-import logo from '../Resources/TH_trans.png';
-//import logo from '../Resources/Logo.jpg';
+//import logo from '../Resources/TH_trans.png';
+import logo from '../Resources/Logo.jpg';
 
 const RoleScreen = ({navigation}) => {
   const [check, setChecked] = useState(false);
