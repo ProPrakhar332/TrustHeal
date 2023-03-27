@@ -339,10 +339,11 @@ function MyAppointment({navigation}) {
       if (item.slotDate != dayjs().format('YYYY-MM-DD')) return true;
       else {
         let slotEndArray = item.slotEndTime.split(':');
-        return (
-          Number(dayjs().format('HH')) <= slotEndArray[0] &&
-          Number(dayjs().format('mm')) <= slotEndArray[1]
-        );
+        if (Number(dayjs().format('HH')) < slotEndArray[0]) return true;
+        else if (Number(dayjs().format('HH')) == slotEndArray[0]) {
+          if (Number(dayjs().format('mm')) <= slotEndArray[1]) return true;
+          else return false;
+        }
       }
     }
   };
@@ -351,12 +352,12 @@ function MyAppointment({navigation}) {
     else if (dayjs(item.slotDate).diff(dayjs(), 'd') == 0) {
       if (item.slotDate != dayjs().format('YYYY-MM-DD')) return true;
       else {
-        let slotStrtArray = item.slotStartTime.split(':');
-        //let slotEndArray = item.slotEndTime.split(':');
-        return (
-          Number(dayjs().format('HH')) <= slotStrtArray[0] &&
-          Number(dayjs().format('mm')) <= slotStrtArray[1]
-        );
+        let slotEndArray = item.slotEndTime.split(':');
+        if (Number(dayjs().format('HH')) < slotEndArray[0]) return true;
+        else if (Number(dayjs().format('HH')) == slotEndArray[0]) {
+          if (Number(dayjs().format('mm')) <= slotEndArray[1]) return true;
+          else return false;
+        }
       }
     }
   };
@@ -373,7 +374,7 @@ function MyAppointment({navigation}) {
   };
 
   const renderUpcomingConsultations = ({item}) => {
-    return shouldShow(item) ? (
+    return (
       <View
         style={{
           backgroundColor: 'white',
@@ -498,12 +499,35 @@ function MyAppointment({navigation}) {
                 </Text>
               </View>
             ) : null}
-
-            <Text style={{fontSize: 12, fontWeight: 'bold', color: 'gray'}}>
-              {timeformatter(item.slotStartTime)}
-              {'  |  '}
-              {dayjs(item.slotDate).format('DD MMM, YYYY')}
-            </Text>
+            <View style={{flexDirection: 'row'}}>
+              <FAIcons
+                name="clock"
+                style={{
+                  alignSelf: 'center',
+                  justifyContent: 'center',
+                  marginRight: 5,
+                }}
+                color={'gray'}
+              />
+              <Text style={{fontSize: 12, fontWeight: 'bold', color: 'gray'}}>
+                {timeformatter(item.slotStartTime)} {' - '}
+                {timeformatter(item.slotEndTime)}
+              </Text>
+            </View>
+            <View style={{flexDirection: 'row'}}>
+              <FAIcons
+                name="calendar-alt"
+                style={{
+                  alignSelf: 'center',
+                  justifyContent: 'center',
+                  marginRight: 5,
+                }}
+                color={'black'}
+              />
+              <Text style={{fontSize: 12, fontWeight: 'bold', color: 'black'}}>
+                {dayjs(item.slotDate).format('DD MMM, YYYY')}
+              </Text>
+            </View>
             {/* <View style={{flexDirection: 'row', marginVertical: 3}}>
               {item.slotStartTime == dayjs().format('HH:mm') ? (
                 <TouchableOpacity
@@ -651,7 +675,7 @@ function MyAppointment({navigation}) {
                       );
                     } else {
                       Alert.alert(
-                        'Hold on',
+                        'Hold on !',
                         `Your consultaion starts at ${timeformatter(
                           item.slotStartTime,
                         )} on ${dayjs(item.slotDate).format(
@@ -766,8 +790,8 @@ function MyAppointment({navigation}) {
                     );
                   } else {
                     Alert.alert(
-                      'Cancel Booking',
-                      'Sorry! You can not cancel the booking now',
+                      'Sorry!',
+                      'You can not cancel the booking now.',
                     );
                   }
                 }}>
@@ -824,7 +848,7 @@ function MyAppointment({navigation}) {
           </TouchableOpacity> */}
         </View>
       </View>
-    ) : null;
+    );
   };
 
   const renderCompleted = ({item}) => {
@@ -929,30 +953,33 @@ function MyAppointment({navigation}) {
               Paid: ₹ {item.feesAmout}
             </Text>
 
-            <View
-              style={{
-                flexDirection: 'row',
-                marginVertical: 3,
-              }}>
-              <Text
+            <View style={{flexDirection: 'row'}}>
+              <FAIcons
+                name="clock"
                 style={{
-                  fontSize: 12,
                   alignSelf: 'center',
-                  fontWeight: 'bold',
-                  color: 'black',
-                  marginRight: 3,
-                }}>
-                {dayjs(item.slotDate).format('DD MMM, YYYY')} {' | '}
+                  justifyContent: 'center',
+                  marginRight: 5,
+                }}
+                color={'gray'}
+              />
+              <Text style={{fontSize: 12, fontWeight: 'bold', color: 'gray'}}>
+                {timeformatter(item.slotStartTime)} {' - '}
+                {timeformatter(item.slotEndTime)}
               </Text>
-
-              <Text
+            </View>
+            <View style={{flexDirection: 'row'}}>
+              <FAIcons
+                name="calendar-alt"
                 style={{
-                  fontSize: 12,
                   alignSelf: 'center',
-                  fontWeight: 'bold',
-                  color: 'black',
-                }}>
-                {timeformatter(item.slotStartTime)}
+                  justifyContent: 'center',
+                  marginRight: 5,
+                }}
+                color={'black'}
+              />
+              <Text style={{fontSize: 12, fontWeight: 'bold', color: 'black'}}>
+                {dayjs(item.slotDate).format('DD MMM, YYYY')}
               </Text>
             </View>
           </View>
@@ -2312,55 +2339,61 @@ function MyAppointment({navigation}) {
                     textstyle={{color: 'white', fontSize: 15}}
                     //onPress={() => setCancelModal(false)}
                     onPress={async () => {
-                      let p = {
-                        cancelationReason: cancelReason,
-                        //clinicId: 0,
-                        consultationId: cancelItem.consultationId,
-                        consultationType: cancelItem.consultationType,
-                        doctorId: cancelItem.doctorId,
-                        doctorName: cancelItem.doctorName,
-                        //patientEmail: patientDet.email,
-                        patientId: patientDet.patientId,
-                        patientName: patientDet.patientName,
-                        slotDate: cancelItem.slotDate,
-                        slotEndTime: cancelItem.slotEndTime,
-                        slotId: cancelItem.slotId,
-                        slotStartTime: cancelItem.slotStartTime,
-                      };
-                      if (cancelItem.clinicId != null)
-                        p.clinicId = cancelItem.clinicId;
-                      if (patientDet.email != null)
-                        p.patientEmail = patientDet.email;
-                      await axios
-                        .post(
-                          apiConfig.baseUrl + '/patient/consultation/cancel',
-                          p,
-                        )
-                        .then(response => {
-                          if (response.status == 200) {
-                            Alert.alert(
-                              'Canceled',
-                              `Your booking with ${cancelItem.doctorName} has been canceled`,
-                              [
-                                {
-                                  text: 'ok',
-                                  onPress: async () => {
-                                    setCancelModal(false);
-                                    setCancelItem(null);
-                                    setcancelReason('');
-                                    await getUpcoming();
+                      if (cancelReason != '') {
+                        let p = {
+                          cancelationReason: cancelReason,
+                          //clinicId: 0,
+                          consultationId: cancelItem.consultationId,
+                          consultationType: cancelItem.consultationType,
+                          doctorId: cancelItem.doctorId,
+                          doctorName: cancelItem.doctorName,
+                          //patientEmail: patientDet.email,
+                          patientId: patientDet.patientId,
+                          patientName: patientDet.patientName,
+                          slotDate: cancelItem.slotDate,
+                          slotEndTime: cancelItem.slotEndTime,
+                          slotId: cancelItem.slotId,
+                          slotStartTime: cancelItem.slotStartTime,
+                        };
+                        if (cancelItem.clinicId != null)
+                          p.clinicId = cancelItem.clinicId;
+                        if (patientDet.email != null)
+                          p.patientEmail = patientDet.email;
+                        await axios
+                          .post(
+                            apiConfig.baseUrl + '/patient/consultation/cancel',
+                            p,
+                          )
+                          .then(response => {
+                            if (response.status == 200) {
+                              Alert.alert(
+                                'Canceled',
+                                `Your booking with ${cancelItem.doctorName} has been canceled`,
+                                [
+                                  {
+                                    text: 'ok',
+                                    onPress: async () => {
+                                      setCancelModal(false);
+                                      setCancelItem(null);
+                                      setcancelReason('');
+                                      await getUpcoming();
+                                    },
                                   },
-                                },
-                              ],
-                            );
-                          }
-                        })
-                        .catch(error => {
-                          Alert.alert('Error', `${error}`);
-                          setCancelModal(false);
-                          setCancelItem(null);
-                          setcancelReason('');
-                        });
+                                ],
+                              );
+                            }
+                          })
+                          .catch(error => {
+                            Alert.alert('Error', `${error}`);
+                            setCancelModal(false);
+                            setCancelItem(null);
+                            setcancelReason('');
+                          });
+                      } else
+                        Alert.alert(
+                          'Incomplete Details',
+                          'Please enter the reason for cancelling the appointment',
+                        );
                     }}
                   />
                 </View>

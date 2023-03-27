@@ -54,15 +54,16 @@ function PatientHome({navigation}) {
       if (item.slotDate != dayjs().format('YYYY-MM-DD')) return true;
       else {
         let slotEndArray = item.slotEndTime.split(':');
-        return (
-          Number(dayjs().format('HH')) <= slotEndArray[0] &&
-          Number(dayjs().format('mm')) <= slotEndArray[1]
-        );
+        if (Number(dayjs().format('HH')) < slotEndArray[0]) return true;
+        else if (Number(dayjs().format('HH')) == slotEndArray[0]) {
+          if (Number(dayjs().format('mm')) <= slotEndArray[1]) return true;
+          else return false;
+        }
       }
     }
   };
   const renderUpcomingConsultations = ({item}) => {
-    return shouldShow(item) == true ? (
+    return (
       <TouchableOpacity
         style={{
           backgroundColor: 'white',
@@ -175,9 +176,31 @@ function PatientHome({navigation}) {
             ) : null}
             {/* Date and Time */}
             <View style={{flexDirection: 'row', flex: 1, padding: 2}}>
-              <Text style={{fontSize: 12, fontWeight: 'bold'}}>
-                {timeformatter(item.slotStartTime)}
-                {'  |  '}
+              <FAIcons
+                name="clock"
+                style={{
+                  alignSelf: 'center',
+                  justifyContent: 'center',
+                  marginRight: 5,
+                }}
+                color={'gray'}
+              />
+              <Text style={{fontSize: 12, fontWeight: 'bold', color: 'gray'}}>
+                {timeformatter(item.slotStartTime)} {' - '}
+                {timeformatter(item.slotEndTime)}
+              </Text>
+            </View>
+            <View style={{flexDirection: 'row', flex: 1, padding: 2}}>
+              <FAIcons
+                name="calendar-alt"
+                style={{
+                  alignSelf: 'center',
+                  justifyContent: 'center',
+                  marginRight: 5,
+                }}
+                color={'black'}
+              />
+              <Text style={{fontSize: 12, fontWeight: 'bold', color: 'black'}}>
                 {dayjs(item.slotDate).format('DD MMM, YYYY')}
               </Text>
             </View>
@@ -197,7 +220,7 @@ function PatientHome({navigation}) {
         </TouchableOpacity> */}
         </View>
       </TouchableOpacity>
-    ) : null;
+    );
   };
 
   const RenderSpeciality = () => {

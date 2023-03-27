@@ -236,16 +236,17 @@ const DoctorHome = ({navigation}) => {
       if (item.slotDate != dayjs().format('YYYY-MM-DD')) return true;
       else {
         let slotEndArray = item.slotEndTime.split(':');
-        return (
-          Number(dayjs().format('HH')) <= slotEndArray[0] &&
-          Number(dayjs().format('mm')) <= slotEndArray[1]
-        );
+        if (Number(dayjs().format('HH')) < slotEndArray[0]) return true;
+        else if (Number(dayjs().format('HH')) == slotEndArray[0]) {
+          if (Number(dayjs().format('mm')) <= slotEndArray[1]) return true;
+          else return false;
+        }
       }
     }
   };
 
   const renderCard = ({item}) => {
-    return shouldShow(item) ? (
+    return (
       <View
         style={{
           backgroundColor: 'white',
@@ -488,7 +489,8 @@ const DoctorHome = ({navigation}) => {
               </View>
               <View style={{flexDirection: 'column', width: '60%'}}>
                 <Text style={styles.cardText}>
-                  {timeformatter(item.slotStartTime)}
+                  {timeformatter(item.slotStartTime)} {' - '}
+                  {timeformatter(item.slotEndTime)}
                 </Text>
               </View>
             </View>
@@ -655,7 +657,7 @@ const DoctorHome = ({navigation}) => {
           </TouchableOpacity>
         </View>
       </View>
-    ) : null;
+    );
   };
   const renderCardPending = ({item}) => {
     return (
@@ -898,7 +900,8 @@ const DoctorHome = ({navigation}) => {
               </View>
               <View style={{flexDirection: 'column', width: '60%'}}>
                 <Text style={styles.cardText}>
-                  {timeformatter(item.slotStartTime)}
+                  {timeformatter(item.slotStartTime)} {' - '}
+                  {timeformatter(item.slotEndTime)}
                 </Text>
               </View>
             </View>
@@ -1222,9 +1225,8 @@ const DoctorHome = ({navigation}) => {
               </View>
               <View style={{flexDirection: 'column', width: '60%'}}>
                 <Text style={styles.cardText}>
-                  {timeformatter(item.slotStartTime)}
-                  {' | '}
-                  {dayjs(item.slotDate).format('DD MMM, YYYY')}
+                  {timeformatter(item.slotStartTime)} {' - '}
+                  {timeformatter(item.slotEndTime)}
                 </Text>
               </View>
             </View>
@@ -1506,9 +1508,8 @@ const DoctorHome = ({navigation}) => {
               </View>
               <View style={{flexDirection: 'column', width: '60%'}}>
                 <Text style={styles.cardText}>
-                  {timeformatter(item.slotStartTime)}
-                  {' | '}
-                  {dayjs(item.slotDate).format('DD MMM, YYYY')}
+                  {timeformatter(item.slotStartTime)} {' - '}
+                  {timeformatter(item.slotEndTime)}
                 </Text>
               </View>
             </View>
