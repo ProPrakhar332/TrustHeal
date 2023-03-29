@@ -437,6 +437,28 @@ function PatientHome({navigation}) {
     const getPatientDet = async () => {
       let x = JSON.parse(await AsyncStorage.getItem('UserPatientProfile'));
       setpatientDet(x);
+      let fcm = await AsyncStorage.getItem('fcmToken');
+      console.log(
+        '===================== FCM TOKEN ================================',
+        fcm,
+      );
+
+      if (fcm != x.firebaseToken) {
+        await axios
+          .post(apiConfig.baseUrl + '/patient/fcm/update', {
+            patientId: x.patientId,
+            firebaseToken: fcm,
+          })
+          .then(async response => {
+            if (response.status == 200) {
+              x.firebaseToken = fcm;
+              await AsyncStorage.setItem(
+                'UserPatientProfile',
+                JSON.stringify(x),
+              );
+            }
+          });
+      }
     };
 
     const getBanner = async () => {

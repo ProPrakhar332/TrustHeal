@@ -55,8 +55,4 @@ export const NotificationListner = () => {
       }
       //setLoading(false);
     });
-
-  messaging().onMessage(async remoteMessage => {
-    console.log('notification in foreground state...', remoteMessage);
-  });
 };

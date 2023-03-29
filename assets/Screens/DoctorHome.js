@@ -23,6 +23,7 @@ import {
 import {useCallback} from 'react';
 
 import {CheckBox} from 'react-native-elements';
+import {useIsFocused} from '@react-navigation/native';
 import FAIcon from 'react-native-vector-icons/FontAwesome5';
 import Entypo from 'react-native-vector-icons/Entypo';
 import MIcons from 'react-native-vector-icons/MaterialIcons';
@@ -118,6 +119,36 @@ const DoctorHome = ({navigation}) => {
     var days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     //console.log(days[ch.getDay()]);
     return days[ch.getDay()];
+  };
+
+  const isFocused = useIsFocused();
+
+  useEffect(() => {
+    if (isFocused != null) {
+      //Update the state you want to be updated
+      getUpcomingData();
+      getCompletedData();
+      getPendingData();
+      getRecentData();
+    }
+  }, [isFocused]);
+
+  const hasStarted = item => {
+    if (item.slotDate == dayjs().format('YYYY-MM-DD')) {
+      let slotStrtArray = item.slotStartTime.split(':');
+      let slotEndArray = item.slotEndTime.split(':');
+      let start =
+        Number(slotStrtArray[0]) <= Number(dayjs().format('HH')) &&
+        Number(slotEndArray[0]) >= Number(dayjs().format('HH'));
+      let end =
+        Number(slotStrtArray[1]) <= Number(dayjs().format('mm')) &&
+        Number(slotEndArray[1]) >= Number(dayjs().format('mm'));
+      // console.log('Start Array\t', Number(dayjs().format('HH')));
+      // console.log('End Array\t', Number(dayjs().format('mm')));
+      // console.log('Current Time is : \t', dayjs().format('HH:mm'));
+
+      return start && end;
+    } else return false;
   };
 
   const nav = useNavigation();
@@ -288,8 +319,8 @@ const DoctorHome = ({navigation}) => {
               }}
             />
           </View>
-
-          <View
+          {/* Prescription Create */}
+          {/* <View
             style={{
               flexDirection: 'row',
               flex: 0.45,
@@ -324,7 +355,7 @@ const DoctorHome = ({navigation}) => {
                 //onPressPrescription(item);
               }}
             />
-          </View>
+          </View> */}
         </View>
         <View
           style={{
@@ -507,18 +538,23 @@ const DoctorHome = ({navigation}) => {
           }}>
           {item.consultationType !== 'PHYSICAL' ? (
             <TouchableOpacity
-              style={{
-                flex: 0.45,
-                justifyContent: 'center',
-                flexDirection: 'row',
-                padding: 3,
-                paddingHorizontal: 5,
-                alignSelf: 'center',
-                backgroundColor: '#2B8ADA',
-                borderWidth: 1,
-                borderColor: '#2B8ADA',
-                borderRadius: 5,
-              }}
+              style={[
+                {
+                  flex: 0.45,
+                  justifyContent: 'center',
+                  flexDirection: 'row',
+                  padding: 3,
+                  paddingHorizontal: 5,
+                  alignSelf: 'center',
+                  backgroundColor: '#2B8ADA',
+                  borderWidth: 1,
+                  borderColor: '#2B8ADA',
+                  borderRadius: 5,
+                },
+                hasStarted(item)
+                  ? {backgroundColor: 'limegreen', borderColor: 'limegreen'}
+                  : null,
+              ]}
               onPress={async () => {
                 if (hasStarted(item)) {
                   await onPressPrescription(item);
@@ -1770,56 +1806,62 @@ const DoctorHome = ({navigation}) => {
   useEffect(() => {
     const onLoadScreen = async () => {
       let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
-
       setdoctorId(x.doctorId);
+
+      let fcm = await AsyncStorage.getItem('fcmToken');
+      console.log(
+        '===================== FCM TOKEN ================================',
+        fcm,
+      );
+
+      if (fcm != x.firebaseToken) {
+        await axios
+          .post(apiConfig.baseUrl + '/doctor/fcm/update', {
+            doctorId: x.doctorId,
+            firebaseToken: fcm,
+          })
+          .then(async response => {
+            if (response.status == 200) {
+              x.firebaseToken = fcm;
+              await AsyncStorage.setItem(
+                'UserDoctorProfile',
+                JSON.stringify(x),
+              );
+            }
+          });
+      }
+      //console.log(fcm != x.firebaseToken);
     };
     onLoadScreen();
   }, []);
-  const hasStarted = item => {
-    if (item.slotDate == dayjs().format('YYYY-MM-DD')) {
-      let slotStrtArray = item.slotStartTime.split(':');
-      let slotEndArray = item.slotEndTime.split(':');
-      let start =
-        Number(slotStrtArray[0]) <= Number(dayjs().format('HH')) &&
-        Number(slotEndArray[0]) >= Number(dayjs().format('HH'));
-      let end =
-        Number(slotStrtArray[1]) <= Number(dayjs().format('mm')) &&
-        Number(slotEndArray[1]) >= Number(dayjs().format('mm'));
-      // console.log('Start Array\t', Number(dayjs().format('HH')));
-      // console.log('End Array\t', Number(dayjs().format('mm')));
-      // console.log('Current Time is : \t', dayjs().format('HH:mm'));
-
-      return start && end;
-    } else return false;
-  };
-
-  // useEffect(() => {
-  //   const backAction = () => {
-  //     Alert.alert('Exit App', 'Exiting the application', [
-  //       {
-  //         text: 'Cancel',
-  //         onPress: () => console.log('Cancel Pressed'),
-  //         style: 'cancel',
-  //       },
-  //       {
-  //         text: 'OK',
-  //         onPress: () => BackHandler.exitApp(),
-  //       },
-  //     ]);
-  //     return true;
-  //   };
-
-  //   const backHandler = BackHandler.addEventListener(
-  //     'hardwareBackPress',
-  //     backAction,
-  //   );
-
-  //   return () => backHandler.remove();
-  // }, []);
 
   useEffect(() => {
-    if (Upcoming == true) getUpcomingData();
-  }, [Upcoming]);
+    const backAction = () => {
+      Alert.alert('Exit App', 'Exiting the application', [
+        {
+          text: 'Cancel',
+          onPress: () => console.log('Cancel Pressed'),
+          style: 'cancel',
+        },
+        {
+          text: 'OK',
+          onPress: () => BackHandler.exitApp(),
+        },
+      ]);
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction,
+    );
+
+    return () => backHandler.remove();
+  }, []);
+
+  // useEffect(() => {
+  //   if (Upcoming == true) getUpcomingData();
+  // }, [Upcoming]);
   const getUpcomingData = async () => {
     let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
     setDoctorObj(x);
@@ -1852,9 +1894,9 @@ const DoctorHome = ({navigation}) => {
       });
   };
 
-  useEffect(() => {
-    if (pending == true) getPendingData();
-  }, [pending]);
+  // useEffect(() => {
+  //   if (pending == true) getPendingData();
+  // }, [pending]);
   const getPendingData = async () => {
     let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
     setDoctorObj(x);
@@ -1885,9 +1927,9 @@ const DoctorHome = ({navigation}) => {
       });
   };
 
-  useEffect(() => {
-    if (Complete == true) getCompletedData();
-  }, [Complete]);
+  // useEffect(() => {
+  //   if (Complete == true) getCompletedData();
+  // }, [Complete]);
   const getCompletedData = async () => {
     let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
     let doctorId = x.doctorId;
@@ -1921,9 +1963,9 @@ const DoctorHome = ({navigation}) => {
       });
   };
 
-  useEffect(() => {
-    if (Status == true) getRecentData();
-  }, [Status]);
+  // useEffect(() => {
+  //   if (Status == true) getRecentData();
+  // }, [Status]);
 
   const getRecentData = async () => {
     let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));

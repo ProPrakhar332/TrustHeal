@@ -130,14 +130,6 @@ function CheckEarnings({navigation}) {
           }}>
           <View style={[styles.detailsRow]}>
             <View style={styles.detailsCol}>
-              <Text style={styles.detailsText}>Patient Mobile No.</Text>
-            </View>
-            <View style={{flexDirection: 'column'}}>
-              <Text style={styles.detailsText}>{item.patientNumber}</Text>
-            </View>
-          </View>
-          <View style={[styles.detailsRow]}>
-            <View style={styles.detailsCol}>
               <Text style={styles.detailsText}>Patient Name</Text>
             </View>
             <View style={{flexDirection: 'column'}}>

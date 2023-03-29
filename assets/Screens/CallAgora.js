@@ -105,8 +105,32 @@ export default function CallAgora(props) {
       if (userType == 'Doctor') {
         await statusUpdateDoctorDisconnect();
         Alert.alert(
-          'Consultation Ended',
-          'Please make sure to make prescription for the patient.',
+          'Consultation Status',
+          'Do you want to end consultation with patient?',
+          [
+            {
+              text: 'Yes',
+              onPress: async () => {
+                await axios
+                  .post(
+                    apiConfig.baseUrl +
+                      '/doctor/consultation/status/pending?consultationId=' +
+                      callID,
+                  )
+                  .then(response => {
+                    if (response.status == 200) {
+                      Alert.alert(
+                        'Consultation Ended',
+                        `Your consultation with patient has ended.\nPlease make sure to create prescription for the patient.`,
+                      );
+                    }
+                  });
+              },
+            },
+            {
+              text: 'No',
+            },
+          ],
         );
       } else {
         await statusUpdatePatientDisconnect();

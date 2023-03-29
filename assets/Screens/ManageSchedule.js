@@ -140,6 +140,7 @@ const ManageSchedule = () => {
   const [ECEndViewer, setECEndViewer] = useState(false);
   const [PCStartViewer, setPCStartViewer] = useState(false);
   const [PCEndViewer, setPCEndViewer] = useState(false);
+  const [debug, setdebug] = useState('');
 
   const showDatePicker = async () => {
     //console.log("Pressed button");
@@ -473,21 +474,54 @@ const ManageSchedule = () => {
         PCData.push(p);
       } else {
         let flag = 0;
+        let newTimeSlotStart =
+          Number(PCinTimeHH) * 3600 + Number(PCinTimeMM) * 60;
+        let newTimeSlotEnd =
+          Number(PCoutTimeHH) * 3600 + Number(PCoutTimeMM) * 60;
         for (var i = 0; i < availableEslots.length; ++i) {
           let endTime = availableEslots[i].endTime;
           let startTime = availableEslots[i].startTime;
           let time1 = startTime.split(':');
           let time2 = endTime.split(':');
+          let existingTimeSlotStart =
+            Number(time1[0]) * 3600 + Number(time1[1]) * 60;
+          let existingTimeSlotEnd =
+            Number(time2[0]) * 3600 + Number(time2[1]) * 60;
+
+          // if (
+          //   (Number(ECinTimeHH) <= Number(time1[0]) &&
+          //     Number(time1[0]) <= Number(ECinTimeHH)) ||
+          //   (Number(ECoutTimeHH) <= Number(time2[0]) &&
+          //     Number(time2[0]) <= Number(ECoutTimeHH))
+          // ) {
+
+          // }
+          // console.log(
+          //   `${newTimeSlotStart}>=${existingTimeSlotStart} && ${newTimeSlotStart}<${existingTimeSlotEnd}`,
+          //   newTimeSlotStart >= existingTimeSlotStart &&
+          //     newTimeSlotStart < existingTimeSlotEnd,
+          // );
+          // console.log(
+          //   `${newTimeSlotStart}<=${existingTimeSlotStart} && ${newTimeSlotEnd}>=${existingTimeSlotEnd}`,
+          //   newTimeSlotStart <= existingTimeSlotStart &&
+          //     newTimeSlotEnd >= existingTimeSlotEnd,
+          // );
+          // console.log(
+          //   `${newTimeSlotEnd}>${existingTimeSlotStart} && ${newTimeSlotStart}<=${existingTimeSlotEnd}`,
+          //   newTimeSlotEnd > existingTimeSlotStart &&
+          //     newTimeSlotStart <= existingTimeSlotEnd,
+          // );
+
           if (
-            (Number(PCinTimeHH) <= Number(time1[0]) &&
-              Number(time1[0]) <= Number(PCinTimeHH)) ||
-            (Number(PCoutTimeHH) <= Number(time2[0]) &&
-              Number(time2[0]) <= Number(PCoutTimeHH))
+            (newTimeSlotStart >= existingTimeSlotStart &&
+              newTimeSlotStart < existingTimeSlotEnd) ||
+            (newTimeSlotStart <= existingTimeSlotStart &&
+              newTimeSlotEnd >= existingTimeSlotEnd) ||
+            (newTimeSlotEnd > existingTimeSlotStart &&
+              newTimeSlotStart <= existingTimeSlotEnd)
           ) {
-            if (availableEslots[i].slotStatus != 'DELETED_BY_DOCTOR') {
-              flag = 1;
-              break;
-            }
+            flag = 1;
+            break;
           }
         }
         if (flag != 1) {
@@ -499,12 +533,12 @@ const ManageSchedule = () => {
 
     console.log('===============Final Push is===========\n', PCData);
 
-    if (PCData != '') {
+    if (PCData.length > 0) {
       await axios
         .post(apiConfig.baseUrl + '/doctor/slots/p/create', PCData)
         .then(function (response) {
           console.log(response.status);
-          if (response.status == 200) {
+          if (response.status == 200 || response.status == 201) {
             Alert.alert('Done', 'Slot has been added successfully');
             //setECData([]);
             getPDates();
@@ -519,6 +553,10 @@ const ManageSchedule = () => {
           console.log(error);
         });
     } else {
+      Alert.alert(
+        'Duplicate Slots',
+        'The given slot details have overlapping slots.',
+      );
       setisChecking(false);
     }
   };
@@ -527,6 +565,7 @@ const ManageSchedule = () => {
     setCreateSchedulesModal(false);
     let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
     let doctorId = Number(x.doctorId);
+    // console.log(doctorId);
     let ECData = [];
     setisChecking(true);
     console.log(selectedDateArray);
@@ -569,7 +608,7 @@ const ManageSchedule = () => {
       console.log(`Available slots of ${DateArray[it]}\n`, availableEslots);
 
       //setMsgHeading('Processing...');
-      setMsgUnderText('Checking for duplicate slots');
+      //setMsgUnderText('Checking for duplicate slots');
 
       let p = {
         consultationDate: DateArray[it],
@@ -593,38 +632,72 @@ const ManageSchedule = () => {
         ECData.push(p);
       } else {
         let flag = 0;
+        let newTimeSlotStart =
+          Number(ECinTimeHH) * 3600 + Number(ECinTimeMM) * 60;
+        let newTimeSlotEnd =
+          Number(ECoutTimeHH) * 3600 + Number(ECoutTimeMM) * 60;
         for (var i = 0; i < availableEslots.length; ++i) {
           let endTime = availableEslots[i].endTime;
           let startTime = availableEslots[i].startTime;
           let time1 = startTime.split(':');
           let time2 = endTime.split(':');
+          let existingTimeSlotStart =
+            Number(time1[0]) * 3600 + Number(time1[1]) * 60;
+          let existingTimeSlotEnd =
+            Number(time2[0]) * 3600 + Number(time2[1]) * 60;
+
+          // if (
+          //   (Number(ECinTimeHH) <= Number(time1[0]) &&
+          //     Number(time1[0]) <= Number(ECinTimeHH)) ||
+          //   (Number(ECoutTimeHH) <= Number(time2[0]) &&
+          //     Number(time2[0]) <= Number(ECoutTimeHH))
+          // ) {
+
+          // }
+          // console.log(
+          //   `${newTimeSlotStart}>=${existingTimeSlotStart} && ${newTimeSlotStart}<${existingTimeSlotEnd}`,
+          //   newTimeSlotStart >= existingTimeSlotStart &&
+          //     newTimeSlotStart < existingTimeSlotEnd,
+          // );
+          // console.log(
+          //   `${newTimeSlotStart}<=${existingTimeSlotStart} && ${newTimeSlotEnd}>=${existingTimeSlotEnd}`,
+          //   newTimeSlotStart <= existingTimeSlotStart &&
+          //     newTimeSlotEnd >= existingTimeSlotEnd,
+          // );
+          // console.log(
+          //   `${newTimeSlotEnd}>${existingTimeSlotStart} && ${newTimeSlotStart}<=${existingTimeSlotEnd}`,
+          //   newTimeSlotEnd > existingTimeSlotStart &&
+          //     newTimeSlotStart <= existingTimeSlotEnd,
+          // );
+
           if (
-            (Number(ECinTimeHH) <= Number(time1[0]) &&
-              Number(time1[0]) <= Number(ECinTimeHH)) ||
-            (Number(ECoutTimeHH) <= Number(time2[0]) &&
-              Number(time2[0]) <= Number(ECoutTimeHH))
+            (newTimeSlotStart >= existingTimeSlotStart &&
+              newTimeSlotStart < existingTimeSlotEnd) ||
+            (newTimeSlotStart <= existingTimeSlotStart &&
+              newTimeSlotEnd >= existingTimeSlotEnd) ||
+            (newTimeSlotEnd > existingTimeSlotStart &&
+              newTimeSlotStart <= existingTimeSlotEnd)
           ) {
-            if (availableEslots[i].slotStatus != 'DELETED_BY_DOCTOR') {
-              flag = 1;
-              break;
-            }
+            flag = 1;
+            break;
           }
         }
         if (flag != 1) {
           ECData.push(p);
         }
       }
-      setMsgUnderText('');
+      //setMsgUnderText('');
     }
 
-    console.log('===============Final Push is===========\n', ECData);
+    if (ECData.length > 0) {
+      //Alert.alert('Pass', JSON.stringify(ECData));
 
-    if (ECData != '') {
       await axios
         .post(apiConfig.baseUrl + '/doctor/slots/e/create', ECData)
         .then(function (response) {
-          console.log(response.status);
-          if (response.status == 200) {
+          //console.log(response.status);
+          //Alert.alert('Response', JSON.stringify(response));
+          if (response.status == 200 || response.status == 201) {
             Alert.alert('Done', 'Slot has been added successfully');
             //setECData([]);
             getEDates();
@@ -639,6 +712,10 @@ const ManageSchedule = () => {
           console.log(error);
         });
     } else {
+      Alert.alert(
+        'Duplicate Slots',
+        'The given slot details have overlapping slots.',
+      );
       setisChecking(false);
     }
     //Alert.alert('Done', 'Slot has been added successfully');
@@ -3175,7 +3252,40 @@ const ManageSchedule = () => {
                             );
                           else {
                             pushESlot();
-                            reset();
+
+                            //   let ECData = [
+                            //     {
+                            //       consultationDate: '2023-04-02',
+                            //       consultationEndTime: '17:00',
+                            //       consultationStartTime: '16:00',
+                            //       doctorId: 1,
+                            //       gap: 5,
+                            //       slotDuration: 10,
+                            //       typeOfEConsultation: 'VIDEO_CALL',
+                            //     },
+                            //   ];
+
+                            //   console.log(
+                            //     apiConfig.baseUrl + '/doctor/slots/e/create',
+                            //     ECData,
+                            //   );
+
+                            //   axios
+                            //     .post(
+                            //       apiConfig.baseUrl + '/doctor/slots/e/create',
+                            //       ECData,
+                            //     )
+                            //     .then(response => {
+                            //       console.log(response.status);
+                            //       if (response.status == 200) {
+                            //         Alert.alert('Slot created');
+                            //       }
+                            //     })
+                            //     .catch(error => {
+                            //       Alert.alert('Error', `${error}`);
+                            //     });
+
+                            //   reset();
                           }
                         }
                       }}
@@ -3778,6 +3888,46 @@ const ManageSchedule = () => {
                     minHeight: 200,
                     maxHeight: 400,
                   }}>
+                  {/* Clinic Name */}
+                  <View style={{flexDirection: 'row'}}>
+                    <View style={{flexDirection: 'column', flex: 1}}>
+                      <Text style={[styles.inputLabel, {marginTop: 0}]}>
+                        Clinic Name
+                      </Text>
+                      <TextInput
+                        style={[styles.textInput]}
+                        value={clinicName}
+                        onChangeText={text => setclinicName(text)}
+                      />
+                    </View>
+                  </View>
+                  {/* Clinic Address */}
+                  <View style={{flexDirection: 'row'}}>
+                    <View style={{flexDirection: 'column', flex: 1}}>
+                      <Text style={[styles.inputLabel, {marginTop: 0}]}>
+                        Clinic Address
+                      </Text>
+                      <TextInput
+                        style={[styles.textInput]}
+                        value={clinicAddress}
+                        onChangeText={text => setclinicAddress(text)}
+                      />
+                    </View>
+                  </View>
+                  {/* Special Instruction */}
+                  <View style={{flexDirection: 'row'}}>
+                    <View style={{flexDirection: 'column', flex: 1}}>
+                      <Text style={[styles.inputLabel, {marginTop: 0}]}>
+                        Special Instruction
+                      </Text>
+                      <TextInput
+                        style={[styles.textInput]}
+                        multiline={true}
+                        value={specialInstruction}
+                        onChangeText={text => setspecialInstruction(text)}
+                      />
+                    </View>
+                  </View>
                   {/* Clinic Photo */}
                   <View style={{flexDirection: 'row'}}>
                     <View style={{flexDirection: 'column', flex: 1}}>
@@ -3842,46 +3992,6 @@ const ManageSchedule = () => {
                       </TouchableOpacity>
                     </View>
                   </View>
-                  {/* Clinic Name */}
-                  <View style={{flexDirection: 'row'}}>
-                    <View style={{flexDirection: 'column', flex: 1}}>
-                      <Text style={[styles.inputLabel, {marginTop: 0}]}>
-                        Clinic Name
-                      </Text>
-                      <TextInput
-                        style={[styles.textInput]}
-                        value={clinicName}
-                        onChangeText={text => setclinicName(text)}
-                      />
-                    </View>
-                  </View>
-                  {/* Clinic Address */}
-                  <View style={{flexDirection: 'row'}}>
-                    <View style={{flexDirection: 'column', flex: 1}}>
-                      <Text style={[styles.inputLabel, {marginTop: 0}]}>
-                        Clinic Address
-                      </Text>
-                      <TextInput
-                        style={[styles.textInput]}
-                        value={clinicAddress}
-                        onChangeText={text => setclinicAddress(text)}
-                      />
-                    </View>
-                  </View>
-                  {/* Special Instruction */}
-                  <View style={{flexDirection: 'row'}}>
-                    <View style={{flexDirection: 'column', flex: 1}}>
-                      <Text style={[styles.inputLabel, {marginTop: 0}]}>
-                        Special Instruction
-                      </Text>
-                      <TextInput
-                        style={[styles.textInput]}
-                        multiline={true}
-                        value={specialInstruction}
-                        onChangeText={text => setspecialInstruction(text)}
-                      />
-                    </View>
-                  </View>
                 </ScrollView>
 
                 <CustomButton
@@ -3896,11 +4006,19 @@ const ManageSchedule = () => {
                   }}
                   onPress={() => {
                     if (clinicName == '')
-                      Alert.alert('Invalid Input', 'Please fill Clinic Name ');
+                      Alert.alert(
+                        'Incomplete Details',
+                        'Please fill Clinic Name.',
+                      );
                     else if (clinicAddress == '')
                       Alert.alert(
-                        'Invalid Input',
-                        'Please fill Clinic Address',
+                        'Incomplete Details',
+                        'Please fill Clinic Address.',
+                      );
+                    else if (clinicPhoto == 0)
+                      Alert.alert(
+                        'Incomplete Details',
+                        'Please upload clinic photo.',
                       );
                     else {
                       let p = {
@@ -4134,12 +4252,12 @@ const styles = StyleSheet.create({
     fontSize: 11,
     borderRadius: 15,
     marginVertical: 5,
-    width: '100%',
+    width: '90%',
   },
   bubbleTitleActive: {
     color: '#fff',
     padding: 5,
-    fontSize: 12,
+    fontSize: 11,
     width: '90%',
     textAlign: 'center',
   },

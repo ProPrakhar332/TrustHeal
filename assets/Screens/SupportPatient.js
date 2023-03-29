@@ -16,15 +16,89 @@ import {
   StatusBar,
 } from 'react-native';
 import CustomButton from '../Components/CustomButton';
-import Header from '../Components/Header';
 import HeaderPatient from '../Components/HeaderPatient';
+import {useIsFocused} from '@react-navigation/native';
 import {StyleSheet} from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FAIcon from 'react-native-vector-icons/FontAwesome5';
+import apiConfig from '../API/apiConfig';
 
-function SupportPatient({navigation}) {
+function Support({navigation}) {
   const [HelpModal, setHelpModal] = useState(true);
+  const [dataFaq, setdataFaq] = useState(null);
+
+  const isFocused = useIsFocused();
+
+  useEffect(() => {
+    if (isFocused != null) {
+      //Update the state you want to be updated
+      // getUpcomingData();
+      // getCompletedData();
+      // getPendingData();
+      // getRecentData();
+      getFaq();
+    }
+  }, [isFocused]);
+  const getFaq = async () => {
+    await axios
+      .get(apiConfig.baseUrl + '/suggest/faq?role=ROLE_PATIENT')
+      .then(response => {
+        if (response.status == 200) {
+          setdataFaq(response.data);
+          console.log(response.data);
+        }
+      })
+      .catch(error => {
+        Alert.alert('Error', `${error}`);
+      });
+  };
+  // const getFaq = async () => {
+  //   await axios
+  //     .get(apiConfig.baseUrl + '/suggest/faq')
+  //     .then(response => {
+  //       if (response.status == 200) {
+  //         setdataFaq(response.data);
+  //         console.log(response.data);
+  //       }
+  //     })
+  //     .catch(error => {
+  //       Alert.alert('Error', `${error}`);
+  //     });
+  // };
+
+  const renderFAQ = ({item, index}) => {
+    return (
+      <View key={item.faqId}>
+        <View style={[styles.WhiteLabel, styles.BlueLabel]}>
+          <Text
+            style={[
+              {
+                fontWeight: 'bold',
+                fontSize: 14,
+                color: 'white',
+              },
+            ]}>
+            {index + 1}
+            {'. '}
+            {item.question}
+          </Text>
+        </View>
+        <View style={styles.BlueLabelUnderText}>
+          <Text
+            style={{
+              fontSize: 12,
+              padding: 5,
+              textAlign: 'justify',
+              color: 'black',
+            }}>
+            {item.answers}
+          </Text>
+        </View>
+      </View>
+    );
+  };
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -37,14 +111,14 @@ function SupportPatient({navigation}) {
         }}>
         <StatusBar animated={true} backgroundColor="#2B8ADA" />
         <HeaderPatient title={'Help & Support'} showMenu={false} />
-        <View style={{backgroundColor: '#e8f0fe'}}>
+        <View style={{backgroundColor: '#e8f0fe', height: '100%'}}>
           <View
             style={{
               justifyContent: 'center',
               alignItems: 'center',
               padding: 10,
             }}>
-            <View style={styles.searchBar}>
+            {/* <View style={styles.searchBar}>
               <TextInput placeholder="Search Question" />
               <FAIcon
                 name="search"
@@ -52,125 +126,20 @@ function SupportPatient({navigation}) {
                 color="gray"
                 style={styles.searchIcon}
               />
-            </View>
+            </View> */}
             <ScrollView
               style={{
                 // height: 300,
                 width: '100%',
                 flexDirection: 'column',
               }}>
-              <View>
-                <TouchableOpacity style={[styles.WhiteLabel, styles.BlueLabel]}>
-                  <Text
-                    style={[
-                      {
-                        fontWeight: 'bold',
-                        fontSize: 14,
-                        color: 'white',
-                      },
-                    ]}>
-                    1. I Am Infected With Viral Fever. What To Do?
-                  </Text>
-                </TouchableOpacity>
-                <View style={styles.BlueLabelUnderText}>
-                  <Text
-                    style={{
-                      fontSize: 12,
-                      padding: 5,
-                      textAlign: 'justify',
-                    }}>
-                    Lorem Ipsum Is Simply Dummy Text Of The Printing And
-                    Typesetting Industry. Lorem Ipsum Has Been The Industry's
-                    Standard Dummy Text Ever Since The 1500S, When An Unknown
-                    Printer Took A Galley Of Type And Scrambled It To Make A
-                    Type Specimen Book. It Has Survived.
-                  </Text>
-                </View>
-              </View>
-              <View>
-                <TouchableOpacity style={[styles.WhiteLabel, styles.BlueLabel]}>
-                  <Text
-                    style={[
-                      {
-                        fontWeight: 'bold',
-                        fontSize: 14,
-                        color: 'white',
-                      },
-                    ]}>
-                    1. I Am Infected With Viral Fever. What To Do?
-                  </Text>
-                </TouchableOpacity>
-                <View style={styles.BlueLabelUnderText}>
-                  <Text
-                    style={{
-                      fontSize: 12,
-                      padding: 5,
-                      textAlign: 'justify',
-                    }}>
-                    Lorem Ipsum Is Simply Dummy Text Of The Printing And
-                    Typesetting Industry. Lorem Ipsum Has Been The Industry's
-                    Standard Dummy Text Ever Since The 1500S, When An Unknown
-                    Printer Took A Galley Of Type And Scrambled It To Make A
-                    Type Specimen Book. It Has Survived.
-                  </Text>
-                </View>
-              </View>
-              <View>
-                <TouchableOpacity style={[styles.WhiteLabel, styles.BlueLabel]}>
-                  <Text
-                    style={[
-                      {
-                        fontWeight: 'bold',
-                        fontSize: 14,
-                        color: 'white',
-                      },
-                    ]}>
-                    1. I Am Infected With Viral Fever. What To Do?
-                  </Text>
-                </TouchableOpacity>
-                <View style={styles.BlueLabelUnderText}>
-                  <Text
-                    style={{
-                      fontSize: 12,
-                      padding: 5,
-                      textAlign: 'justify',
-                    }}>
-                    Lorem Ipsum Is Simply Dummy Text Of The Printing And
-                    Typesetting Industry. Lorem Ipsum Has Been The Industry's
-                    Standard Dummy Text Ever Since The 1500S, When An Unknown
-                    Printer Took A Galley Of Type And Scrambled It To Make A
-                    Type Specimen Book. It Has Survived.
-                  </Text>
-                </View>
-              </View>
-              <View>
-                <TouchableOpacity style={[styles.WhiteLabel, styles.BlueLabel]}>
-                  <Text
-                    style={[
-                      {
-                        fontWeight: 'bold',
-                        fontSize: 14,
-                        color: 'white',
-                      },
-                    ]}>
-                    1. I Am Infected With Viral Fever. What To Do?
-                  </Text>
-                </TouchableOpacity>
-                <View style={styles.BlueLabelUnderText}>
-                  <Text
-                    style={{
-                      fontSize: 12,
-                      padding: 5,
-                      textAlign: 'justify',
-                    }}>
-                    Lorem Ipsum Is Simply Dummy Text Of The Printing And
-                    Typesetting Industry. Lorem Ipsum Has Been The Industry's
-                    Standard Dummy Text Ever Since The 1500S, When An Unknown
-                    Printer Took A Galley Of Type And Scrambled It To Make A
-                    Type Specimen Book. It Has Survived.
-                  </Text>
-                </View>
-              </View>
+              {dataFaq != null ? (
+                <FlatList
+                  data={dataFaq}
+                  renderItem={renderFAQ}
+                  key={item => item.faqId}
+                />
+              ) : null}
             </ScrollView>
           </View>
         </View>
@@ -199,7 +168,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   BlueLabel: {
-    borderWidth: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 0,
@@ -207,13 +175,14 @@ const styles = StyleSheet.create({
   },
   BlueLabelUnderText: {
     marginTop: -6,
-    padding: 5,
-    borderWidth: 1,
+    padding: 10,
     borderTopWidth: 0,
     width: '95%',
     alignSelf: 'center',
-    borderBottomRightRadius: 5,
-    borderBottomLeftRadius: 5,
+    borderBottomRightRadius: 10,
+    borderBottomLeftRadius: 10,
+    marginBottom: 10,
+    backgroundColor: 'white',
   },
   searchBar: {
     //flex: 1,
@@ -264,4 +233,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SupportPatient;
+export default Support;

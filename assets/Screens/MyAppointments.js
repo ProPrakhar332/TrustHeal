@@ -352,7 +352,7 @@ function MyAppointment({navigation}) {
     else if (dayjs(item.slotDate).diff(dayjs(), 'd') == 0) {
       if (item.slotDate != dayjs().format('YYYY-MM-DD')) return true;
       else {
-        let slotEndArray = item.slotEndTime.split(':');
+        let slotEndArray = item.slotStartTime.split(':');
         if (Number(dayjs().format('HH')) < slotEndArray[0]) return true;
         else if (Number(dayjs().format('HH')) == slotEndArray[0]) {
           if (Number(dayjs().format('mm')) <= slotEndArray[1]) return true;
@@ -648,8 +648,8 @@ function MyAppointment({navigation}) {
                     },
                     hasStarted(item)
                       ? {
-                          backgroundColor: '#17CC9C',
-                          borderColor: '#17CC9C',
+                          backgroundColor: 'limegreen',
+                          borderColor: 'limegreen',
                           flex: 0.95,
                         }
                       : {backgroundColor: '#2b8ada', borderColor: '#2b8ada'},
@@ -664,7 +664,7 @@ function MyAppointment({navigation}) {
                       let p =
                         item.familyMemberName != null
                           ? item.familyMemberName
-                          : item.patientName;
+                          : patientDet.patientName;
 
                       onJoinPress(
                         item.consultationType,
@@ -681,6 +681,14 @@ function MyAppointment({navigation}) {
                         )} on ${dayjs(item.slotDate).format(
                           'DD MMM, YYYY',
                         )}.\nPlease join at the scheduled time.`,
+                        [
+                          {
+                            text: 'ok',
+                            onPress: async () => {
+                              await getUpcoming();
+                            },
+                          },
+                        ],
                       );
                     }
                   }}>
@@ -754,57 +762,67 @@ function MyAppointment({navigation}) {
                 <Text style={{fontSize: 12, color: 'white'}}>Re-Schedule</Text>
               </TouchableOpacity> */}
 
-              <TouchableOpacity
-                style={[
-                  {
-                    flex: 0.45,
-                    alignSelf: 'center',
-                    flexDirection: 'row',
-                    padding: 3,
-                    paddingHorizontal: 5,
-                    alignSelf: 'center',
-                    borderWidth: 1,
-                    borderColor: 'red',
-                    backgroundColor: 'red',
-                    borderRadius: 5,
-                    justifyContent: 'center',
-                  },
-                ]}
-                onPress={async () => {
-                  if (shouldShowCancel(item)) {
-                    Alert.alert(
-                      'Cancel Booking',
-                      `Are you sure you want to cancel your appointment with ${item.doctorName}`,
-                      [
-                        {
-                          text: 'ok',
-                          onPress: async () => {
-                            setCancelItem(item);
-                            setCancelModal(true);
+              {shouldShowCancel(item) ? (
+                <TouchableOpacity
+                  style={[
+                    {
+                      flex: 0.45,
+                      alignSelf: 'center',
+                      flexDirection: 'row',
+                      padding: 3,
+                      paddingHorizontal: 5,
+                      alignSelf: 'center',
+                      borderWidth: 1,
+                      borderColor: 'red',
+                      backgroundColor: 'red',
+                      borderRadius: 5,
+                      justifyContent: 'center',
+                    },
+                  ]}
+                  onPress={async () => {
+                    if (shouldShowCancel(item)) {
+                      Alert.alert(
+                        'Cancel Booking',
+                        `Are you sure you want to cancel your appointment with ${item.doctorName}`,
+                        [
+                          {
+                            text: 'ok',
+                            onPress: async () => {
+                              setCancelItem(item);
+                              setCancelModal(true);
+                            },
                           },
-                        },
-                        {
-                          text: 'cancel',
-                        },
-                      ],
-                    );
-                  } else {
-                    Alert.alert(
-                      'Sorry!',
-                      'You can not cancel the booking now.',
-                    );
-                  }
-                }}>
-                <MIcons
-                  name="close"
-                  color={'white'}
-                  size={15}
-                  style={{alignSelf: 'center', marginRight: 5}}
-                />
-                <Text style={{fontSize: 12, color: 'white'}}>
-                  Cancel Booking
-                </Text>
-              </TouchableOpacity>
+                          {
+                            text: 'cancel',
+                          },
+                        ],
+                      );
+                    } else {
+                      Alert.alert(
+                        'Sorry!',
+                        'You can not cancel the booking now.',
+                        [
+                          {
+                            text: 'ok',
+                            onPress: async () => {
+                              await getUpcoming();
+                            },
+                          },
+                        ],
+                      );
+                    }
+                  }}>
+                  <MIcons
+                    name="close"
+                    color={'white'}
+                    size={15}
+                    style={{alignSelf: 'center', marginRight: 5}}
+                  />
+                  <Text style={{fontSize: 12, color: 'white'}}>
+                    Cancel Booking
+                  </Text>
+                </TouchableOpacity>
+              ) : null}
             </View>
           ) : null}
 

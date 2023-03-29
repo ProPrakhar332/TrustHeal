@@ -396,6 +396,7 @@ function ConfirmBoking({navigation}) {
         .add(DocDet.followUpDuration, 'day')
         .format('YYYY-MM-DD'),
       isSpecialUser: SpecialUser,
+      patientEmail: patientDet.email,
       patientId: patientDet.patientId,
       patientName: patientDet.patientName,
       patientNumber: patientDet.mobileNumber,

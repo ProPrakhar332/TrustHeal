@@ -196,6 +196,31 @@ function PrescriptionPreview({navigation}) {
     loadData();
   }, []);
 
+  const requestFilePermission = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+        {
+          title: 'File Permission',
+          message: 'App needs access to your file manager ',
+          buttonNegative: 'Cancel',
+          buttonPositive: 'OK',
+        },
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        await stackOverflowPDF();
+      } else {
+        Alert.alert(
+          'Alert',
+          'Can not create prescription without file permission',
+        );
+        console.log('Camera permission denied');
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+
   useEffect(() => {
     const getEdu = async () => {
       axios
@@ -471,9 +496,10 @@ th{
       FollowUpDate != null &&
       doctorName != null &&
       doctorFlag == true &&
-      doctorEducationDisp != null
+      doctorEducationRaw != null
     )
-      stackOverflowPDF();
+      //stackOverflowPDF();
+      requestFilePermission();
   }, [
     cheifComplaints,
     Diagnosis,
@@ -482,7 +508,7 @@ th{
     FollowUpDate,
     doctorName,
     doctorFlag,
-    doctorEducationDisp,
+    doctorEducationRaw,
   ]);
 
   //pdf  generator
@@ -688,9 +714,9 @@ th{
               flex: 1,
               width: '90%',
             }}>
-            {/* <CustomButton
-              text="Re-Generate PDF"
-              textstyle={{color: 'white', fontSize: 12}}
+            <CustomButton
+              text="Re-Generate"
+              textstyle={{color: 'white', fontSize: 12, fontWeight: 'bold'}}
               style={{
                 borderRadius: 10,
                 backgroundColor: '#2B8ADA',
@@ -701,7 +727,7 @@ th{
                 //createPDF();
                 stackOverflowPDF();
               }}
-            /> */}
+            />
 
             <CustomButton
               text="Upload Prescription"

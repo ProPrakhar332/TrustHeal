@@ -24,6 +24,7 @@ import {
 } from '../API/PushNotification';
 
 import logo from '../Resources/TH_trans.png';
+import ForegroundHandler from '../API/ForegroundHandler';
 //import logo from '../Resources/Logo.jpg';
 
 const RoleScreen = ({navigation}) => {
@@ -61,8 +62,11 @@ const RoleScreen = ({navigation}) => {
     //firebase fcm request
   }, []);
   useEffect(() => {
-    requestUserPermission();
-    NotificationListner();
+    const onLoad = async () => {
+      await requestUserPermission();
+      NotificationListner();
+    };
+    onLoad();
   }, []);
 
   const onPatient = () => {
@@ -104,6 +108,7 @@ const RoleScreen = ({navigation}) => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar animated={true} backgroundColor="#2B8ADA" />
+      <ForegroundHandler />
       <ScrollView showsVerticalScrollIndicator={false}>
         <View
           style={{
