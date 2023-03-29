@@ -10,7 +10,7 @@ const ForegroundHandler = () => {
       console.log(remoteMessage);
       if (Platform.OS == 'android') {
         PushNotification.localNotification({
-          id: messageId,
+          channelId: '1',
           body: notification.body,
           title: notification.title,
           soundName: 'default',

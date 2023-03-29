@@ -799,12 +799,13 @@ function DoctorDetails({navigation}) {
                         flexDirection: 'column',
                         marginTop: 10,
                         backgroundColor: 'white',
+                        flexWrap: 'wrap',
                       }}>
                       <FlatList
                         data={EDays}
                         renderItem={renderDays}
                         keyExtractor={item => item.date}
-                        numColumns={Math.floor(layout.width / 100)}
+                        numColumns={Math.floor(layout.width / 125)}
                         style={{alignSelf: 'center'}}
                       />
                     </View>
@@ -993,12 +994,13 @@ function DoctorDetails({navigation}) {
                             flexDirection: 'column',
                             marginTop: 10,
                             backgroundColor: 'white',
+                            flexWrap: 'wrap',
                           }}>
                           <FlatList
                             data={PDays}
                             renderItem={renderPDays}
                             keyExtractor={item => item.date}
-                            numColumns={Math.floor(layout.width / 100)}
+                            numColumns={Math.floor(layout.width / 125)}
                             style={{
                               alignSelf: 'center',
                             }}

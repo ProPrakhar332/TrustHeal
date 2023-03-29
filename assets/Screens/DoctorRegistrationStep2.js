@@ -4764,9 +4764,9 @@ const DoctorRegistration2 = ({navigation}) => {
                 marginBottom: 100,
               }}
               onPress={async () => {
-                let fcmToken = await AsyncStorage.getItem('fcmToken');
+                //let fcmToken = await AsyncStorage.getItem('fcmToken');
                 await AsyncStorage.multiRemove(await AsyncStorage.getAllKeys());
-                await AsyncStorage.setItem('fcmToken', fcmToken);
+                //await AsyncStorage.setItem('fcmToken', fcmToken);
                 navigation.navigate('RoleScreen');
               }}
             />

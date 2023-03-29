@@ -480,12 +480,13 @@ function SelectSlotsP({navigation}) {
                       marginVertical: 10,
                       backgroundColor: 'white',
                       alignItems: 'center',
+                      flexWrap: 'wrap',
                     }}>
                     <FlatList
                       data={PDays}
                       renderItem={renderPDays}
                       keyExtractor={item => item.date}
-                      numColumns={Math.floor(layout.width / 100)}
+                      numColumns={Math.floor(layout.width / 125)}
                       style={{
                         alignSelf: 'center',
                       }}

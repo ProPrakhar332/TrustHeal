@@ -444,8 +444,8 @@ function ConfirmBoking({navigation}) {
             JSON.stringify(PrevPageData),
           );
           Alert.alert(
-            'Success',
-            `Your consultation with ${PrevPageData.doctorDet.doctorName} is booked.\n Now fill preconsultation questionnaire and upload documents to help doctor consult you better.`,
+            'Success !',
+            `Your consultation with ${PrevPageData.doctorDet.doctorName} is booked.\nPlease fill the following details, for a better consultation experience!`,
           );
 
           navigation.navigate('PreConsult');

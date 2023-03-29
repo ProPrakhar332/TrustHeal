@@ -387,9 +387,9 @@ function PatientProfile({navigation}) {
   const logout = async () => {
     console.log('Logging out');
     console.log(await AsyncStorage.getAllKeys());
-    let fcmToken = await AsyncStorage.getItem('fcmToken');
+    //let fcmToken = await AsyncStorage.getItem('fcmToken');
     await AsyncStorage.multiRemove(await AsyncStorage.getAllKeys());
-    await AsyncStorage.setItem('fcmToken', fcmToken);
+    //await AsyncStorage.setItem('fcmToken', fcmToken);
     // await AsyncStorage.removeItem('UserPatientProfile');
     // await AsyncStorage.removeItem('mobileNumber');
     // await AsyncStorage.removeItem('countryName');

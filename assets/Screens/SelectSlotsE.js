@@ -345,12 +345,13 @@ function SelectSlotsE({navigation}) {
                     marginVertical: 10,
                     backgroundColor: 'white',
                     alignItems: 'center',
+                    flexWrap: 'wrap',
                   }}>
                   <FlatList
                     data={EDays}
                     renderItem={renderDays}
                     keyExtractor={item => item.date}
-                    numColumns={Math.floor(layout.width / 100)}
+                    numColumns={Math.floor(layout.width / 125)}
                     style={{
                       alignSelf: 'center',
                     }}
