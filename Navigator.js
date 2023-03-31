@@ -294,9 +294,9 @@ function DoctorTabNavigator() {
 const logoutAction = async props => {
   console.log('Logging out');
   console.log(await AsyncStorage.getAllKeys());
-  let fcmToken = await AsyncStorage.getItem('fcmToken');
+  // let fcmToken = await AsyncStorage.getItem('fcmToken');
   await AsyncStorage.multiRemove(await AsyncStorage.getAllKeys());
-  await AsyncStorage.setItem('fcmToken', fcmToken);
+  //await AsyncStorage.setItem('fcmToken', fcmToken);
   console.log(await AsyncStorage.getAllKeys());
   props.navigation.navigate('RoleScreen');
 };

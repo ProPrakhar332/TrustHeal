@@ -6,6 +6,7 @@ import {
   StyleSheet,
   ScrollView,
   View,
+  PermissionsAndroid,
   TouchableOpacity,
   KeyboardAvoidingView,
   Alert,
@@ -64,10 +65,45 @@ const RoleScreen = ({navigation}) => {
   useEffect(() => {
     const onLoad = async () => {
       await requestUserPermission();
+      //await requestFilePermission();
+      await getPermission();
       NotificationListner();
     };
     onLoad();
   }, []);
+  // const requestFilePermission = async () => {
+  //   try {
+  //     const granted = await PermissionsAndroid.request(
+  //       PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+  //       {
+  //         title: 'File Permission',
+  //         message: 'App needs access to your file manager ',
+  //         buttonNegative: 'Cancel',
+  //         buttonPositive: 'OK',
+  //       },
+  //     );
+  //     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+  //       //await stackOverflowPDF();
+  //     } else {
+  //       Alert.alert(
+  //         'Alert',
+  //         'Can not create prescription without file permission',
+  //       );
+  //       console.log('Camera permission denied');
+  //     }
+  //   } catch (err) {
+  //     console.warn(err);
+  //   }
+  // };
+  const getPermission = async () => {
+    if (Platform.OS === 'android') {
+      await PermissionsAndroid.requestMultiple([
+        PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+        PermissionsAndroid.PERMISSIONS.CAMERA,
+        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+      ]);
+    }
+  };
 
   const onPatient = () => {
     setactiveP(true);

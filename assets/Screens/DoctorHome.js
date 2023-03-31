@@ -1814,7 +1814,7 @@ const DoctorHome = ({navigation}) => {
         fcm,
       );
 
-      if (fcm != x.firebaseToken) {
+      if (fcm != x.firebaseToken && fcm != null) {
         await axios
           .post(apiConfig.baseUrl + '/doctor/fcm/update', {
             doctorId: x.doctorId,
@@ -1835,29 +1835,29 @@ const DoctorHome = ({navigation}) => {
     onLoadScreen();
   }, []);
 
-  useEffect(() => {
-    const backAction = () => {
-      Alert.alert('Exit App', 'Exiting the application', [
-        {
-          text: 'Cancel',
-          onPress: () => console.log('Cancel Pressed'),
-          style: 'cancel',
-        },
-        {
-          text: 'OK',
-          onPress: () => BackHandler.exitApp(),
-        },
-      ]);
-      return true;
-    };
+  // useEffect(() => {
+  //   const backAction = () => {
+  //     Alert.alert('Exit App', 'Exiting the application', [
+  //       {
+  //         text: 'Cancel',
+  //         onPress: () => console.log('Cancel Pressed'),
+  //         style: 'cancel',
+  //       },
+  //       {
+  //         text: 'OK',
+  //         onPress: () => BackHandler.exitApp(),
+  //       },
+  //     ]);
+  //     return true;
+  //   };
 
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      backAction,
-    );
+  //   const backHandler = BackHandler.addEventListener(
+  //     'hardwareBackPress',
+  //     backAction,
+  //   );
 
-    return () => backHandler.remove();
-  }, []);
+  //   return () => backHandler.remove();
+  // }, []);
 
   // useEffect(() => {
   //   if (Upcoming == true) getUpcomingData();

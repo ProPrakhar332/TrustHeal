@@ -1003,47 +1003,17 @@ function MyAppointment({navigation}) {
           </View>
         </View>
         {/* Buttons */}
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-evenly',
-            marginVertical: 5,
-            width: '95%',
-            alignSelf: 'center',
-          }}>
-          {/* Prescription */}
-          <TouchableOpacity
+        <View style={{flexDirection: 'column'}}>
+          <View
             style={{
-              flex: 0.1,
               flexDirection: 'row',
-              padding: 3,
-              paddingHorizontal: 5,
+              justifyContent: 'space-evenly',
+              marginVertical: 5,
+              width: '95%',
               alignSelf: 'center',
-              borderWidth: 1,
-              borderColor: '#2b8ada',
-              backgroundColor: '#2b8ada',
-              borderRadius: 5,
-              justifyContent: 'center',
-            }}
-            onPress={async () => {
-              //console.log(item);
-              await downloadCache(
-                item.prescriptionPath,
-                item.doctorId,
-                item.consultationId + '_Prescription_' + item.slotDate + '.pdf',
-              );
-              setPrescriptionModal(true);
             }}>
-            <FAIcons
-              name="prescription"
-              color={'white'}
-              size={15}
-              // style={{marginRight: 5}}
-            />
-            {/* <Text style={{fontSize: 13, color: 'white'}}>Prescription</Text> */}
-          </TouchableOpacity>
-          {/* Invoice */}
-          {/* <TouchableOpacity
+            {/* Invoice */}
+            {/* <TouchableOpacity
             style={{
               flexDirection: 'row',
               padding: 3,
@@ -1069,61 +1039,106 @@ function MyAppointment({navigation}) {
             <Text style={{fontSize: 13, color: 'white'}}>Invoices</Text>
           </TouchableOpacity> */}
 
-          {/* History */}
-          <TouchableOpacity
+            {/* History */}
+            <TouchableOpacity
+              style={{
+                flex: 0.45,
+                flexDirection: 'row',
+                padding: 3,
+                paddingHorizontal: 5,
+                alignSelf: 'center',
+                borderWidth: 1,
+                borderColor: '#000080',
+                borderRadius: 5,
+                justifyContent: 'center',
+              }}
+              onPress={async () => {
+                setconsultationId(item.consultationId);
+                let p = await getFiles(item.consultationId);
+                setdocsModal(true);
+              }}>
+              <FAIcons
+                name="file-pdf"
+                color={'#000080'}
+                size={15}
+                style={{marginRight: 5}}
+              />
+              <Text style={{fontSize: 13, color: '#000080'}}>Files</Text>
+            </TouchableOpacity>
+            {/* Questionnaire */}
+            <TouchableOpacity
+              style={{
+                flex: 0.45,
+                flexDirection: 'row',
+                padding: 3,
+                paddingHorizontal: 5,
+                alignSelf: 'center',
+                borderWidth: 1,
+                borderColor: '#2b8ada',
+                borderRadius: 5,
+                justifyContent: 'center',
+              }}
+              onPress={async () => {
+                setconsultationId(item.consultationId);
+                //await getFiles(item.consultationId);
+                let p = await getFiles(item.consultationId);
+                seteditQuestions(false);
+                setquesAnsModal(true);
+                //setdocsModal(true);
+              }}>
+              <MIcons
+                name="message-reply-text-outline"
+                color={'#2b8ada'}
+                size={15}
+                style={{alignSelf: 'center', marginRight: 5}}
+              />
+              <Text style={{fontSize: 13, color: '#2b8ada'}}>
+                Questionnaire
+              </Text>
+            </TouchableOpacity>
+          </View>
+          <View
             style={{
-              flex: 0.3,
-              flexDirection: 'row',
-              padding: 3,
-              paddingHorizontal: 5,
+              width: '90%',
               alignSelf: 'center',
-              borderWidth: 1,
-              borderColor: '#000080',
-              borderRadius: 5,
-              justifyContent: 'center',
-            }}
-            onPress={async () => {
-              setconsultationId(item.consultationId);
-              let p = await getFiles(item.consultationId);
-              setdocsModal(true);
-            }}>
-            <FAIcons
-              name="file-pdf"
-              color={'#000080'}
-              size={15}
-              style={{marginRight: 5}}
-            />
-            <Text style={{fontSize: 13, color: '#000080'}}>Files</Text>
-          </TouchableOpacity>
-          {/* Questionnaire */}
-          <TouchableOpacity
-            style={{
-              flex: 0.45,
               flexDirection: 'row',
-              padding: 3,
-              paddingHorizontal: 5,
-              alignSelf: 'center',
-              borderWidth: 1,
-              borderColor: '#2b8ada',
-              borderRadius: 5,
-              justifyContent: 'center',
-            }}
-            onPress={async () => {
-              setconsultationId(item.consultationId);
-              //await getFiles(item.consultationId);
-              let p = await getFiles(item.consultationId);
-              seteditQuestions(false);
-              setquesAnsModal(true);
-              //setdocsModal(true);
+              marginVertical: 5,
             }}>
-            <MIcons
-              name="message-reply-text-outline"
-              color={'#2b8ada'}
-              size={15}
-              style={{alignSelf: 'center', marginRight: 5}}
-            />
-            <Text style={{fontSize: 13, color: '#2b8ada'}}>Questionnaire</Text>
-          </TouchableOpacity>
+            {/* Prescription */}
+            <TouchableOpacity
+              style={{
+                flex: 1,
+                flexDirection: 'row',
+                padding: 3,
+                paddingHorizontal: 5,
+                alignSelf: 'center',
+                borderWidth: 1,
+                borderColor: '#2b8ada',
+                backgroundColor: '#2b8ada',
+                borderRadius: 5,
+                justifyContent: 'center',
+              }}
+              onPress={async () => {
+                //console.log(item);
+                await downloadCache(
+                  item.prescriptionPath,
+                  item.doctorId,
+                  item.consultationId +
+                    '_Prescription_' +
+                    item.slotDate +
+                    '.pdf',
+                );
+                setPrescriptionModal(true);
+              }}>
+              <FAIcons
+                name="prescription"
+                color={'white'}
+                size={15}
+                style={{marginRight: 5}}
+              />
+              <Text style={{fontSize: 13, color: 'white'}}>Prescription</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     );
@@ -1473,6 +1488,7 @@ function MyAppointment({navigation}) {
                   data={UpcomingData}
                   keyExtractor={item => item.consultationId}
                   renderItem={renderUpcomingConsultations}
+                  style={{marginBottom: 100}}
                 />
               ) : (
                 <Text style={{alignSelf: 'center', color: 'gray'}}>
@@ -1502,6 +1518,7 @@ function MyAppointment({navigation}) {
                   data={CompletedData}
                   keyExtractor={item => item.consultationId}
                   renderItem={renderCompleted}
+                  style={{marginBottom: 100}}
                 />
               ) : (
                 <Text style={{alignSelf: 'center', color: 'gray'}}>

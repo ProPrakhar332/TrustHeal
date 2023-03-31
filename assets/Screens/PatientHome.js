@@ -443,7 +443,7 @@ function PatientHome({navigation}) {
         fcm,
       );
 
-      if (fcm != x.firebaseToken) {
+      if (fcm != x.firebaseToken && fcm != null) {
         await axios
           .post(apiConfig.baseUrl + '/patient/fcm/update', {
             patientId: x.patientId,

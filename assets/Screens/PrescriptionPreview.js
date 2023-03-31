@@ -73,6 +73,8 @@ function PrescriptionPreview({navigation}) {
   const [patientAge, setpatientAge] = useState('');
   const [isUploading, setisUploading] = useState(false);
   const [doctorFlag, setDoctorFlag] = useState(false);
+  const [medReg, setmedReg] = useState(null);
+  const [medCouncil, setmedCouncil] = useState(null);
 
   //const imageURL = 'https://jsplquality.jindalsteel.com/arogyaImage/';
   const imageURL = 'http://trustheal.in/';
@@ -191,7 +193,55 @@ function PrescriptionPreview({navigation}) {
       setDiagnosis(g != null ? g.substring(1, g.length - 1) : null);
       setdoctorId(x.doctorId);
       setdoctorName(x.doctorName != null ? x.doctorName : x.fullName);
-      console.log(doctorName);
+
+      //medical registration number
+      await axios
+        .get(
+          apiConfig.baseUrl +
+            '/doctor/medicalregistrations?doctorId=' +
+            x.doctorId,
+        )
+        .then(response => {
+          if (response.status == 200) {
+            console.log(response.data);
+            setmedReg(response.data[0].registrationNo);
+            setmedCouncil(response.data[0].registrationCouncil);
+          }
+        })
+        .catch(error => {
+          Alert.alert('Error', 'Sorry an error occurred');
+        });
+      //education
+      await axios
+        .get(apiConfig.baseUrl + '/doctor/educations?doctorId=' + x.doctorId)
+        .then(function (response) {
+          if (response.status == 200) {
+            console.log(response.data);
+            //setdoctorEducationRaw(response.data);
+            var x1 = ``;
+            for (var i = 0; i < response.data.length; ++i) {
+              x1 =
+                x1 +
+                `<p class="dr-designation">` +
+                response.data[i].degree.toUpperCase() +
+                ` ` +
+                response.data[i].specialization +
+                `</p>`;
+            }
+            //console.log('==========Doctor education display===============');
+            setdoctorEducationDisp(x1);
+          } else {
+            console.log(response.status);
+          }
+        })
+        .catch(function (error) {
+          console.log(
+            '===============Error in fetching doctor education=================================',
+          );
+          console.log(error);
+        });
+
+      // console.log(doctorName);
     };
     loadData();
   }, []);
@@ -220,50 +270,6 @@ function PrescriptionPreview({navigation}) {
       console.warn(err);
     }
   };
-
-  useEffect(() => {
-    const getEdu = async () => {
-      axios
-        .get(apiConfig.baseUrl + '/doctor/educations?doctorId=' + doctorId)
-        .then(function (response) {
-          if (response.status == 200) {
-            console.log(response.data);
-            setdoctorEducationRaw(response.data);
-          } else {
-            console.log(response.status);
-          }
-        })
-        .catch(function (error) {
-          console.log(
-            '===============Error in fetching doctor education=================================',
-          );
-          console.log(error);
-        });
-    };
-
-    if (doctorId != null) {
-      getEdu();
-    }
-  }, [doctorId]);
-
-  useEffect(() => {
-    if (doctorEducationRaw != null) {
-      var x = ``;
-      for (var i = 0; i < doctorEducationRaw.length; ++i) {
-        x =
-          x +
-          `<p class="dr-designation">` +
-          doctorEducationRaw[i].degree +
-          ` ` +
-          doctorEducationRaw[i].specialization +
-          `</p>`;
-      }
-      //console.log('==========Doctor education display===============');
-      setdoctorEducationDisp(x);
-      setDoctorFlag(true);
-      //console.log(x);
-    }
-  }, [doctorEducationRaw]);
 
   const html =
     `<!DOCTYPE html>
@@ -401,13 +407,8 @@ th{
     <div class="container" >
         <div class="row mx-auto justify-content-center" >
             <div class="col-md-12 prescription" >
-                <div>
-                    <img src="` +
-    imageURL +
-    'TH_trans.png' +
-    `" alt="logo" class="px-logo mx-2">
-                </div>
-                <div style="display: flex;margin-left:5%;width:95%">
+               
+                <div style="display: flex;margin-left:5%;width:95%;margin-top:75px">
                     <div  style="flex:50%;">
                         <h2 class="dr-nme mb-0"><b>` +
     doctorName +
@@ -417,14 +418,14 @@ th{
     `</div>
                     </div>
                     <div   style="flex:50%;">
-                        <p class="p-ag"> ${clinicName} <br> ${clinicAddress}</p>
+                        <p class="p-ag" style="text-align:right;margin-right:40px"><b>${medReg}</b></p>
                         
                     </div>
                 </div>
                 
-                <div style="display: flex;margin-left:5%;width:92.5%;margin-top:10px;padding:10px">
+                <div style="display: flex;margin-left:5%;width:100%;margin-top:10px;">
                     <div style="display:block; flex:50%">
-                        <p class="p-nme mb-0"><b>Name:</b>${patientName}</p>` +
+                        <p class="p-nme mb-0"><b>${patientName}</b></p>` +
     (patientAge != undefined && patientAge != 0
       ? `<p class="p-ag"><b>Age:</b>${patientAge}</p>`
       : ``) +
@@ -435,7 +436,7 @@ th{
                         <p class="p-nme mb-0"><b>Date :</b>` +
     dayjs(new Date()).format('DD MMM, YYYY') +
     `</p>
-                        <p class="p-nme mb-0"><b>Trust Heal ID:</b> TH-000${patientID}</p>
+                        <p class="p-nme mb-0"><b>Patient ID:</b> TH-000${patientID}</p>
                     </div>
                 </div>
                 <p class="mb-0 complaints"><b><u>Chief Complaints</u> :-  </b>` +
@@ -495,10 +496,9 @@ th{
       Advice != null &&
       FollowUpDate != null &&
       doctorName != null &&
-      doctorFlag == true &&
-      doctorEducationRaw != null
+      doctorEducationDisp != null
     )
-      //stackOverflowPDF();
+      // stackOverflowPDF();
       requestFilePermission();
   }, [
     cheifComplaints,
@@ -507,8 +507,7 @@ th{
     Advice,
     FollowUpDate,
     doctorName,
-    doctorFlag,
-    doctorEducationRaw,
+    doctorEducationDisp,
   ]);
 
   //pdf  generator
@@ -714,7 +713,7 @@ th{
               flex: 1,
               width: '90%',
             }}>
-            <CustomButton
+            {/* <CustomButton
               text="Re-Generate"
               textstyle={{color: 'white', fontSize: 12, fontWeight: 'bold'}}
               style={{
@@ -727,7 +726,7 @@ th{
                 //createPDF();
                 stackOverflowPDF();
               }}
-            />
+            /> */}
 
             <CustomButton
               text="Upload Prescription"
