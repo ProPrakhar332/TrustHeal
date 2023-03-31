@@ -72,6 +72,10 @@ function MyAppointment({navigation}) {
   const [fileToken, setfileToken] = useState(null);
   const [uploadDocsList, setuploadDocsList] = useState([]);
 
+  const [downloadToken, setdownloadToken] = useState(null);
+  const [downloadId, setdownloadId] = useState(null);
+  const [downloadFileName, setdownloadFileName] = useState(null);
+
   const [PrescriptionModal, setPrescriptionModal] = useState(false);
   const [prescriptionId, setprescriptionId] = useState(false);
   const [zoom, setZoom] = useState(1);
@@ -176,6 +180,41 @@ function MyAppointment({navigation}) {
       userName: userName,
       userType: userType,
     });
+  };
+
+  const downloadDownloads = async (fileToken, userId, fileName) => {
+    // let op = {};
+    // if (Platform.OS == 'ios') op = {NSURLIsExcludedFromBackupKey: true};
+    // await RNFS.mkdir(`file://${RNFS.DownloadDirectoryPath}/Arogya`, op);
+    let filePath = `file://${RNFS.DownloadDirectoryPath}/`;
+    let options = {
+      fromUrl:
+        apiConfig.baseUrl +
+        '/file/download?fileToken=' +
+        fileToken +
+        '&userId=' +
+        userId,
+      toFile: filePath + fileName,
+    };
+    await RNFS.downloadFile(options)
+      .promise.then(response => {
+        console.log(response);
+        if (response.statusCode == 200) {
+          Alert.alert(
+            'Downloaded',
+            `Prescription has been downloaded under the name of:- ${fileName}`,
+          );
+        } else if (response.statusCode == 204)
+          Alert.alert('Sorry', 'The file does not exist');
+        else
+          Alert.alert(
+            'Download Fail',
+            `Unable to download file. ${response.statusCode}`,
+          );
+      })
+      .catch(e => {
+        Alert.alert('Error', `${e}`);
+      });
   };
 
   const downloadCache = async (fileToken, userId, fileName) => {
@@ -1120,6 +1159,14 @@ function MyAppointment({navigation}) {
               }}
               onPress={async () => {
                 //console.log(item);
+                setdownloadToken(item.prescriptionPath);
+                setdownloadId(item.doctorId);
+                setdownloadFileName(
+                  item.consultationId +
+                    '_Prescription_' +
+                    item.slotDate +
+                    '.pdf',
+                );
                 await downloadCache(
                   item.prescriptionPath,
                   item.doctorId,
@@ -1157,6 +1204,9 @@ function MyAppointment({navigation}) {
         }}
         key={item.documentPath}
         onPress={async () => {
+          setdownloadToken(item.documentPath);
+          setdownloadId(patientDet.patientId);
+          setdownloadFileName(item.documentName);
           await downloadCache(
             item.documentPath,
             patientDet.patientId,
@@ -2114,6 +2164,9 @@ function MyAppointment({navigation}) {
                       setPrescriptionModal(false);
                       setprescriptionId(null);
                       setZoom(1);
+                      setdownloadFileName(null);
+                      setdownloadToken(null);
+                      setdownloadId(null);
                     }}
                   />
                 </View>
@@ -2188,15 +2241,16 @@ function MyAppointment({navigation}) {
                         borderRadius: 10,
                       }}
                       onPress={async () => {
-                        let fileName = prescriptionId.split('/').pop();
-                        //console.log(fileName);
-                        await RNFS.copyFile(
-                          prescriptionId,
-                          `file://${RNFS.DownloadDirectoryPath}/` + fileName,
-                        );
-                        Alert.alert(
-                          'Downloaded',
-                          `Prescription has been downloaded under the name of:- ${fileName}`,
+                        // let fileName = prescriptionId.split('/').pop();
+                        // //console.log(fileName);
+                        // await RNFS.copyFile(
+                        //   prescriptionId,
+                        //   `file://${RNFS.DownloadDirectoryPath}/` + fileName,
+                        // );
+                        await downloadDownloads(
+                          downloadToken,
+                          downloadId,
+                          downloadFileName,
                         );
                       }}
                     />
