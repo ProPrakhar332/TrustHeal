@@ -55,13 +55,13 @@ import PatientProfile from './assets/Screens/PatientProfile';
 import DoctorHome from './assets/Screens/DoctorHome';
 import DoctorDetails from './assets/Screens/DoctorDetails';
 import PatientPayment from './assets/Screens/PatientPayment';
-import Support from './assets/Screens/Support';
+import FaqDoctor from './assets/Screens/FaqDoctor';
 import SelectSlotsP from './assets/Screens/SelectSlotsP';
 import SelectSlotsE from './assets/Screens/SelectSlotsE';
 import ConfirmBooking from './assets/Screens/ConfirmBooking';
 import PreConsult from './assets/Screens/PreConsult';
 
-import SupportPatient from './assets/Screens/SupportPatient';
+import FaqPatient from './assets/Screens/FaqPatient';
 import DoctorRegistration2 from './assets/Screens/DoctorRegistrationStep2';
 import DoctorProfileEdit from './assets/Screens/DoctorProfileEdit';
 import AppointmentTransactionHistory from './assets/Screens/AppointmentTransactionHistory';
@@ -155,8 +155,8 @@ function PatientTabNavigator() {
             iconName = 'comment-medical';
           } else if (route.name === 'Consult') {
             iconName = 'hand-holding-medical';
-          } else if (route.name === 'Support') {
-            iconName = 'headset';
+          } else if (route.name === 'FAQ') {
+            iconName = 'question-circle';
           } else if (route.name === 'Profile') {
             iconName = 'user-circle';
           }
@@ -205,9 +205,14 @@ function PatientTabNavigator() {
         component={PatientConsult}
         options={{headerShown: false}}
       />
-      <Tab.Screen
+      {/* <Tab.Screen
         name="Support"
         component={SupportPatient}
+        options={{headerShown: false}}
+      /> */}
+      <Tab.Screen
+        name="FAQ"
+        component={FaqPatient}
         options={{headerShown: false}}
       />
       <Tab.Screen
@@ -232,8 +237,8 @@ function DoctorTabNavigator() {
             iconName = 'calendar-alt';
           } else if (route.name === 'Check Earning') {
             iconName = 'money-check';
-          } else if (route.name === 'Support') {
-            iconName = 'headset';
+          } else if (route.name === 'FAQ') {
+            iconName = 'question-circle';
           } else if (route.name === 'Profile') {
             iconName = 'user-circle';
           }
@@ -277,9 +282,14 @@ function DoctorTabNavigator() {
         component={AppointmentTransactionHistory}
         options={{headerShown: false}}
       />
-      <Tab.Screen
+      {/* <Tab.Screen
         name="Support"
         component={Support}
+        options={{headerShown: false}}
+      /> */}
+      <Tab.Screen
+        name="FAQ"
+        component={FaqDoctor}
         options={{headerShown: false}}
       />
       <Tab.Screen
@@ -448,11 +458,11 @@ function CustomDrawerContent(props) {
         <Text style={styles.HeadingText}>About</Text>
       </View>
       <DrawerItem
-        label="Help & Support"
+        label="FAQ"
         labelStyle={styles.labelStyle}
         style={{marginVertical: 0, paddingVertical: 0}}
         onPress={() => {
-          props.navigation.navigate('Support');
+          props.navigation.navigate('FaqDoctor');
         }}
         icon={({focused, color, size}) => (
           <Image source={help} style={{tintColor: '#033158'}} />
@@ -657,11 +667,11 @@ function CustomDrawerContentPatient(props) {
         <Text style={styles.HeadingText}>About</Text>
       </View>
       <DrawerItem
-        label="Help & Support"
+        label="FAQ"
         labelStyle={styles.labelStyle}
         style={{marginVertical: 0, paddingVertical: 0}}
         onPress={() => {
-          props.navigation.navigate('Support');
+          props.navigation.navigate('FaqPatient');
         }}
         icon={({focused, color, size}) => (
           <Image source={help} style={{tintColor: '#033158'}} />
@@ -838,6 +848,22 @@ function App() {
         <Stack.Screen
           name="AboutDoctor"
           component={AboutDoctor}
+          options={{
+            headerShown: false,
+            headerBackButtonMenuEnabled: false,
+          }}
+        />
+        <Stack.Screen
+          name="FaqDoctor"
+          component={FaqDoctor}
+          options={{
+            headerShown: false,
+            headerBackButtonMenuEnabled: false,
+          }}
+        />
+        <Stack.Screen
+          name="FaqPatient"
+          component={FaqPatient}
           options={{
             headerShown: false,
             headerBackButtonMenuEnabled: false,

@@ -16,7 +16,7 @@ import {
   StatusBar,
 } from 'react-native';
 import CustomButton from '../Components/CustomButton';
-import HeaderPatient from '../Components/HeaderPatient';
+import Header from '../Components/Header';
 import {useIsFocused} from '@react-navigation/native';
 import {StyleSheet} from 'react-native';
 import axios from 'axios';
@@ -40,9 +40,10 @@ function Support({navigation}) {
       getFaq();
     }
   }, [isFocused]);
+
   const getFaq = async () => {
     await axios
-      .get(apiConfig.baseUrl + '/suggest/faq?role=ROLE_PATIENT')
+      .get(apiConfig.baseUrl + '/suggest/faq?role=ROLE_DOCTOR')
       .then(response => {
         if (response.status == 200) {
           setdataFaq(response.data);
@@ -110,7 +111,7 @@ function Support({navigation}) {
           width: '100%',
         }}>
         <StatusBar animated={true} backgroundColor="#2B8ADA" />
-        <HeaderPatient title={'Help & Support'} showMenu={false} />
+        <Header title={'FAQ'} showMenu={false} />
         <View style={{backgroundColor: '#e8f0fe', height: '100%'}}>
           <View
             style={{
@@ -127,6 +128,9 @@ function Support({navigation}) {
                 style={styles.searchIcon}
               />
             </View> */}
+            <Text style={{color: 'black', marginVertical: 10}}>
+              Frequently Asked Questions
+            </Text>
             <ScrollView
               style={{
                 // height: 300,
