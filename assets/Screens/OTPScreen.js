@@ -31,8 +31,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import apiConfig from '../API/apiConfig';
 import waiting from '../Animations/waiting1.gif';
-import logo from '../Resources/TH_trans.png';
-//import logo from '../Resources/Logo.jpg';
+//import logo from '../Resources/TH_trans.png';
+import logo from '../Resources/Logo.jpg';
 
 const FirstScreen = ({route, navigation}) => {
   const {nextScreen} = route.params;
