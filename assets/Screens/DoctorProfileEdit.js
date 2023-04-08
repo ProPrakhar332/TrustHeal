@@ -70,21 +70,21 @@ const dataGender = [
   {key: 'Female', value: 'Female'},
   {key: 'Other', value: 'Other'},
 ];
-const dataSpecialization = [
-  {key: 'Dermatologist', value: 'Dermatologist'},
-  {key: 'Dietitian and Nutritionist', value: 'Dietitian and Nutritionist'},
-  {key: 'ENT', value: 'ENT'},
-  {key: 'Endocrinologist', value: 'Endocrinologist'},
-  {key: 'Gastroenterologist', value: 'Gastroenterologist'},
-  {key: 'Gynecologist', value: 'Gynecologist'},
-  {key: 'Lifestyle Diseases', value: 'Lifestyle Diseases'},
-  {key: 'Ophthalmologist', value: 'Ophthalmologist'},
-  {key: 'Pediatrician', value: 'Pediatrician'},
-  {key: 'Physician', value: 'Physician'},
-  {key: 'Psychiatrist', value: 'Psychiatrist'},
-  {key: 'Psychological Counselling', value: 'Psychological Counselling'},
-  {key: 'Other', value: 'Other'},
-];
+// const dataSpecialization = [
+//   {key: 'Dermatologist', value: 'Dermatologist'},
+//   {key: 'Dietitian and Nutritionist', value: 'Dietitian and Nutritionist'},
+//   {key: 'ENT', value: 'ENT'},
+//   {key: 'Endocrinologist', value: 'Endocrinologist'},
+//   {key: 'Gastroenterologist', value: 'Gastroenterologist'},
+//   {key: 'Gynecologist', value: 'Gynecologist'},
+//   {key: 'Lifestyle Diseases', value: 'Lifestyle Diseases'},
+//   {key: 'Ophthalmologist', value: 'Ophthalmologist'},
+//   {key: 'Pediatrician', value: 'Pediatrician'},
+//   {key: 'Physician', value: 'Physician'},
+//   {key: 'Psychiatrist', value: 'Psychiatrist'},
+//   {key: 'Psychological Counselling', value: 'Psychological Counselling'},
+//   {key: 'Other', value: 'Other'},
+// ];
 const dataFollowUp = [
   {key: '1', value: '1'},
   {key: '2', value: '2'},
@@ -152,12 +152,14 @@ const EditProfile = ({navigation}) => {
   const [editEduDet, seteditEduDet] = useState(false);
 
   const [EduDetEdit, setEduDetEdit] = useState(false);
-  //const [dataSpecialization, setdataSpecialization] = useState([]);
+  const [dataSpecialization, setdataSpecialization] = useState([]);
   const [Education, setEducation] = useState([]);
   const [Degree, setDegree] = useState('');
   const [DegreePassingYear, setDegreePassingYear] = useState('');
   const [degreePath, setdegreePath] = useState(null);
   const [Specialization, setSpecialization] = useState('');
+  const [Otherspeciality, setOtherSpeciality] = useState('');
+
   const [University, setUniversity] = useState('');
   const [doctorEducationPkId, setdoctorEducationPkId] = useState(0);
 
@@ -296,6 +298,28 @@ const EditProfile = ({navigation}) => {
       setDoctorConfiguration(
         x.doctorConfigurationDTO != null ? x.doctorConfigurationDTO : '',
       );
+
+      axios
+        .get(
+          apiConfig.baseUrl + '/suggest/specialization/dropdown?max=100&min=0',
+        )
+        .then(response => {
+          if (response.status == 200) {
+            //console.log('From Service\n\n', response.data);
+            let p = [];
+            response.data.forEach(item => {
+              // console.log(item);
+              p.push({key: item.specialization, value: item.specialization});
+            });
+            p.push({key: 'Other', value: 'Other'});
+            console.log('Modify\n\n', p);
+            setdataSpecialization(p);
+          }
+        })
+        .catch(error => {
+          Alert.alert('Error', `${error}`);
+        });
+
       setisLoading(false);
     };
 
@@ -871,6 +895,15 @@ const EditProfile = ({navigation}) => {
           // );
           setGenInfoEdit(false);
           flag = true;
+          Alert.alert(
+            'Profile Edited',
+            'Please log-in again to incoperate the changes',
+          );
+          // let fcmToken = await AsyncStorage.getItem('fcmToken');
+          await AsyncStorage.multiRemove(await AsyncStorage.getAllKeys());
+          // let fcmToken = await AsyncStorage.getItem('fcmToken');
+          await AsyncStorage.setItem('fcmToken', fcmToken);
+          navigation.navigate('RoleScreen');
         } else Alert.alert('Updation Error', 'Could not Update Details. Please try again later.');
       })
       .catch(function (error) {
@@ -878,33 +911,33 @@ const EditProfile = ({navigation}) => {
         Alert.alert('Error', `An error has occured please try again. ${error}`);
       });
 
-    if (flag) {
-      await axios
-        .post(apiConfig.baseUrl + '/doctor/contact/visibility/update', {
-          doctorId: x.doctorId,
-          doctorName: x.doctorName,
-          doctorNumber: x.mobileNumber,
-          email: x.email,
-          visibility: showMobNo,
-        })
-        .then(async response => {
-          if (response == 200);
-          {
-            Alert.alert(
-              'Profile Edited',
-              'Please log-in again to incoperate the changes',
-            );
-            let fcmToken = await AsyncStorage.getItem('fcmToken');
-            await AsyncStorage.multiRemove(await AsyncStorage.getAllKeys());
-            // let fcmToken = await AsyncStorage.getItem('fcmToken');
-            await AsyncStorage.setItem('fcmToken', fcmToken);
-            navigation.navigate('RoleScreen');
-          }
-        })
-        .catch(error => {
-          Alert.alert('Error', `${error}`);
-        });
-    }
+    // if (flag) {
+    //   await axios
+    //     .post(apiConfig.baseUrl + '/doctor/contact/visibility/update', {
+    //       doctorId: x.doctorId,
+    //       doctorName: x.doctorName,
+    //       doctorNumber: x.mobileNumber,
+    //       email: x.email,
+    //       visibility: showMobNo,
+    //     })
+    //     .then(async response => {
+    //       if (response == 200);
+    //       {
+    //         Alert.alert(
+    //           'Profile Edited',
+    //           'Please log-in again to incoperate the changes',
+    //         );
+    //         let fcmToken = await AsyncStorage.getItem('fcmToken');
+    //         await AsyncStorage.multiRemove(await AsyncStorage.getAllKeys());
+    //         // let fcmToken = await AsyncStorage.getItem('fcmToken');
+    //         await AsyncStorage.setItem('fcmToken', fcmToken);
+    //         navigation.navigate('RoleScreen');
+    //       }
+    //     })
+    //     .catch(error => {
+    //       Alert.alert('Error', `${error}`);
+    //     });
+    // }
   };
 
   const updateMedReg = async () => {
@@ -1459,7 +1492,7 @@ const EditProfile = ({navigation}) => {
               else if (response.errorCode) {
                 Alert.alert('Error', response.errorMessage);
               } else {
-                if (response.assets[0].fileSize <= 2097152) {
+                if (response.assets[0].fileSize <= 5242880) {
                   await postpfp(response.assets[0]);
                   setpfpuri(response.assets[0].uri);
                   let x = JSON.parse(
@@ -1473,7 +1506,7 @@ const EditProfile = ({navigation}) => {
                 } else
                   Alert.alert(
                     'Max Size',
-                    'The file exceeds the maximum limit of 2MB.',
+                    'The file exceeds the maximum limit of 5MB.',
                   );
               }
             });
@@ -1524,7 +1557,7 @@ const EditProfile = ({navigation}) => {
         else if (response.errorCode) {
           Alert.alert('Error', response.errorMessage);
         } else {
-          if (response.assets[0].fileSize <= 2097152) {
+          if (response.assets[0].fileSize <= 5242880) {
             await postpfp(response.assets[0]);
             setpfpuri(response.assets[0].uri);
             let x = await AsyncStorage.getItem('UserDoctorProfile');
@@ -1533,7 +1566,7 @@ const EditProfile = ({navigation}) => {
           } else
             Alert.alert(
               'Max Size',
-              'The file exceeds the maximum limit of 2MB.',
+              'The file exceeds the maximum limit of 5MB.',
             );
         }
       },
@@ -1916,7 +1949,7 @@ const EditProfile = ({navigation}) => {
                           width: '90%',
                           marginTop: 10,
                         }}>
-                        <View
+                        {/* <View
                           style={{
                             flexDirection: !GenInfoEdit ? 'column' : 'row',
                             flex: 1,
@@ -1953,7 +1986,7 @@ const EditProfile = ({navigation}) => {
                               {showMobNo ? 'Yes' : 'No'}
                             </Text>
                           )}
-                        </View>
+                        </View> */}
                       </View>
                       <View
                         style={{
@@ -2264,13 +2297,12 @@ const EditProfile = ({navigation}) => {
                               />
                               <Text
                                 style={{
-                                  alignSelf: 'center',
-                                  fontSize: 9,
-                                  marginTop: 2,
+                                  marginVertical: 5,
                                   color: 'red',
+                                  fontSize: 9,
                                 }}>
-                                Note: Click on the button above to upload other
-                                file
+                                Note:-{'\n'} Upload certificate in pdf format of
+                                max size 2MB.
                               </Text>
                             </View>
                           )}
@@ -3011,58 +3043,6 @@ const EditProfile = ({navigation}) => {
                         />
                       </View>
                     </View>
-                    {/* E-Consultation Fees */}
-                    <View style={{flexDirection: 'row', alignSelf: 'center'}}>
-                      <View
-                        style={{
-                          flexDirection: 'column',
-                          width: '100%',
-                        }}>
-                        <View style={{flexDirection: 'row'}}>
-                          <Text style={styles.inputLabel}>
-                            E-Consultation Fees{' '}
-                          </Text>
-                          <Text style={[styles.inputLabel, {color: 'red'}]}>
-                            ( in ₹ )
-                          </Text>
-                        </View>
-                        <TextInput
-                          style={[
-                            styles.textInput,
-                            {backgroundColor: '#d0e0fc'},
-                          ]}
-                          maxLength={5}
-                          keyboardType={'number-pad'}
-                          onChangeText={text => seteConsulationFees(text)}
-                          value={eConsulationFees + ''}
-                          editable={ConsultFeesEdit}
-                        />
-                      </View>
-                    </View>
-                    {/* Duration of Follow-Up */}
-                    <View style={{flexDirection: 'row', alignSelf: 'center'}}>
-                      <View
-                        style={{
-                          flexDirection: 'column',
-                          width: '100%',
-                        }}>
-                        <Text style={styles.inputLabel}>
-                          Duration of Follow-Up
-                        </Text>
-
-                        <TextInput
-                          style={[
-                            styles.textInput,
-                            {backgroundColor: '#d0e0fc'},
-                          ]}
-                          keyboardType={'number-pad'}
-                          maxLength={2}
-                          onChangeText={text => setshowFollowUp(text)}
-                          value={showFollowUp + ''}
-                          editable={ConsultFeesEdit}
-                        />
-                      </View>
-                    </View>
                     {/* Physical Follow-Up Fees */}
                     <View style={{flexDirection: 'row', alignSelf: 'center'}}>
                       <View
@@ -3092,6 +3072,35 @@ const EditProfile = ({navigation}) => {
                         />
                       </View>
                     </View>
+                    {/* E-Consultation Fees */}
+                    <View style={{flexDirection: 'row', alignSelf: 'center'}}>
+                      <View
+                        style={{
+                          flexDirection: 'column',
+                          width: '100%',
+                        }}>
+                        <View style={{flexDirection: 'row'}}>
+                          <Text style={styles.inputLabel}>
+                            E-Consultation Fees{' '}
+                          </Text>
+                          <Text style={[styles.inputLabel, {color: 'red'}]}>
+                            ( in ₹ )
+                          </Text>
+                        </View>
+                        <TextInput
+                          style={[
+                            styles.textInput,
+                            {backgroundColor: '#d0e0fc'},
+                          ]}
+                          maxLength={5}
+                          keyboardType={'number-pad'}
+                          onChangeText={text => seteConsulationFees(text)}
+                          value={eConsulationFees + ''}
+                          editable={ConsultFeesEdit}
+                        />
+                      </View>
+                    </View>
+
                     {/* E-Consultation Follow-Up Fees */}
                     <View style={{flexDirection: 'row', alignSelf: 'center'}}>
                       <View
@@ -3117,6 +3126,30 @@ const EditProfile = ({navigation}) => {
                           maxLength={5}
                           onChangeText={text => setefollowUpFees(text)}
                           value={efollowUpFees + ''}
+                          editable={ConsultFeesEdit}
+                        />
+                      </View>
+                    </View>
+                    {/* Duration of Follow-Up */}
+                    <View style={{flexDirection: 'row', alignSelf: 'center'}}>
+                      <View
+                        style={{
+                          flexDirection: 'column',
+                          width: '100%',
+                        }}>
+                        <Text style={styles.inputLabel}>
+                          Duration of Follow-Up
+                        </Text>
+
+                        <TextInput
+                          style={[
+                            styles.textInput,
+                            {backgroundColor: '#d0e0fc'},
+                          ]}
+                          keyboardType={'number-pad'}
+                          maxLength={2}
+                          onChangeText={text => setshowFollowUp(text)}
+                          value={showFollowUp + ''}
                           editable={ConsultFeesEdit}
                         />
                       </View>
@@ -3249,7 +3282,7 @@ const EditProfile = ({navigation}) => {
                               Degree Passing Year
                             </Text>
                             <SelectList
-                              placeholder={DegreePassingYear}
+                              placeholder={' '}
                               boxStyles={{
                                 backgroundColor: '#e8f0fe',
                                 borderWidth: 0,
@@ -3275,7 +3308,7 @@ const EditProfile = ({navigation}) => {
                             </Text>
                             <SelectList
                               labelStyles={{height: 0}}
-                              placeholder={Specialization}
+                              placeholder={' '}
                               setSelected={val => setSpecialization(val)}
                               data={dataSpecialization}
                               save="value"
@@ -3291,6 +3324,21 @@ const EditProfile = ({navigation}) => {
                               badgeStyles={{backgroundColor: '#2b8ada'}}
                             />
                           </View>
+                          {Specialization == 'Other' ? (
+                            <View style={{flex: 1}}>
+                              <Text style={styles.inputLabel}>
+                                Other Speciality
+                              </Text>
+                              <TextInput
+                                style={[
+                                  styles.textInput,
+                                  {backgroundColor: '#E8F0FE'},
+                                ]}
+                                onChangeText={text => setOtherSpeciality(text)}
+                                maxLength={50}
+                                value={Otherspeciality}></TextInput>
+                            </View>
+                          ) : null}
                           <View style={{flex: 1}}>
                             <Text style={styles.inputLabel}>University</Text>
                             <TextInput
@@ -3341,12 +3389,13 @@ const EditProfile = ({navigation}) => {
                         />
                         <Text
                           style={{
-                            alignSelf: 'center',
+                            alignSelf: 'flex-start',
                             fontSize: 9,
                             marginTop: 2,
                             color: 'red',
                           }}>
-                          Note: Click on the button above to upload other file
+                          Note:-{'\n'} Upload University Degree Certificate in
+                          pdf format of max size 2MB.
                         </Text>
                       </View>
                     </View>
@@ -3387,6 +3436,14 @@ const EditProfile = ({navigation}) => {
                             'Incomplete Details!',
                             'Please select pdf file',
                           );
+                        else if (
+                          Specialization == 'Other' &&
+                          Otherspeciality == ''
+                        )
+                          Alert.alert(
+                            'Incomplete Details!',
+                            'Please specify speciality name',
+                          );
                         else {
                           let totalexp =
                             parseInt(TotalYear) * 12 + parseInt(TotalMonths);
@@ -3395,7 +3452,10 @@ const EditProfile = ({navigation}) => {
                             degreePath: degreePath,
                             doctorId: doctorId,
                             passingYear: Number(DegreePassingYear),
-                            specialization: Specialization,
+                            specialization:
+                              Specialization == 'Other'
+                                ? Otherspeciality
+                                : Specialization,
                             university: University,
                           };
                           if (editEduDet)
@@ -3671,6 +3731,17 @@ const EditProfile = ({navigation}) => {
                             }
                           }}
                         />
+                        <Text
+                          style={{
+                            alignSelf: 'flex-start',
+                            fontSize: 9,
+                            marginTop: 2,
+                            marginLeft: 10,
+                            color: 'red',
+                          }}>
+                          Note:-{'\n'} Upload image ( .jpg, .jpeg, .png ) of max
+                          size 2MB.
+                        </Text>
                       </View>
                     </View>
 
@@ -3869,6 +3940,17 @@ const EditProfile = ({navigation}) => {
                             else selectDocsIden();
                           }}
                         />
+                        <Text
+                          style={{
+                            alignSelf: 'flex-start',
+                            fontSize: 9,
+                            marginTop: 2,
+                            marginLeft: 10,
+                            color: 'red',
+                          }}>
+                          Note:-{'\n'} Upload document in pdf format of max size
+                          2MB.
+                        </Text>
                       </View>
                     </View>
 

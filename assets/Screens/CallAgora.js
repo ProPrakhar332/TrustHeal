@@ -19,7 +19,17 @@ import {
 export default function CallAgora(props) {
   const {route} = props;
   const {params} = route;
-  const {consultationType, callID, userID, userName, userType} = params;
+  const {
+    consultationType,
+    callID,
+    doctorId,
+    patientId,
+    patientName,
+    slotId,
+    userName,
+    userType,
+    userID,
+  } = params;
   const [videoCall, setVideoCall] = useState(false);
   const agoraEngineRef = useRef(); // Agora engine instance
   const [isJoined, setIsJoined] = useState(false); // Indicates if the local user has joined the channel
@@ -142,38 +152,45 @@ export default function CallAgora(props) {
       else if (userType == 'Patient') statusUpdatePatient();
     },
   };
-  const statusUpdateDoctor = async () => {
-    Alert.alert('Start', 'Consultation Started');
-    axios
-      .post(
-        apiConfig.baseUrl +
-          '/doctor/consultation/join?consultationId=' +
-          callID,
-      )
-      .then(response => {
-        if (response.status == 200)
-          console.log('\n\n\nMeeting going on status updated doctor\n\n\n');
-      })
-      .catch(response => {
-        console.log(response);
-      });
-  };
-  const statusUpdatePatient = async () => {
-    Alert.alert('Start', 'Consultation Started');
-    axios
-      .post(
-        apiConfig.baseUrl +
-          '/patient/consultation/join?consultationId=' +
-          callID,
-      )
-      .then(response => {
-        if (response.status == 200)
-          console.log('\n\n\nMeeting going on status updated patient\n\n\n');
-      })
-      .catch(response => {
-        console.log(response);
-      });
-  };
+  // const statusUpdateDoctor = async () => {
+  //   Alert.alert('Start', 'Consultation Started');
+  //   let p = {
+  //     consultationId: callID,
+  //     doctorId: doctorId,
+  //     patientId: patientId,
+  //     patientName: patientName,
+  //     slotId: slotId,
+  //   };
+  //   axios
+  //     .post(
+  //       apiConfig.baseUrl +
+  //         '/doctor/consultation/join?consultationId=' +
+  //         callID,
+  //     )
+  //     .then(response => {
+  //       if (response.status == 200)
+  //         console.log('\n\n\nMeeting going on status updated doctor\n\n\n');
+  //     })
+  //     .catch(response => {
+  //       console.log(response);
+  //     });
+  // };
+  // const statusUpdatePatient = async () => {
+  //   Alert.alert('Start', 'Consultation Started');
+  //   axios
+  //     .post(
+  //       apiConfig.baseUrl +
+  //         '/patient/consultation/join?consultationId=' +
+  //         callID,
+  //     )
+  //     .then(response => {
+  //       if (response.status == 200)
+  //         console.log('\n\n\nMeeting going on status updated patient\n\n\n');
+  //     })
+  //     .catch(response => {
+  //       console.log(response);
+  //     });
+  // };
   const statusUpdatePatientDisconnect = async () => {
     axios
       .post(
@@ -208,12 +225,15 @@ export default function CallAgora(props) {
   useEffect(() => {
     const statusUpdateDoctor = async () => {
       Alert.alert('Start', 'Consultation Started');
+      let p = {
+        consultationId: callID,
+        doctorId: doctorId,
+        patientId: patientId,
+        patientName: patientName,
+        slotId: slotId,
+      };
       axios
-        .post(
-          apiConfig.baseUrl +
-            '/doctor/consultation/join?consultationId=' +
-            callID,
-        )
+        .post(apiConfig.baseUrl + '/doctor/consultation/join', p)
         .then(response => {
           if (response.status == 200)
             console.log('\n\n\nMeeting going on status updated doctor\n\n\n');
@@ -224,12 +244,14 @@ export default function CallAgora(props) {
     };
     const statusUpdatePatient = async () => {
       Alert.alert('Start', 'Consultation Started');
+      let p = {
+        consultationId: callID,
+        doctorId: doctorId,
+        patientName: patientName,
+        slotId: slotId,
+      };
       axios
-        .post(
-          apiConfig.baseUrl +
-            '/patient/consultation/join?consultationId=' +
-            callID,
-        )
+        .post(apiConfig.baseUrl + '/patient/consultation/join' + p)
         .then(response => {
           if (response.status == 200)
             console.log('\n\n\nMeeting going on status updated patient\n\n\n');

@@ -169,16 +169,23 @@ function MyAppointment({navigation}) {
   const onJoinPress = (
     consultationType,
     callID,
-    userID,
+    doctorId,
+    patientId,
+    patientName,
+    slotId,
     userName,
     userType,
   ) => {
     navigation.navigate('CallAgora', {
       consultationType: consultationType,
       callID: callID,
-      userID: userID,
+      doctorId: doctorId,
+      patientId: patientId,
+      patientName: patientName,
+      slotId: slotId,
       userName: userName,
       userType: userType,
+      userId: patientId,
     });
   };
 
@@ -708,7 +715,10 @@ function MyAppointment({navigation}) {
                       onJoinPress(
                         item.consultationType,
                         item.consultationId + '',
-                        patientDet.patientId + '',
+                        item.doctorId,
+                        patientDet.patientId,
+                        p,
+                        item.slotId,
                         p,
                         'Patient',
                       );
@@ -2435,14 +2445,9 @@ function MyAppointment({navigation}) {
                           consultationId: cancelItem.consultationId,
                           consultationType: cancelItem.consultationType,
                           doctorId: cancelItem.doctorId,
-                          doctorName: cancelItem.doctorName,
-                          //patientEmail: patientDet.email,
                           patientId: patientDet.patientId,
                           patientName: patientDet.patientName,
-                          slotDate: cancelItem.slotDate,
-                          slotEndTime: cancelItem.slotEndTime,
                           slotId: cancelItem.slotId,
-                          slotStartTime: cancelItem.slotStartTime,
                         };
                         if (cancelItem.clinicId != null)
                           p.clinicId = cancelItem.clinicId;

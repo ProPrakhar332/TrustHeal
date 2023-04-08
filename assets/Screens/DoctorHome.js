@@ -130,6 +130,10 @@ const DoctorHome = ({navigation}) => {
       getCompletedData();
       getPendingData();
       getRecentData();
+      setUpcoming(false);
+      setComplete(false);
+      setStatus(false);
+      setpending(false);
     }
   }, [isFocused]);
 
@@ -155,16 +159,23 @@ const DoctorHome = ({navigation}) => {
   const onJoinPress = (
     consultationType,
     callID,
-    userID,
+    doctorId,
+    patientId,
+    patientName,
+    slotId,
     userName,
     userType,
   ) => {
     nav.navigate('CallAgora', {
       consultationType: consultationType,
       callID: callID,
-      userID: userID,
+      doctorId: doctorId,
+      patientId: patientId,
+      patientName: patientName,
+      slotId: slotId,
       userName: userName,
       userType: userType,
+      userID: doctorId,
     });
   };
 
@@ -559,10 +570,19 @@ const DoctorHome = ({navigation}) => {
                 if (hasStarted(item)) {
                   await onPressPrescription(item);
                   console.log(item);
+
+                  let patientName =
+                    item.familyUserName != null
+                      ? item.familyUserName
+                      : item.patientName;
+
                   onJoinPress(
                     item.consultationType,
                     item.consultationId + '',
                     doctorObj.doctorId + '',
+                    item.patientId,
+                    patientName,
+                    item.slotId,
                     doctorObj.doctorName,
                     'Doctor',
                   );

@@ -74,7 +74,7 @@ function Medication({navigation}) {
     setmedicineDays('');
   };
   const pressedProceed = async () => {
-    if (Medication != '') {
+    if (Medication.length > 0) {
       let p = JSON.stringify(Medication);
       await AsyncStorage.setItem('Prescription', p);
       console.log(await AsyncStorage.getItem('Prescription'));
@@ -288,6 +288,7 @@ function Medication({navigation}) {
                   <View style={{marginBottom: 3}}>
                     <Text style={styles.label}>Medicine Type</Text>
                     <SelectList
+                      placeholder={' '}
                       labelStyles={{height: 0}}
                       setSelected={val => setmedicineType(val)}
                       data={dataType}
@@ -503,7 +504,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 12,
-    color: 'gray',
+    color: 'black',
     fontWeight: 'bold',
     marginBottom: 2,
   },
@@ -564,6 +565,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginVertical: 5,
     fontSize: 13,
+    color: 'black',
   },
 });
 

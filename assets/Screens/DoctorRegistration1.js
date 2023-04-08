@@ -62,8 +62,8 @@ const DoctorRegistrationStep1 = ({navigation}) => {
   const [age, setage] = useState(0);
   const [gender, setGender] = useState('');
   const [speciality, setSpeciality] = useState([]);
-  const [showOtherSpeciality, setshowOtherSpeciality] = useState(false);
-  const [Otherspeciality, setOtherSpeciality] = useState('');
+  // const [showOtherSpeciality, setshowOtherSpeciality] = useState(false);
+  // const [Otherspeciality, setOtherSpeciality] = useState('');
   const [Language, setLanguage] = useState([]);
   const [PIN, setPIN] = useState('');
   const [city, setCity] = useState('');
@@ -177,11 +177,11 @@ const DoctorRegistrationStep1 = ({navigation}) => {
     else {
       setisLoading(true);
       let token = await AsyncStorage.getItem('fcmToken');
-      if (Otherspeciality != '') speciality.push(Otherspeciality);
+      //if (Otherspeciality != '') speciality.push(Otherspeciality);
       let req = {
         age: parseInt(await AsyncStorage.getItem('age')),
         city: city,
-        contactVisibility: showMobNo == 'Yes' ? true : false,
+        contactVisibility: false,
         countryName: 'India',
         createdOn: dayjs().format('YYYY-MM-DD'),
         digitalSignature: 0,
@@ -270,28 +270,28 @@ const DoctorRegistrationStep1 = ({navigation}) => {
       setmobile(await AsyncStorage.getItem('mobileNumber'));
     };
 
-    const getAvailableSpecialities = async () => {
-      axios
-        .get(
-          apiConfig.baseUrl + '/suggest/specialization/dropdown?max=100&min=0',
-        )
-        .then(response => {
-          if (response.status == 200) {
-            //console.log('From Service\n\n', response.data);
-            let p = [];
-            response.data.forEach(item => {
-              // console.log(item);
-              p.push({key: item.specialization, value: item.specialization});
-            });
-            p.push({key: 'Other', value: 'Other'});
-            console.log('Modify\n\n', p);
-            setavailableSpeciality(p);
-          }
-        })
-        .catch(error => {
-          Alert.alert('Error', `${error}`);
-        });
-    };
+    // const getAvailableSpecialities = async () => {
+    //   axios
+    //     .get(
+    //       apiConfig.baseUrl + '/suggest/specialization/dropdown?max=100&min=0',
+    //     )
+    //     .then(response => {
+    //       if (response.status == 200) {
+    //         //console.log('From Service\n\n', response.data);
+    //         let p = [];
+    //         response.data.forEach(item => {
+    //           // console.log(item);
+    //           p.push({key: item.specialization, value: item.specialization});
+    //         });
+    //         p.push({key: 'Other', value: 'Other'});
+    //         console.log('Modify\n\n', p);
+    //         setavailableSpeciality(p);
+    //       }
+    //     })
+    //     .catch(error => {
+    //       Alert.alert('Error', `${error}`);
+    //     });
+    // };
 
     const getAvailableLanguages = async () => {
       axios
@@ -314,7 +314,7 @@ const DoctorRegistrationStep1 = ({navigation}) => {
     };
 
     onLoadSetData();
-    getAvailableSpecialities();
+    //getAvailableSpecialities();
     getAvailableLanguages();
   }, []);
 
@@ -326,8 +326,8 @@ const DoctorRegistrationStep1 = ({navigation}) => {
       if (email != '') ++c;
       if (dob != '') ++c;
       if (gender != '') ++c;
-      if (speciality != '') ++c;
-      if (showOtherSpeciality && Otherspeciality != '') ++c;
+      // if (speciality != '') ++c;
+      // if (showOtherSpeciality && Otherspeciality != '') ++c;
       if (Language != '') ++c;
       if (PIN != '') ++c;
       if (city != '') ++c;
@@ -335,25 +335,25 @@ const DoctorRegistrationStep1 = ({navigation}) => {
       setcomplete(c / 20);
     };
     progressBar();
-  }, [title, name, email, dob, gender, speciality, Language, PIN, city]);
+  }, [title, name, email, dob, gender, Language, PIN, city]);
 
   useEffect(() => {
     if (Year.length == 4) calculateAge();
   }, [Year]);
 
-  useEffect(() => {
-    if (speciality.length > 0) {
-      var flag = 0;
-      for (var i = 0; i < speciality.length; ++i) {
-        if (speciality[i] == 'Other') flag = 1;
-      }
-      if (flag == 1) setshowOtherSpeciality(true);
-      else {
-        setshowOtherSpeciality(false);
-        setOtherSpeciality('');
-      }
-    }
-  }, [speciality]);
+  // useEffect(() => {
+  //   if (speciality.length > 0) {
+  //     var flag = 0;
+  //     for (var i = 0; i < speciality.length; ++i) {
+  //       if (speciality[i] == 'Other') flag = 1;
+  //     }
+  //     if (flag == 1) setshowOtherSpeciality(true);
+  //     else {
+  //       setshowOtherSpeciality(false);
+  //       setOtherSpeciality('');
+  //     }
+  //   }
+  // }, [speciality]);
 
   const openURL = useCallback(async url => {
     const supported = await Linking.canOpenURL(url);
@@ -602,7 +602,7 @@ const DoctorRegistrationStep1 = ({navigation}) => {
               />
             </View>
             {/* Speciality Label */}
-            <View
+            {/* <View
               style={{
                 width: '100%',
                 alignSelf: 'center',
@@ -623,8 +623,9 @@ const DoctorRegistrationStep1 = ({navigation}) => {
                 dropdownTextStyles={{color: '#2b8ada', fontWeight: 'bold'}}
                 badgeStyles={{backgroundColor: '#2b8ada'}}
               />
-            </View>
-            {showOtherSpeciality ? (
+            </View> */}
+
+            {/* {showOtherSpeciality ? (
               <View style={{marginVertical: 10}}>
                 <View style={{flexDirection: 'row'}}>
                   <Text style={styles.inputLabel}>Other Speciality</Text>
@@ -637,8 +638,8 @@ const DoctorRegistrationStep1 = ({navigation}) => {
                   maxLength={50}
                   value={Otherspeciality}></TextInput>
               </View>
-            ) : null}
-
+            ) : null} */}
+            {/* Language Label */}
             <View
               style={{
                 width: '100%',
@@ -662,21 +663,7 @@ const DoctorRegistrationStep1 = ({navigation}) => {
               />
             </View>
 
-            <View style={{marginVertical: 10}}>
-              <View style={{flexDirection: 'row'}}>
-                <Text style={styles.inputLabel}>Pin Code</Text>
-                <Text style={{color: 'red'}}>*</Text>
-              </View>
-              <TextInput
-                style={styles.textInput}
-                placeholderTextColor={'gray'}
-                maxLength={6}
-                keyboardType={'number-pad'}
-                onChangeText={text => {
-                  setPIN(text);
-                }}
-                value={PIN}></TextInput>
-            </View>
+            {/* City Label */}
             <View style={{marginVertical: 10}}>
               <View style={{flexDirection: 'row'}}>
                 <Text style={styles.inputLabel}>City</Text>
@@ -699,7 +686,25 @@ const DoctorRegistrationStep1 = ({navigation}) => {
                   }
                 }}></TextInput>
             </View>
+
+            {/* Pin Code Label */}
             <View style={{marginVertical: 10}}>
+              <View style={{flexDirection: 'row'}}>
+                <Text style={styles.inputLabel}>Pin Code</Text>
+                <Text style={{color: 'red'}}>*</Text>
+              </View>
+              <TextInput
+                style={styles.textInput}
+                placeholderTextColor={'gray'}
+                maxLength={6}
+                keyboardType={'number-pad'}
+                onChangeText={text => {
+                  setPIN(text);
+                }}
+                value={PIN}></TextInput>
+            </View>
+
+            {/* <View style={{marginVertical: 10}}>
               <View style={{flexDirection: 'row'}}>
                 <Text style={styles.inputLabel}>
                   Show Mobile No. to patients
@@ -720,7 +725,7 @@ const DoctorRegistrationStep1 = ({navigation}) => {
                 setSelected={setshowMobNo}
                 data={dataShowMobNo}
               />
-            </View>
+            </View> */}
             <View style={{marginVertical: 10}}>
               <Text style={styles.inputLabel}>Mobile Number</Text>
               <TextInput
@@ -832,7 +837,6 @@ const DoctorRegistrationStep1 = ({navigation}) => {
                     email == '' ||
                     name == '' ||
                     gender == '' ||
-                    speciality == '' ||
                     Language == '' ||
                     PIN == '' ||
                     title == '' ||

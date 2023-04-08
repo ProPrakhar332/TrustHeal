@@ -265,7 +265,6 @@ const ItemInvoice = ({no, date, doc}) => (
 );
 function PatientProfile({navigation}) {
   const [PatientDet, setPatientDet] = useState(null);
-  const [HelpModal, setHelpModal] = useState(false);
   //other details
   const [OtherDetailsModal, setOtherDetailsModal] = useState(false);
   const [editOtherDetails, seteditOtherDetails] = useState(false);
@@ -923,7 +922,7 @@ function PatientProfile({navigation}) {
               <TouchableOpacity
                 style={styles.whiteBoxRow}
                 onPress={() => {
-                  setHelpModal(true);
+                  navigation.navigate('Support');
                 }}>
                 <View style={{flex: 0.3}}>
                   <Image source={help} style={styles.whiteBoxRowIcon} />
@@ -994,87 +993,7 @@ function PatientProfile({navigation}) {
             /> */}
             {/* Notification Modal */}
             {/* Help & Support */}
-            {HelpModal ? (
-              <Modal
-                animationType="slide"
-                transparent={true}
-                visible={HelpModal}
-                onRequestClose={() => {
-                  setHelpModal(!HelpModal);
-                }}>
-                <View
-                  style={{
-                    height: '100%',
-                    backgroundColor: 'rgba(0,0,0,0.8)',
-                    flexDirection: 'row',
-                    justifyContent: 'center',
-                  }}>
-                  <View
-                    style={[
-                      styles.modalView,
-                      {
-                        borderRadius: 10,
-                        width: '95%',
-                        justifyContent: 'center',
-                        alignSelf: 'center',
-                        padding: 15,
-                      },
-                    ]}>
-                    <View
-                      style={{
-                        width: '100%',
-                        alignSelf: 'center',
-                        marginBottom: 20,
-                        borderBottomWidth: 1,
-                        borderBottomColor: 'gray',
-                      }}>
-                      <Text
-                        style={{
-                          fontWeight: 'bold',
-                          fontSize: 16,
-                          padding: 5,
-                        }}>
-                        Help & Support
-                      </Text>
-                      <FAIClose
-                        name="close"
-                        color="black"
-                        size={20}
-                        style={{
-                          position: 'absolute',
-                          top: 0,
-                          right: 0,
-                        }}
-                        onPress={() => setHelpModal(false)}
-                      />
-                    </View>
 
-                    <View style={styles.searchBar}>
-                      <TextInput placeholder="Search Question" />
-                      <FAIcon
-                        name="search"
-                        size={15}
-                        color="gray"
-                        style={styles.searchIcon}
-                      />
-                    </View>
-                    <View
-                      style={{
-                        height: 300,
-                        width: '100%',
-                        flexDirection: 'column',
-                      }}>
-                      <FlatList
-                        data={datahelp}
-                        renderItem={renderHelp}
-                        keyExtractor={item => item.question}
-                        scrollEnable={true}
-                      />
-                    </View>
-                  </View>
-                </View>
-              </Modal>
-            ) : null}
             {/* Other Details Modal */}
             {OtherDetailsModal ? (
               <Modal

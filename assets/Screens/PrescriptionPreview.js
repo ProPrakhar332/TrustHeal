@@ -117,8 +117,8 @@ function PrescriptionPreview({navigation}) {
       if (b != null) {
         let tempb =
           ` 
-           <p class="mb-0 complaints"><b><u>Vitals</u> :-  </b></p>
-          <div style="display: flex;margin-left:5%;width:90%;margin-top:5px;margin-bottom:5px" >
+           <p class="mb-0 complaints"><b>Vitals:-  </b></p>
+          <div style="display: flex;width:90%;margin-top:5px;margin-bottom:5px" >
                     <div  style="flex:30%">
                         <p class="p-nme mb-0"><b>Pulse - </b>` +
           b.pulse +
@@ -139,7 +139,7 @@ function PrescriptionPreview({navigation}) {
                     
                 </div>
 
-                <p class="mb-0 complaints"><b><u>Examination Notes</u> :-  </b>` +
+                <p class="mb-0 complaints"><b>Examination Notes :-  </b>` +
           b.examinationNotes +
           `</p>`;
         setExamination(tempb);
@@ -284,6 +284,7 @@ function PrescriptionPreview({navigation}) {
 <style>
 .entire-webpage{
         zoom: 1.5;
+        //font-family:"Garamond";
        // transform: scale(2); /* Standard Property */
         //transform-origin: 0 0;  /* Standard Property */
     }
@@ -304,7 +305,7 @@ img{
     height: 100px;
 }
 .prescription{
-    background:url( "https://jsplquality.jindalsteel.com/arogyaImage/bg.png");
+   //background:url( "https://images.template.net/128512/professional-letter-background-4pabv.jpg");
     background-attachment: scroll;
     background-repeat: no-repeat;
     background-position: center;
@@ -312,21 +313,21 @@ img{
     padding: 0.5rem;
     background-color: #fff;
     padding-bottom: 3.5rem;
-    
+    align-self:center;
 }
 .dr-nme{
     line-height: 20px;
     font-family: Scandia;
     font-style: normal;
     font-weight: bold;
-    font-size: 20px;
+    font-size: 10px;
     color: rgba(0,0,0,1);
 }
 .dr-designation{
     font-family: Scandia;
     font-style: normal;
     font-weight: 500;
-    font-size: 12px;
+    font-size: 6px;
     color: rgba(0,0,0,0.5);
     padding:0;
     margin:0;
@@ -337,7 +338,7 @@ img{
     font-family: Scandia;
     font-style: normal;
     font-weight: 500;
-    font-size: 9px;
+    font-size: 4.5px;
     color: rgba(0,0,0,0.75);
     text-align: right;
     margin-bottom: 0;
@@ -347,22 +348,22 @@ img{
     font-family: Scandia;
     font-style: normal;
     font-weight: 500;
-    font-size: 13px;
+    font-size: 6.5px;
     color: rgba(0,0,0,0.75);
 }
 .complaints{
     line-height: 15px;
     font-family: Scandia;
     font-style: normal;
-    font-size: 15px;
+    font-size: 10px;
     color: rgba(0,0,0,0.75);
-    padding: 0.75rem 1.2rem 0;
+    padding: 0.75rem 0rem 0;
 }
 .temp-bp, .examin{
     line-height: 18px;
     font-family: Scandia;
     font-style: normal;
-    font-size: 10px;
+    font-size: 5px;
     justify-content: space-evenly;
     color: rgba(0,0,0,0.5);
 }
@@ -383,7 +384,7 @@ table, th, td {
     border: 1px solid rgba(182,182,182,1);
     border-collapse: collapse;
     line-height: 20px;
-    font-size: 12px;
+    font-size:6px;
     background: #fff;
     padding: 0 15px 0;
 }
@@ -408,8 +409,11 @@ th{
         <div class="row mx-auto justify-content-center" >
             <div class="col-md-12 prescription" >
                
-                <div style="display: flex;margin-left:5%;width:95%;margin-top:75px">
-                    <div  style="flex:50%;">
+                <div style="display: flex;width:100%;align-self:center;margin-top:15px">
+                 <div  style="flex:10%;">
+                    <img  src="https://cdn-icons-png.flaticon.com/512/204/204225.png" style="width:65px;height:65px;padding:5px" alt=""></img>
+                 </div>    
+                <div  style="flex:40%;padding:10px;">
                         <h2 class="dr-nme mb-0"><b>` +
     doctorName +
     `</b></h2>
@@ -417,48 +421,48 @@ th{
     doctorEducationDisp +
     `</div>
                     </div>
-                    <div   style="flex:50%;">
-                        <p class="p-ag" style="text-align:right;margin-right:40px"><b>${medReg}</b></p>
+                    <div   style="flex:50%;align-items: flex-end;">
+                        <p class="p-ag" style="text-align:right;"><b>MRN: ${medReg}</b></p>
                         
                     </div>
                 </div>
                 
-                <div style="display: flex;margin-left:5%;width:100%;margin-top:10px;">
+                <div style="display: flex;width:100%;margin-top:10px;border-top: 1.5px solid black;border-bottom: 1.5px solid black;padding-top:20px;">
                     <div style="display:block; flex:50%">
                         <p class="p-nme mb-0"><b>${patientName}</b></p>` +
     (patientAge != undefined && patientAge != 0
-      ? `<p class="p-ag"><b>Age:</b>${patientAge}</p>`
+      ? `<p class="p-ag"><b>Age : </b>${patientAge} Years</p>`
       : ``) +
     `
                         
                     </div>
-                    <div style="display:block; flex:50%">
-                        <p class="p-nme mb-0"><b>Date :</b>` +
-    dayjs(new Date()).format('DD MMM, YYYY') +
+                    <div style="display:block; flex:50%;align-items: flex-end;">
+                        <p class="p-nme mb-0" style="text-align:right">` +
+    dayjs(new Date()).format('DD MMM, YYYY hh:mm A') +
     `</p>
-                        <p class="p-nme mb-0"><b>Patient ID:</b> TH-000${patientID}</p>
+                        <p class="p-nme mb-0" style="text-align:right">Patient ID : TH-000${patientID}</p>
                     </div>
                 </div>
-                <p class="mb-0 complaints"><b><u>Chief Complaints</u> :-  </b>` +
+                <p class="mb-0 complaints"><b>Chief Complaints :-  </b>` +
     cheifComplaintsDisplay +
     `</p>
                ` +
     Examination +
     `
-                <p class="mb-1 complaints"><b><u>Diagnosis</u> :-  </b>` +
+                <p class="mb-1 complaints"><b>Diagnosis :-  </b>` +
     Diagnosis +
     `</p>
     <div class="center">
                 <img src="https://static.vecteezy.com/system/resources/previews/009/012/556/original/medical-symbol-rx-signage-template-free-vector.jpg" alt="rx" class="rx">
     </div>
-                <div class="row align-items-center mx-2">
+                <div class="row align-items-center" style="margin-top:5px">
                     <div class="col-md-12">
                         <table style="width: 100%;">
                             <thead>
                                 <tr>
-                                    <th width="10%">S.No</th>
-                                    <th width="40%">Medicine Name</th>
-                                    <th width="50%">Regime and Instruction</th>
+                                    <th width="10%" style="text-align:left">S.No</th>
+                                    <th width="40%" style="text-align:left">Medicine Name</th>
+                                    <th width="50%" style="text-align:left">Regime and Instruction</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -469,22 +473,23 @@ th{
                         </table>
                     </div>
                 </div>
-                <h2 class="mb-1 complaints" ><b><u>Investigation</u> :-  </b>` +
+                <h2 class="mb-1 complaints" ><b>Investigation :-  </b>` +
     Investigation +
     `</h2>
-     <h2 class="mb-1 complaints" ><b><u>Advice</u> :-  </b>` +
+     <h2 class="mb-1 complaints" ><b>Advice :-  </b>` +
     Advice +
     `</h2>
-              <p class="mb-1 complaints" ><b><u>Follow-Up Date</u> :-   </b>` +
+              <p class="mb-1 complaints" ><b>Follow-Up Date :-   </b>` +
     dayjs(FollowUpDate).format('DD MMM, YYYY') +
     `
  
-                <p class="mb-1 complaints"  style="font-size:10px; text-align: justify,border-width: 5px;border-style: solid;border-color:black;margin-top:50px;padding:2px"><b>Disclaimer:</b>The prescription is based on the information provided by you in an online consultation. No physical examination was done. The prescription cannot be used for medico legal purposes and is valid for 6 months from the date of issue.</p>
-            </div>
+                </div>
         </div>
     </div>
     
 </body>
+<p class="mb-1 complaints"  style="font-size:5px; text-align:center;margin-top:50px;padding:2px"><b>Disclaimer: </b>The prescription is based on the information provided by you in an online consultation. No physical examination was done. The prescription cannot be used for medico legal purposes and is valid for 6 months from the date of issue.</p>
+            
 
 </html>`;
 

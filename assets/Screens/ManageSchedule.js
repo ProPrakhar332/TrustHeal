@@ -3842,7 +3842,7 @@ const ManageSchedule = () => {
                   {
                     borderRadius: 10,
                     padding: 15,
-                    height: 400,
+                    height: 450,
                   },
                 ]}>
                 <View
@@ -3932,7 +3932,7 @@ const ManageSchedule = () => {
                   <View style={{flexDirection: 'row'}}>
                     <View style={{flexDirection: 'column', flex: 1}}>
                       <Text style={[styles.inputLabel, {marginTop: 0}]}>
-                        Clinic Photo
+                        Clinic Proof
                       </Text>
                       {clinicPhoto != 0 && clinicPhoto != null ? (
                         <Image
@@ -3986,10 +3986,22 @@ const ManageSchedule = () => {
                             clinicPhoto != 0 ? {color: '#21c47f'} : null,
                           ]}>
                           {clinicPhoto == 0
-                            ? 'Upload Clinic Photo'
+                            ? 'Upload Photo'
                             : '✓ File Selected'}
                         </Text>
                       </TouchableOpacity>
+                      <Text
+                        style={[
+                          {
+                            fontSize: 9,
+                            color: 'red',
+                            marginVertical: 5,
+                          },
+                        ]}>
+                        Note:-{'\n'} 1. Upload image ( .jpg, .jpeg, .png ) of
+                        max size 2MB.{'\n'} 2. Image may include (Electricity
+                        Bill / Clinic Image / Water Bill / Telephone Bill).
+                      </Text>
                     </View>
                   </View>
                 </ScrollView>

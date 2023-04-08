@@ -79,7 +79,7 @@ function Investigation({navigation}) {
   };
 
   const pressedProceed = async () => {
-    if (Investigation != '') {
+    if (Investigation.length > 0) {
       let p = JSON.stringify(Investigation);
       await AsyncStorage.setItem('Investigation', p);
       console.log(await AsyncStorage.getItem('Investigation'));
@@ -176,15 +176,37 @@ function Investigation({navigation}) {
                   value={investigationText}
                   style={styles.searchBarText}
                   returnKeyType="done"
-                  onSubmitEditing={() => {
-                    let a = {
-                      inv: investigationText,
-                    };
-                    Investigation.push(a);
-                    setinvestigationText('');
-                  }}
                 />
               </View>
+              <CustomButton
+                text={'Save'}
+                textstyle={{color: 'white', fontSize: 12}}
+                style={{
+                  backgroundColor: '#2b8ada',
+                  padding: 0,
+                  padding: 5,
+                  paddingHorizontal: 15,
+                  borderRadius: 10,
+                  alignSelf: 'flex-end',
+                }}
+                onPress={() => {
+                  let a = {
+                    inv: investigationText,
+                  };
+                  Investigation.push(a);
+                  setinvestigationText('');
+                }}
+              />
+              <Text
+                style={{
+                  alignSelf: 'center',
+                  width: '95%',
+                  marginVertical: 5,
+                  color: 'red',
+                  fontSize: 9,
+                }}>
+                Note:-{'\n'} Type "None" for recommending no lab test.
+              </Text>
 
               {Investigation.length > 0 ? (
                 <View style={styles.whiteBodyView}>

@@ -638,12 +638,12 @@ function PreConsult({navigation}) {
               <Text
                 style={{
                   marginVertical: 5,
-                  padding: 3,
-                  fontSize: 12,
-                  color: '#2b8ada',
+                  color: 'red',
+                  fontSize: 9,
                   alignSelf: 'center',
                 }}>
-                Note:- Documents may include lab reports, prescriptions,etc.
+                Note:-{'\n'} Upload lab report, previous prescriptions, etc. in
+                pdf format of max size 2MB.
               </Text>
               <View style={{padding: 10}}>
                 <FlatList

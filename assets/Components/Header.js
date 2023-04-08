@@ -358,17 +358,10 @@ const Header = ({title, showMenu}) => {
     var doctorId = Number(x.doctorId);
     let p = {
       consultationType: mode,
-      doctorEmail: x.email,
-      doctorId: doctorId,
-      doctorMobileNumber: x.mobileNumber,
-      doctorName: x.doctorName,
       eslotsId: eslotsId,
       fees: fees,
       patientMobileNumber: mob,
       patientName: name,
-      slotDate: date,
-      slotStartTime: slotStartTime.substring(0, 5),
-      slotEndTime: slotEndTime.substring(0, 5),
     };
     console.log(p);
     axios

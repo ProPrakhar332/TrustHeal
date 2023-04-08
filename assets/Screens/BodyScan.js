@@ -51,7 +51,7 @@ function BodyScan({navigation}) {
   const window = useWindowDimensions();
 
   const pressedProceed = async () => {
-    if (examinNotes != '') {
+    if (examinNotes.length > 0) {
       let temp = {
         BPDiastolic: tempBPDia,
         BPSystolic: tempBPSys,

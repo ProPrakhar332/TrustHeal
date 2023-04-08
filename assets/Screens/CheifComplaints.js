@@ -104,7 +104,7 @@ function CheifComplaints({navigation}) {
   const window = useWindowDimensions();
 
   const pressedProceed = async () => {
-    if (Complaint != null) {
+    if (Complaint.length > 0) {
       let p = JSON.stringify(Complaint);
       await AsyncStorage.setItem('CheifComplaint', p);
       console.log(await AsyncStorage.getItem('CheifComplaint'));
@@ -188,26 +188,37 @@ function CheifComplaints({navigation}) {
               {/* Search Bar */}
               <View style={styles.searchBar}>
                 <TextInput
-                  placeholder="Search"
+                  placeholder="Enter Text"
                   style={styles.searchBarText}
                   onChangeText={text => setcomplaintText(text)}
                   value={complaintText}
-                  returnKeyType="done"
-                  onSubmitEditing={() => {
-                    let a = {
-                      comp: complaintText,
-                    };
-                    Complaint.push(a);
-                    setcomplaintText('');
-                  }}
                 />
-                <FAIcon
+                {/* <FAIcon
                   name="search"
                   size={15}
                   color="gray"
                   style={styles.searchIcon}
-                />
+                /> */}
               </View>
+              <CustomButton
+                text={'Save'}
+                textstyle={{color: 'white', fontSize: 12}}
+                style={{
+                  backgroundColor: '#2b8ada',
+                  padding: 0,
+                  padding: 5,
+                  paddingHorizontal: 15,
+                  borderRadius: 10,
+                  alignSelf: 'flex-end',
+                }}
+                onPress={() => {
+                  let a = {
+                    comp: complaintText,
+                  };
+                  Complaint.push(a);
+                  setcomplaintText('');
+                }}
+              />
               {/* Suggestions */}
               {/* <View>
                 <Text style={{ fontSize: 15, fontWeight: "bold" }}>

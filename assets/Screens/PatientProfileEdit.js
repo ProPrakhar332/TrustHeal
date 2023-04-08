@@ -156,13 +156,13 @@ const PatientProfileEdit = ({navigation}) => {
               else if (response.errorCode) {
                 Alert.alert('Error', response.errorMessage);
               } else {
-                if (response.assets[0].fileSize <= 2097152) {
+                if (response.assets[0].fileSize <= 5242880) {
                   await postpfp(response.assets[0]);
                   //setpfpuri(response.assets[0].uri);
                 } else
                   Alert.alert(
                     'Max Size',
-                    'The file exceeds the maximum limit of 2MB.',
+                    'The file exceeds the maximum limit of 5MB.',
                   );
               }
             });
@@ -213,12 +213,12 @@ const PatientProfileEdit = ({navigation}) => {
         else if (response.errorCode) {
           Alert.alert('Error', response.errorMessage);
         } else {
-          if (response.assets[0].fileSize <= 2097152) {
+          if (response.assets[0].fileSize <= 5242880) {
             await postpfp(response.assets[0]);
           } else
             Alert.alert(
               'Max Size',
-              'The file exceeds the maximum limit of 2MB.',
+              'The file exceeds the maximum limit of 5MB.',
             );
         }
       },

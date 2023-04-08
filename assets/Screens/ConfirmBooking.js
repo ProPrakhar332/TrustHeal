@@ -261,7 +261,7 @@ function ConfirmBoking({navigation}) {
         }}>
         <Text
           style={[
-            {color: 'black', fontSize: 12},
+            {color: 'black', fontSize: 12, alignSelf: 'center'},
             AppointmentFor.familyId == item.familyId ? {color: 'white'} : null,
           ]}>
           {item.name}
@@ -385,31 +385,26 @@ function ConfirmBoking({navigation}) {
   const window = useWindowDimensions();
   const bookConsultation = async () => {
     setisLoading(true);
+    //let fcm = await AsyncStorage.getItem('fcmToken');
     let p = {
       // clinicId: 0,
       consultationType: PrevPageData.consultationType,
       doctorId: DocDet.doctorId,
       // familyId: 0,
       //feesAmount: 0,
-      doctorName: DocDet.doctorName,
       followUpFeesEligible: dayjs()
         .add(DocDet.followUpDuration, 'day')
         .format('YYYY-MM-DD'),
       isSpecialUser: SpecialUser,
-      patientEmail: patientDet.email,
       patientId: patientDet.patientId,
       patientName: patientDet.patientName,
-      patientNumber: patientDet.mobileNumber,
       patientSymtoms: symptoms,
       paymentStatus: SpecialUser
         ? 'SPECIAL_USER'
         : PayonClinic
         ? 'PAY_ON_CLINIC'
         : 'PRE_PAID',
-      slotDate: PrevPageData.slotDate,
-      slotEndTime: PrevPageData.slotEndTime.substring(0, 5),
       slotId: PrevPageData.slotId,
-      slotStartTime: PrevPageData.slotStartTime.substring(0, 5),
       trustHealOrderid: THOrderId,
     };
 

@@ -78,7 +78,7 @@ function Advice({navigation}) {
   };
 
   const pressedProceed = async () => {
-    if (Advice != '') {
+    if (Advice.length > 0) {
       let p = JSON.stringify(AdviceA);
       await AsyncStorage.setItem('Advice', p);
       console.log(await AsyncStorage.getItem('Advice'));
@@ -174,16 +174,27 @@ function Advice({navigation}) {
                   onChangeText={text => setAdviceText(text)}
                   value={AdviceText}
                   style={styles.searchBarText}
-                  returnKeyType="done"
-                  onSubmitEditing={() => {
-                    let a = {
-                      advice: AdviceText,
-                    };
-                    AdviceA.push(a);
-                    setAdviceText('');
-                  }}
                 />
               </View>
+              <CustomButton
+                text={'Save'}
+                textstyle={{color: 'white', fontSize: 12}}
+                style={{
+                  backgroundColor: '#2b8ada',
+                  padding: 0,
+                  padding: 5,
+                  paddingHorizontal: 15,
+                  borderRadius: 10,
+                  alignSelf: 'flex-end',
+                }}
+                onPress={() => {
+                  let a = {
+                    advice: AdviceText,
+                  };
+                  AdviceA.push(a);
+                  setAdviceText('');
+                }}
+              />
 
               {AdviceA.length > 0 ? (
                 <View style={styles.whiteBodyView}>

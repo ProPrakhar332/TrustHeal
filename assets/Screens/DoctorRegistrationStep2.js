@@ -144,6 +144,9 @@ const DoctorRegistration2 = ({navigation}) => {
   const [Specialization, setSpecialization] = useState('');
   const [University, setUniversity] = useState('');
   const [degreePath, setdegreePath] = useState(null);
+
+  const [showOtherSpeciality, setshowOtherSpeciality] = useState(false);
+  const [Otherspeciality, setOtherSpeciality] = useState('');
   //Experience Details Field
   const [showExpDet, setShowExpDet] = useState(false);
   const [addMoreExpDet, setaddMoreExpDet] = useState(false);
@@ -238,12 +241,12 @@ const DoctorRegistration2 = ({navigation}) => {
               else if (response.errorCode) {
                 Alert.alert('Error', response.errorMessage);
               } else {
-                if (response.assets[0].fileSize <= 2097152) {
+                if (response.assets[0].fileSize <= 5242880) {
                   await postpfp(response.assets[0]);
                 } else
                   Alert.alert(
                     'Max Size',
-                    'The file exceeds the maximum limit of 2MB.',
+                    'The file exceeds the maximum limit of 5MB.',
                   );
               }
             });
@@ -294,12 +297,12 @@ const DoctorRegistration2 = ({navigation}) => {
         else if (response.errorCode) {
           Alert.alert('Error', response.errorMessage);
         } else {
-          if (response.assets[0].fileSize <= 2097152) {
+          if (response.assets[0].fileSize <= 5242880) {
             await postpfp(response.assets[0]);
           } else
             Alert.alert(
               'Max Size',
-              'The file exceeds the maximum limit of 2MB.',
+              'The file exceeds the maximum limit of 5MB.',
             );
         }
       },
@@ -758,28 +761,50 @@ const DoctorRegistration2 = ({navigation}) => {
         }
         //console.log(dataSpecialization);
       } else {
-        const data = [
-          {key: 'Dermatologist', value: 'Dermatologist'},
-          {
-            key: 'Dietician and Nutritionist',
-            value: 'Dietician and Nutritionist',
-          },
-          {key: 'ENT', value: 'ENT'},
-          {key: 'Endocrinologist', value: 'Endocrinologist'},
-          {key: 'Gastroenterologist', value: 'Gastroenterologist'},
-          {key: 'Gynecologist', value: 'Gynecologist'},
-          {key: 'Lifestyle Diseases', value: 'Lifestyle Diseases'},
-          {key: 'Ophthalmologist', value: 'Ophthalmologist'},
-          {key: 'Pediatrician', value: 'Pediatrician'},
-          {key: 'Physician', value: 'Physician'},
-          {key: 'Psychiatrist', value: 'Psychiatrist'},
-          {
-            key: 'Psychological Counselling',
-            value: 'Psychological Counselling',
-          },
-          {key: 'Other', value: 'Other'},
-        ];
-        setdataSpecialization(data);
+        // const data = [
+        //   {key: 'Dermatology', value: 'Dermatology'},
+        //   {
+        //     key: 'Dietician and Nutritionist',
+        //     value: 'Dietician and Nutritionist',
+        //   },
+        //   {key: 'ENT', value: 'ENT'},
+        //   {key: 'Endocrinologist', value: 'Endocrinologist'},
+        //   {key: 'Gastroenterologist', value: 'Gastroenterologist'},
+        //   {key: 'Gynecologist', value: 'Gynecologist'},
+        //   {key: 'Lifestyle Diseases', value: 'Lifestyle Diseases'},
+        //   {key: 'Ophthalmologist', value: 'Ophthalmologist'},
+        //   {key: 'Pediatrician', value: 'Pediatrician'},
+        //   {key: 'Physician', value: 'Physician'},
+        //   {key: 'Psychiatrist', value: 'Psychiatrist'},
+        //   {
+        //     key: 'Psychological Counselling',
+        //     value: 'Psychological Counselling',
+        //   },
+        //   {key: 'Other', value: 'Other'},
+        // ];
+        //setdataSpecialization(data);
+
+        axios
+          .get(
+            apiConfig.baseUrl +
+              '/suggest/specialization/dropdown?max=100&min=0',
+          )
+          .then(response => {
+            if (response.status == 200) {
+              //console.log('From Service\n\n', response.data);
+              let p = [];
+              response.data.forEach(item => {
+                // console.log(item);
+                p.push({key: item.specialization, value: item.specialization});
+              });
+              p.push({key: 'Other', value: 'Other'});
+              console.log('Modify\n\n', p);
+              setdataSpecialization(p);
+            }
+          })
+          .catch(error => {
+            Alert.alert('Error', `${error}`);
+          });
       }
       var d = new Date().getFullYear();
       console.log(x.dob);
@@ -967,13 +992,9 @@ const DoctorRegistration2 = ({navigation}) => {
         setisSentForValidation(true);
         // Please wait we are processing your profile for verification
         axios
-          .post(apiConfig.baseUrl + '/doctor/profile/verify', {
-            city: city,
-            doctorId: doctorId,
-            doctorName: name,
-            email: email,
-            mobileNumber: mobileNumber,
-          })
+          .post(
+            apiConfig.baseUrl + '/doctor/profile/verify?doctorId=' + doctorId,
+          )
           .then(async function (response) {
             if (response.status == 200) {
               setisSentForValidation(false);
@@ -1998,8 +2019,11 @@ const DoctorRegistration2 = ({navigation}) => {
                   </Text>
                   <FAIcon
                     name={showGenInfo ? 'chevron-down' : 'check-circle'}
-                    style={[styles.label, {width: '10%', fontSize: 20}]}
-                    color={dataSavedGenInfo ? '#2B8ADA' : 'gray'}></FAIcon>
+                    style={[
+                      styles.label,
+                      {width: '10%', fontSize: 20},
+                      dataSavedGenInfo ? {color: '#2B8ADA'} : {color: 'gray'},
+                    ]}></FAIcon>
                 </TouchableOpacity>
               </View>
             </View>
@@ -2321,10 +2345,10 @@ const DoctorRegistration2 = ({navigation}) => {
                         ? 'check-circle'
                         : 'chevron-right'
                     }
-                    color={dataSavedMedReg ? '#2B8ADA' : 'gray'}
                     style={[
                       styles.label,
                       {width: '10%', fontSize: 20},
+                      dataSavedMedReg ? {color: '#2b8ada'} : {color: 'gray'},
                     ]}></FAIcon>
                 </TouchableOpacity>
               </View>
@@ -2340,6 +2364,7 @@ const DoctorRegistration2 = ({navigation}) => {
                       width: '95%',
                       alignSelf: 'center',
                     }}>
+                    {/* REgistration Number */}
                     <View style={{flexDirection: 'row', alignSelf: 'center'}}>
                       <View style={{flex: 1}}>
                         <Text style={[styles.inputLabel, {marginTop: 0}]}>
@@ -2356,6 +2381,7 @@ const DoctorRegistration2 = ({navigation}) => {
                           value={RegNo}></TextInput>
                       </View>
                     </View>
+                    {/* Registraion Concil */}
                     <View style={{flex: 1}}>
                       <Text style={[styles.inputLabel]}>
                         Registration Council
@@ -2367,11 +2393,10 @@ const DoctorRegistration2 = ({navigation}) => {
                         maxLength={20}
                         value={RegCouncil}></TextInput>
                     </View>
+                    {/* Certificate and Year */}
                     <View style={{flexDirection: 'row', alignSelf: 'center'}}>
                       <View style={{flex: 1, marginRight: '5%'}}>
-                        <Text style={styles.inputLabel}>
-                          Reg. Certificate(only pdf)
-                        </Text>
+                        <Text style={styles.inputLabel}>Reg. Certificate</Text>
                         <View>
                           <TextInput
                             style={[
@@ -2416,10 +2441,11 @@ const DoctorRegistration2 = ({navigation}) => {
                           />
                         </View>
                       </View>
+
                       <View style={{flex: 1}}>
                         <Text style={styles.inputLabel}>Reg. Year</Text>
                         <SelectList
-                          placeholder={RegYear}
+                          placeholder={' '}
                           boxStyles={{
                             backgroundColor: '#e8f0fe',
                             borderWidth: 0,
@@ -2433,6 +2459,15 @@ const DoctorRegistration2 = ({navigation}) => {
                         />
                       </View>
                     </View>
+                    <Text
+                      style={{
+                        marginVertical: 5,
+                        color: 'red',
+                        fontSize: 9,
+                      }}>
+                      Note:-{'\n'} Upload certificate in pdf format of max size
+                      2MB.
+                    </Text>
                     <View
                       style={{
                         marginTop: 15,
@@ -2562,10 +2597,10 @@ const DoctorRegistration2 = ({navigation}) => {
                         ? 'check-circle'
                         : 'chevron-right'
                     }
-                    color={dataSavedEduDet ? '#2B8ADA' : 'gray'}
                     style={[
                       styles.label,
                       {width: '10%', fontSize: 20},
+                      dataSavedEduDet ? {color: '#2b8ada'} : {color: 'gray'},
                     ]}></FAIcon>
                 </TouchableOpacity>
               </View>
@@ -2700,6 +2735,21 @@ const DoctorRegistration2 = ({navigation}) => {
                               badgeStyles={{backgroundColor: '#2b8ada'}}
                             />
                           </View>
+                          {Specialization == 'Other' ? (
+                            <View style={{flex: 1}}>
+                              <Text style={styles.inputLabel}>
+                                Other Speciality
+                              </Text>
+                              <TextInput
+                                style={[
+                                  styles.textInput,
+                                  {backgroundColor: '#E8F0FE'},
+                                ]}
+                                onChangeText={text => setOtherSpeciality(text)}
+                                maxLength={50}
+                                value={Otherspeciality}></TextInput>
+                            </View>
+                          ) : null}
                           <View style={{flex: 1}}>
                             <Text style={styles.inputLabel}>University</Text>
                             <TextInput
@@ -2713,6 +2763,7 @@ const DoctorRegistration2 = ({navigation}) => {
                           </View>
                         </View>
                       </View>
+                      {/* Buttons */}
                       <View
                         style={{
                           flexDirection: 'row',
@@ -2723,7 +2774,7 @@ const DoctorRegistration2 = ({navigation}) => {
                         <CustomButton
                           text={
                             degreePath == null
-                              ? 'Select PDF only'
+                              ? 'Select File'
                               : ' ✓ File Selected'
                           }
                           textstyle={{
@@ -2792,6 +2843,14 @@ const DoctorRegistration2 = ({navigation}) => {
                                 'Incomplete Details!',
                                 'Please select degree certificate file',
                               );
+                            else if (
+                              Specialization == 'Other' &&
+                              Otherspeciality == ''
+                            )
+                              Alert.alert(
+                                'Incomplete Details!',
+                                'Please specify speciality name',
+                              );
                             else {
                               let totalexp =
                                 parseInt(TotalYear) * 12 +
@@ -2807,7 +2866,10 @@ const DoctorRegistration2 = ({navigation}) => {
                                 degree: Degree,
                                 degreePath: degreePath,
                                 passingYear: Number(DegreePassingYear),
-                                specialization: Specialization,
+                                specialization:
+                                  Specialization == 'Other'
+                                    ? Otherspeciality
+                                    : Specialization,
                                 university: University,
                               };
                               let arr = [...Education];
@@ -2830,7 +2892,8 @@ const DoctorRegistration2 = ({navigation}) => {
                           marginTop: 2,
                           color: 'red',
                         }}>
-                        Note: Click on the button above to upload other file
+                        Note:-{'\n'} Upload University Degree Certificate in pdf
+                        format of max size 2MB.
                       </Text>
                     </View>
                   ) : (
@@ -3189,6 +3252,7 @@ const DoctorRegistration2 = ({navigation}) => {
                             backgroundColor: 'white',
                             borderRadius: 12,
                             padding: 6,
+                            marginVertical: 3,
                             paddingHorizontal: 10,
                             borderWidth: 2,
                             borderColor:
@@ -3206,6 +3270,17 @@ const DoctorRegistration2 = ({navigation}) => {
                             }
                           }}
                         />
+                        <Text
+                          style={{
+                            alignSelf: 'flex-start',
+                            fontSize: 9,
+                            marginTop: 2,
+                            marginLeft: 10,
+                            color: 'red',
+                          }}>
+                          Note:-{'\n'} Upload image ( .jpg, .jpeg, .png ) of max
+                          size 2MB.
+                        </Text>
                       </View>
                       {/* Display Experience */}
                       <View
@@ -3532,7 +3607,7 @@ const DoctorRegistration2 = ({navigation}) => {
                         <CustomButton
                           text={
                             identificationPath == null
-                              ? 'Select PDF only'
+                              ? 'Select File'
                               : ' ✓ File Selected'
                           }
                           textstyle={{
@@ -3659,7 +3734,8 @@ const DoctorRegistration2 = ({navigation}) => {
                           marginLeft: 10,
                           color: 'red',
                         }}>
-                        Note: Click on the button above to upload other file
+                        Note:-{'\n'} Upload document in pdf format of max size
+                        2MB.
                       </Text>
                     </View>
                   ) : (
@@ -3884,24 +3960,12 @@ const DoctorRegistration2 = ({navigation}) => {
                         {/* Clinic Photo */}
                         <View style={{flexDirection: 'column'}}>
                           <View style={{flexDirection: 'row'}}>
-                            <Text style={styles.inputLabel}>Clinic Photo</Text>
+                            <Text style={styles.inputLabel}>Clinic Proof</Text>
                             <Text style={[styles.inputLabel, {color: 'red'}]}>
                               *
                             </Text>
                           </View>
-                          {/* <Text
-                            style={[
-                              styles.inputLabel,
-                              {
-                                fontSize: 10,
-                                color: 'red',
-                                marginTop: 0,
-                                marginVertical: 5,
-                              },
-                            ]}>
-                            Note:- Photo of recent Electricity Bill or Clinic
-                            Board photo
-                          </Text> */}
+
                           <TouchableOpacity
                             style={[
                               {
@@ -3945,6 +4009,19 @@ const DoctorRegistration2 = ({navigation}) => {
                                 : '✓ File Selected'}
                             </Text>
                           </TouchableOpacity>
+                          <Text
+                            style={[
+                              {
+                                fontSize: 9,
+                                color: 'red',
+                                marginVertical: 5,
+                              },
+                            ]}>
+                            Note:-{'\n'} 1. Upload image ( .jpg, .jpeg, .png )
+                            of max size 2MB.{'\n'} 2. Image may include
+                            (Electricity Bill / Clinic Image / Water Bill /
+                            Telephone Bill).
+                          </Text>
                         </View>
                         {/* Special Instruction */}
                         <View style={{flexDirection: 'column'}}>

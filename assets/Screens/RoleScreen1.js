@@ -12,6 +12,7 @@ import {
   Alert,
   StatusBar,
 } from 'react-native';
+import {useIsFocused} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomButton from '../Components/CustomButton';
 import {useWindowDimensions, Button} from 'react-native';
@@ -24,9 +25,9 @@ import {
   NotificationListner,
 } from '../API/PushNotification';
 
-import logo from '../Resources/TH_trans.png';
+//import logo from '../Resources/TH_trans.png';
 import ForegroundHandler from '../API/ForegroundHandler';
-//import logo from '../Resources/Logo.jpg';
+import logo from '../Resources/Logo.jpg';
 
 const RoleScreen = ({navigation}) => {
   const [check, setChecked] = useState(false);
@@ -62,9 +63,23 @@ const RoleScreen = ({navigation}) => {
     onLoadSetData();
     //firebase fcm request
   }, []);
+
+  const isFocused = useIsFocused();
+
+  useEffect(() => {
+    const getFCM = async () => {
+      let x = null;
+      await AsyncStorage.getItem('fcmToken').then(async response => {
+        if (response == null) await requestUserPermission();
+        else x = response;
+      });
+      console.log('Role Screen FCM Token is\n', x);
+    };
+    getFCM();
+  }, [isFocused]);
+
   useEffect(() => {
     const onLoad = async () => {
-      await requestUserPermission();
       //await requestFilePermission();
       await getPermission();
       NotificationListner();
