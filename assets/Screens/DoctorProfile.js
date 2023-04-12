@@ -292,7 +292,7 @@ function BasicDesign({navigation}) {
               <TouchableOpacity
                 style={styles.whiteBoxRow}
                 onPress={() => {
-                  navigation.navigate('DoctorHome');
+                  navigation.navigate('MyUpcomingAppointment');
                 }}>
                 <View style={{flex: 0.3}}>
                   <Image source={appointment} style={styles.whiteBoxRowIcon} />
@@ -305,13 +305,13 @@ function BasicDesign({navigation}) {
                 style={styles.whiteBoxRow}
                 onPress={() => {
                   // setHelpModal(true);
-                  navigation.navigate('Support');
+                  navigation.navigate('FaqDoctor');
                 }}>
                 <View style={{flex: 0.3}}>
                   <Image source={help} style={styles.whiteBoxRowIcon} />
                 </View>
                 <View style={{flex: 0.6}}>
-                  <Text style={styles.whiteBoxRowText}>Help & Support</Text>
+                  <Text style={styles.whiteBoxRowText}>FAQ</Text>
                 </View>
               </TouchableOpacity>
               <TouchableOpacity

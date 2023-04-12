@@ -365,17 +365,29 @@ function MyAppointment({navigation}) {
     if (item.slotDate == dayjs().format('YYYY-MM-DD')) {
       let slotStrtArray = item.slotStartTime.split(':');
       let slotEndArray = item.slotEndTime.split(':');
-      let start =
-        Number(slotStrtArray[0]) <= Number(dayjs().format('HH')) &&
-        Number(slotEndArray[0]) >= Number(dayjs().format('HH'));
-      let end =
-        Number(slotStrtArray[1]) <= Number(dayjs().format('mm')) &&
-        Number(slotEndArray[1]) >= Number(dayjs().format('mm'));
-      // console.log('Start Array\t', Number(dayjs().format('HH')));
-      // console.log('End Array\t', Number(dayjs().format('mm')));
-      // console.log('Current Time is : \t', dayjs().format('HH:mm'));
+      let now = dayjs().format('HH:mm');
+      let nowArray = now.split(':');
+      // let start =
+      //   Number(slotStrtArray[0]) <= Number(dayjs().format('HH')) &&
+      //   Number(slotEndArray[0]) >= Number(dayjs().format('HH'));
+      // let end =
+      //   Number(slotStrtArray[1]) <= Number(dayjs().format('mm')) &&
+      //   Number(slotEndArray[1]) >= Number(dayjs().format('mm'));
 
-      return start && end;
+      let start =
+        Number(slotStrtArray[0]) * 60 * 60 +
+        Number(slotStrtArray[1]) * 60 -
+        300;
+      let end =
+        Number(slotEndArray[0]) * 60 * 60 + Number(slotEndArray[1]) * 60;
+      let current = Number(nowArray[0]) * 60 * 60 + Number(nowArray[1]) * 60;
+      console.log('Start', start);
+      console.log('Now', current);
+      console.log('End', end);
+
+      console.log('Compare', current >= start && current <= end);
+
+      return current >= start && current <= end;
     } else return false;
   };
 
@@ -398,12 +410,19 @@ function MyAppointment({navigation}) {
     else if (dayjs(item.slotDate).diff(dayjs(), 'd') == 0) {
       if (item.slotDate != dayjs().format('YYYY-MM-DD')) return true;
       else {
-        let slotEndArray = item.slotStartTime.split(':');
-        if (Number(dayjs().format('HH')) < slotEndArray[0]) return true;
-        else if (Number(dayjs().format('HH')) == slotEndArray[0]) {
-          if (Number(dayjs().format('mm')) <= slotEndArray[1]) return true;
-          else return false;
-        }
+        let slotStrtArray = item.slotStartTime.split(':');
+        let slotEndArray = item.slotEndTime.split(':');
+        let now = dayjs().format('HH:mm');
+        let nowArray = now.split(':');
+        let start =
+          Number(slotStrtArray[0]) * 60 * 60 +
+          Number(slotStrtArray[1]) * 60 -
+          300;
+        let end =
+          Number(slotEndArray[0]) * 60 * 60 + Number(slotEndArray[1]) * 60;
+        let current = Number(nowArray[0]) * 60 * 60 + Number(nowArray[1]) * 60;
+        console.log('Cancle show', current <= start);
+        return current <= start;
       }
     }
   };

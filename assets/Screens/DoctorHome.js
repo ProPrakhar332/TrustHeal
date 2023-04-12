@@ -126,10 +126,10 @@ const DoctorHome = ({navigation}) => {
   useEffect(() => {
     if (isFocused != null) {
       //Update the state you want to be updated
-      getUpcomingData();
-      getCompletedData();
-      getPendingData();
-      getRecentData();
+      // getUpcomingData();
+      // getCompletedData();
+      // getPendingData();
+      // getRecentData();
       setUpcoming(false);
       setComplete(false);
       setStatus(false);
@@ -141,17 +141,29 @@ const DoctorHome = ({navigation}) => {
     if (item.slotDate == dayjs().format('YYYY-MM-DD')) {
       let slotStrtArray = item.slotStartTime.split(':');
       let slotEndArray = item.slotEndTime.split(':');
-      let start =
-        Number(slotStrtArray[0]) <= Number(dayjs().format('HH')) &&
-        Number(slotEndArray[0]) >= Number(dayjs().format('HH'));
-      let end =
-        Number(slotStrtArray[1]) <= Number(dayjs().format('mm')) &&
-        Number(slotEndArray[1]) >= Number(dayjs().format('mm'));
-      // console.log('Start Array\t', Number(dayjs().format('HH')));
-      // console.log('End Array\t', Number(dayjs().format('mm')));
-      // console.log('Current Time is : \t', dayjs().format('HH:mm'));
+      let now = dayjs().format('HH:mm');
+      let nowArray = now.split(':');
+      // let start =
+      //   Number(slotStrtArray[0]) <= Number(dayjs().format('HH')) &&
+      //   Number(slotEndArray[0]) >= Number(dayjs().format('HH'));
+      // let end =
+      //   Number(slotStrtArray[1]) <= Number(dayjs().format('mm')) &&
+      //   Number(slotEndArray[1]) >= Number(dayjs().format('mm'));
 
-      return start && end;
+      let start =
+        Number(slotStrtArray[0]) * 60 * 60 +
+        Number(slotStrtArray[1]) * 60 -
+        300;
+      let end =
+        Number(slotEndArray[0]) * 60 * 60 + Number(slotEndArray[1]) * 60;
+      let current = Number(nowArray[0]) * 60 * 60 + Number(nowArray[1]) * 60;
+      console.log('Start', start);
+      console.log('Now', current);
+      console.log('End', end);
+
+      console.log('Compare', current >= start && current <= end);
+
+      return current >= start && current <= end;
     } else return false;
   };
 
@@ -198,8 +210,9 @@ const DoctorHome = ({navigation}) => {
     let p = {
       patientDet: obj,
       patientId: item.patientId,
-      //patientNo: item.patientNumber,
       consultationId: item.consultationId,
+      consultationType: item.consultationType,
+      clinicId: item.clinicId != null ? item.clinicId : null,
       clinicName: item.clinicName != null ? item.clinicName : '',
       clinicAddress: item.clinicAddress != null ? item.clinicAddress : '',
       referredByDoctor: item.referredByDoctor,
@@ -569,7 +582,7 @@ const DoctorHome = ({navigation}) => {
               onPress={async () => {
                 if (hasStarted(item)) {
                   await onPressPrescription(item);
-                  console.log(item);
+                  console.log(item.slotId);
 
                   let patientName =
                     item.familyUserName != null
@@ -1879,9 +1892,9 @@ const DoctorHome = ({navigation}) => {
   //   return () => backHandler.remove();
   // }, []);
 
-  // useEffect(() => {
-  //   if (Upcoming == true) getUpcomingData();
-  // }, [Upcoming]);
+  useEffect(() => {
+    if (Upcoming == true) getUpcomingData();
+  }, [Upcoming]);
   const getUpcomingData = async () => {
     let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
     setDoctorObj(x);
@@ -1914,9 +1927,9 @@ const DoctorHome = ({navigation}) => {
       });
   };
 
-  // useEffect(() => {
-  //   if (pending == true) getPendingData();
-  // }, [pending]);
+  useEffect(() => {
+    if (pending == true) getPendingData();
+  }, [pending]);
   const getPendingData = async () => {
     let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
     setDoctorObj(x);
@@ -1947,9 +1960,9 @@ const DoctorHome = ({navigation}) => {
       });
   };
 
-  // useEffect(() => {
-  //   if (Complete == true) getCompletedData();
-  // }, [Complete]);
+  useEffect(() => {
+    if (Complete == true) getCompletedData();
+  }, [Complete]);
   const getCompletedData = async () => {
     let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
     let doctorId = x.doctorId;
@@ -1983,9 +1996,9 @@ const DoctorHome = ({navigation}) => {
       });
   };
 
-  // useEffect(() => {
-  //   if (Status == true) getRecentData();
-  // }, [Status]);
+  useEffect(() => {
+    if (Status == true) getRecentData();
+  }, [Status]);
 
   const getRecentData = async () => {
     let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));

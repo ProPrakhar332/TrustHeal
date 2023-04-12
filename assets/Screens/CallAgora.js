@@ -147,9 +147,9 @@ export default function CallAgora(props) {
       }
       props.navigation.goBack();
     },
-    joinChannel: () => {
-      if (userType == 'Doctor') statusUpdateDoctor();
-      else if (userType == 'Patient') statusUpdatePatient();
+    joinChannel: async () => {
+      if (userType == 'Doctor') await statusUpdateDoctor();
+      else if (userType == 'Patient') await statusUpdatePatient();
     },
   };
   // const statusUpdateDoctor = async () => {
@@ -223,46 +223,54 @@ export default function CallAgora(props) {
   };
 
   useEffect(() => {
-    const statusUpdateDoctor = async () => {
-      Alert.alert('Start', 'Consultation Started');
-      let p = {
-        consultationId: callID,
-        doctorId: doctorId,
-        patientId: patientId,
-        patientName: patientName,
-        slotId: slotId,
-      };
-      axios
-        .post(apiConfig.baseUrl + '/doctor/consultation/join', p)
-        .then(response => {
-          if (response.status == 200)
-            console.log('\n\n\nMeeting going on status updated doctor\n\n\n');
-        })
-        .catch(response => {
-          console.log(response);
-        });
-    };
-    const statusUpdatePatient = async () => {
-      Alert.alert('Start', 'Consultation Started');
-      let p = {
-        consultationId: callID,
-        doctorId: doctorId,
-        patientName: patientName,
-        slotId: slotId,
-      };
-      axios
-        .post(apiConfig.baseUrl + '/patient/consultation/join' + p)
-        .then(response => {
-          if (response.status == 200)
-            console.log('\n\n\nMeeting going on status updated patient\n\n\n');
-        })
-        .catch(response => {
-          console.log(response);
-        });
-    };
     if (userType == 'Doctor') statusUpdateDoctor();
     else if (userType == 'Patient') statusUpdatePatient();
   }, [userType]);
+  const statusUpdateDoctor = async () => {
+    Alert.alert(
+      'Consultation Started',
+      'You have successfully joined the consultation room.',
+    );
+    let p = {
+      consultationId: callID,
+      doctorId: doctorId,
+      patientId: patientId,
+      patientName: patientName,
+      slotId: slotId,
+    };
+    console.log(p);
+    await axios
+      .post(apiConfig.baseUrl + '/doctor/consultation/join', p)
+      .then(response => {
+        if (response.status == 200)
+          console.log('\n\n\nMeeting going on status updated doctor\n\n\n');
+      })
+      .catch(response => {
+        console.log(response);
+      });
+  };
+  const statusUpdatePatient = async () => {
+    Alert.alert(
+      'Consultation Started',
+      'You have successfully joined the consultation room.',
+    );
+    let p = {
+      consultationId: callID,
+      doctorId: doctorId,
+      patientName: patientName,
+      slotId: slotId,
+    };
+    console.log(p);
+    await axios
+      .post(apiConfig.baseUrl + '/patient/consultation/join', p)
+      .then(response => {
+        if (response.status == 200)
+          console.log('\n\n\nMeeting going on status updated patient\n\n\n');
+      })
+      .catch(response => {
+        console.log(response);
+      });
+  };
 
   return (
     <AgoraUIKit

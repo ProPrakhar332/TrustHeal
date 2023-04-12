@@ -1884,6 +1884,7 @@ const EditProfile = ({navigation}) => {
                             ]}
                             maxLength={6}
                             onChangeText={text => setPinCode(text)}
+                            keyboardType="number-pad"
                             value={pinCode}
                             editable={GenInfoEdit}></TextInput>
                         </View>

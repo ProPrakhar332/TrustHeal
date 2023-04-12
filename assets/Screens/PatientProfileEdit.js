@@ -765,7 +765,7 @@ const PatientProfileEdit = ({navigation}) => {
                           Blood Group
                         </Text>
                         <SelectList
-                          placeholder={BloodGroup}
+                          placeholder={BloodGroup == '' ? ' ' : BloodGroup}
                           setSelected={val => setBloodGroup(val)}
                           data={dataBloodGroup}
                           save="value"

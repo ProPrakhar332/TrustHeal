@@ -16,6 +16,7 @@ import {
   KeyboardAvoidingView,
 } from 'react-native';
 import {LogBox} from 'react-native';
+import {useIsFocused} from '@react-navigation/native';
 LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -66,26 +67,31 @@ function PatientConsult({navigation}) {
   const [FilterMode, setFilterMode] = useState(false);
   const [FilterModeValue, setFilterModeValue] = useState(null);
 
-  useEffect(() => {
-    const getDoctors = async () => {
-      setisLoading(true);
+  const isFocused = useIsFocused();
 
-      await axios
-        .get(apiConfig.baseUrl + '/patient/doctors?max=10&min=0')
-        .then(response => {
-          if (response.status == 200) {
-            setisLoading(false);
-            setDoctorsList(response.data);
-          }
-        })
-        .catch(error => {
+  useEffect(() => {
+    if (isFocused != null) {
+      getDoctors();
+    }
+  }, [isFocused]);
+
+  const getDoctors = async () => {
+    setisLoading(true);
+
+    await axios
+      .get(apiConfig.baseUrl + '/patient/doctors?max=10&min=0')
+      .then(response => {
+        if (response.status == 200) {
           setisLoading(false);
-          Alert.alert('Error', `Error in fetching doctors \n${error}`);
-        });
-      setisLoading(false);
-    };
-    getDoctors();
-  }, []);
+          setDoctorsList(response.data);
+        }
+      })
+      .catch(error => {
+        setisLoading(false);
+        Alert.alert('Error', `Error in fetching doctors \n${error}`);
+      });
+    setisLoading(false);
+  };
 
   const dataExp = [
     {min: 0, max: 24},

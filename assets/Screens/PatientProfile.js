@@ -869,7 +869,7 @@ function PatientProfile({navigation}) {
                   <Image source={family} style={styles.whiteBoxRowIcon} />
                 </View>
                 <View style={{flex: 0.6}}>
-                  <Text style={styles.whiteBoxRowText}>Family</Text>
+                  <Text style={styles.whiteBoxRowText}>Family Members</Text>
                 </View>
               </TouchableOpacity>
 
@@ -916,19 +916,19 @@ function PatientProfile({navigation}) {
                   <Image source={appointment} style={styles.whiteBoxRowIcon} />
                 </View>
                 <View style={{flex: 0.6}}>
-                  <Text style={styles.whiteBoxRowText}>Appointment</Text>
+                  <Text style={styles.whiteBoxRowText}>My Appointments</Text>
                 </View>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.whiteBoxRow}
                 onPress={() => {
-                  navigation.navigate('Support');
+                  navigation.navigate('FaqPatient');
                 }}>
                 <View style={{flex: 0.3}}>
                   <Image source={help} style={styles.whiteBoxRowIcon} />
                 </View>
                 <View style={{flex: 0.6}}>
-                  <Text style={styles.whiteBoxRowText}>Help & Support</Text>
+                  <Text style={styles.whiteBoxRowText}>FAQ</Text>
                 </View>
               </TouchableOpacity>
               <TouchableOpacity

@@ -61,11 +61,13 @@ function PrescriptionPreview({navigation}) {
   const [doctorName, setdoctorName] = useState(null);
   const [doctorEducationRaw, setdoctorEducationRaw] = useState([]);
   const [doctorEducationDisp, setdoctorEducationDisp] = useState(null);
+  const [clinicId, setclinicId] = useState(null);
   const [clinicName, setclinicName] = useState('');
   const [clinicAddress, setclinicAddress] = useState('');
   const [patientName, setpatientName] = useState('');
   const [referredByDoctor, setreferredByDoctor] = useState('');
   const [consultationId, setconsultationId] = useState(null);
+  const [consultationType, setconsultationType] = useState(null);
   const [patientID, setpatientID] = useState('');
   const [patientNumber, setpatientNumber] = useState('');
   const [prescriptionPath, setprescriptionPath] = useState(null);
@@ -96,10 +98,12 @@ function PrescriptionPreview({navigation}) {
       if (h != null) {
         setpatientObj(h);
         setclinicName(h.clinicName);
+        setclinicId(h.clinicId);
         setclinicAddress(h.clinicAddress);
         setpatientID(h.patientId);
         //setpatientNumber(h.patientNo);
         setconsultationId(h.consultationId);
+        setconsultationType(h.consultationType);
         setpatientName(h.patientDet.patientName);
         setreferredByDoctor(h.referredByDoctor);
         setpatientAge(h.patientDet.age);
@@ -622,19 +626,22 @@ th{
 
     let p = {
       consultationId: consultationId,
-      doctorName: doctorName,
+      consultationTypes: consultationType,
+      doctorId: doctorId,
       followUpDate: dayjs(FollowUpDate).format('YYYY-MM-DD'),
       patientId: patientID,
       patientName: patientName,
       prescription: path,
       referredByDoctor: referredByDoctor,
     };
+    if (clinicId != null && clinicId != 0) p.clinicId = clinicId;
 
-    console.log();
+    console.log(p);
     axios
       .post(apiConfig.baseUrl + '/doctor/consultation/status/complete', p)
       .then(async function (response) {
         setisUploading(false);
+        console.log(response.status);
         if (response.status == 200) {
           Alert.alert(
             'Success',

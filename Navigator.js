@@ -705,9 +705,9 @@ function CustomDrawerContentPatient(props) {
         label="Edit Profile"
         labelStyle={styles.labelStyle}
         style={{marginVertical: 0, paddingVertical: 0}}
-        // onPress={() => {
-        //   props.navigation.navigate('DoctorProfileEdit');
-        // }}
+        onPress={() => {
+          props.navigation.navigate('PatientProfileEdit');
+        }}
         icon={({focused, color, size}) => (
           <Image source={general} style={{tintColor: '#033158'}} />
         )}

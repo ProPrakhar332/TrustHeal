@@ -388,7 +388,7 @@ function ConfirmBoking({navigation}) {
     //let fcm = await AsyncStorage.getItem('fcmToken');
     let p = {
       // clinicId: 0,
-      consultationType: PrevPageData.consultationType,
+      //consultationType: PrevPageData.consultationType,
       doctorId: DocDet.doctorId,
       // familyId: 0,
       //feesAmount: 0,

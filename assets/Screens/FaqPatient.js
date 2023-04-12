@@ -141,6 +141,7 @@ function Support({navigation}) {
                   data={dataFaq}
                   renderItem={renderFAQ}
                   key={item => item.faqId}
+                  style={{marginBottom: 200}}
                 />
               ) : null}
             </ScrollView>

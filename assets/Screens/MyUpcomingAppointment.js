@@ -83,9 +83,17 @@ const MyUpcomingAppointment = ({navigation}) => {
   //complete tab
   const [Complete, setComplete] = useState(false);
   const [CompleteData, setCompleteData] = useState([]);
-  const [CompleteDataMaster, setCompleteDataMaster] = useState([]);
+  //status tab
+  const [Status, setStatus] = useState(false);
+  const [StatusData, setStatusData] = useState([]);
+  const [ManageStatusModal, setManageStatusModal] = useState(false);
+  const [ManageStatus, setManageStatus] = useState('');
+  const [PrescriptionMade, setPrescriptionMade] = useState('');
   const [isFetching, setisFetching] = useState(false);
   //Pending Prescription Modal
+
+  const [pending, setpending] = useState(false);
+  const [PendingData, setPendingData] = useState([]);
 
   const [strtCC, setstrtCC] = useState(0);
   const [endCC, setendCC] = useState(4);
@@ -101,20 +109,64 @@ const MyUpcomingAppointment = ({navigation}) => {
 
   const layout = useWindowDimensions();
 
+  const dayextractor = date => {
+    var ch = new Date(date);
+    var days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    //console.log(days[ch.getDay()]);
+    return days[ch.getDay()];
+  };
+
+  const hasStarted = item => {
+    if (item.slotDate == dayjs().format('YYYY-MM-DD')) {
+      let slotStrtArray = item.slotStartTime.split(':');
+      let slotEndArray = item.slotEndTime.split(':');
+      let now = dayjs().format('HH:mm');
+      let nowArray = now.split(':');
+      // let start =
+      //   Number(slotStrtArray[0]) <= Number(dayjs().format('HH')) &&
+      //   Number(slotEndArray[0]) >= Number(dayjs().format('HH'));
+      // let end =
+      //   Number(slotStrtArray[1]) <= Number(dayjs().format('mm')) &&
+      //   Number(slotEndArray[1]) >= Number(dayjs().format('mm'));
+
+      let start =
+        Number(slotStrtArray[0]) * 60 * 60 +
+        Number(slotStrtArray[1]) * 60 -
+        300;
+      let end =
+        Number(slotEndArray[0]) * 60 * 60 + Number(slotEndArray[1]) * 60;
+      let current = Number(nowArray[0]) * 60 * 60 + Number(nowArray[1]) * 60;
+      console.log('Start', start);
+      console.log('Now', current);
+      console.log('End', end);
+
+      console.log('Compare', current >= start && current <= end);
+
+      return current >= start && current <= end;
+    } else return false;
+  };
+
   const nav = useNavigation();
   const onJoinPress = (
     consultationType,
     callID,
-    userID,
+    doctorId,
+    patientId,
+    patientName,
+    slotId,
     userName,
     userType,
   ) => {
     nav.navigate('CallAgora', {
       consultationType: consultationType,
       callID: callID,
-      userID: userID,
+      doctorId: doctorId,
+      patientId: patientId,
+      patientName: patientName,
+      slotId: slotId,
       userName: userName,
       userType: userType,
+      userID: doctorId,
     });
   };
 
@@ -137,11 +189,14 @@ const MyUpcomingAppointment = ({navigation}) => {
     let p = {
       patientDet: obj,
       patientId: item.patientId,
-      //patientNo: item.patientNumber,
       consultationId: item.consultationId,
+      consultationType: item.consultationType,
+      clinicId: item.clinicId != null ? item.clinicId : null,
       clinicName: item.clinicName != null ? item.clinicName : '',
       clinicAddress: item.clinicAddress != null ? item.clinicAddress : '',
+      referredByDoctor: item.referredByDoctor,
     };
+    console.log(p);
     await AsyncStorage.setItem('PrescriptionFor', JSON.stringify(p));
     // navigation.navigate('CheifComplaints');
   };
@@ -186,6 +241,15 @@ const MyUpcomingAppointment = ({navigation}) => {
       });
   };
 
+  const openURL = useCallback(async url => {
+    const supported = await Linking.canOpenURL(url);
+    if (supported) {
+      await Linking.openURL(url);
+    } else {
+      Alert.alert('Error', `Don't know how to open this URL: ${url}`);
+    }
+  }, []);
+
   const timeformatter = time => {
     let text = time;
     const myArray = text.split(':');
@@ -199,6 +263,20 @@ const MyUpcomingAppointment = ({navigation}) => {
       PM = 'PM';
     }
     return HH + ':' + MM + PM;
+  };
+  const shouldShow = item => {
+    if (dayjs(item.slotDate).diff(dayjs(), 'd') > 0) return true;
+    else if (dayjs(item.slotDate).diff(dayjs(), 'd') == 0) {
+      if (item.slotDate != dayjs().format('YYYY-MM-DD')) return true;
+      else {
+        let slotEndArray = item.slotEndTime.split(':');
+        if (Number(dayjs().format('HH')) < slotEndArray[0]) return true;
+        else if (Number(dayjs().format('HH')) == slotEndArray[0]) {
+          if (Number(dayjs().format('mm')) <= slotEndArray[1]) return true;
+          else return false;
+        }
+      }
+    }
   };
 
   const renderCard = ({item}) => {
@@ -244,8 +322,8 @@ const MyUpcomingAppointment = ({navigation}) => {
               }}
             />
           </View>
-
-          <View
+          {/* Prescription Create */}
+          {/* <View
             style={{
               flexDirection: 'row',
               flex: 0.45,
@@ -280,7 +358,7 @@ const MyUpcomingAppointment = ({navigation}) => {
                 //onPressPrescription(item);
               }}
             />
-          </View>
+          </View> */}
         </View>
         <View
           style={{
@@ -445,7 +523,8 @@ const MyUpcomingAppointment = ({navigation}) => {
               </View>
               <View style={{flexDirection: 'column', width: '60%'}}>
                 <Text style={styles.cardText}>
-                  {timeformatter(item.slotStartTime)}
+                  {timeformatter(item.slotStartTime)} {' - '}
+                  {timeformatter(item.slotEndTime)}
                 </Text>
               </View>
             </View>
@@ -462,28 +541,52 @@ const MyUpcomingAppointment = ({navigation}) => {
           }}>
           {item.consultationType !== 'PHYSICAL' ? (
             <TouchableOpacity
-              style={{
-                flex: 0.45,
-                justifyContent: 'center',
-                flexDirection: 'row',
-                padding: 3,
-                paddingHorizontal: 5,
-                alignSelf: 'center',
-                backgroundColor: '#2B8ADA',
-                borderWidth: 1,
-                borderColor: '#2B8ADA',
-                borderRadius: 5,
-              }}
+              style={[
+                {
+                  flex: 0.45,
+                  justifyContent: 'center',
+                  flexDirection: 'row',
+                  padding: 3,
+                  paddingHorizontal: 5,
+                  alignSelf: 'center',
+                  backgroundColor: '#2B8ADA',
+                  borderWidth: 1,
+                  borderColor: '#2B8ADA',
+                  borderRadius: 5,
+                },
+                hasStarted(item)
+                  ? {backgroundColor: 'limegreen', borderColor: 'limegreen'}
+                  : null,
+              ]}
               onPress={async () => {
-                await onPressPrescription(item);
-                console.log(item);
-                onJoinPress(
-                  item.consultationType,
-                  item.consultationId + '',
-                  doctorObj.doctorId + '',
-                  doctorObj.doctorName,
-                  'Doctor',
-                );
+                if (hasStarted(item)) {
+                  await onPressPrescription(item);
+                  console.log(item.slotId);
+
+                  let patientName =
+                    item.familyUserName != null
+                      ? item.familyUserName
+                      : item.patientName;
+
+                  onJoinPress(
+                    item.consultationType,
+                    item.consultationId + '',
+                    doctorObj.doctorId + '',
+                    item.patientId,
+                    patientName,
+                    item.slotId,
+                    doctorObj.doctorName,
+                    'Doctor',
+                  );
+                } else
+                  Alert.alert(
+                    'Hold on',
+                    `Your consultaion starts at ${timeformatter(
+                      item.slotStartTime,
+                    )} on ${dayjs(item.slotDate).format(
+                      'DD MMM, YYYY',
+                    )}.\nPlease join at the scheduled time.`,
+                  );
               }}>
               <FAIcon
                 name={
@@ -781,9 +884,8 @@ const MyUpcomingAppointment = ({navigation}) => {
               </View>
               <View style={{flexDirection: 'column', width: '60%'}}>
                 <Text style={styles.cardText}>
-                  {timeformatter(item.slotStartTime)}
-                  {' | '}
-                  {dayjs(item.slotDate).format('DD MMM, YYYY')}
+                  {timeformatter(item.slotStartTime)} {' - '}
+                  {timeformatter(item.slotEndTime)}
                 </Text>
               </View>
             </View>
@@ -1044,7 +1146,6 @@ const MyUpcomingAppointment = ({navigation}) => {
   useEffect(() => {
     const onLoadScreen = async () => {
       let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
-
       setdoctorId(x.doctorId);
     };
     onLoadScreen();
@@ -1053,6 +1154,7 @@ const MyUpcomingAppointment = ({navigation}) => {
   useEffect(() => {
     if (Upcoming == true) getUpcomingData();
   }, [Upcoming]);
+
   const getUpcomingData = async () => {
     let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
     setDoctorObj(x);
@@ -1084,11 +1186,9 @@ const MyUpcomingAppointment = ({navigation}) => {
         console.log(error);
       });
   };
-
   useEffect(() => {
     if (Complete == true) getCompletedData();
   }, [Complete]);
-
   const getCompletedData = async () => {
     let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
     let doctorId = x.doctorId;
@@ -1223,7 +1323,6 @@ const MyUpcomingAppointment = ({navigation}) => {
         console.log(error);
       });
   };
-
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
