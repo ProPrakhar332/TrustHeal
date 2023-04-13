@@ -279,7 +279,7 @@ const PatientRegistration1 = ({navigation}) => {
               JSON.stringify(patient),
             );
             Alert.alert(
-              'Welcome to Trust Heal',
+              'Welcome to TrustHeal',
               'Your details have been saved successfully.',
             );
             navigation.navigate('PatientHome', {

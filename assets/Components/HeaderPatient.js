@@ -358,7 +358,7 @@ const Header = ({title, showMenu}) => {
                     alignSelf: 'center',
                     marginBottom: 10,
                   }}>
-                  Share App with patient
+                  Share App
                 </Text>
                 <FAIcon
                   name="window-close"
@@ -384,7 +384,7 @@ const Header = ({title, showMenu}) => {
                     width: '100%',
                   }}>
                   <View style={{flex: 1, marginBottom: 10}}>
-                    <Text style={styles.shareModalLabel}>Patient Name</Text>
+                    <Text style={styles.shareModalLabel}>Name</Text>
                     <TextInput
                       style={{
                         backgroundColor: '#E8F0FE',
@@ -405,9 +405,7 @@ const Header = ({title, showMenu}) => {
                     width: '100%',
                   }}>
                   <View style={{flex: 0.475}}>
-                    <Text style={styles.shareModalLabel}>
-                      Patient Mobile No.
-                    </Text>
+                    <Text style={styles.shareModalLabel}>Mobile No.</Text>
                     <TextInput
                       style={{
                         backgroundColor: '#E8F0FE',

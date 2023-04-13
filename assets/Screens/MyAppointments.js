@@ -687,97 +687,96 @@ function MyAppointment({navigation}) {
             </TouchableOpacity>
           </View>
 
-          {item.consultationType != 'PHYSICAL' ? (
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-evenly',
-                marginVertical: 7,
-              }}>
-              {/* Consult Now */}
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-evenly',
+              marginVertical: 7,
+            }}>
+            {/* Consult Now */}
 
-              {
-                <TouchableOpacity
-                  style={[
-                    {
-                      flex: 0.45,
-                      justifyContent: 'center',
-                      flexDirection: 'row',
-                      padding: 3,
-                      paddingHorizontal: 5,
-                      alignSelf: 'center',
-                      borderWidth: 1,
-                      //borderColor: '#2b8ada',
+            {item.consultationType != 'PHYSICAL' ? (
+              <TouchableOpacity
+                style={[
+                  {
+                    flex: 0.45,
+                    justifyContent: 'center',
+                    flexDirection: 'row',
+                    padding: 3,
+                    paddingHorizontal: 5,
+                    alignSelf: 'center',
+                    borderWidth: 1,
+                    //borderColor: '#2b8ada',
 
-                      borderRadius: 5,
-                    },
-                    hasStarted(item)
-                      ? {
-                          backgroundColor: 'limegreen',
-                          borderColor: 'limegreen',
-                          flex: 0.95,
-                        }
-                      : {backgroundColor: '#2b8ada', borderColor: '#2b8ada'},
-                  ]}
-                  onPress={() => {
-                    console.log(
-                      '================Consultation started==========',
-                      hasStarted(item),
+                    borderRadius: 5,
+                  },
+                  hasStarted(item)
+                    ? {
+                        backgroundColor: 'limegreen',
+                        borderColor: 'limegreen',
+                        flex: 0.95,
+                      }
+                    : {backgroundColor: '#2b8ada', borderColor: '#2b8ada'},
+                ]}
+                onPress={() => {
+                  console.log(
+                    '================Consultation started==========',
+                    hasStarted(item),
+                  );
+
+                  if (hasStarted(item)) {
+                    let p =
+                      item.familyMemberName != null
+                        ? item.familyMemberName
+                        : patientDet.patientName;
+
+                    onJoinPress(
+                      item.consultationType,
+                      item.consultationId + '',
+                      item.doctorId,
+                      patientDet.patientId,
+                      p,
+                      item.slotId,
+                      p,
+                      'Patient',
                     );
-
-                    if (hasStarted(item)) {
-                      let p =
-                        item.familyMemberName != null
-                          ? item.familyMemberName
-                          : patientDet.patientName;
-
-                      onJoinPress(
-                        item.consultationType,
-                        item.consultationId + '',
-                        item.doctorId,
-                        patientDet.patientId,
-                        p,
-                        item.slotId,
-                        p,
-                        'Patient',
-                      );
-                    } else {
-                      Alert.alert(
-                        'Hold on !',
-                        `Your consultaion starts at ${timeformatter(
-                          item.slotStartTime,
-                        )} on ${dayjs(item.slotDate).format(
-                          'DD MMM, YYYY',
-                        )}.\nPlease join at the scheduled time.`,
-                        [
-                          {
-                            text: 'ok',
-                            onPress: async () => {
-                              await getUpcoming();
-                            },
+                  } else {
+                    Alert.alert(
+                      'Hold on !',
+                      `Your consultaion starts at ${timeformatter(
+                        item.slotStartTime,
+                      )} on ${dayjs(item.slotDate).format(
+                        'DD MMM, YYYY',
+                      )}.\nPlease join at the scheduled time.`,
+                      [
+                        {
+                          text: 'ok',
+                          onPress: async () => {
+                            await getUpcoming();
                           },
-                        ],
-                      );
-                    }
-                  }}>
-                  <FAIcons
-                    name={
-                      item.consultationType == 'PHYSICAL'
-                        ? 'users'
-                        : item.consultationType == 'PHONE_CALL'
-                        ? 'phone-alt'
-                        : 'video'
-                    }
-                    color={'white'}
-                    size={15}
-                    style={{marginRight: 5}}
-                  />
-                  <Text style={{fontSize: 12, color: 'white'}}>Consult</Text>
-                </TouchableOpacity>
-              }
+                        },
+                      ],
+                    );
+                  }
+                }}>
+                <FAIcons
+                  name={
+                    item.consultationType == 'PHYSICAL'
+                      ? 'users'
+                      : item.consultationType == 'PHONE_CALL'
+                      ? 'phone-alt'
+                      : 'video'
+                  }
+                  color={'white'}
+                  size={15}
+                  style={{marginRight: 5}}
+                />
+                <Text style={{fontSize: 12, color: 'white'}}>Consult</Text>
+              </TouchableOpacity>
+            ) : null}
 
-              {/* Reschedule */}
-              {/* <TouchableOpacity
+            {/* Reschedule */}
+            {/* <TouchableOpacity
                 style={{
                   flex: 0.45,
                   justifyContent: 'center',
@@ -830,69 +829,69 @@ function MyAppointment({navigation}) {
                 <Text style={{fontSize: 12, color: 'white'}}>Re-Schedule</Text>
               </TouchableOpacity> */}
 
-              {shouldShowCancel(item) ? (
-                <TouchableOpacity
-                  style={[
-                    {
-                      flex: 0.45,
-                      alignSelf: 'center',
-                      flexDirection: 'row',
-                      padding: 3,
-                      paddingHorizontal: 5,
-                      alignSelf: 'center',
-                      borderWidth: 1,
-                      borderColor: 'red',
-                      backgroundColor: 'red',
-                      borderRadius: 5,
-                      justifyContent: 'center',
-                    },
-                  ]}
-                  onPress={async () => {
-                    if (shouldShowCancel(item)) {
-                      Alert.alert(
-                        'Cancel Booking',
-                        `Are you sure you want to cancel your appointment with ${item.doctorName}`,
-                        [
-                          {
-                            text: 'ok',
-                            onPress: async () => {
-                              setCancelItem(item);
-                              setCancelModal(true);
-                            },
+            {shouldShowCancel(item) ? (
+              <TouchableOpacity
+                style={[
+                  {
+                    flex: 0.45,
+                    alignSelf: 'center',
+                    flexDirection: 'row',
+                    padding: 3,
+                    paddingHorizontal: 5,
+                    alignSelf: 'center',
+                    borderWidth: 1,
+                    borderColor: 'red',
+                    backgroundColor: 'red',
+                    borderRadius: 5,
+                    justifyContent: 'center',
+                  },
+                  item.consultationType == 'PHYSICAL' ? {flex: 0.95} : null,
+                ]}
+                onPress={async () => {
+                  if (shouldShowCancel(item)) {
+                    Alert.alert(
+                      'Cancel Booking',
+                      `Are you sure you want to cancel your appointment with ${item.doctorName}`,
+                      [
+                        {
+                          text: 'ok',
+                          onPress: async () => {
+                            setCancelItem(item);
+                            setCancelModal(true);
                           },
-                          {
-                            text: 'cancel',
+                        },
+                        {
+                          text: 'cancel',
+                        },
+                      ],
+                    );
+                  } else {
+                    Alert.alert(
+                      'Sorry!',
+                      'You can not cancel the booking now.',
+                      [
+                        {
+                          text: 'ok',
+                          onPress: async () => {
+                            await getUpcoming();
                           },
-                        ],
-                      );
-                    } else {
-                      Alert.alert(
-                        'Sorry!',
-                        'You can not cancel the booking now.',
-                        [
-                          {
-                            text: 'ok',
-                            onPress: async () => {
-                              await getUpcoming();
-                            },
-                          },
-                        ],
-                      );
-                    }
-                  }}>
-                  <MIcons
-                    name="close"
-                    color={'white'}
-                    size={15}
-                    style={{alignSelf: 'center', marginRight: 5}}
-                  />
-                  <Text style={{fontSize: 12, color: 'white'}}>
-                    Cancel Booking
-                  </Text>
-                </TouchableOpacity>
-              ) : null}
-            </View>
-          ) : null}
+                        },
+                      ],
+                    );
+                  }
+                }}>
+                <MIcons
+                  name="close"
+                  color={'white'}
+                  size={15}
+                  style={{alignSelf: 'center', marginRight: 5}}
+                />
+                <Text style={{fontSize: 12, color: 'white'}}>
+                  Cancel Booking
+                </Text>
+              </TouchableOpacity>
+            ) : null}
+          </View>
 
           {/* <TouchableOpacity
             style={[

@@ -321,7 +321,7 @@ function BasicDesign({navigation}) {
                   <Image source={about} style={styles.whiteBoxRowIcon} />
                 </View>
                 <View style={{flex: 0.6}}>
-                  <Text style={styles.whiteBoxRowText}>About Trust Heal</Text>
+                  <Text style={styles.whiteBoxRowText}>About TrustHeal</Text>
                 </View>
               </TouchableOpacity>
             </View>

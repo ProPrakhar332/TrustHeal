@@ -107,6 +107,10 @@ function PrescriptionPreview({navigation}) {
         setpatientName(h.patientDet.patientName);
         setreferredByDoctor(h.referredByDoctor);
         setpatientAge(h.patientDet.age);
+        console.log(
+          '\n\n========================Patient Details========================\n\n',
+          h.patientDet,
+        );
       }
       //setting cheifcomplaint
       if (a != null) {
@@ -423,7 +427,11 @@ th{
     `</b></h2>
                    <div style="flex-direction:column">     ` +
     doctorEducationDisp +
-    `</div>
+    `</div>` +
+    (clinicName != ''
+      ? `<p class="p-ag" style="font-weight: 500;font-size: 6px;">${clinicName} | ${clinicAddress}</p>`
+      : null) +
+    `
                     </div>
                     <div   style="flex:50%;align-items: flex-end;">
                         <p class="p-ag" style="text-align:right;"><b>MRN: ${medReg}</b></p>
@@ -431,7 +439,7 @@ th{
                     </div>
                 </div>
                 
-                <div style="display: flex;width:100%;margin-top:10px;border-top: 1.5px solid black;border-bottom: 1.5px solid black;padding-top:20px;">
+                <div style="display: flex;width:100%;margin-top:10px;border-top: 1.5px solid black;border-bottom: 1.5px solid black;padding-top:5px;padding-bottom:5px">
                     <div style="display:block; flex:50%">
                         <p class="p-nme mb-0"><b>${patientName}</b></p>` +
     (patientAge != undefined && patientAge != 0

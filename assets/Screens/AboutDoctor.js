@@ -37,7 +37,7 @@ function About({navigation}) {
           }}
           showsVerticalScrollIndicator={false}>
           <StatusBar animated={true} backgroundColor="#2B8ADA" />
-          <Header title="About Trust Heal" showMenu={false} />
+          <Header title="About TrustHeal" showMenu={false} />
           <View
             style={{
               flexDirection: 'column',
@@ -56,7 +56,7 @@ function About({navigation}) {
                   borderBottomColor: '#2B8ADA',
                   marginVertical: 20,
                 }}>
-                About Trust Heal
+                About TrustHeal
               </Text>
             </View>
             <View style={{alignSelf: 'center', width: '90%'}}>

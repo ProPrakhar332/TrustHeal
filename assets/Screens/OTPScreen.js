@@ -31,7 +31,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import apiConfig from '../API/apiConfig';
 import waiting from '../Animations/waiting1.gif';
-import logo from '../Resources/TH_trans.png';
+//import logo from '../Resources/TH_trans.png';
+import logo from '../Resources/TH_trans1.png';
 //import logo from '../Resources/Logo.jpg';
 
 const FirstScreen = ({route, navigation}) => {
@@ -217,7 +218,7 @@ const FirstScreen = ({route, navigation}) => {
               console.log(response.data);
               if (response.data.profileComplete == true) {
                 Alert.alert(
-                  'Welcome to Trust Heal',
+                  'Welcome to TrustHeal',
                   `Lets get you quality and accessible health consultation`,
                 );
                 navigation.navigate('PatientHome', {
@@ -305,8 +306,8 @@ const FirstScreen = ({route, navigation}) => {
             <Image
               source={logo}
               style={{
-                width: 200,
-                height: 200,
+                width: '90%',
+                resizeMode: 'contain',
                 alignSelf: 'center',
                 borderRadius: 50,
                 margin: 20,

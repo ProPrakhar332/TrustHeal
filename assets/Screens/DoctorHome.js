@@ -621,29 +621,91 @@ const DoctorHome = ({navigation}) => {
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
-              style={{
-                flex: 0.45,
-                justifyContent: 'center',
-                flexDirection: 'row',
-                padding: 3,
-                paddingHorizontal: 5,
-                alignSelf: 'center',
-                backgroundColor: '#2B8ADA',
-                borderWidth: 1,
-                borderColor: '#2B8ADA',
-                borderRadius: 5,
-              }}
+              style={[
+                {
+                  flex: 0.45,
+                  justifyContent: 'center',
+                  flexDirection: 'row',
+                  padding: 3,
+                  paddingHorizontal: 5,
+                  alignSelf: 'center',
+                  backgroundColor: '#2B8ADA',
+                  borderWidth: 1,
+                  borderColor: '#2B8ADA',
+                  borderRadius: 5,
+                },
+                hasStarted(item)
+                  ? {backgroundColor: 'limegreen', borderWidth: 0}
+                  : null,
+              ]}
               onPress={async () => {
-                await onPressPrescription(item);
-                navigation.navigate('CheifComplaints');
+                if (hasStarted(item)) {
+                  Alert.alert(
+                    'Consultation Status',
+                    'Consultation completed with the patient?',
+                    [
+                      {
+                        text: 'Yes',
+                        onPress: async () => {
+                          await axios
+                            .post(
+                              apiConfig.baseUrl +
+                                '/doctor/consultation/status/pending?consultationId=' +
+                                item.consultationId,
+                            )
+                            .then(response => {
+                              if (response.status == 200) {
+                                Alert.alert(
+                                  'Consultation Ended',
+                                  `Your consultation with patient has ended.\nPlease make sure to create prescription for the patient.`,
+                                  [
+                                    {
+                                      text: 'Ok',
+                                      onPress: async () => {
+                                        await getUpcomingData();
+                                      },
+                                    },
+                                  ],
+                                );
+                              }
+                            });
+                        },
+                      },
+                      {
+                        text: 'No',
+                      },
+                    ],
+                  );
+                  // await onPressPrescription(item);
+                  // navigation.navigate('CheifComplaints');
+                } else {
+                  Alert.alert(
+                    'Hold on',
+                    `Your consultaion starts at ${timeformatter(
+                      item.slotStartTime,
+                    )} on ${dayjs(item.slotDate).format('DD MMM, YYYY')}.`,
+                  );
+                }
               }}>
-              <FAIcon
-                name="hospital"
-                size={15}
-                color={'white'}
-                style={{marginRight: 5}}
-              />
-              <Text style={{fontSize: 12, color: 'white'}}>P-Consultation</Text>
+              {!hasStarted(item) ? (
+                <View style={{flexDirection: 'row'}}>
+                  <FAIcon
+                    name="hospital"
+                    size={15}
+                    color={'white'}
+                    style={{marginRight: 5}}
+                  />
+                  <Text style={{fontSize: 12, color: 'white'}}>
+                    P-Consultation
+                  </Text>
+                </View>
+              ) : (
+                <View>
+                  <Text style={{fontSize: 12, color: 'white'}}>
+                    Mark as Complete
+                  </Text>
+                </View>
+              )}
             </TouchableOpacity>
           )}
           {/* <TouchableOpacity

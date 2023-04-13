@@ -63,6 +63,7 @@ const dataRelations = [
   {key: 'Grandmother', value: 'Grandmother'},
   {key: 'Son', value: 'Son'},
   {key: 'Daughter', value: 'Daughter'},
+  {key: 'Other', value: 'Other'},
 ];
 const dataGender = [
   {key: 'Male', value: 'Male'},
@@ -938,7 +939,7 @@ function PatientProfile({navigation}) {
                   <Image source={about} style={styles.whiteBoxRowIcon} />
                 </View>
                 <View style={{flex: 0.6}}>
-                  <Text style={styles.whiteBoxRowText}>About Trust Heal</Text>
+                  <Text style={styles.whiteBoxRowText}>About TrustHeal</Text>
                 </View>
               </TouchableOpacity>
             </View>

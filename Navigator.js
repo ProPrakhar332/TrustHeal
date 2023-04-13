@@ -469,7 +469,7 @@ function CustomDrawerContent(props) {
         )}
       />
       <DrawerItem
-        label="About Trust Heal"
+        label="About TrustHeal"
         labelStyle={styles.labelStyle}
         style={{marginVertical: 0, paddingVertical: 0}}
         onPress={() => props.navigation.navigate('AboutDoctor')}

@@ -25,7 +25,8 @@ import {
   NotificationListner,
 } from '../API/PushNotification';
 
-import logo from '../Resources/TH_trans.png';
+//import logo from '../Resources/TH_trans.png';
+import logo from '../Resources/TH_trans1.png';
 import ForegroundHandler from '../API/ForegroundHandler';
 //import logo from '../Resources/Logo.jpg';
 
@@ -171,8 +172,8 @@ const RoleScreen = ({navigation}) => {
           <Image
             source={logo}
             style={{
-              width: 200,
-              height: 200,
+              width: '90%',
+              resizeMode: 'contain',
               alignSelf: 'center',
               borderRadius: 50,
               margin: 20,

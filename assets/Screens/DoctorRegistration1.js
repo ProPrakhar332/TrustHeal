@@ -257,7 +257,7 @@ const DoctorRegistrationStep1 = ({navigation}) => {
 
       if (flag == 1) {
         Alert.alert(
-          'Welcome to Trust Heal! ',
+          'Welcome to TrustHeal! ',
           'Your General Information has been saved successfully.',
         );
         navigation.push('DoctorRegistrationStep2');

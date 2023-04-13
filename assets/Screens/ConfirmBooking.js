@@ -93,7 +93,7 @@ function ConfirmBoking({navigation}) {
   const [paymentDone, setpaymentDone] = useState(false);
   const [SpecialUser, setSpecialUser] = useState(false);
   const [FamilyList, setFamilyList] = useState([]);
-  const [AppointmentFor, setAppointmentFor] = useState([]);
+  const [AppointmentFor, setAppointmentFor] = useState(null);
   const [THOrderId, setTHOrderId] = useState(0);
   const [PayonClinic, setPayonClinic] = useState(false);
   const [isLoading, setisLoading] = useState(false);
@@ -156,7 +156,7 @@ function ConfirmBoking({navigation}) {
       );
       setpatientDet(y);
       setpaymentDone(y.isSpecialPatient);
-      setSpecialUser(y.isSpecialPatient);
+      if (y.isSpecialPatient != null) setSpecialUser(y.isSpecialPatient);
     };
     LoadData();
   }, []);
@@ -315,7 +315,7 @@ function ConfirmBoking({navigation}) {
               currency: 'INR',
               key: response.data.razorpayKey,
               amount: response.data.amount,
-              name: 'Trust Heal',
+              name: 'TrustHeal',
               order_id: response.data.gatewayOrderId, //Replace this with an order_id created using Orders API.
               prefill: {
                 email: patientDet.email,
@@ -415,7 +415,7 @@ function ConfirmBoking({navigation}) {
       p.feesAmount = DocDet.econsultationFees;
     }
 
-    if (AppointmentFor != '') {
+    if (AppointmentFor != null) {
       p.familyId = AppointmentFor.familyId;
       p.patientName = AppointmentFor.name;
     }
@@ -811,6 +811,7 @@ function ConfirmBoking({navigation}) {
                       paddingHorizontal: 15,
                     }}
                     maxLength={250}
+                    keyboardType="default"
                     onChangeText={text => setsymptoms(text)}
                     value={symptoms}
                   />
@@ -828,7 +829,7 @@ function ConfirmBoking({navigation}) {
               <CheckBox
                 title={
                   <Text style={{fontSize: 12, fontWeight: 'bold'}}>
-                    I agree to Trust Heal{' '}
+                    I agree to TrustHeal{' '}
                     <Text
                       style={[styles.textLink]}
                       onPress={async () => {
@@ -849,27 +850,34 @@ function ConfirmBoking({navigation}) {
             </View>
           ) : null}
           {!paymentDone ? (
-            <CustomButton
-              text={'Proceed to Payment'}
-              textstyle={{color: 'white', fontSize: 13}}
-              style={{
-                backgroundColor: '#2b8ada',
-                width: '90%',
-                alignSelf: 'center',
-                borderRadius: 10,
-              }}
-              onPress={async () => {
-                await paymentOrderCreate();
+            <View style={{width: '90%', alignSelf: 'center'}}>
+              <CustomButton
+                text={'Proceed to Payment'}
+                textstyle={{color: 'white', fontSize: 13}}
+                style={{
+                  backgroundColor: '#2b8ada',
 
-                // if (privatePolicy == true)
-                // else
-                //   Alert.alert(
-                //     'Attention',
-                //     'Please agree to T&C and Privacy Policy before continuing',
-                //   );
-                //await bookConsultation();
-              }}
-            />
+                  borderRadius: 10,
+                }}
+                onPress={async () => {
+                  await paymentOrderCreate();
+                }}
+              />
+              {/* <CustomButton
+                text={'Pay at Clinic'}
+                textstyle={{color: 'white', fontSize: 13}}
+                style={{
+                  backgroundColor: '#2b8ada',
+                  width: '90%',
+                  alignSelf: 'center',
+                  borderRadius: 10,
+                  marginVertical:10,
+                }}
+                onPress={async () => {
+                  await paymentOrderCreate();
+                }}
+              /> */}
+            </View>
           ) : (
             <CustomButton
               text={'Book Appointment'}

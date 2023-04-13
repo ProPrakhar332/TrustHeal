@@ -902,7 +902,7 @@ const EditProfile = ({navigation}) => {
           // let fcmToken = await AsyncStorage.getItem('fcmToken');
           await AsyncStorage.multiRemove(await AsyncStorage.getAllKeys());
           // let fcmToken = await AsyncStorage.getItem('fcmToken');
-          await AsyncStorage.setItem('fcmToken', fcmToken);
+          //await AsyncStorage.setItem('fcmToken', fcmToken);
           navigation.navigate('RoleScreen');
         } else Alert.alert('Updation Error', 'Could not Update Details. Please try again later.');
       })
