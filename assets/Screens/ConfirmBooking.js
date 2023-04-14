@@ -1012,21 +1012,7 @@ function ConfirmBoking({navigation}) {
                     maxHeight: window.height - 200,
                   }}>
                   <View style={{alignSelf: 'center', width: '90%'}}>
-                    {/* Terms and Conditions for Refund and Cancellation */}
-                    <View style={{flex: 1}}>
-                      <Text
-                        style={{
-                          fontSize: 20,
-                          textAlign: 'center',
-                          color: 'black',
-                          fontWeight: 'bold',
-                          marginTop: 20,
-                        }}>
-                        Terms and Conditions for Refund and Cancellation
-                      </Text>
-                    </View>
-
-                    {/* 1.	Cancellations Policy:  */}
+                    {/* 1.	Refunds Policy:   */}
                     <View style={{flex: 1}}>
                       <Text
                         style={{
@@ -1036,7 +1022,35 @@ function ConfirmBoking({navigation}) {
                           fontWeight: 'bold',
                           marginVertical: 5,
                         }}>
-                        1. Cancellations Policy:
+                        1. Refunds Policy:
+                      </Text>
+                      <View style={{flex: 1}}>
+                        <Text style={styles.parStyles}>
+                          • In the event that technical difficulties at our end
+                          prevent the teleconsultation appointment from taking
+                          place, the full amount paid by the patient will be
+                          refunded.
+                        </Text>
+                        <Text style={styles.parStyles}>
+                          • If the teleconsultation appointment is
+                          unsatisfactory, the patient may send in a reasoned
+                          written request for a partial or full refund, which
+                          will be reviewed and may be granted on a case-by-case
+                          basis at our sole discretion.
+                        </Text>
+                      </View>
+                    </View>
+                    {/* 2.	Cancellation Policy:  */}
+                    <View style={{flex: 1}}>
+                      <Text
+                        style={{
+                          fontSize: 14,
+                          textAlign: 'left',
+                          color: 'black',
+                          fontWeight: 'bold',
+                          marginVertical: 5,
+                        }}>
+                        2. Cancellation Policy:
                       </Text>
                       <View style={{flex: 1}}>
                         <Text style={styles.parStyles}>
@@ -1056,7 +1070,8 @@ function ConfirmBoking({navigation}) {
                         </Text>
                       </View>
                     </View>
-                    {/* 2.	Refunds Policy:   */}
+
+                    {/* 3.	User Agreement:  */}
                     <View style={{flex: 1}}>
                       <Text
                         style={{
@@ -1066,40 +1081,26 @@ function ConfirmBoking({navigation}) {
                           fontWeight: 'bold',
                           marginVertical: 5,
                         }}>
-                        2. Refunds Policy:
+                        3. User Agreement:
                       </Text>
                       <View style={{flex: 1}}>
                         <Text style={styles.parStyles}>
-                          • In the event that technical difficulties at our end
-                          prevent the teleconsultation appointment from taking
-                          place, the full amount paid by the patient will be
-                          refunded.
+                          • By proceeding, I agree that I have read and
+                          understood the terms & conditions of usage of this
+                          platform and consent to / accept the same. I am
+                          voluntarily availing the services provided on this
+                          platform. I am fully aware that on this platform I
+                          will not be undergoing any physical examination by a
+                          physician who may recommend medical tests and/or
+                          treatment and/or the prescribe OTC drugs.
                         </Text>
                         <Text style={styles.parStyles}>
-                          • If the teleconsultation appointment is
-                          unsatisfactory, the patient may send in a reasoned
-                          written request for a partial or full refund, which
-                          will be reviewed and may be granted on a case-by-case
-                          basis at our sole discretion.
-                        </Text>
-                      </View>
-                    </View>
-                    {/* 3.	Acceptance of Terms and Conditions:  */}
-                    <View style={{flex: 1}}>
-                      <Text
-                        style={{
-                          fontSize: 14,
-                          textAlign: 'left',
-                          color: 'black',
-                          fontWeight: 'bold',
-                          marginVertical: 5,
-                        }}>
-                        3. Acceptance of Terms and Conditions:
-                      </Text>
-                      <View style={{flex: 1}}>
-                        <Text style={styles.parStyles}>
-                          • By using this teleconsultation service, you agree to
-                          the terms and conditions outlined in this policy.
+                          • I am also aware that the consultation on this
+                          platform does not remove the need for me to visit a
+                          physician and opt for physical examination at any
+                          point in time and I am free to request for the same.
+                          Such a physical examination may even be advised by the
+                          consulting physician.
                         </Text>
                       </View>
                     </View>
@@ -1140,7 +1141,15 @@ function ConfirmBoking({navigation}) {
                       <View style={{flex: 1}}>
                         <Text style={styles.parStyles}>
                           • If you have any questions or concerns about this
-                          policy, please contact us at info@trustheal.in
+                          policy, please contact us at{' '}
+                          <Text
+                            style={{
+                              color: 'blue',
+                              textDecorationLine: 'underline',
+                              textDecorationColor: 'blue',
+                            }}>
+                            info@trustheal.in
+                          </Text>
                         </Text>
                       </View>
                     </View>
@@ -1252,7 +1261,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   parStyles: {
-    textAlign: 'left',
+    textAlign: 'justify',
     fontSize: 13,
     marginVertical: 5,
     lineHeight: 15,

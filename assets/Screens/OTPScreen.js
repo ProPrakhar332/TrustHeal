@@ -185,6 +185,10 @@ const FirstScreen = ({route, navigation}) => {
 
               if (y.profileCompleted == true && y.verified == true) {
                 setModalVisible(false);
+                Alert.alert(
+                  `Hey ${y.doctorName}`,
+                  `Welcome to TrustHeal - Your Health Service Partner`,
+                );
                 navigation.navigate('DoctorHome', {doctorObj: y});
               } else {
                 setModalVisible(false);
@@ -218,8 +222,8 @@ const FirstScreen = ({route, navigation}) => {
               console.log(response.data);
               if (response.data.profileComplete == true) {
                 Alert.alert(
-                  'Welcome to TrustHeal',
-                  `Lets get you quality and accessible health consultation`,
+                  `Hey ${response.data.patientName}`,
+                  `Welcome to TrustHeal - Your Health Partner`,
                 );
                 navigation.navigate('PatientHome', {
                   patientObj: response.data,

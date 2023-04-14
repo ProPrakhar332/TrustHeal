@@ -365,7 +365,7 @@ img{
     font-style: normal;
     font-size: 10px;
     color: rgba(0,0,0,0.75);
-    padding: 0.75rem 0rem 0;
+    padding: 1px;
 }
 .temp-bp, .examin{
     line-height: 18px;
@@ -430,7 +430,7 @@ th{
     `</div>` +
     (clinicName != ''
       ? `<p class="p-ag" style="font-weight: 500;font-size: 6px;">${clinicName} | ${clinicAddress}</p>`
-      : null) +
+      : '') +
     `
                     </div>
                     <div   style="flex:50%;align-items: flex-end;">
@@ -439,23 +439,23 @@ th{
                     </div>
                 </div>
                 
-                <div style="display: flex;width:100%;margin-top:10px;border-top: 1.5px solid black;border-bottom: 1.5px solid black;padding-top:5px;padding-bottom:5px">
-                    <div style="display:block; flex:50%">
-                        <p class="p-nme mb-0"><b>${patientName}</b></p>` +
+                <div style="display: flex;flex-direction:row;width:100%;margin-top:10px;border-top: 1.5px solid black;border-bottom: 1.5px solid black;padding-top:5px;padding-bottom:5px;align-items:center">
+                    <div style="display:flex;flex-direction:column; flex:50%">
+                        <p class="p-nme mb-0" style="text-align:left"><b>${patientName}</b></p>` +
     (patientAge != undefined && patientAge != 0
-      ? `<p class="p-ag"><b>Age : </b>${patientAge} Years</p>`
+      ? `<p class="p-nme mb-0" style="text-align:left"><b>Age : </b>${patientAge} Years</p>`
       : ``) +
     `
                         
                     </div>
-                    <div style="display:block; flex:50%;align-items: flex-end;">
+                    <div style="display:flex;flex-direction:column; flex:50%">
                         <p class="p-nme mb-0" style="text-align:right">` +
     dayjs(new Date()).format('DD MMM, YYYY hh:mm A') +
     `</p>
                         <p class="p-nme mb-0" style="text-align:right">Patient ID : TH-000${patientID}</p>
                     </div>
                 </div>
-                <p class="mb-0 complaints"><b>Chief Complaints :-  </b>` +
+                <p class="mb-0 complaints" style="margin-top:5px"><b>Chief Complaints :-  </b>` +
     cheifComplaintsDisplay +
     `</p>
                ` +
@@ -467,7 +467,7 @@ th{
     <div class="center">
                 <img src="https://static.vecteezy.com/system/resources/previews/009/012/556/original/medical-symbol-rx-signage-template-free-vector.jpg" alt="rx" class="rx">
     </div>
-                <div class="row align-items-center" style="margin-top:5px">
+                <div class="row align-items-center" style="margin-top:2px;">
                     <div class="col-md-12">
                         <table style="width: 100%;">
                             <thead>
@@ -485,7 +485,7 @@ th{
                         </table>
                     </div>
                 </div>
-                <h2 class="mb-1 complaints" ><b>Investigation :-  </b>` +
+                <h2 class="mb-1 complaints" style="margin-top:5px" ><b>Investigation :-  </b>` +
     Investigation +
     `</h2>
      <h2 class="mb-1 complaints" ><b>Advice :-  </b>` +
@@ -493,15 +493,18 @@ th{
     `</h2>
               <p class="mb-1 complaints" ><b>Follow-Up Date :-   </b>` +
     dayjs(FollowUpDate).format('DD MMM, YYYY') +
-    `
+    `</p>
+    <p class="mb-1 complaints" style="text-align:right"><b>${doctorName}</b></p>
  
                 </div>
         </div>
     </div>
     
 </body>
-<p class="mb-1 complaints"  style="font-size:5px; text-align:center;margin-top:50px;padding:2px"><b>Disclaimer: </b>The prescription is based on the information provided by you in an online consultation. No physical examination was done. The prescription cannot be used for medico legal purposes and is valid for 6 months from the date of issue.</p>
-            
+<div style="margin-top:50px;padding:2px;display: flex;flex-direction:column;columnborder-bottom-width: thin;border-bottom-style: solid;">
+<p class="mb-1 complaints"  style="font-size:5px; text-align:center;"><b>Disclaimer: </b>The prescription is based on the information provided by you in an online consultation. No physical examination was done. The prescription cannot be used for medico legal purposes and is valid for 6 months from the date of issue.</p>
+<p class="mb-1 complaints"  style="font-size:5px; text-align:center;"><b>Powered by TrustHeal Tech Private Limited</b></p>
+</div>            
 
 </html>`;
 

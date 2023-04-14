@@ -56,7 +56,7 @@ function TCPatient({navigation}) {
                   borderBottomColor: '#2B8ADA',
                   marginVertical: 20,
                 }}>
-                User Agreement
+                Terms & Conditions
               </Text>
             </View>
             <View style={{alignSelf: 'center', width: '90%'}}>

@@ -72,6 +72,8 @@ import About from './assets/Screens/About';
 import AboutDoctor from './assets/Screens/AboutDoctor';
 import TCDoctor from './assets/Screens/TCDoctor';
 import TCPatient from './assets/Screens/TCPatient';
+import TCRefund from './assets/Screens/TCRefund';
+import TCPrivacy from './assets/Screens/TCPrivacy';
 
 import CheifComplaints from './assets/Screens/CheifComplaints';
 import BodyScan from './assets/Screens/BodyScan';
@@ -124,6 +126,8 @@ import myearning from './assets/DrawerIcons/myearning.png';
 import earnings from './assets/Resources/earnings.png';
 import myprofile from './assets/DrawerIcons/myprofile.png';
 import terms from './assets/DrawerIcons/terms.png';
+import refund from './assets/DrawerIcons/refund.png';
+import privacy from './assets/DrawerIcons/privacy.png';
 import FAIcons from 'react-native-vector-icons/FontAwesome5';
 
 const Tab = createBottomTabNavigator();
@@ -687,7 +691,32 @@ function CustomDrawerContentPatient(props) {
         )}
       />
       <DrawerItem
-        label="Terms & Condition"
+        label="Privacy Policy"
+        labelStyle={styles.labelStyle}
+        style={{marginVertical: 0, paddingVertical: 0}}
+        onPress={() => {
+          // viewTermsConditions();
+          props.navigation.navigate('TCPrivacy');
+        }}
+        icon={({focused, color, size}) => (
+          <Image source={privacy} style={{tintColor: '#033158'}} />
+        )}
+      />
+
+      <DrawerItem
+        label="Refund & Cancellation"
+        labelStyle={styles.labelStyle}
+        style={{marginVertical: 0, paddingVertical: 0}}
+        onPress={() => {
+          // viewTermsConditions();
+          props.navigation.navigate('TCRefund');
+        }}
+        icon={({focused, color, size}) => (
+          <Image source={refund} style={{tintColor: '#033158'}} />
+        )}
+      />
+      <DrawerItem
+        label="Terms & Conditions"
         labelStyle={styles.labelStyle}
         style={{marginVertical: 0, paddingVertical: 0}}
         onPress={() => {
@@ -886,6 +915,22 @@ function App() {
           }}
         />
         <Stack.Screen
+          name="TCRefund"
+          component={TCRefund}
+          options={{
+            headerShown: false,
+            headerBackButtonMenuEnabled: false,
+          }}
+        />
+        <Stack.Screen
+          name="TCPrivacy"
+          component={TCPrivacy}
+          options={{
+            headerShown: false,
+            headerBackButtonMenuEnabled: false,
+          }}
+        />
+        <Stack.Screen
           name="CheifComplaints"
           component={CheifComplaints}
           options={{
@@ -954,7 +999,6 @@ function App() {
           component={RegisterScreen}
           options={{headerShown: false}}
         />
-
         <Stack.Screen
           name="PatientRegistration"
           component={PatientRegistration}
@@ -975,7 +1019,6 @@ function App() {
           component={ProfileScreen}
           options={{headerShown: false}}
         />
-
         <Stack.Screen
           name="PatientProfile"
           component={PatientProfile}

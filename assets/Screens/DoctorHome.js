@@ -192,6 +192,13 @@ const DoctorHome = ({navigation}) => {
   };
 
   const onPressPrescription = async item => {
+    console.log(
+      'Patient Age is ',
+      item.familyUserDob != null
+        ? dayjs().diff(dayjs(item.familyUserDob), 'y')
+        : dayjs().diff(dayjs(item.patientDob), 'y'),
+    );
+
     let obj = {
       age:
         item.familyUserDob != null

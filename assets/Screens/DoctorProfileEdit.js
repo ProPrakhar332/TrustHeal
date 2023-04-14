@@ -897,7 +897,7 @@ const EditProfile = ({navigation}) => {
           flag = true;
           Alert.alert(
             'Profile Edited',
-            'Please log-in again to incoperate the changes',
+            'Please log-in again to incorporate the changes',
           );
           // let fcmToken = await AsyncStorage.getItem('fcmToken');
           await AsyncStorage.multiRemove(await AsyncStorage.getAllKeys());
@@ -925,7 +925,7 @@ const EditProfile = ({navigation}) => {
     //       {
     //         Alert.alert(
     //           'Profile Edited',
-    //           'Please log-in again to incoperate the changes',
+    //           'Please log-in again to incorporate the changes',
     //         );
     //         let fcmToken = await AsyncStorage.getItem('fcmToken');
     //         await AsyncStorage.multiRemove(await AsyncStorage.getAllKeys());

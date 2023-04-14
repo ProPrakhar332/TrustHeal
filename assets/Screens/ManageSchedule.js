@@ -2650,6 +2650,7 @@ const ManageSchedule = () => {
                           display="spinner"
                           onConfirm={handleConfirmPCIn}
                           onCancel={() => setPCStartViewer(false)}
+                          minuteInterval={5}
                         />
                       </View>
                       <View style={{flexDirection: 'column', flex: 0.5}}>
@@ -2744,6 +2745,7 @@ const ManageSchedule = () => {
                           display="spinner"
                           onConfirm={handleConfirmPCOut}
                           onCancel={() => setPCEndViewer(false)}
+                          minuteInterval={5}
                         />
                       </View>
                     </View>
@@ -3019,6 +3021,7 @@ const ManageSchedule = () => {
                             display="spinner"
                             onConfirm={handleConfirmECIn}
                             onCancel={() => setECStartViewer(false)}
+                            minuteInterval={5}
                           />
                         </View>
                         <View style={{flexDirection: 'column', flex: 0.5}}>
@@ -3123,6 +3126,7 @@ const ManageSchedule = () => {
                             display="spinner"
                             onConfirm={handleConfirmECOut}
                             onCancel={() => setECEndViewer(false)}
+                            minuteInterval={5}
                           />
                         </View>
                       </View>

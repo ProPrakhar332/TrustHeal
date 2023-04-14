@@ -841,7 +841,7 @@ function MyAppointment({navigation}) {
                     alignSelf: 'center',
                     borderWidth: 1,
                     borderColor: 'red',
-                    backgroundColor: 'red',
+                    //backgroundColor: 'red',
                     borderRadius: 5,
                     justifyContent: 'center',
                   },
@@ -882,13 +882,11 @@ function MyAppointment({navigation}) {
                 }}>
                 <MIcons
                   name="close"
-                  color={'white'}
+                  color={'red'}
                   size={15}
                   style={{alignSelf: 'center', marginRight: 5}}
                 />
-                <Text style={{fontSize: 12, color: 'white'}}>
-                  Cancel Booking
-                </Text>
+                <Text style={{fontSize: 12, color: 'red'}}>Cancel Booking</Text>
               </TouchableOpacity>
             ) : null}
           </View>

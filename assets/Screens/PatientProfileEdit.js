@@ -316,7 +316,7 @@ const PatientProfileEdit = ({navigation}) => {
           setisLoading(false);
           Alert.alert(
             'Profile Edited',
-            'Please log-in again to incoperate the changes',
+            'Please log-in again to incorporate the changes',
           );
           let fcmToken = await AsyncStorage.getItem('fcmToken');
           await AsyncStorage.multiRemove(await AsyncStorage.getAllKeys());

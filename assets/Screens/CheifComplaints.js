@@ -183,7 +183,7 @@ function CheifComplaints({navigation}) {
             <View style={styles.pageView}>
               {/* Heading */}
               <TouchableOpacity style={styles.viewHeadingView}>
-                <Text style={styles.viewHeadingText}>Cheif Complaints</Text>
+                <Text style={styles.viewHeadingText}>Chief Complaints</Text>
               </TouchableOpacity>
               {/* Search Bar */}
               <View style={styles.searchBar}>
