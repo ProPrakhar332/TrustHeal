@@ -289,7 +289,13 @@ const Header = ({title, showMenu}) => {
         <View style={[{flexDirection: 'column', alignSelf: 'center'}]}>
           <View style={{flexDirection: 'row'}}>
             <TouchableOpacity onPress={() => navigation.navigate('PatientFav')}>
-              <Image style={styles.icon} source={heart} color="white" />
+              <FAIcon
+                style={styles.icon}
+                name="heart"
+                size={20}
+                solid={true}
+                color="red"
+              />
             </TouchableOpacity>
 
             {/* <TouchableOpacity
@@ -303,7 +309,12 @@ const Header = ({title, showMenu}) => {
                 console.log('Share');
                 setShareModal(true);
               }}>
-              <Image style={styles.icon} source={sharing} />
+              <FAIcon
+                style={styles.icon}
+                name="share-alt"
+                size={20}
+                color="white"
+              />
             </TouchableOpacity>
             {/* <TouchableOpacity
               onPress={() => {

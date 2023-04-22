@@ -72,6 +72,8 @@ import About from './assets/Screens/About';
 import AboutDoctor from './assets/Screens/AboutDoctor';
 import TCDoctor from './assets/Screens/TCDoctor';
 import TCPatient from './assets/Screens/TCPatient';
+import SupportDoctor from './assets/Screens/SupportDoctor';
+import SupportPatient from './assets/Screens/SupportPatient';
 import TCRefund from './assets/Screens/TCRefund';
 import TCPrivacy from './assets/Screens/TCPrivacy';
 
@@ -104,7 +106,6 @@ import Header from './assets/Components/Header';
 import consulting from './assets/Resources/consulting.png';
 import salary from './assets/Resources/salary.png';
 import user from './assets/Resources/user.png';
-import support from './assets/Resources/support.png';
 import back from './assets/Resources/back3.png';
 
 //patient bottom nav
@@ -128,6 +129,7 @@ import myprofile from './assets/DrawerIcons/myprofile.png';
 import terms from './assets/DrawerIcons/terms.png';
 import refund from './assets/DrawerIcons/refund.png';
 import privacy from './assets/DrawerIcons/privacy.png';
+import support from './assets/DrawerIcons/support.png';
 import FAIcons from 'react-native-vector-icons/FontAwesome5';
 
 const Tab = createBottomTabNavigator();
@@ -473,6 +475,17 @@ function CustomDrawerContent(props) {
         )}
       />
       <DrawerItem
+        label="Help & Support"
+        labelStyle={styles.labelStyle}
+        style={{marginVertical: 0, paddingVertical: 0}}
+        onPress={() => {
+          props.navigation.navigate('SupportDoctor');
+        }}
+        icon={({focused, color, size}) => (
+          <Image source={support} style={{tintColor: '#033158'}} />
+        )}
+      />
+      <DrawerItem
         label="About TrustHeal"
         labelStyle={styles.labelStyle}
         style={{marginVertical: 0, paddingVertical: 0}}
@@ -679,6 +692,17 @@ function CustomDrawerContentPatient(props) {
         }}
         icon={({focused, color, size}) => (
           <Image source={help} style={{tintColor: '#033158'}} />
+        )}
+      />
+      <DrawerItem
+        label="Help & Support"
+        labelStyle={styles.labelStyle}
+        style={{marginVertical: 0, paddingVertical: 0}}
+        onPress={() => {
+          props.navigation.navigate('SupportPatient');
+        }}
+        icon={({focused, color, size}) => (
+          <Image source={support} style={{tintColor: '#033158'}} />
         )}
       />
       <DrawerItem
@@ -909,6 +933,22 @@ function App() {
         <Stack.Screen
           name="TCPatient"
           component={TCPatient}
+          options={{
+            headerShown: false,
+            headerBackButtonMenuEnabled: false,
+          }}
+        />
+        <Stack.Screen
+          name="SupportDoctor"
+          component={SupportDoctor}
+          options={{
+            headerShown: false,
+            headerBackButtonMenuEnabled: false,
+          }}
+        />
+        <Stack.Screen
+          name="SupportPatient"
+          component={SupportPatient}
           options={{
             headerShown: false,
             headerBackButtonMenuEnabled: false,

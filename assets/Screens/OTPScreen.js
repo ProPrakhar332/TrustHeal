@@ -183,16 +183,41 @@ const FirstScreen = ({route, navigation}) => {
                 JSON.stringify(y),
               );
 
-              if (y.profileCompleted == true && y.verified == true) {
+              if (y.profileStatus == 'VERIFIED') {
                 setModalVisible(false);
                 Alert.alert(
                   `Hey ${y.doctorName}`,
                   `Welcome to TrustHeal - Your Health Service Partner`,
                 );
                 navigation.navigate('DoctorHome', {doctorObj: y});
-              } else {
+              } else if (y.profileStatus == 'INCOMPLETE') {
                 setModalVisible(false);
+                Alert.alert(
+                  `Hey ${y.doctorName}`,
+                  `Please complete your profile to continue your journey with TrustHeal.`,
+                );
                 navigation.navigate('DoctorRegistrationStep2');
+              } else if (y.profileStatus == 'UNDER_VERIFICATION') {
+                setModalVisible(false);
+                Alert.alert(
+                  `Hey ${y.doctorName}`,
+                  `Your profile is under verification. We will inform you when your account has been verified`,
+                );
+                navigation.navigate('DoctorRegistrationStep2');
+              } else if (y.profileStatus == 'IMPROPER') {
+                setModalVisible(false);
+                Alert.alert(
+                  `Hey ${y.doctorName}`,
+                  `${y.improperProfileReason}`,
+                );
+                navigation.navigate('DoctorRegistrationStep2');
+              } else if (y.profileStatus == 'DEACTIVATE') {
+                setModalVisible(false);
+                Alert.alert(
+                  `Hey ${y.doctorName}`,
+                  `Your account has been deactivated please contact admin.`,
+                );
+                //navigation.navigate('DoctorRegistrationStep2');
               }
             }
           })

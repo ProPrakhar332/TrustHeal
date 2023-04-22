@@ -816,7 +816,8 @@ function DoctorDetails({navigation}) {
                         alignSelf: 'center',
                         fontSize: 12,
                       }}>
-                      No Dates Available
+                      All slots are booked this week. Please revisit after 7
+                      days.
                     </Text>
                   )}
                 </View>
@@ -857,7 +858,8 @@ function DoctorDetails({navigation}) {
                           alignSelf: 'center',
                           fontSize: 12,
                         }}>
-                        No E-Slots Available
+                        All slots are booked this week. Please revisit after 7
+                        days.
                       </Text>
                     )}
                   </View>
@@ -1014,7 +1016,8 @@ function DoctorDetails({navigation}) {
                             alignSelf: 'center',
                             fontSize: 12,
                           }}>
-                          No Dates Available
+                          All slots are booked this week. Please revisit after 7
+                          days.
                         </Text>
                       )}
                     </View>
@@ -1057,7 +1060,7 @@ function DoctorDetails({navigation}) {
                             alignSelf: 'center',
                             fontSize: 12,
                           }}>
-                          No Slots Available
+                          All Slots are booked.
                         </Text>
                       )}
                     </View>

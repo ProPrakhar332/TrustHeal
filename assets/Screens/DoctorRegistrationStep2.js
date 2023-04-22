@@ -744,8 +744,11 @@ const DoctorRegistration2 = ({navigation}) => {
       setAge(x.age + '');
       setPinCode(x.pincode);
       setphotoPath(x.profilePhotoPath);
-      setprofileCompleted(x.profileCompleted);
-      setverified(x.verified);
+      if (x.profileStatus == 'INCOMPLETE' || x.profileStatus == 'IMPROPER')
+        setprofileCompleted(false);
+      else setprofileCompleted(true);
+      //setverified(x.verified);
+      setverified(false);
       setmobileNumber(x.mobileNumber);
       // setprofilep
 
@@ -3021,10 +3024,11 @@ const DoctorRegistration2 = ({navigation}) => {
                         ? 'check-circle'
                         : 'chevron-right'
                     }
-                    color={dataSavedExpDet ? '#2B8ADA' : 'gray'}
+                    //color={dataSavedExpDet ? '#2B8ADA' : 'gray'}
                     style={[
                       styles.label,
                       {width: '10%', fontSize: 20},
+                      dataSavedExpDet ? {color: '#2b8ada'} : {color: 'gray'},
                     ]}></FAIcon>
                 </TouchableOpacity>
               </View>
@@ -3497,10 +3501,11 @@ const DoctorRegistration2 = ({navigation}) => {
                         ? 'check-circle'
                         : 'chevron-right'
                     }
-                    color={dataSavedIdenDet ? '#2B8ADA' : 'gray'}
+                    //color={dataSavedIdenDet ? '#2B8ADA' : 'gray'}
                     style={[
                       styles.label,
                       {width: '10%', fontSize: 20},
+                      dataSavedIdenDet ? {color: '#2b8ada'} : {color: 'gray'},
                     ]}></FAIcon>
                 </TouchableOpacity>
               </View>
@@ -3862,10 +3867,11 @@ const DoctorRegistration2 = ({navigation}) => {
                         ? 'check-circle'
                         : 'chevron-right'
                     }
-                    color={dataSavedAddInfo ? '#2B8ADA' : 'gray'}
+                    //color={dataSavedAddInfo ? '#2B8ADA' : 'gray'}
                     style={[
                       styles.label,
                       {width: '10%', fontSize: 20},
+                      dataSavedAddInfo ? {color: '#2b8ada'} : {color: 'gray'},
                     ]}></FAIcon>
                 </TouchableOpacity>
               </View>
@@ -4262,12 +4268,13 @@ const DoctorRegistration2 = ({navigation}) => {
                         ? 'check-circle'
                         : 'chevron-right'
                     }
-                    color={
-                      dataSavedPreConsultationQuestionaire ? '#2B8ADA' : 'gray'
-                    }
+                    //color={dataSavedPreConsultationQuestionaire ? '#2B8ADA' : 'gray'}
                     style={[
                       styles.label,
                       {width: '10%', fontSize: 20},
+                      dataSavedPreConsultationQuestionaire
+                        ? {color: '#2b8ada'}
+                        : {color: 'gray'},
                     ]}></FAIcon>
                 </TouchableOpacity>
               </View>
@@ -4620,10 +4627,13 @@ const DoctorRegistration2 = ({navigation}) => {
                         ? 'check-circle'
                         : 'chevron-right'
                     }
-                    color={dataSavedConsultFees ? '#2B8ADA' : 'gray'}
+                    //color={dataSavedConsultFees ? '#2B8ADA' : 'gray'}
                     style={[
                       styles.label,
                       {width: '10%', fontSize: 20},
+                      dataSavedConsultFees
+                        ? {color: '#2b8ada'}
+                        : {color: 'gray'},
                     ]}></FAIcon>
                 </TouchableOpacity>
               </View>

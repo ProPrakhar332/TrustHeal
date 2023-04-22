@@ -42,19 +42,14 @@ const RoleScreen = ({navigation}) => {
       let y = JSON.parse(await AsyncStorage.getItem('UserPatientProfile'));
       console.log('Patient Object: ', y);
       if (x != null && y == null) {
-        if (x.profileCompleted == true && x.verified == true)
+        if (x.profileStatus == 'VERIFIED')
           navigation.navigate('DoctorHome', {doctorObj: x});
-        else if (x.profileCompleted) {
-          x.verified = true;
-          await AsyncStorage.setItem('UserDoctorProfile', JSON.stringify(x));
-          navigation.navigate('DoctorHome', {doctorObj: x});
-        } else navigation.navigate('DoctorRegistrationStep2');
-
-        // if(x.isLastStepComplete) {
-        //   navigation.dispatch(StackActions.replace('DoctorHome', {doctorObj: x}));
-        // } else {
-        //   navigation.dispatch(StackActions.replace('DoctorRegistrationStep2'));
+        // else if (x.profileCompleted) {
+        //   x.verified = true;
+        //   await AsyncStorage.setItem('UserDoctorProfile', JSON.stringify(x));
+        //   navigation.navigate('DoctorHome', {doctorObj: x});
         // }
+        else navigation.navigate('DoctorRegistrationStep2');
       } else if (x == null && y != null) {
         if (y.profileComplete == true)
           navigation.navigate('PatientHome', {patientObj: y});
@@ -87,30 +82,7 @@ const RoleScreen = ({navigation}) => {
     };
     onLoad();
   }, []);
-  // const requestFilePermission = async () => {
-  //   try {
-  //     const granted = await PermissionsAndroid.request(
-  //       PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-  //       {
-  //         title: 'File Permission',
-  //         message: 'App needs access to your file manager ',
-  //         buttonNegative: 'Cancel',
-  //         buttonPositive: 'OK',
-  //       },
-  //     );
-  //     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-  //       //await stackOverflowPDF();
-  //     } else {
-  //       Alert.alert(
-  //         'Alert',
-  //         'Can not create prescription without file permission',
-  //       );
-  //       console.log('Camera permission denied');
-  //     }
-  //   } catch (err) {
-  //     console.warn(err);
-  //   }
-  // };
+
   const getPermission = async () => {
     if (Platform.OS === 'android') {
       await PermissionsAndroid.requestMultiple([
@@ -139,24 +111,6 @@ const RoleScreen = ({navigation}) => {
   //         userName: userName
   //     })
   // }
-
-  // const fkg = async mob => {
-
-  //   let x = JSON.parse(AsyncStorage.getItem('UserDoctorProfile'));
-  //   let mob =x.mobileNumber;
-
-  //   axios
-  //     .get(apiConfig.baseUrl + '/doctor/by/mobilenumber?mobilenumber='+mob)
-  //     .then(function (response) {
-  //       if(response.status == 200)
-  //       {
-
-  //       }
-  //     }).catch(function(error){
-
-  //     });
-  // };
-
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar animated={true} backgroundColor="#2B8ADA" />
@@ -270,8 +224,6 @@ const RoleScreen = ({navigation}) => {
               </TouchableOpacity>
             </View>
           </View>
-          {/* <Button title="Join As Oliver" onPress={() => { onJoinPress('oliver', 'Oliver') }} />
-          <Button title="Join As Jack" onPress={() => { onJoinPress('jack', 'Jack') }} /> */}
         </View>
       </ScrollView>
     </SafeAreaView>

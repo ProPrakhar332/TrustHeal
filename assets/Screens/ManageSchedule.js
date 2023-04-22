@@ -743,6 +743,11 @@ const ManageSchedule = () => {
     setECduration('');
     setECGap('');
     setselectedDate('');
+    setviewESlots([]);
+    setviewPSlots([]);
+
+    getEDates();
+    getPDates();
   };
 
   const updateClinic = async item => {
@@ -1324,6 +1329,9 @@ const ManageSchedule = () => {
         if (response.status == 200) {
           Alert.alert('Deleted', 'Selected slots are deleted successfully');
           setDeleteSchedulesModal(false);
+          // setviewESlots([]);
+          // setviewPSlots([]);
+          // setselectedDate('');
         }
       })
       .catch(error => {
@@ -1337,6 +1345,18 @@ const ManageSchedule = () => {
       setselectAll(false);
       setDeleteSlotsList([]);
       setconsultationType(null);
+      setviewESlots([]);
+      setviewPSlots([]);
+      getEDates();
+      getPDates();
+      // if (viewPDates != null) {
+      //   let temp = viewPDates.forEach(x => (x.isActive = false));
+      //   setviewPDates(temp);
+      // }
+      // if (viewEDates != null) {
+      //   let temp2 = viewEDates.forEach(x => (x.isActive = false));
+      //   setviewEDates(temp2);
+      // }
     } else {
       setselectedDate(null);
     }
@@ -1950,9 +1970,7 @@ const ManageSchedule = () => {
                                   alignSelf: 'center',
                                   fontSize: 12,
                                 }}>
-                                {viewPSlots == null
-                                  ? ' No Slots Available'
-                                  : 'Please Select Date'}
+                                Please Select Date
                               </Text>
 
                               <CustomButton
@@ -2111,7 +2129,7 @@ const ManageSchedule = () => {
                                   alignSelf: 'center',
                                   fontSize: 12,
                                 }}>
-                                No Slots Available
+                                Please Select Date
                               </Text>
                               <CustomButton
                                 text="Create Slots"
@@ -3350,6 +3368,9 @@ const ManageSchedule = () => {
                     style={{position: 'absolute', top: 0, right: 0}}
                     onPress={() => {
                       setDeleteSchedulesModal(false);
+                      setviewESlots([]);
+                      setviewPSlots([]);
+                      setselectedDate(null);
                     }}
                   />
                 </View>
@@ -3617,9 +3638,7 @@ const ManageSchedule = () => {
                                     alignSelf: 'center',
                                     fontSize: 12,
                                   }}>
-                                  {viewPSlots == null
-                                    ? ' No Slots Available'
-                                    : 'Please Select Date'}
+                                  Please Select Date
                                 </Text>
                               </View>
                             )}
@@ -3771,7 +3790,7 @@ const ManageSchedule = () => {
                                     alignSelf: 'center',
                                     fontSize: 12,
                                   }}>
-                                  No Slots Available
+                                  Please Select Date
                                 </Text>
                               </View>
                             )}

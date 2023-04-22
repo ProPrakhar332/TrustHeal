@@ -644,7 +644,7 @@ function MyAppointment({navigation}) {
                 size={15}
                 style={{marginRight: 5, alignSelf: 'center'}}
               />
-              <Text style={{fontSize: 12, color: '#000080'}}>Files</Text>
+              <Text style={{fontSize: 12, color: '#000080'}}>Docs</Text>
             </TouchableOpacity>
 
             {/* Preconsultation QuestionAnswers */}
@@ -829,7 +829,7 @@ function MyAppointment({navigation}) {
                 <Text style={{fontSize: 12, color: 'white'}}>Re-Schedule</Text>
               </TouchableOpacity> */}
 
-            {shouldShowCancel(item) ? (
+            {/* {shouldShowCancel(item) ? (
               <TouchableOpacity
                 style={[
                   {
@@ -888,7 +888,7 @@ function MyAppointment({navigation}) {
                 />
                 <Text style={{fontSize: 12, color: 'red'}}>Cancel Booking</Text>
               </TouchableOpacity>
-            ) : null}
+            ) : null} */}
           </View>
 
           {/* <TouchableOpacity
@@ -1128,7 +1128,7 @@ function MyAppointment({navigation}) {
                 size={15}
                 style={{marginRight: 5}}
               />
-              <Text style={{fontSize: 13, color: '#000080'}}>Files</Text>
+              <Text style={{fontSize: 13, color: '#000080'}}>Docs</Text>
             </TouchableOpacity>
             {/* Questionnaire */}
             <TouchableOpacity

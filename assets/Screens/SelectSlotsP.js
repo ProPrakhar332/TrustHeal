@@ -501,7 +501,7 @@ function SelectSlotsP({navigation}) {
                       fontSize: 13,
                       color: 'black',
                     }}>
-                    No Dates Available
+                    For next 7 days all slots are booked.
                   </Text>
                 )}
               </View>
@@ -547,7 +547,7 @@ function SelectSlotsP({navigation}) {
                       fontSize: 13,
                       color: 'black',
                     }}>
-                    No Slots Available
+                    All Slots are booked.
                   </Text>
                 )}
               </View>
