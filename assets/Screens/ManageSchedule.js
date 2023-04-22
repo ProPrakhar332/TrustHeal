@@ -50,6 +50,34 @@ const dataMode = [
   {key: 'VIDEO_CALL', value: 'Video'},
   {key: 'PHONE_CALL', value: 'Phone'},
 ];
+const dataDuration = [
+  {key: '5', value: 5},
+  {key: '10', value: 10},
+  {key: '15', value: 15},
+  {key: '20', value: 20},
+  {key: '25', value: 25},
+  {key: '30', value: 30},
+  {key: '35', value: 35},
+  {key: '40', value: 40},
+  {key: '45', value: 45},
+  {key: '50', value: 50},
+  {key: '55', value: 55},
+  {key: '60', value: 60},
+];
+const dataGap = [
+  {key: '5', value: 5},
+  {key: '10', value: 10},
+  {key: '15', value: 15},
+  {key: '20', value: 20},
+  {key: '25', value: 25},
+  {key: '30', value: 30},
+  {key: '35', value: 35},
+  {key: '40', value: 40},
+  {key: '45', value: 45},
+  {key: '50', value: 50},
+  {key: '55', value: 55},
+  {key: '60', value: 60},
+];
 
 const ManageSchedule = () => {
   const [isLoading, setisLoading] = useState(false);
@@ -488,30 +516,6 @@ const ManageSchedule = () => {
           let existingTimeSlotEnd =
             Number(time2[0]) * 3600 + Number(time2[1]) * 60;
 
-          // if (
-          //   (Number(ECinTimeHH) <= Number(time1[0]) &&
-          //     Number(time1[0]) <= Number(ECinTimeHH)) ||
-          //   (Number(ECoutTimeHH) <= Number(time2[0]) &&
-          //     Number(time2[0]) <= Number(ECoutTimeHH))
-          // ) {
-
-          // }
-          // console.log(
-          //   `${newTimeSlotStart}>=${existingTimeSlotStart} && ${newTimeSlotStart}<${existingTimeSlotEnd}`,
-          //   newTimeSlotStart >= existingTimeSlotStart &&
-          //     newTimeSlotStart < existingTimeSlotEnd,
-          // );
-          // console.log(
-          //   `${newTimeSlotStart}<=${existingTimeSlotStart} && ${newTimeSlotEnd}>=${existingTimeSlotEnd}`,
-          //   newTimeSlotStart <= existingTimeSlotStart &&
-          //     newTimeSlotEnd >= existingTimeSlotEnd,
-          // );
-          // console.log(
-          //   `${newTimeSlotEnd}>${existingTimeSlotStart} && ${newTimeSlotStart}<=${existingTimeSlotEnd}`,
-          //   newTimeSlotEnd > existingTimeSlotStart &&
-          //     newTimeSlotStart <= existingTimeSlotEnd,
-          // );
-
           if (
             (newTimeSlotStart >= existingTimeSlotStart &&
               newTimeSlotStart < existingTimeSlotEnd) ||
@@ -544,10 +548,26 @@ const ManageSchedule = () => {
             getPDates();
             setisChecking(false);
             resetDays();
-          } else Alert.alert('Error', 'There was some problem please try again');
+          } else
+            Alert.alert('Error', 'There was some problem please try again', [
+              {
+                text: 'Ok',
+                onPress: () => {
+                  reset();
+                },
+              },
+            ]);
         })
         .catch(function (error) {
           console.log('=====Create pslots=====');
+          Alert.alert('Error', 'There was some problem please try again', [
+            {
+              text: 'Ok',
+              onPress: () => {
+                reset();
+              },
+            },
+          ]);
           resetDays();
           setisChecking(false);
           console.log(error);
@@ -556,6 +576,14 @@ const ManageSchedule = () => {
       Alert.alert(
         'Duplicate Slots',
         'The given slot details have overlapping slots.',
+        [
+          {
+            text: 'Ok',
+            onPress: () => {
+              reset();
+            },
+          },
+        ],
       );
       setisChecking(false);
     }
@@ -646,30 +674,6 @@ const ManageSchedule = () => {
           let existingTimeSlotEnd =
             Number(time2[0]) * 3600 + Number(time2[1]) * 60;
 
-          // if (
-          //   (Number(ECinTimeHH) <= Number(time1[0]) &&
-          //     Number(time1[0]) <= Number(ECinTimeHH)) ||
-          //   (Number(ECoutTimeHH) <= Number(time2[0]) &&
-          //     Number(time2[0]) <= Number(ECoutTimeHH))
-          // ) {
-
-          // }
-          // console.log(
-          //   `${newTimeSlotStart}>=${existingTimeSlotStart} && ${newTimeSlotStart}<${existingTimeSlotEnd}`,
-          //   newTimeSlotStart >= existingTimeSlotStart &&
-          //     newTimeSlotStart < existingTimeSlotEnd,
-          // );
-          // console.log(
-          //   `${newTimeSlotStart}<=${existingTimeSlotStart} && ${newTimeSlotEnd}>=${existingTimeSlotEnd}`,
-          //   newTimeSlotStart <= existingTimeSlotStart &&
-          //     newTimeSlotEnd >= existingTimeSlotEnd,
-          // );
-          // console.log(
-          //   `${newTimeSlotEnd}>${existingTimeSlotStart} && ${newTimeSlotStart}<=${existingTimeSlotEnd}`,
-          //   newTimeSlotEnd > existingTimeSlotStart &&
-          //     newTimeSlotStart <= existingTimeSlotEnd,
-          // );
-
           if (
             (newTimeSlotStart >= existingTimeSlotStart &&
               newTimeSlotStart < existingTimeSlotEnd) ||
@@ -703,11 +707,29 @@ const ManageSchedule = () => {
             getEDates();
             setisChecking(false);
             resetDays();
-          } else Alert.alert('Error', 'There was some problem please try again');
+            reset();
+          } else
+            Alert.alert('Error', 'There was some problem please try again', [
+              {
+                text: 'Ok',
+                onPress: () => {
+                  reset();
+                },
+              },
+            ]);
         })
         .catch(function (error) {
           console.log('=====Create eslots=====');
+          Alert.alert('Error', 'There was some problem please try again', [
+            {
+              text: 'Ok',
+              onPress: () => {
+                reset();
+              },
+            },
+          ]);
           resetDays();
+          reset();
           setisChecking(false);
           console.log(error);
         });
@@ -715,6 +737,14 @@ const ManageSchedule = () => {
       Alert.alert(
         'Duplicate Slots',
         'The given slot details have overlapping slots.',
+        [
+          {
+            text: 'Ok',
+            onPress: () => {
+              reset();
+            },
+          },
+        ],
       );
       setisChecking(false);
     }
@@ -2772,12 +2802,33 @@ const ManageSchedule = () => {
                         style={[styles.inputLabel, {alignSelf: 'flex-start'}]}>
                         Duration (in min)
                       </Text>
-                      <TextInput
+                      {/* <TextInput
                         keyboardType={'number-pad'}
                         maxLength={2}
                         onChangeText={text => setPCduration(text)}
                         value={PCduration}
                         style={styles.textInput}
+                      /> */}
+                      <SelectList
+                        placeholder={PCduration}
+                        setSelected={value => {
+                          setPCduration(value);
+                          console.log(value);
+                        }}
+                        data={dataDuration}
+                        save={'value'}
+                        boxStyles={{
+                          flex: 0.45,
+                          backgroundColor: '#E8F0FE',
+                          borderWidth: 0,
+                          borderRadius: 5,
+                        }}
+                        dropdownStyles={{backgroundColor: 'white'}}
+                        dropdownTextStyles={{
+                          color: '#2b8ada',
+                          fontWeight: 'bold',
+                        }}
+                        badgeStyles={{backgroundColor: '#2b8ada'}}
                       />
                     </View>
 
@@ -3162,13 +3213,34 @@ const ManageSchedule = () => {
                             <Text style={[styles.inputLabel]}>
                               Duration (in min)
                             </Text>
-                            <TextInput
+                            {/* <TextInput
                               placeholder="MM"
                               style={styles.textInput}
                               keyboardType={'number-pad'}
                               maxLength={2}
                               onChangeText={text => setECduration(text)}
                               value={ECduration}
+                            /> */}
+                            <SelectList
+                              placeholder={ECduration}
+                              setSelected={value => {
+                                setECduration(value);
+                                console.log(value);
+                              }}
+                              data={dataDuration}
+                              save={'value'}
+                              boxStyles={{
+                                flex: 0.45,
+                                backgroundColor: '#E8F0FE',
+                                borderWidth: 0,
+                                borderRadius: 5,
+                              }}
+                              dropdownStyles={{backgroundColor: 'white'}}
+                              dropdownTextStyles={{
+                                color: '#2b8ada',
+                                fontWeight: 'bold',
+                              }}
+                              badgeStyles={{backgroundColor: '#2b8ada'}}
                             />
                           </View>
                         </View>
@@ -3181,13 +3253,34 @@ const ManageSchedule = () => {
                             <Text style={[styles.inputLabel]}>
                               Gap (in min)
                             </Text>
-                            <TextInput
+                            {/* <TextInput
                               placeholder="MM"
                               maxLength={2}
                               style={styles.textInput}
                               keyboardType={'number-pad'}
                               onChangeText={text => setECGap(text)}
                               value={ECGap}
+                            /> */}
+                            <SelectList
+                              placeholder={ECGap}
+                              setSelected={value => {
+                                setECGap(value);
+                                console.log(value);
+                              }}
+                              data={dataGap}
+                              save={'value'}
+                              boxStyles={{
+                                flex: 0.45,
+                                backgroundColor: '#E8F0FE',
+                                borderWidth: 0,
+                                borderRadius: 5,
+                              }}
+                              dropdownStyles={{backgroundColor: 'white'}}
+                              dropdownTextStyles={{
+                                color: '#2b8ada',
+                                fontWeight: 'bold',
+                              }}
+                              badgeStyles={{backgroundColor: '#2b8ada'}}
                             />
                           </View>
                         </View>
@@ -3274,40 +3367,6 @@ const ManageSchedule = () => {
                             );
                           else {
                             pushESlot();
-
-                            //   let ECData = [
-                            //     {
-                            //       consultationDate: '2023-04-02',
-                            //       consultationEndTime: '17:00',
-                            //       consultationStartTime: '16:00',
-                            //       doctorId: 1,
-                            //       gap: 5,
-                            //       slotDuration: 10,
-                            //       typeOfEConsultation: 'VIDEO_CALL',
-                            //     },
-                            //   ];
-
-                            //   console.log(
-                            //     apiConfig.baseUrl + '/doctor/slots/e/create',
-                            //     ECData,
-                            //   );
-
-                            //   axios
-                            //     .post(
-                            //       apiConfig.baseUrl + '/doctor/slots/e/create',
-                            //       ECData,
-                            //     )
-                            //     .then(response => {
-                            //       console.log(response.status);
-                            //       if (response.status == 200) {
-                            //         Alert.alert('Slot created');
-                            //       }
-                            //     })
-                            //     .catch(error => {
-                            //       Alert.alert('Error', `${error}`);
-                            //     });
-
-                            //   reset();
                           }
                         }
                       }}
