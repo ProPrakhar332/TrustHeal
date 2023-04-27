@@ -165,7 +165,7 @@ function TCPrivacy({navigation}) {
                         textDecorationLine: 'underline',
                         textDecorationColor: 'blue',
                       }}>
-                      info@trustheal.in
+                      contact@trustheal.in
                     </Text>{' '}
                     if You are aware that We may have inadvertently collected
                     Personal Information from a child, and We will delete that
@@ -774,7 +774,7 @@ function TCPrivacy({navigation}) {
                         textDecorationLine: 'underline',
                         textDecorationColor: 'blue',
                       }}>
-                      info@trustheal.in
+                      contact@trustheal.in
                     </Text>{' '}
                     and Our officer will attempt to resolve Your issues in a
                     timely manner.

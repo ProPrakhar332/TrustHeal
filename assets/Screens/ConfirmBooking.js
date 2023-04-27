@@ -1148,7 +1148,7 @@ function ConfirmBoking({navigation}) {
                               textDecorationLine: 'underline',
                               textDecorationColor: 'blue',
                             }}>
-                            info@trustheal.in
+                            contact@trustheal.in
                           </Text>
                         </Text>
                       </View>

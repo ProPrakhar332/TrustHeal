@@ -92,6 +92,7 @@ const FirstScreen = ({route, navigation}) => {
     setPin2('');
     setPin3('');
     setPin4('');
+    //pin1Ref.current.focus();
   };
 
   // useEffect(() => {
@@ -211,21 +212,30 @@ const FirstScreen = ({route, navigation}) => {
                   `${y.improperProfileReason}`,
                 );
                 navigation.navigate('DoctorRegistrationStep2');
-              } else if (y.profileStatus == 'DEACTIVATE') {
-                setModalVisible(false);
-                Alert.alert(
-                  `Hey ${y.doctorName}`,
-                  `Your account has been deactivated please contact admin.`,
-                );
-                //navigation.navigate('DoctorRegistrationStep2');
               }
+              // else if (y.profileStatus == 'DEACTIVATE') {
+              //   setModalVisible(false);
+              //   Alert.alert(
+              //     `Hey ${y.doctorName}`,
+              //     `Your account has been deactivated please contact admin.`,
+              //   );
+              // }
             }
           })
           .catch(function (error) {
             setisLoading(false);
+            console.log(error);
             if (error == 'AxiosError: Request failed with status code 400') {
               //console.log(error);
               setwrongOTPMessage(true);
+              reset();
+            }
+            if (error == 'AxiosError: Request failed with status code 401') {
+              setModalVisible(false);
+              Alert.alert(
+                `Sorry!`,
+                `Your account has been deactivated please contact admin.`,
+              );
               reset();
             }
           });

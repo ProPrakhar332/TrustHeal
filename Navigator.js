@@ -50,7 +50,7 @@ import PatientConsult from './assets/Screens/PatientConsult';
 import PatientFav from './assets/Screens/PatientFav';
 import PatientHome from './assets/Screens/PatientHome';
 import MyAppointment from './assets/Screens/MyAppointments';
-import MyUpcomingAppointment from './assets/Screens/MyUpcomingAppointment';
+import DoctorAllAppointments from './assets/Screens/DoctorAllAppointments';
 import PatientProfile from './assets/Screens/PatientProfile';
 import DoctorHome from './assets/Screens/DoctorHome';
 import DoctorDetails from './assets/Screens/DoctorDetails';
@@ -437,7 +437,7 @@ function CustomDrawerContent(props) {
         label="My Appointments"
         labelStyle={styles.labelStyle}
         style={{marginVertical: 0, paddingVertical: 0}}
-        onPress={() => props.navigation.navigate('MyUpcomingAppointment')}
+        onPress={() => props.navigation.navigate('DoctorAllAppointments')}
         icon={({focused, color, size}) => (
           <Image source={appointment} style={{tintColor: '#033158'}} />
         )}
@@ -647,7 +647,7 @@ function CustomDrawerContentPatient(props) {
         label="Notification"
         labelStyle={styles.labelStyle}
         style={{marginVertical: 0, paddingVertical: 0}}
-        //onPress={() => props.navigation.navigate('MyUpcomingAppointment')}
+        //onPress={() => props.navigation.navigate('DoctorAllAppointments')}
         icon={({focused, color, size}) => (
           <Image source={bell} style={{tintColor: '#033158'}} />
         )}
@@ -674,7 +674,7 @@ function CustomDrawerContentPatient(props) {
         label="Invoices"
         labelStyle={styles.labelStyle}
         style={{marginVertical: 0, paddingVertical: 0}}
-        //onPress={() => props.navigation.navigate('MyUpcomingAppointment')}
+        //onPress={() => props.navigation.navigate('DoctorAllAppointments')}
         icon={({focused, color, size}) => (
           <Image source={myearning} style={{tintColor: '#033158'}} />
         )}
@@ -1080,8 +1080,8 @@ function App() {
           options={{headerShown: false}}
         />
         <Stack.Screen
-          name="MyUpcomingAppointment"
-          component={MyUpcomingAppointment}
+          name="DoctorAllAppointments"
+          component={DoctorAllAppointments}
           options={{headerShown: false}}
         />
         <Stack.Screen

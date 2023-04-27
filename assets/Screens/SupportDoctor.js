@@ -4,6 +4,7 @@ import {
   Alert,
   useWindowDimensions,
   View,
+  Modal,
   Text,
   Button,
   SafeAreaView,
@@ -14,13 +15,15 @@ import {
   StatusBar,
   PermissionsAndroid,
 } from 'react-native';
+import {LogBox} from 'react-native';
+LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
 import CustomButton from '../Components/CustomButton';
 import Header from '../Components/Header';
 import {StyleSheet} from 'react-native';
 import apiConfig from '../API/apiConfig';
 import {fileUpload} from '../API/apiConfig';
 import waiting from '../Animations/waiting1.gif';
-import FAIcons from 'react-native-vector-icons/FontAwesome5';
+import FAIcon from 'react-native-vector-icons/FontAwesome5';
 import {
   SelectList,
   MultipleSelectList,
@@ -28,19 +31,42 @@ import {
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {TextInput} from 'react-native-gesture-handler';
-
+import HelpCancel from '../Resources/HelpCancel.png';
+import HelpDone from '../Resources/HelpDone.png';
+import HelpUnderProcess from '../Resources/HelpUnderProcess.png';
+import HelpUploaded from '../Resources/HelpUploaded.png';
+import dayjs from 'dayjs';
+import axios from 'axios';
+import upload from '../Animations/upload.gif';
+//yellow icon #FCC419
+//red icon #E04F5F
 function SupportDoctor({navigation}) {
   const [doctorObj, setdoctorObj] = useState(null);
+  const [doctorId, setdoctorId] = useState(0);
   const [isLoading, setisLoading] = useState(false);
+  const [isUploading, setisUploading] = useState(false);
   const [message, setmessage] = useState('');
   const [docList, setdocList] = useState([]);
   const [DocsUploaded, setDocsUploaded] = useState(false);
   const [type, setType] = useState(null);
+  const [dataMainQuery, setdataMainQuery] = useState([]);
+  const [FeedBackModal, setFeedBackModal] = useState(false);
+  const [Rating, setRating] = useState(null);
+  const [helpId, setHelpId] = useState(null);
+  const [feedbackMsg, setfeedbackMsg] = useState('');
+
+  const [addQuery, setaddQuery] = useState(false);
+  const [viewQuery, setviewQuery] = useState(false);
+
+  const [ImageViewer, setImageViewer] = useState(false);
+  const [DisplayPhotoToken, setDisplayPhotoToken] = useState(0);
+
   useEffect(() => {
     const onLoadSetData = async () => {
       let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
       console.log('profile: ', x);
       setdoctorObj(x);
+      setdoctorId(x.doctorId);
     };
     setisLoading(true);
     onLoadSetData();
@@ -49,9 +75,75 @@ function SupportDoctor({navigation}) {
   }, []);
 
   useEffect(() => {
+    if (viewQuery == true) {
+      getQuery();
+    }
+  }, [viewQuery]);
+  const getQuery = async () => {
+    setisLoading(true);
+    await axios
+      .get(apiConfig.baseUrl + '/doctor/help?doctorId=' + doctorId)
+      .then(response => {
+        console.log(response.data);
+        if (response.status == 200) {
+          setdataMainQuery(response.data);
+          setisLoading(false);
+        }
+      })
+      .catch(error => {
+        Alert.alert('Error', `${error}`);
+      });
+  };
+
+  useEffect(() => {
     console.log('Doc List is\n\n');
     console.log(docList);
   }, [docList]);
+
+  const dataQuery = [
+    {
+      helpId: 4215,
+      type: 'Technical Issue',
+      message: 'Could not upload prescription after the consultation was over.',
+      complaintStatus: 'REGISTERED',
+      //remark: 'Technical Issue',
+      registerDateTime: '2023-04-10 12:19:25.455188',
+      actionDateTime: '2023-04-13 12:00:25.455188',
+      files: [151515, 5155151],
+    },
+    {
+      helpId: 5312,
+      type: 'Slot Creation',
+      message: `Was unable to create e-consultation slot for 27th April, displays 'Duplicate Slot' everytime I create one.`,
+      complaintStatus: 'UNDER_PROCESS',
+      remark: 'We are currently processing this query.',
+      registerDateTime: '2023-04-10 12:19:25.455188',
+      actionDateTime: '2023-04-14 14:00:25.455188',
+      //files: [151515, 5155151],
+    },
+    {
+      helpId: 6841,
+      type: 'Patient Related',
+      message:
+        'Patient disconnected the consultation every 2 minutes. And was really loud.',
+      complaintStatus: 'COMPLETED',
+      remark: 'Issue resolved. Sorry for the inconvenience.',
+      registerDateTime: '2023-04-10 12:19:25.455188',
+      actionDateTime: '2023-04-15 16:00:25.455188',
+      files: [151515, 5155151],
+    },
+    {
+      helpId: 7214,
+      type: 'Payment Issue',
+      message:
+        'I did not receive my payment for this week. It is showing that I would get around 25k.',
+      complaintStatus: 'CANCELLED',
+      remark: 'Payment are paid at the end of the month not on weekly basis.',
+      registerDateTime: '2023-04-10 12:19:25.455188',
+      actionDateTime: '2023-04-16 08:00:25.455188',
+      files: [151515],
+    },
+  ];
 
   const chooseProfileImage = async () => {
     Alert.alert('Select Files', 'Select option for uploading files', [
@@ -78,12 +170,12 @@ function SupportDoctor({navigation}) {
           });
         },
       },
-      {
-        text: 'Open Camera',
-        onPress: () => {
-          requestCameraPermission();
-        },
-      },
+      // {
+      //   text: 'Open Camera',
+      //   onPress: () => {
+      //     requestCameraPermission();
+      //   },
+      // },
       {
         text: 'Cancel',
         style: 'cancel',
@@ -134,58 +226,7 @@ function SupportDoctor({navigation}) {
       },
     );
   };
-  //   const postpfp = async pickerResult => {
-  //     try {
-  //       console.log('==============Inside post pfp==========');
 
-  //       let ext = '.' + pickerResult.fileName.split('.').pop();
-
-  //       //delete pickerResult.fileName;
-  //       pickerResult.size = pickerResult.fileSize;
-  //       delete pickerResult.fileSize;
-
-  //       // pickerResult.name = doctorId + '_ProfilePhoto' + ext;
-  //       //console.log(pickerResult.fileName);
-
-  //       pickerResult.name = pickerResult.fileName;
-  //       delete pickerResult.fileName;
-
-  //       console.log('===========  FILE ==============\n', pickerResult);
-  //       console.log(
-  //         '===========  USERID ==============\n',
-  //         patientDet.patientId,
-  //       );
-
-  //       let formData = new FormData();
-  //       formData.append('directoryNames', 'DOCTOR_HELP_SUPPORT');
-  //       formData.append('file', pickerResult);
-  //       formData.append('userId', patientDet.patientId);
-  //       const {error, response} = await fileUpload(formData);
-
-  //       if (error != null) {
-  //         console.log('======error======');
-  //         console.log(error);
-  //         Alert.alert(
-  //           'Error',
-  //           'There was a problem in uploading profile picture. Please try again.',
-  //         );
-  //       } else {
-  //         console.log('======response======');
-  //         console.log(response.fileToken);
-
-  //         let temp = {
-  //           consultationId: consultationId,
-  //           documentName: pickerResult.name,
-  //           documentPath: response.fileToken,
-  //           //uploadedDate: dayjs().format('YYYY-MM-DD'),
-  //         };
-  //         let arr = [...DocList, temp];
-  //         setDocList(arr);
-  //       }
-  //     } catch (e) {
-  //       console.log(e);
-  //     }
-  //   };
   const dropdownData = [
     {key: 'Technical', value: 'Technical'},
     {key: 'Slot Creation', value: 'Slot Creation'},
@@ -194,6 +235,207 @@ function SupportDoctor({navigation}) {
     {key: 'Payment', value: 'Payment'},
     {key: 'Other', value: 'Other'},
   ];
+
+  const renderQuery = ({item}) => {
+    return (
+      <View
+        style={{
+          flex: 1,
+          alignSelf: 'center',
+          width: '95%',
+          padding: 10,
+          borderRadius: 10,
+          backgroundColor: 'white',
+          marginVertical: 5,
+          flexDirection: 'column',
+        }}
+        key={item.helpId}>
+        <View
+          style={{
+            flex: 1,
+            padding: 5,
+            flexDirection: 'row',
+          }}>
+          {/* Image */}
+          <View
+            style={[
+              {
+                borderWidth: 3,
+                borderRadius: 10,
+                marginRight: 10,
+              },
+              item.complaintStatus == 'REGISTERED'
+                ? {borderColor: '#2b8ada'}
+                : item.complaintStatus == 'UNDER_PROCESS'
+                ? {borderColor: '#FCC419'}
+                : item.complaintStatus == 'COMPLETED'
+                ? {borderColor: '#17CC9C'}
+                : {borderColor: '#E04F5F'},
+            ]}>
+            <Image
+              source={
+                item.complaintStatus == 'REGISTERED'
+                  ? HelpUploaded
+                  : item.complaintStatus == 'UNDER_PROCESS'
+                  ? HelpUnderProcess
+                  : item.complaintStatus == 'COMPLETED'
+                  ? HelpDone
+                  : HelpCancel
+              }
+              style={{
+                width: 50,
+                height: 50,
+                margin: 5,
+                alignSelf: 'center',
+              }}
+            />
+          </View>
+          {/* Heading */}
+          <View>
+            <Text style={styles.ticketNumber}>Ticket #{item.helpId}</Text>
+            <Text style={styles.dateTime}>
+              {dayjs(item.registerDateTime).format('MMM DD, YYYY | HH:mm A')}
+            </Text>
+            <Text style={styles.underHeading}>{item.type}</Text>
+          </View>
+          {/* Side Note */}
+          <View style={{position: 'absolute', right: 0}}>
+            <Text
+              style={[
+                {
+                  borderRadius: 5,
+                  fontSize: 12,
+                  fontWeight: 'bold',
+                  padding: 5,
+                  borderWidth: 2,
+                  alignSelf: 'center',
+                  textAlign: 'center',
+                },
+                item.complaintStatus == 'REGISTERED'
+                  ? {borderColor: '#2b8ada', color: '#2b8ada'}
+                  : item.complaintStatus == 'UNDER_PROCESS'
+                  ? {borderColor: '#FCC419', color: '#FCC419'}
+                  : item.complaintStatus == 'COMPLETED'
+                  ? {borderColor: '#17CC9C', color: '#17CC9C'}
+                  : {borderColor: '#E04F5F', color: '#E04F5F'},
+              ]}>
+              {item.complaintStatus == 'REGISTERED'
+                ? 'Submitted'
+                : item.complaintStatus == 'UNDER_PROCESS'
+                ? 'Under Process'
+                : item.complaintStatus == 'COMPLETED'
+                ? 'Completed'
+                : 'Cancelled'}
+            </Text>
+          </View>
+        </View>
+        {/* Issue */}
+        <View
+          style={{
+            flex: 1,
+            padding: 5,
+            flexDirection: 'row',
+            alignSelf: 'center',
+            width: '95%',
+          }}>
+          <Text style={{color: 'black', textAlign: 'justify'}}>
+            {item.message}
+          </Text>
+        </View>
+        {/* Remarks */}
+        {item.complaintStatus != 'REGISTERED' ? (
+          <View
+            style={{
+              flex: 1,
+              padding: 5,
+              flexDirection: 'column',
+              alignSelf: 'center',
+              width: '95%',
+            }}>
+            <Text style={{color: 'black', fontWeight: 'bold', fontSize: 15}}>
+              Remark:-
+            </Text>
+            <Text style={{color: 'gray', fontWeight: 'bold', fontSize: 12}}>
+              {dayjs(item.actionDateTime).format('MMM DD, YYYY | HH:mm A')}
+            </Text>
+            <Text style={{color: 'black', textAlign: 'justify'}}>
+              {item.remark}
+            </Text>
+          </View>
+        ) : null}
+        {/* Attatchments */}
+        {item.files != null && item.files.length > 0 ? (
+          <View
+            style={{
+              flex: 1,
+              padding: 5,
+              flexDirection: 'column',
+              alignSelf: 'center',
+              width: '95%',
+            }}>
+            <Text style={{color: 'black', fontWeight: 'bold', fontSize: 15}}>
+              Attatchments :-
+            </Text>
+            <View style={{flexDirection: 'row', marginTop: 5}}>
+              {item.files.map((i, index) => {
+                return (
+                  <TouchableOpacity
+                    style={{
+                      borderWidth: 1,
+                      borderColor: '#2b8ada',
+                      padding: 5,
+                      borderRadius: 10,
+                      flexDirection: 'row',
+                      marginRight: 10,
+                    }}
+                    onPress={() => {
+                      setDisplayPhotoToken(i);
+                      setImageViewer(true);
+                    }}
+                    key={index}>
+                    <FAIcon
+                      name="file-image"
+                      size={15}
+                      color={'#2b8ada'}
+                      style={{
+                        alignSelf: 'center',
+                        justifyContent: 'center',
+                        marginRight: 5,
+                      }}
+                    />
+                    <Text style={{color: '#2b8ada', fontSize: 12}}>
+                      Attatchment {index + 1}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
+        ) : null}
+        {item.complaintStatus != 'REGISTERED' && item.isRated == false ? (
+          <TouchableOpacity
+            style={{
+              flexDirection: 'row',
+              padding: 5,
+              justifyContent: 'space-evenly',
+              marginTop: 5,
+              alignSelf: 'flex-end',
+              backgroundColor: '#2b8ada',
+              borderRadius: 10,
+              width: 100,
+            }}
+            onPress={() => {
+              setFeedBackModal(true);
+              setHelpId(item.helpId);
+            }}>
+            <FAIcon name="comment-alt" color={'white'} size={15} solid={true} />
+            <Text style={{fontSize: 12, color: 'white'}}>Feedback</Text>
+          </TouchableOpacity>
+        ) : null}
+      </View>
+    );
+  };
+
   const renderDocs = ({item, index}) => {
     return (
       <View
@@ -227,7 +469,7 @@ function SupportDoctor({navigation}) {
             onPress={() => {
               removeDocsHandler(item.fileName);
             }}>
-            <FAIcons
+            <FAIcon
               name="trash"
               size={15}
               style={{
@@ -243,6 +485,80 @@ function SupportDoctor({navigation}) {
   };
   const removeDocsHandler = i => {
     setdocList(docList.filter(e => i != e.fileName));
+  };
+
+  const reset = () => {
+    setType('');
+    setmessage('');
+    setdocList([]);
+    setaddQuery(false);
+  };
+  const submitQuery = async () => {
+    setisUploading(true);
+    //upload pics
+    let files = [];
+    for (let i = 0; i < docList.length; ++i) {
+      try {
+        console.log('==============Inside post pfp==========');
+        let ext = '.' + docList[i].fileName.split('.').pop();
+        //delete docList[i].fileName;
+        docList[i].size = docList[i].fileSize;
+        delete docList[i].fileSize;
+        // docList[i].name = doctorId + '_ProfilePhoto' + ext;
+        //console.log(docList[i].fileName);
+        docList[i].name = docList[i].fileName;
+        delete docList[i].fileName;
+
+        let formData = new FormData();
+        formData.append('directoryNames', 'DOCTOR_HELP_SUPPORT');
+        formData.append('file', docList[i]);
+        formData.append('userId', doctorId);
+        console.log(formData);
+        const {error, response} = await fileUpload(formData);
+        if (error != null) {
+          console.log('======error======');
+          console.log(error);
+          Alert.alert(
+            'Error',
+            'There was a problem in uploading attatchments. Please try again.',
+          );
+        } else {
+          console.log('======response======');
+          console.log(response.fileToken);
+          if (response.fileToken != undefined) files.push(response.fileToken);
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    }
+    let queryJson = {
+      doctorId: doctorId,
+      files: files,
+      message: message,
+      type: type,
+    };
+    console.log(queryJson);
+    await axios
+      .post(apiConfig.baseUrl + '/doctor/help', queryJson)
+      .then(response => {
+        if (response.status == 200) {
+          Alert.alert(
+            'Success',
+            'Your query has been submitted successfully and would be resolved within 24 hours.',
+          );
+          reset();
+          setisUploading(false);
+        }
+      })
+      .catch(error => {
+        Alert.alert(
+          'Error',
+          'An error occured while submitting query.\n Please try again later.',
+        );
+        console.log(error);
+        reset();
+        setisUploading(false);
+      });
   };
 
   return (
@@ -286,122 +602,208 @@ function SupportDoctor({navigation}) {
                 Help & Support
               </Text>
             </View>
-            <View
-              style={{
-                alignSelf: 'center',
-                width: '95%',
-                padding: 10,
-                paddingVertical: 25,
-                borderRadius: 10,
-                backgroundColor: 'white',
-              }}>
-              {/* Sub-Heading */}
-              <View style={{flex: 1, padding: 10}}>
-                <Text style={styles.parStyles}>
-                  Drop your queries & feedback here. Your queries will be
-                  resolved within 24 hours.
-                </Text>
-              </View>
-
-              {/* Support Type */}
-              <View style={{flex: 1, padding: 10}}>
-                <Text style={styles.inputLabel}>Select Query Type</Text>
-                <SelectList
-                  placeholder=" "
-                  setSelected={val => setType(val)}
-                  data={dropdownData}
-                  save="value"
-                  boxStyles={{
-                    backgroundColor: '#E8F0FE',
-                    borderWidth: 0,
-                    padding: 0,
-                    borderRadius: 5,
-                    color: 'black',
-                  }}
-                  dropdownStyles={{backgroundColor: 'white'}}
-                  dropdownTextStyles={{
-                    color: '#2b8ada',
-                    fontWeight: 'bold',
-                  }}
-                  badgeStyles={{backgroundColor: '#2b8ada'}}
-                />
-              </View>
-              {/* Support Message */}
-              <View style={{flex: 1, padding: 10}}>
-                <Text style={styles.inputLabel}>Type your concern here</Text>
-                <TextInput
-                  style={{
-                    backgroundColor: '#e8f0fe',
-                    padding: 0,
-                    paddingHorizontal: 10,
-                    borderRadius: 5,
-                    minHeight: 50,
-                    maxHeight: 100,
-                    textAlign: 'left',
-                    color: 'black',
-                  }}
-                  onChangeText={text => setmessage(text)}
-                  value={message}
-                  multiline={true}
-                />
-              </View>
-              {/* Attatchments */}
-              <View style={{flex: 1, padding: 10}}>
-                <Text style={styles.inputLabel}>Attach screenshot if any</Text>
-
-                <View>
+            {/* View Query Label*/}
+            <TouchableOpacity
+              style={[styles.WhiteLabel]}
+              onPress={() => setviewQuery(!viewQuery)}>
+              <FAIcon
+                name="comment-dots"
+                size={15}
+                color={viewQuery ? '#2b8ada' : 'gray'}
+                style={{marginLeft: 3, alignSelf: 'center'}}
+                solid={true}
+              />
+              <Text
+                style={[
+                  styles.label,
+                  {width: '80%'},
+                  viewQuery ? {color: '#2B8ADA'} : {color: 'black'},
+                ]}>
+                Your Queries
+              </Text>
+              <FAIcon
+                name={viewQuery ? 'chevron-down' : 'chevron-right'}
+                size={20}
+                style={[viewQuery ? {color: '#2B8ADA'} : {color: 'black'}]}
+              />
+            </TouchableOpacity>
+            {viewQuery ? (
+              <View>
+                {dataMainQuery.length > 0 ? (
                   <FlatList
-                    data={docList}
-                    renderItem={renderDocs}
-                    keyExtractor={item => item.fileName}
-                    //style={{}}
+                    data={dataMainQuery}
+                    renderItem={renderQuery}
+                    keyExtractor={item => item.helpId}
                   />
+                ) : (
+                  <View style={{alignSelf: 'center'}}>
+                    <Text
+                      style={{
+                        alignSelf: 'center',
+                        color: 'black',
+                        fontSize: 13,
+                      }}>
+                      No Query Submitted
+                    </Text>
+                  </View>
+                )}
+              </View>
+            ) : null}
+
+            {/* Add Query Label*/}
+            <TouchableOpacity
+              style={[styles.WhiteLabel]}
+              onPress={() => setaddQuery(!addQuery)}>
+              <FAIcon
+                name="comment-medical"
+                size={15}
+                color={addQuery ? '#2b8ada' : 'gray'}
+                style={{marginLeft: 3, alignSelf: 'center'}}
+              />
+              <Text
+                style={[
+                  styles.label,
+                  {width: '80%'},
+                  addQuery ? {color: '#2B8ADA'} : {color: 'black'},
+                ]}>
+                Add Query
+              </Text>
+              <FAIcon
+                name={addQuery ? 'chevron-down' : 'chevron-right'}
+                size={20}
+                style={[addQuery ? {color: '#2B8ADA'} : {color: 'black'}]}
+              />
+            </TouchableOpacity>
+            {addQuery ? (
+              <View
+                style={{
+                  alignSelf: 'center',
+                  width: '95%',
+                  padding: 10,
+                  paddingVertical: 25,
+                  borderRadius: 10,
+                  backgroundColor: 'white',
+                  marginTop: 5,
+                }}>
+                {/* Sub-Heading */}
+                <View style={{flex: 1, padding: 10}}>
+                  <Text style={styles.parStyles}>
+                    Drop your queries & feedback here.{'\n'}Your queries will be
+                    resolved within 24 hours.
+                  </Text>
+                </View>
+
+                {/* Support Type */}
+                <View style={{flex: 1, padding: 10}}>
+                  <Text style={styles.inputLabel}>Select Query Type</Text>
+                  <SelectList
+                    placeholder=" "
+                    setSelected={val => setType(val)}
+                    data={dropdownData}
+                    save="value"
+                    boxStyles={{
+                      backgroundColor: '#E8F0FE',
+                      borderWidth: 0,
+                      padding: 0,
+                      borderRadius: 5,
+                      color: 'black',
+                    }}
+                    dropdownStyles={{backgroundColor: 'white'}}
+                    dropdownTextStyles={{
+                      color: '#2b8ada',
+                      fontWeight: 'bold',
+                    }}
+                    badgeStyles={{backgroundColor: '#2b8ada'}}
+                  />
+                </View>
+                {/* Support Message */}
+                <View style={{flex: 1, padding: 10}}>
+                  <Text style={styles.inputLabel}>Type your concern here</Text>
+
+                  <TextInput
+                    style={{
+                      backgroundColor: '#e8f0fe',
+                      padding: 0,
+                      paddingHorizontal: 10,
+                      borderRadius: 5,
+                      minHeight: 150,
+                      textAlign: 'left',
+                      color: 'black',
+                    }}
+                    onChangeText={text => setmessage(text)}
+                    value={message}
+                    multiline={true}
+                  />
+                </View>
+                {/* Attatchments */}
+                <View style={{flex: 1, padding: 10}}>
+                  <Text style={styles.inputLabel}>
+                    Attach screenshot if any
+                  </Text>
+
+                  <View>
+                    <FlatList
+                      data={docList}
+                      renderItem={renderDocs}
+                      keyExtractor={item => item.fileName}
+                      //style={{}}
+                    />
+                    <CustomButton
+                      text={'+ Add Image'}
+                      textstyle={{
+                        color: 'white',
+                        fontSize: 12,
+                        fontWeight: 'bold',
+                      }}
+                      style={[
+                        {
+                          backgroundColor: '#2b8ada',
+                          borderRadius: 5,
+                          marginTop: 10,
+                          padding: 10,
+                        },
+                        docList.length == 0
+                          ? {flex: 1}
+                          : {flex: 0.3, alignSelf: 'flex-end'},
+                      ]}
+                      onPress={() => {
+                        if (docList.length < 2) chooseProfileImage();
+                        else
+                          Alert.alert(
+                            'File Limit',
+                            'Maximum 2 images can be uploaded.',
+                          );
+                      }}
+                    />
+                  </View>
+                </View>
+                {/* Submit Button */}
+                <View style={{flex: 1, padding: 10}}>
                   <CustomButton
-                    text={'+ Add Image'}
+                    text={'Submit'}
                     textstyle={{
                       color: 'white',
                       fontSize: 12,
                       fontWeight: 'bold',
                     }}
-                    style={[
-                      {
-                        backgroundColor: '#2b8ada',
-                        borderRadius: 5,
-                        marginTop: 10,
-                        padding: 10,
-                      },
-                      docList.length == 0
-                        ? {flex: 1}
-                        : {flex: 0.3, alignSelf: 'flex-end'},
-                    ]}
-                    onPress={() => {
-                      if (docList.length < 2) chooseProfileImage();
-                      else
-                        Alert.alert(
-                          'File Limit',
-                          'Maximum 2 images can be uploaded.',
-                        );
+                    style={{
+                      backgroundColor: '#17CC9C',
+                      borderRadius: 10,
+                      marginTop: 10,
+                    }}
+                    onPress={async () => {
+                      await submitQuery();
+
+                      // Alert.alert(
+                      //   'Success',
+                      //   'Your query has been submitted successfully and would be resolved within 24 hours.',
+                      // );
+                      // reset();
                     }}
                   />
                 </View>
               </View>
-              {/* Submit Button */}
-              <View style={{flex: 1, padding: 10}}>
-                <CustomButton
-                  text={'Submit'}
-                  textstyle={{
-                    color: 'white',
-                    fontSize: 12,
-                    fontWeight: 'bold',
-                  }}
-                  style={{
-                    backgroundColor: '#17CC9C',
-                    borderRadius: 10,
-                    marginTop: 10,
-                  }}
-                />
-              </View>
-            </View>
+            ) : null}
           </View>
         </ScrollView>
         {isLoading && (
@@ -448,7 +850,377 @@ function SupportDoctor({navigation}) {
             </View>
           </View>
         )}
+        {isUploading == true && (
+          <View
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: 'rgba(0,0,0,0.4)',
+            }}>
+            <View
+              style={{
+                backgroundColor: 'white',
+                alignSelf: 'center',
+                borderRadius: 20,
+                width: 200,
+                height: 200,
+                justifyContent: 'center',
+                flexDirection: 'column',
+              }}>
+              <Image
+                source={upload}
+                style={{
+                  alignSelf: 'center',
+                  width: 80,
+                  height: 80,
+                  // borderRadius: 150,
+                }}
+              />
+              <Text
+                style={{
+                  alignSelf: 'center',
+                  textAlign: 'center',
+                  color: '#2B8ADA',
+                  fontSize: 18,
+                  fontWeight: 'bold',
+                  width: '100%',
+                  marginVertical: 5,
+                  // padding: 10,
+                }}>
+                {'Uploading '}
+              </Text>
+              <Text
+                style={{
+                  alignSelf: 'center',
+                  textAlign: 'center',
+                  color: 'black',
+                  fontSize: 12,
+                  width: '100%',
+                  paddingHorizontal: 15,
+                }}>
+                {'We are upating your details'}
+              </Text>
+            </View>
+          </View>
+        )}
       </SafeAreaView>
+      {ImageViewer ? (
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={ImageViewer}
+          onRequestClose={() => {
+            setImageViewer(!ImageViewer);
+          }}>
+          <View
+            style={{
+              height: '100%',
+              backgroundColor: 'rgba(0,0,0,0.8)',
+              flexDirection: 'row',
+              justifyContent: 'center',
+            }}>
+            <View
+              style={[
+                {
+                  position: 'absolute',
+                  alignItems: 'center',
+                  alignSelf: 'center',
+                  width: '90%',
+                  backgroundColor: 'white',
+                  padding: 35,
+                  shadowColor: '#000',
+                  shadowOffset: {
+                    width: 0,
+                    height: 2,
+                  },
+                  borderRadius: 10,
+                  padding: 15,
+                  height: 300,
+                },
+              ]}>
+              <View
+                style={{
+                  width: '100%',
+                  alignSelf: 'center',
+                  borderBottomWidth: 1,
+                  borderBottomColor: 'gray',
+                }}>
+                <Text
+                  style={{
+                    fontWeight: 'bold',
+                    fontSize: 16,
+                    padding: 5,
+                    color: 'black',
+                  }}>
+                  Attatchment
+                </Text>
+                <FAIcon
+                  name="window-close"
+                  color="black"
+                  size={26}
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    right: 0,
+                  }}
+                  onPress={() => {
+                    setImageViewer(false);
+                    setDisplayPhotoToken(0);
+                  }}
+                />
+              </View>
+              <View style={{minHeight: 150, width: '100%'}}>
+                <ScrollView
+                  style={{
+                    padding: 10,
+                    width: '100%',
+                    alignSelf: 'center',
+                    borderRadius: 7,
+                    marginVertical: 10,
+                    borderWidth: 2,
+                    borderColor: 'gray',
+                    minHeight: 200,
+                  }}
+                  scrollEnabled={true}>
+                  {DisplayPhotoToken == 0 ? (
+                    <Image
+                      source={waiting}
+                      style={{
+                        alignSelf: 'center',
+                      }}
+                    />
+                  ) : (
+                    <Image
+                      source={{
+                        uri: `${apiConfig.baseUrl}/file/download?fileToken=${DisplayPhotoToken}&userId=${doctorId}`,
+                      }}
+                      style={{
+                        resizeMode: 'cover',
+                        width: '100%',
+                        height: 180,
+                      }}
+                    />
+                  )}
+                </ScrollView>
+              </View>
+            </View>
+          </View>
+        </Modal>
+      ) : null}
+      {FeedBackModal ? (
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={FeedBackModal}
+          onRequestClose={() => {
+            setFeedBackModal(!FeedBackModal);
+          }}>
+          <View
+            style={{
+              height: '100%',
+              backgroundColor: 'rgba(0,0,0,0.8)',
+              flexDirection: 'row',
+              justifyContent: 'center',
+            }}>
+            <View
+              style={[
+                {
+                  position: 'absolute',
+                  alignItems: 'center',
+                  alignSelf: 'center',
+                  width: '90%',
+                  backgroundColor: 'white',
+                  padding: 35,
+                  shadowColor: '#000',
+                  shadowOffset: {
+                    width: 0,
+                    height: 2,
+                  },
+                  borderRadius: 10,
+                  padding: 15,
+                  height: 300,
+                },
+              ]}>
+              <View
+                style={{
+                  width: '100%',
+                  alignSelf: 'center',
+                  borderBottomWidth: 1,
+                  borderBottomColor: 'gray',
+                }}>
+                <Text
+                  style={{
+                    fontWeight: 'bold',
+                    fontSize: 16,
+                    padding: 5,
+                    color: 'black',
+                  }}>
+                  Feedback
+                </Text>
+                <FAIcon
+                  name="window-close"
+                  color="black"
+                  size={26}
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    right: 0,
+                  }}
+                  onPress={() => {
+                    // setImageViewer(false);
+                    // setDisplayPhotoToken(0);
+                    setFeedBackModal(false);
+                    setRating(null);
+                  }}
+                />
+              </View>
+              {/* Satisfied */}
+              <View style={{width: '95%'}}>
+                <Text
+                  style={{
+                    color: 'black',
+                    fontSize: 14,
+                    textAlign: 'left',
+                    fontWeight: 'bold',
+                    marginTop: 5,
+                  }}>
+                  Are you satisfied with the response?
+                </Text>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    width: '95%',
+                    justifyContent: 'space-evenly',
+                    marginTop: 3,
+                  }}>
+                  <CustomButton
+                    text={'Yes'}
+                    style={[
+                      {
+                        borderColor: '#2b8ada',
+                        borderWidth: 2,
+                        flex: 0.45,
+                        padding: 5,
+                        borderRadius: 10,
+                      },
+                      Rating == true ? {backgroundColor: '#2b8ada'} : null,
+                    ]}
+                    textstyle={[
+                      {color: '#2b8ada', fontSize: 12},
+                      Rating == true ? {color: 'white'} : null,
+                    ]}
+                    onPress={() => {
+                      setRating(true);
+                    }}
+                  />
+                  <CustomButton
+                    text={'No'}
+                    style={[
+                      {
+                        borderColor: '#2b8ada',
+                        borderWidth: 2,
+                        flex: 0.45,
+                        padding: 5,
+                        borderRadius: 10,
+                      },
+                      Rating == false ? {backgroundColor: '#2b8ada'} : null,
+                    ]}
+                    textstyle={[
+                      {color: '#2b8ada', fontSize: 12},
+                      Rating == false ? {color: 'white'} : null,
+                    ]}
+                    onPress={() => {
+                      setRating(false);
+                    }}
+                  />
+                </View>
+              </View>
+              {/* Feedback Message */}
+              <View style={{width: '95%', marginVertical: 5}}>
+                <Text
+                  style={{
+                    color: 'black',
+                    fontSize: 14,
+                    textAlign: 'left',
+                    fontWeight: 'bold',
+                    marginVertical: 5,
+                  }}>
+                  Feedback
+                </Text>
+                <TextInput
+                  style={{
+                    backgroundColor: '#e8f0fe',
+                    padding: 5,
+                    height: 100,
+                    borderRadius: 10,
+                  }}
+                  onChangeText={text => setfeedbackMsg(text)}
+                  value={feedbackMsg}
+                  multiline={true}
+                />
+              </View>
+              <CustomButton
+                text={'Submit'}
+                textstyle={{color: 'white', fontSize: 13}}
+                style={{
+                  width: '95%',
+                  backgroundColor: '#2b8ada',
+                  borderRadius: 10,
+                  marginVertical: 10,
+                  padding: 5,
+                  paddingHorizontal: 15,
+                }}
+                onPress={async () => {
+                  console.log(apiConfig.baseUrl + '/doctor/query/feedback', {
+                    feedback: feedbackMsg,
+                    helpId: helpId,
+                    isSatisfied: Rating,
+                  });
+
+                  await axios
+                    .post(apiConfig.baseUrl + '/doctor/query/feedback', {
+                      feedback: feedbackMsg,
+                      helpId: helpId,
+                      isSatisfied: Rating,
+                    })
+                    .then(response => {
+                      if (response.status == 200) {
+                        Alert.alert(
+                          'Feedback Submitted',
+                          'Your feedback has been submitted successfully. \nThank You',
+                          [
+                            {
+                              text: 'ok',
+                              onPress: () => getQuery(),
+                            },
+                          ],
+                        );
+                        setfeedbackMsg('');
+                        setRating(null);
+                        setFeedBackModal(false);
+                      }
+                    })
+                    .catch(error => {
+                      Alert.alert(
+                        'Error',
+                        'An error occured while submitting feedback.\nPlease try again later.',
+                      );
+                      setfeedbackMsg('');
+                      setRating(null);
+                      setFeedBackModal(false);
+                      console.log(error);
+                    });
+                }}
+              />
+            </View>
+          </View>
+        </Modal>
+      ) : null}
     </KeyboardAvoidingView>
   );
 }
@@ -462,9 +1234,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#e8f0fe',
   },
   parStyles: {
-    textAlign: 'justify',
+    textAlign: 'center',
     fontSize: 13,
-    marginVertical: 5,
     lineHeight: 15,
     color: 'black',
   },
@@ -474,6 +1245,31 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginVertical: 10,
     color: '#2b8ada',
+  },
+  WhiteLabel: {
+    flexDirection: 'row',
+    width: '95%',
+    marginVertical: 5,
+    alignSelf: 'center',
+    backgroundColor: 'white',
+    marginBottom: 5,
+    padding: 10,
+    justifyContent: 'space-between',
+    borderRadius: 10,
+  },
+  ticketNumber: {
+    fontSize: 18,
+    color: 'black',
+    fontWeight: 'bold',
+  },
+  dateTime: {
+    fontSize: 12,
+    color: 'gray',
+  },
+  underHeading: {
+    fontSize: 13,
+    color: 'black',
+    fontWeight: 'bold',
   },
 });
 

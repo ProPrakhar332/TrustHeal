@@ -22,6 +22,7 @@ import {
 import {useCallback} from 'react';
 
 import {CheckBox} from 'react-native-elements';
+import {useIsFocused} from '@react-navigation/native';
 import FAIcon from 'react-native-vector-icons/FontAwesome5';
 import Entypo from 'react-native-vector-icons/Entypo';
 import MIcons from 'react-native-vector-icons/MaterialIcons';
@@ -80,23 +81,11 @@ const MyUpcomingAppointment = ({navigation}) => {
   const [TodaysDocs, setTodaysDocs] = useState([]);
   const [ConsultationQuestionnaire, setConsultationQuestionnaire] =
     useState(false);
-  //complete tab
-  const [Complete, setComplete] = useState(false);
-  const [CompleteData, setCompleteData] = useState([]);
-  //status tab
-  const [Status, setStatus] = useState(false);
-  const [StatusData, setStatusData] = useState([]);
-  const [ManageStatusModal, setManageStatusModal] = useState(false);
-  const [ManageStatus, setManageStatus] = useState('');
-  const [PrescriptionMade, setPrescriptionMade] = useState('');
-  const [isFetching, setisFetching] = useState(false);
-  //Pending Prescription Modal
 
-  const [pending, setpending] = useState(false);
-  const [PendingData, setPendingData] = useState([]);
+  const [isFetching, setisFetching] = useState(false);
 
   const [strtCC, setstrtCC] = useState(0);
-  const [endCC, setendCC] = useState(4);
+  const [endCC, setendCC] = useState(9);
   const [endOfList, setendOfList] = useState(false);
   const [zoom, setZoom] = useState(1);
 
@@ -279,7 +268,7 @@ const MyUpcomingAppointment = ({navigation}) => {
     }
   };
 
-  const renderCard = ({item}) => {
+  const renderCard = ({item, index}) => {
     return (
       <View
         style={{
@@ -289,6 +278,7 @@ const MyUpcomingAppointment = ({navigation}) => {
           borderRadius: 10,
           marginVertical: 5,
         }}
+        key={index}
         // onPress={() => console.log(item)}
       >
         <View
@@ -707,6 +697,7 @@ const MyUpcomingAppointment = ({navigation}) => {
       </View>
     );
   };
+
   const renderCardCompleted = ({item}) => {
     return (
       <View
@@ -1142,6 +1133,21 @@ const MyUpcomingAppointment = ({navigation}) => {
       </TouchableOpacity>
     );
   };
+  //  const isFocused = useIsFocused();
+
+  //  useEffect(() => {
+  //    if (isFocused != null) {
+  //      //Update the state you want to be updated
+  //      // getUpcomingData();
+  //      // getCompletedData();
+  //      // getPendingData();
+  //      // getRecentData();
+  //      setUpcoming(false);
+  //      setComplete(false);
+  //      setStatus(false);
+  //      setpending(false);
+  //    }
+  //  }, [isFocused]);
 
   useEffect(() => {
     const onLoadScreen = async () => {
@@ -1149,74 +1155,43 @@ const MyUpcomingAppointment = ({navigation}) => {
       setdoctorId(x.doctorId);
     };
     onLoadScreen();
+    //getUpcomingData();
   }, []);
 
-  useEffect(() => {
-    if (Upcoming == true) getUpcomingData();
-  }, [Upcoming]);
-
   const getUpcomingData = async () => {
-    let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
-    setDoctorObj(x);
-    let doctorId = x.doctorId;
-    //console.log(doctorId);
     setisFetching(true);
+    let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
+    let doctorId = x.doctorId;
+    console.log(
+      apiConfig.baseUrl +
+        `/doctor/all/consultations?doctorId=${doctorId}&max=${endCC}&start=${strtCC}`,
+    );
     axios
       .get(
         apiConfig.baseUrl +
-          '/doctor/upcoming/consultation?doctorId=' +
-          doctorId,
+          `/doctor/all/consultations?doctorId=${doctorId}&max=${endCC}&start=${strtCC}`,
       )
       .then(function (response) {
         setisFetching(false);
+        console.log(response.data);
         if (response.status == 200) {
-          setUpcomingData(response.data);
+          if (response.data.length > 0) {
+            setUpcomingData([...UpcomingData, ...response.data]);
+          } else {
+            setendOfList(true);
+            console.log('No more data');
+          }
         }
-        console.log(UpcomingData);
+        //console.log(UpcomingData);
       })
       .catch(function (error) {
         setisFetching(false);
         Alert.alert(
           'Error',
-          'An error occured while fetching upcoming details. Please try again later.',
+          'An error occured while fetching all consultations. Please try again later.',
         );
         console.log(
           '=====Error in fetching upcoming consultation details=====',
-        );
-        console.log(error);
-      });
-  };
-  useEffect(() => {
-    if (Complete == true) getCompletedData();
-  }, [Complete]);
-  const getCompletedData = async () => {
-    let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
-    let doctorId = x.doctorId;
-    //console.log("Completed");
-    setisFetching(true);
-    axios
-      .get(
-        apiConfig.baseUrl +
-          '/doctor/complete/consultation?doctorId=' +
-          doctorId +
-          '&start=' +
-          0 +
-          '&max=' +
-          10,
-      )
-      .then(function (response) {
-        setisFetching(false);
-        if (response.status == 200) setCompleteData(response.data);
-        //console.log(CompleteData);
-      })
-      .catch(function (error) {
-        setisFetching(false);
-        Alert.alert(
-          'Error',
-          'An error occured while fetching completed consultation details. Please try again later.',
-        );
-        console.log(
-          '=====Error in fetching completed consultation details=====',
         );
         console.log(error);
       });
@@ -1271,58 +1246,20 @@ const MyUpcomingAppointment = ({navigation}) => {
       });
   };
 
-  const onPrev = () => {
-    setendCC(strtCC - 1);
-    setstrtCC(strtCC - 5);
-    console.log('       START       :         ', strtCC);
-    console.log('       END         :         ', endCC);
-    getMoreConsultationQues();
+  const loadMoreItem = () => {
+    if (!endOfList) {
+      setstrtCC(endCC + 1);
+      setendCC(endCC + 10);
+      console.log('       START       :         ', strtCC);
+      console.log('       END         :         ', endCC);
+    }
+    console.log('End of list reached');
+    //getUpcomingData();
   };
+  useEffect(() => {
+    getUpcomingData();
+  }, [endCC]);
 
-  const onNext = () => {
-    setstrtCC(endCC + 1);
-    setendCC(endCC + 5);
-    console.log('       START       :         ', strtCC);
-    console.log('       END         :         ', endCC);
-    getMoreConsultationQues();
-  };
-  const getMoreConsultationQues = async () => {
-    let x = JSON.parse(await AsyncStorage.getItem('UserDoctorProfile'));
-    let doctorId = x.doctorId;
-    //console.log("Completed");
-    setisFetching(true);
-    axios
-      .get(
-        apiConfig.baseUrl +
-          '/doctor/complete/consultation?doctorId=' +
-          doctorId +
-          '&start=' +
-          strtCC +
-          '&max=' +
-          endCC,
-      )
-      .then(function (response) {
-        setisFetching(false);
-        if (response.status == 200) {
-          if (response.data != '') {
-            setendOfList(true);
-            setCompleteData(response.data);
-          } else setendOfList(false);
-        }
-        //console.log(CompleteData);
-      })
-      .catch(function (error) {
-        setisFetching(false);
-        Alert.alert(
-          'Error',
-          'An error occured while fetching completed consultation details. Please try again later.',
-        );
-        console.log(
-          '=====Error in fetching completed consultation details=====',
-        );
-        console.log(error);
-      });
-  };
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -1372,275 +1309,26 @@ const MyUpcomingAppointment = ({navigation}) => {
               <FAIcon name="caret-down" color={'#2B8ADA'} size={15} />
             </View> */}
 
-            {/* Tab */}
-            <View
-              style={{
-                marginVertical: 10,
-                borderRadius: 30,
-                borderWidth: 1,
-                borderColor: '#2B8ADA',
-                flexDirection: 'row',
-                width: '90%',
-                alignSelf: 'center',
-              }}>
-              <TouchableOpacity
-                onPress={() => {
-                  setComplete(!Complete);
-                  setUpcoming(!Upcoming);
-                }}
-                style={[
-                  {
-                    flex: 1,
-                    borderRadius: 20,
-                    padding: 10,
-                  },
-                  Upcoming ? {backgroundColor: '#2B8ADA'} : null,
-                ]}>
-                <Text
-                  style={[
-                    {
-                      textAlign: 'center',
-                    },
-                    Upcoming
-                      ? {color: 'white', fontWeight: 'bold'}
-                      : {color: 'black'},
-                  ]}>
-                  Upcoming
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  setComplete(!Complete);
-                  setUpcoming(!Upcoming);
-                }}
-                style={[
-                  {
-                    flex: 1,
-                    borderRadius: 20,
-                    padding: 10,
-                  },
-                  Complete ? {backgroundColor: '#2B8ADA'} : null,
-                ]}>
-                <Text
-                  style={[
-                    {
-                      textAlign: 'center',
-                    },
-                    Complete
-                      ? {color: 'white', fontWeight: 'bold'}
-                      : {color: 'black'},
-                  ]}>
-                  Completed
-                </Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Upcoming Consultaions Data */}
-            {Upcoming ? (
-              <View style={{flexDirection: 'column'}}>
-                <View style={{backgroundColor: '#E8F0FE'}}>
-                  <TouchableOpacity
-                    style={{
-                      flexDirection: 'row',
-                      padding: 5,
-                      paddingHorizontal: 10,
-                      marginLeft: 10,
-                    }}
-                    onPress={getUpcomingData}>
-                    <FAIcon
-                      name="redo-alt"
-                      size={12}
-                      style={{alignSelf: 'center', marginRight: 5}}
-                      color={'#2b8ada'}
-                    />
-                    <Text style={{color: '#2b8ada', fontSize: 12}}>
-                      Refresh
-                    </Text>
-                  </TouchableOpacity>
-                  {/* <View>
-                    <Text
-                      style={{
-                        color: "#2B8ADA",
-                        textDecorationLine: "underline",
-                        alignSelf: "flex-end",
-                        margin: 5,
-                        marginHorizontal: 10,
-                        fontSize: 12,
-                      }}
-                    >
-                      View More
-                    </Text>
-                  </View> */}
-                  {/* <View
-                    style={{
-                      flexDirection: "row",
-                      justifyContent: "space-evenly",
-                      alignSelf: "center",
-                      marginVertical: 5,
-                    }}
-                  >
-                    <CheckBox
-                      title="E-Consultation"
-                      containerStyle={styles.checkBoxContainerStyle}
-                      textStyle={{ width: "80%", fontSize: 14 }}
-                      checkedColor={"#2b8ada"}
-                      checked={upcomingEConsultations}
-                      onPress={() => {
-                        setupcomingEConsultations(!upcomingEConsultations);
-                      }}
-                    />
-                    <CheckBox
-                      title="P-Consultation"
-                      containerStyle={styles.checkBoxContainerStyle}
-                      textStyle={{ width: "80%", fontSize: 14 }}
-                      checkedColor={"#2b8ada"}
-                      checked={upcomingPConsultations}
-                      onPress={() => {
-                        setupcomingPConsultations(!upcomingPConsultations);
-                      }}
-                    />
-                  </View> */}
-                  <View>
-                    {/*Card Design */}
-                    {UpcomingData != '' ? (
-                      <FlatList
-                        data={UpcomingData}
-                        keyExtractor={item => item.consultationId}
-                        renderItem={renderCard}
-                      />
-                    ) : (
-                      <Text
-                        style={{
-                          marginVertical: 10,
-                          fontSize: 12,
-                          alignSelf: 'center',
-                          fontWeight: 'bold',
-                        }}>
-                        No Data Available for Upcoming Consultations
-                      </Text>
-                    )}
-                  </View>
-                </View>
-              </View>
-            ) : null}
-
-            {/* Completed Consultaions Body Data */}
-            {Complete ? (
-              <View style={{flexDirection: 'column'}}>
-                <View style={{backgroundColor: '#E8F0FE'}}>
-                  <TouchableOpacity
-                    style={{
-                      flexDirection: 'row',
-                      padding: 5,
-                      paddingHorizontal: 10,
-                      marginLeft: 10,
-                    }}
-                    onPress={getCompletedData}>
-                    <FAIcon
-                      name="redo-alt"
-                      size={12}
-                      style={{alignSelf: 'center', marginRight: 5}}
-                      color={'#2b8ada'}
-                    />
-                    <Text style={{color: '#2b8ada', fontSize: 12}}>
-                      Refresh
-                    </Text>
-                  </TouchableOpacity>
-                  {/* {CompleteData != '' ? (
-                    <View>
-                      <Text
-                        style={{
-                          color: '#2B8ADA',
-                          textDecorationLine: 'underline',
-                          alignSelf: 'flex-end',
-                          margin: 5,
-                          marginHorizontal: 10,
-                          fontSize: 12,
-                        }}>
-                        View More
-                      </Text>
-                    </View>
-                  ) : null} */}
-
-                  <View>
-                    {/*Card Design Completed Consultaions */}
-                    {CompleteData != '' ? (
-                      <View>
-                        <FlatList
-                          data={CompleteData}
-                          keyExtractor={item => item.consultationId}
-                          renderItem={renderCardCompleted}
-                        />
-                      </View>
-                    ) : (
-                      <Text
-                        style={{
-                          marginVertical: 10,
-                          fontSize: 12,
-                          alignSelf: 'center',
-                          fontWeight: 'bold',
-                        }}>
-                        No Completed Consultations Data Found
-                      </Text>
-                    )}
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        alignSelf: 'center',
-                        marginVertical: 10,
-                      }}>
-                      {strtCC != 0 ? (
-                        <Pressable
-                          style={{flexDirection: 'row', marginRight: 10}}
-                          onPress={() => onPrev()}>
-                          <FAIcon
-                            size={15}
-                            name="chevron-left"
-                            style={{
-                              fontWeight: 'bold',
-                              alignSelf: 'center',
-                            }}
-                            color={strtCC == 0 ? '#E8F0FE' : 'black'}
-                          />
-                          <Text
-                            style={{
-                              fontSize: 12,
-                              alignSelf: 'center',
-                              color: strtCC == 0 ? '#E8F0FE' : 'black',
-                              marginLeft: 3,
-                            }}>
-                            Previous
-                          </Text>
-                        </Pressable>
-                      ) : null}
-                      {endOfList ? (
-                        <Pressable
-                          style={{flexDirection: 'row'}}
-                          onPress={() => onNext()}>
-                          <Text
-                            style={{
-                              fontSize: 12,
-                              alignSelf: 'center',
-                              marginRight: 3,
-                              color: 'black',
-                            }}>
-                            Next
-                          </Text>
-                          <FAIcon
-                            size={15}
-                            name="chevron-right"
-                            style={{
-                              fontWeight: 'bold',
-                              alignSelf: 'center',
-                            }}
-                          />
-                        </Pressable>
-                      ) : null}
-                    </View>
-                  </View>
-                </View>
-              </View>
-            ) : null}
+            {UpcomingData.length > 0 ? (
+              <FlatList
+                data={UpcomingData}
+                keyExtractor={item => item.consultationId}
+                renderItem={renderCard}
+                onEndReached={loadMoreItem}
+                onEndReachedThreshold={0}
+              />
+            ) : (
+              <Text
+                style={{
+                  marginVertical: 20,
+                  fontSize: 12,
+                  alignSelf: 'center',
+                  fontWeight: 'bold',
+                  color: 'black',
+                }}>
+                No Data Available for Upcoming Consultations
+              </Text>
+            )}
 
             {/* History Modal */}
             {HistoryModal ? (
