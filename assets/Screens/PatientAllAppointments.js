@@ -44,7 +44,7 @@ import DocumentPicker, {
   types,
 } from 'react-native-document-picker';
 
-function MyAppointment({navigation}) {
+function PatientAllAppointments({navigation}) {
   const [isLoading, setisLoading] = useState(false);
   const [upcomingActive, setupcomingActive] = useState(true);
   const [completedActive, setcompletedActive] = useState(false);
@@ -1504,7 +1504,7 @@ function MyAppointment({navigation}) {
             backgroundColor: '#e8f0fe',
           }}
           showsVerticalScrollIndicator={false}>
-          <HeaderPatient showMenu={false} title="Appointments" />
+          <HeaderPatient showMenu={false} title="All Appointments" />
 
           {/* Tab */}
           <View
@@ -2637,4 +2637,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MyAppointment;
+export default PatientAllAppointments;

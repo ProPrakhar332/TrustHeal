@@ -688,7 +688,11 @@ function SupportPatient({navigation}) {
                     onChangeText={text => setmessage(text)}
                     value={message}
                     multiline={true}
+                    maxLength={300}
                   />
+                  <Text style={{fontSize: 12, color: 'black'}}>
+                    {message.length}/300
+                  </Text>
                 </View>
                 {/* Attatchments */}
                 <View style={{flex: 1, padding: 10}}>
@@ -858,7 +862,7 @@ function SupportPatient({navigation}) {
                   width: '100%',
                   paddingHorizontal: 15,
                 }}>
-                {'We are upating your details'}
+                {'We are submitting your query'}
               </Text>
             </View>
           </View>

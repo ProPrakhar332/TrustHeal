@@ -97,14 +97,22 @@ function DoctorDetails({navigation}) {
       setDocDet(x);
       setpatientDet(y);
       console.log(
-        apiConfig.baseUrl + '/patient/doctor/details?doctorId=' + x.doctorId,
+        apiConfig.baseUrl +
+          '/patient/doctor/details?doctorId=' +
+          x.doctorId +
+          '&patientId=' +
+          y.patientId,
       );
       axios
         .get(
-          apiConfig.baseUrl + '/patient/doctor/details?doctorId=' + x.doctorId,
+          apiConfig.baseUrl +
+            '/patient/doctor/details?doctorId=' +
+            x.doctorId +
+            '&patientId=' +
+            y.patientId,
         )
         .then(response => {
-          console.log(response.data);
+          console.log('\n\nDoctor Details\n\n', response.data);
           if (response.status == 200) setDocObj(response.data);
         })
         .catch(error => {
@@ -143,7 +151,7 @@ function DoctorDetails({navigation}) {
           if (response.status == 200) setESlots(response.data);
         })
         .catch(error => {
-          Alert.alert('Error', `${error}`);
+          Alert.alert('Error in Eslots', `${error}`);
         });
     };
     if (selectedDate != null) getEslots();
@@ -166,7 +174,7 @@ function DoctorDetails({navigation}) {
           }
         })
         .catch(error => {
-          Alert.alert('Error', `${error}`);
+          Alert.alert('Error in Clinic Details', `${error}`);
         });
     };
 
@@ -189,7 +197,7 @@ function DoctorDetails({navigation}) {
           if (response.status == 200) setPSlots(response.data);
         })
         .catch(error => {
-          Alert.alert('Error', `${error}`);
+          Alert.alert('Error in PSLots', `${error}`);
         });
     };
     if (selectedPDate != null) getPslots();
@@ -640,40 +648,7 @@ function DoctorDetails({navigation}) {
           }}
           showsVerticalScrollIndicator={false}>
           <HeaderPatient showMenu={false} title={'About'} />
-          <View
-            style={{
-              backgroundColor: '#21c47f',
-              padding: 10,
-              borderColor: '#21c47f',
-              borderWidth: 1,
-              width: '95%',
-              alignSelf: 'center',
-              justifyContent: 'center',
-              flexDirection: 'row',
-              borderRadius: 10,
-              marginVertical: 10,
-              paddingHorizontal: 15,
-            }}>
-            <FAIcon
-              name={'info-circle'}
-              color={'white'}
-              size={20}
-              style={{
-                justifyContent: 'center',
-                alignSelf: 'center',
-                marginRight: 10,
-              }}
-            />
-            <Text
-              style={{
-                justifyContent: 'center',
-                alignSelf: 'center',
-                color: 'white',
-                fontSize: 12,
-              }}>
-              You previously consulted on 14th February.
-            </Text>
-          </View>
+
           <DoctorBasicDetails DocDet={DocDet} />
 
           {/* Genreal Information Label*/}
@@ -1797,7 +1772,7 @@ function DoctorDetails({navigation}) {
                         'DD MMM, YYYY',
                       )}\nFrom:- ${timeformatter(time)}\nTo:-${timeformatter(
                         endtime,
-                      )}\nMode:- ${mode}`,
+                      )}\nMode:- ${mode.split('_').join(' ')}`,
                     [
                       {
                         text: 'Yes',
@@ -1805,6 +1780,7 @@ function DoctorDetails({navigation}) {
                           let x = {
                             clinicId: clinicId,
                             consultationType: consultationType,
+
                             doctorObj: DocObj,
                             doctorDet: DocDet,
                             mode: mode,

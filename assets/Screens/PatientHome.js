@@ -511,11 +511,34 @@ function PatientHome({navigation}) {
           if (response.status == 200) setDoctorsData(response.data);
         });
     };
+    const getFavDoctors = async () => {
+      let x = JSON.parse(await AsyncStorage.getItem('UserPatientProfile'));
+      let patientId = x.patientId;
+      axios
+        .get(
+          apiConfig.baseUrl + '/patient/fav/doctor/id?patientId=' + patientId,
+        )
+        .then(async function (response) {
+          console.log(
+            '\n=========================== LIST OF FAV DOCTORS ====================================\n',
+          );
+          console.log(response.data);
+          if (response.status == 200) {
+            let id = response.data.id;
+            await AsyncStorage.setItem('PatientFavId', JSON.stringify(id));
+          }
+        })
+        .catch(error => {
+          Alert.alert('Error', 'Error in fetching favourite doctor');
+          console.log(error);
+        });
+    };
     getPatientDet();
     getBanner();
     getSpeciality();
     getCategory();
     getDoctors();
+    getFavDoctors();
   }, []);
 
   const isFocused = useIsFocused();

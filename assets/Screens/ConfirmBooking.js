@@ -73,7 +73,7 @@ const dataGender = [
 function ConfirmBoking({navigation}) {
   const [family, setfamily] = useState(false);
   const [familyMembers, setfamilyMembers] = useState(null);
-  const [selfp, setselfp] = useState(true);
+  const [selfp, setselfp] = useState(false);
   const [privatePolicy, setprivatePolicy] = useState(false);
   const [symptoms, setsymptoms] = useState('');
   //form data
@@ -97,6 +97,8 @@ function ConfirmBoking({navigation}) {
   const [THOrderId, setTHOrderId] = useState(0);
   const [PayonClinic, setPayonClinic] = useState(false);
   const [isLoading, setisLoading] = useState(false);
+  const [isFollowUp, setisFollowUp] = useState(false);
+  const [fees, setfees] = useState(0);
 
   const [termsView, setTermsView] = useState(false);
   const [zoom, setZoom] = useState(1);
@@ -156,10 +158,131 @@ function ConfirmBoking({navigation}) {
       );
       setpatientDet(y);
       setpaymentDone(y.isSpecialPatient);
+
+      setfees(
+        x.mode == 'E_CONSULTATION'
+          ? x.doctorDet.econsultationFees
+          : x.doctorDet.pconsultationFees,
+      );
       if (y.isSpecialPatient != null) setSpecialUser(y.isSpecialPatient);
     };
     LoadData();
   }, []);
+
+  useEffect(() => {
+    if (AppointmentFor != null) updateFees();
+  }, [AppointmentFor]);
+
+  const updateFees = () => {
+    console.log('Checking Effective Fees');
+    let temp = [];
+    for (var i = 0; i < PrevPageData.doctorObj.followUpEligibles.length; ++i) {
+      if (AppointmentFor.patientName != null) {
+        if (
+          PrevPageData.doctorObj.followUpEligibles[i].familyMemberName == null
+        )
+          temp.push(
+            PrevPageData.doctorObj.followUpEligibles[i].followUpEligibleDate,
+          );
+      } else if (AppointmentFor.name != null) {
+        if (
+          PrevPageData.doctorObj.followUpEligibles[i].familyMemberName ==
+          AppointmentFor.name
+        )
+          temp.push(
+            PrevPageData.doctorObj.followUpEligibles[i].followUpEligibleDate,
+          );
+      }
+    }
+    console.log(
+      'Previous Consultation for ',
+      AppointmentFor.name != null
+        ? AppointmentFor.name
+        : AppointmentFor.patientName,
+    );
+    console.log('Booking Dates', temp);
+    if (temp.length == 0) {
+      setisFollowUp(false);
+      setfees(
+        PrevPageData.mode == 'E_CONSULTATION'
+          ? PrevPageData.doctorDet.econsultationFees
+          : PrevPageData.doctorDet.pconsultationFees,
+      );
+    } else {
+      setisFollowUp(true);
+      temp = temp.sort(function (a, b) {
+        return new Date(b) - new Date(a);
+      });
+      if (checkFollowUp(temp.pop())) {
+        setfees(
+          PrevPageData.mode == 'E_CONSULTATION'
+            ? PrevPageData.doctorDet.efollowUpFees
+            : PrevPageData.doctorDet.physicalFollowUpFees,
+        );
+      } else {
+        setfees(
+          PrevPageData.mode == 'E_CONSULTATION'
+            ? PrevPageData.doctorDet.econsultationFees
+            : PrevPageData.doctorDet.pconsultationFees,
+        );
+      }
+    }
+  };
+
+  // const updateFees = () => {
+  //   //setisLoading(true);
+  //   console.log('Entering update fees');
+  //   console.log('AppointmentFor : ', AppointmentFor);
+  //   console.log('PrevPageData : ', PrevPageData);
+  //   console.log(
+  //     'PrevPageData.previousConsultationOf : ',
+  //     PrevPageData.previousConsultationOf,
+  //   );
+  //   if (
+  //     AppointmentFor != null &&
+  //     PrevPageData != null &&
+  //     PrevPageData.previousConsultationOf != null
+  //   ) {
+  //     let x =
+  //       PrevPageData.mode == 'E_CONSULTATION'
+  //         ? PrevPageData.doctorDet.econsultationFees
+  //         : PrevPageData.doctorDet.pconsultationFees;
+  //     if (
+  //       AppointmentFor.patientName != null &&
+  //       PrevPageData.previousConsultationOf == 'Self' &&
+  //       checkFollowUp(PrevPageData.previousConsultationOn)
+  //     ) {
+  //       x =
+  //         PrevPageData.mode == 'E_CONSULTATION'
+  //           ? PrevPageData.doctorDet.efollowUpFees
+  //           : PrevPageData.doctorDet.physicalFollowUpFees;
+  //     } else if (
+  //       AppointmentFor.name != null &&
+  //       PrevPageData.previousConsultationOf == AppointmentFor.name &&
+  //       checkFollowUp(PrevPageData.previousConsultationOn)
+  //     ) {
+  //       x =
+  //         PrevPageData.mode == 'E_CONSULTATION'
+  //           ? PrevPageData.doctorDet.efollowUpFees
+  //           : PrevPageData.doctorDet.physicalFollowUpFees;
+  //     }
+  //     console.log('Effedctive Fees is ', x);
+  //     setfees(x);
+  //   }
+  //   console.log('Exiting update fees');
+  //   //setisLoading(false);
+  // };
+
+  const checkFollowUp = date => {
+    console.log(
+      'Checking if ',
+      date,
+      ' is eligible for follow-up ',
+      dayjs(date).diff(dayjs(), 'd') >= 0,
+    );
+
+    return dayjs(date).diff(dayjs(), 'd') >= 0;
+  };
 
   useEffect(() => {
     const backAction = () => {
@@ -249,12 +372,14 @@ function ConfirmBoking({navigation}) {
             padding: 5,
             margin: 5,
             borderRadius: 10,
+            justifyContent: 'center',
           },
-          AppointmentFor.familyId == item.familyId
+          AppointmentFor != null && AppointmentFor.familyId == item.familyId
             ? {backgroundColor: '#2b8ada'}
             : null,
         ]}
         onPress={() => {
+          //updateFees();
           setAppointmentFor(item);
           setselfp(false);
           setfamily(false);
@@ -262,7 +387,9 @@ function ConfirmBoking({navigation}) {
         <Text
           style={[
             {color: 'black', fontSize: 12, alignSelf: 'center'},
-            AppointmentFor.familyId == item.familyId ? {color: 'white'} : null,
+            AppointmentFor != null && AppointmentFor.familyId == item.familyId
+              ? {color: 'white'}
+              : null,
           ]}>
           {item.name}
         </Text>
@@ -286,11 +413,20 @@ function ConfirmBoking({navigation}) {
   };
 
   const paymentOrderCreate = async () => {
+    // let amount =
+    //   PrevPageData.mode != 'E_CONSULTATION'
+    //     ? PrevPageData.doctorDet.pconsultationFees
+    //     : PrevPageData.doctorDet.econsultationFees;
+
+    // if (PrevPageData.isFollowUp) {
+    //   amount =
+    //     PrevPageData.mode != 'E_CONSULTATION'
+    //       ? PrevPageData.doctorDet.physicalFollowUpFees
+    //       : PrevPageData.doctorDet.efollowUpFees;
+    // }
+
     let createOrder = {
-      amount:
-        PrevPageData.mode != 'E_CONSULTATION'
-          ? PrevPageData.doctorDet.pconsultationFees
-          : PrevPageData.doctorDet.econsultationFees,
+      amount: fees,
       currency: 'INR',
       patientId: patientDet.patientId,
     };
@@ -345,7 +481,13 @@ function ConfirmBoking({navigation}) {
                   '===================== PAYMENT FAILED ===============================',
                 );
                 await paymentStatusUpdate(null);
-                Alert.alert(`Error: ${error.code} | ${error.description}`);
+                Alert.alert(`Payment Failed`, 'Please try again later', [
+                  {
+                    text: 'ok',
+                    onPress: () => navigation.goBack(),
+                  },
+                ]);
+                console.log(`Error: ${error}`);
               });
           }
         }
@@ -391,7 +533,7 @@ function ConfirmBoking({navigation}) {
       //consultationType: PrevPageData.consultationType,
       doctorId: DocDet.doctorId,
       // familyId: 0,
-      //feesAmount: 0,
+      feesAmount: fees,
       followUpFeesEligible: dayjs()
         .add(DocDet.followUpDuration, 'day')
         .format('YYYY-MM-DD'),
@@ -415,41 +557,76 @@ function ConfirmBoking({navigation}) {
       p.feesAmount = DocDet.econsultationFees;
     }
 
-    if (AppointmentFor != null) {
+    if (AppointmentFor != null && AppointmentFor.name != null) {
       p.familyId = AppointmentFor.familyId;
       p.patientName = AppointmentFor.name;
+    } else if (AppointmentFor != null && AppointmentFor.patientName != null) {
+      p.patientName = AppointmentFor.patientName;
     }
 
     console.log('========== Book Appointment ================\n', p);
 
-    axios
-      .post(apiConfig.baseUrl + '/patient/consultation/book', p)
-      .then(async response => {
-        if (response.status == 200) {
-          console.log(
-            '================== CONSULTATION BOOKED ==================\n',
-            response.data,
-          );
+    if (isFollowUp == false) {
+      console.log(apiConfig.baseUrl + '/patient/consultation/book', p);
+      axios
+        .post(apiConfig.baseUrl + '/patient/consultation/book', p)
+        .then(async response => {
+          if (response.status == 200) {
+            console.log(
+              '================== CONSULTATION BOOKED ==================\n',
+              response.data,
+            );
+            setisLoading(false);
+
+            PrevPageData.booked = response.data;
+
+            await AsyncStorage.setItem(
+              'ConfirmBookingDoctor',
+              JSON.stringify(PrevPageData),
+            );
+            Alert.alert(
+              'Success !',
+              `Your consultation with ${PrevPageData.doctorDet.doctorName} is booked.\nPlease fill the following details, for a better consultation experience!`,
+            );
+
+            navigation.navigate('PreConsult');
+          }
+        })
+        .catch(error => {
+          Alert.alert('Error', `${error}`);
           setisLoading(false);
+        });
+    } else {
+      console.log(apiConfig.baseUrl + '/patient/followup/book', p);
+      axios
+        .post(apiConfig.baseUrl + '/patient/followup/book', p)
+        .then(async response => {
+          if (response.status == 200) {
+            console.log(
+              '================== CONSULTATION BOOKED ==================\n',
+              response.data,
+            );
+            setisLoading(false);
 
-          PrevPageData.booked = response.data;
+            PrevPageData.booked = response.data;
 
-          await AsyncStorage.setItem(
-            'ConfirmBookingDoctor',
-            JSON.stringify(PrevPageData),
-          );
-          Alert.alert(
-            'Success !',
-            `Your consultation with ${PrevPageData.doctorDet.doctorName} is booked.\nPlease fill the following details, for a better consultation experience!`,
-          );
+            await AsyncStorage.setItem(
+              'ConfirmBookingDoctor',
+              JSON.stringify(PrevPageData),
+            );
+            Alert.alert(
+              'Success !',
+              `Your consultation with ${PrevPageData.doctorDet.doctorName} is booked.\nPlease fill the following details, for a better consultation experience!`,
+            );
 
-          navigation.navigate('PreConsult');
-        }
-      })
-      .catch(error => {
-        Alert.alert('Error', `${error}`);
-        setisLoading(false);
-      });
+            navigation.navigate('PreConsult');
+          }
+        })
+        .catch(error => {
+          Alert.alert('Error', `${error}`);
+          setisLoading(false);
+        });
+    }
     //setisLoading(false);
   };
 
@@ -482,6 +659,7 @@ function ConfirmBoking({navigation}) {
               marginBottom: 10,
               borderColor: 'gray',
             }}>
+            {/* Mode of Consultation Heading */}
             <View style={{marginBottom: 10}}>
               <Text style={{fontSize: 15, color: 'black', fontWeight: 'bold'}}>
                 Mode of Consultation
@@ -512,6 +690,7 @@ function ConfirmBoking({navigation}) {
                 </Text>
               </View>
             </View>
+            {/* Date & Time Heading */}
             <View style={{marginBottom: 10}}>
               <Text style={{fontSize: 15, color: 'black', fontWeight: 'bold'}}>
                 Date & Time
@@ -526,262 +705,85 @@ function ConfirmBoking({navigation}) {
                   : null}
               </Text>
             </View>
+            {/* Fees */}
+            <View style={{marginBottom: 10}}>
+              <Text style={{fontSize: 15, color: 'black', fontWeight: 'bold'}}>
+                Fees
+              </Text>
+              <Text style={{fontSize: 15, fontWeight: 'bold'}}>
+                {'₹ '}
+                {fees}
+              </Text>
+            </View>
           </View>
 
           {/* Appointment For */}
-          {paymentDone ? (
-            <View>
-              {/* Appointment For */}
+          {!paymentDone ? (
+            <View
+              style={{
+                marginBottom: 10,
+                width: '90%',
+                alignSelf: 'center',
+                marginVertical: 10,
+              }}>
+              <Text style={{fontSize: 15, color: 'black', fontWeight: 'bold'}}>
+                Appointment for
+              </Text>
               <View
                 style={{
-                  marginBottom: 10,
-                  width: '90%',
-                  alignSelf: 'center',
-                  marginVertical: 10,
+                  flexDirection: 'column',
+                  flexWrap: 'wrap',
                 }}>
-                <Text
-                  style={{fontSize: 15, color: 'black', fontWeight: 'bold'}}>
-                  Appointment for
-                </Text>
-                <View
-                  style={{
-                    flexDirection: 'column',
-                    flexWrap: 'wrap',
-                  }}>
-                  <View style={{flexDirection: 'row'}}>
-                    <CustomButton
-                      text={'Self'}
-                      textstyle={[
-                        {fontSize: 12},
-                        selfp ? {color: 'white'} : {color: 'black'},
-                      ]}
-                      style={[
-                        {
-                          backgroundColor: 'white',
-                          padding: 5,
-                          paddingHorizontal: 20,
-                          margin: 5,
-                        },
-                        selfp ? {backgroundColor: '#2B8ADA'} : null,
-                      ]}
-                      onPress={() => {
-                        setselfp(true);
-                        setfamily(false);
-                        setAppointmentFor(patientDet);
-                      }}
-                    />
-                  </View>
-                  {!SpecialUser ? (
-                    <View>
-                      <Text
-                        style={{
-                          color: 'black',
-                          fontSize: 12,
-                          fontWeight: 'bold',
-                        }}>
-                        Family Member
-                      </Text>
-                      <View style={{flexDirection: 'column', flexWrap: 'wrap'}}>
-                        <FlatList
-                          data={FamilyList}
-                          renderItem={RenderFamily}
-                          key={item => item.familyId}
-                          horizontal={true}
-                          style={{flexDirection: 'row'}}
-                        />
-                      </View>
-                    </View>
-                  ) : null}
+                <View style={{flexDirection: 'row'}}>
+                  <CustomButton
+                    text={'Self'}
+                    textstyle={[
+                      {fontSize: 12},
+                      selfp ? {color: 'white'} : {color: 'black'},
+                    ]}
+                    style={[
+                      {
+                        backgroundColor: 'white',
+                        padding: 5,
+                        paddingHorizontal: 20,
+                        margin: 5,
+                      },
+                      selfp ? {backgroundColor: '#2B8ADA'} : null,
+                    ]}
+                    onPress={() => {
+                      setselfp(true);
+                      setfamily(false);
+                      //updateFees();
+                      setAppointmentFor(patientDet);
+                    }}
+                  />
                 </View>
+                {!SpecialUser ? (
+                  <View style={{marginVertical: 10}}>
+                    <Text
+                      style={{
+                        color: 'black',
+                        fontSize: 12,
+                        fontWeight: 'bold',
+                      }}>
+                      Family Member
+                    </Text>
+                    <View style={{flexDirection: 'column', flexWrap: 'wrap'}}>
+                      <FlatList
+                        data={FamilyList}
+                        renderItem={RenderFamily}
+                        key={item => item.familyId}
+                        horizontal={true}
+                        style={{flexDirection: 'row'}}
+                      />
+                    </View>
+                  </View>
+                ) : null}
               </View>
-              {family ? (
-                <View style={{width: '90%', alignSelf: 'center'}}>
-                  <Text
-                    style={{
-                      fontSize: 13,
-                      fontWeight: 'bold',
-                      marginBottom: 10,
-                      color: 'black',
-                    }}>
-                    Provide general information about patient:
-                  </Text>
-
-                  {/* Form */}
-                  {/* Full Name */}
-                  <View style={{marginBottom: 10}}>
-                    <View style={{flexDirection: 'row'}}>
-                      <Text style={styles.fomrHeading}>Full Name</Text>
-                      <Text style={{color: 'red'}}>*</Text>
-                    </View>
-                    <TextInput style={styles.formInput} />
-                  </View>
-                  {/* Relation */}
-                  <View style={{marginBottom: 10}}>
-                    <View style={{flexDirection: 'row'}}>
-                      <Text style={styles.fomrHeading}>Relation</Text>
-                      <Text style={{color: 'red'}}>*</Text>
-                    </View>
-                    <SelectList
-                      defaultOption={formRelation}
-                      placeholder={' '}
-                      setSelected={val => setformRelation(val)}
-                      data={dataRelation}
-                      save="value"
-                      boxStyles={[
-                        {
-                          backgroundColor: 'white',
-                          borderWidth: 0,
-                          borderRadius: 5,
-                        },
-                      ]}
-                      dropdownStyles={{
-                        backgroundColor: 'white',
-                        zIndex: 1,
-                      }}
-                      dropdownTextStyles={{
-                        color: '#2b8ada',
-                        fontWeight: 'bold',
-                      }}
-                      badgeStyles={{backgroundColor: '#2b8ada'}}
-                    />
-                  </View>
-                  {/* Date of Birth */}
-                  <View style={{marginBottom: 10}}>
-                    <View style={{flexDirection: 'row'}}>
-                      <Text style={styles.fomrHeading}>Date of Birth</Text>
-                      <Text style={{color: 'red'}}>*</Text>
-                    </View>
-                    <View style={{flexDirection: 'row'}}>
-                      <TextInput
-                        style={styles.formInput}
-                        value={formDob}
-                        editable={false}
-                      />
-                      <FAIcons
-                        name="calendar-alt"
-                        size={15}
-                        color={'gray'}
-                        style={{
-                          position: 'absolute',
-                          right: 0,
-                          margin: 10,
-                          alignSelf: 'center',
-                        }}
-                      />
-                    </View>
-                  </View>
-                  {/* Gender */}
-                  <View style={{marginBottom: 10}}>
-                    <View style={{flexDirection: 'row'}}>
-                      <Text style={styles.fomrHeading}>Gender</Text>
-                      <Text style={{color: 'red'}}>*</Text>
-                    </View>
-                    <SelectList
-                      defaultOption={formGender}
-                      placeholder={' '}
-                      setSelected={val => setformGender(val)}
-                      data={dataGender}
-                      save="value"
-                      boxStyles={[
-                        {
-                          backgroundColor: 'white',
-                          borderWidth: 0,
-                          borderRadius: 5,
-                        },
-                      ]}
-                      dropdownStyles={{
-                        backgroundColor: 'white',
-                        zIndex: 1,
-                      }}
-                      dropdownTextStyles={{
-                        color: '#2b8ada',
-                        fontWeight: 'bold',
-                      }}
-                      badgeStyles={{backgroundColor: '#2b8ada'}}
-                    />
-                  </View>
-                  {/* Mobile Number */}
-                  <View style={{marginBottom: 10}}>
-                    <View style={{flexDirection: 'row'}}>
-                      <Text style={styles.fomrHeading}>Mobile Number</Text>
-                      <Text style={{color: 'red'}}>*</Text>
-                    </View>
-                    <TextInput
-                      onChangeText={text => setformMob(text)}
-                      value={formMob}
-                      keyboardType={'number-pad'}
-                      maxLength={10}
-                      style={styles.formInput}
-                    />
-                  </View>
-                  <Text
-                    style={{
-                      fontWeight: 'bold',
-                      marginBottom: 5,
-                      color: 'black',
-                    }}>
-                    Other Details:
-                  </Text>
-                  <View style={{marginBottom: 10, flexDirection: 'column'}}>
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        justifyContent: 'space-evenly',
-                        marginBottom: 5,
-                      }}>
-                      {/* Blood Group */}
-                      <View style={{flexDirection: 'column', flex: 0.45}}>
-                        <Text style={styles.fomrHeading}>Blood Group</Text>
-                        <SelectList
-                          defaultOption={formBloodGroup}
-                          placeholder={' '}
-                          setSelected={val => setformBloodGroup(val)}
-                          data={dataBloodGroup}
-                          save="value"
-                          boxStyles={[
-                            {
-                              backgroundColor: 'white',
-                              borderWidth: 0,
-                              borderRadius: 5,
-                            },
-                          ]}
-                          dropdownStyles={{
-                            backgroundColor: 'white',
-                            zIndex: 1,
-                          }}
-                          dropdownTextStyles={{
-                            color: '#2b8ada',
-                            fontWeight: 'bold',
-                          }}
-                          badgeStyles={{backgroundColor: '#2b8ada'}}
-                        />
-                      </View>
-                      {/* Occupation */}
-                      <View style={{flexDirection: 'column', flex: 0.45}}>
-                        <Text style={styles.fomrHeading}>Occupation</Text>
-                        <TextInput style={styles.formInput} />
-                      </View>
-                    </View>
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        justifyContent: 'space-evenly',
-                        marginBottom: 5,
-                      }}>
-                      {/* Height */}
-                      <View style={{flexDirection: 'column', flex: 0.45}}>
-                        <Text style={styles.fomrHeading}>Height</Text>
-                        <TextInput style={styles.formInput} />
-                      </View>
-                      {/* Weight */}
-                      <View style={{flexDirection: 'column', flex: 0.45}}>
-                        <Text style={styles.fomrHeading}>Weight</Text>
-                        <TextInput style={styles.formInput} />
-                      </View>
-                    </View>
-                  </View>
-                </View>
-              ) : null}
+            </View>
+          ) : null}
+          {paymentDone ? (
+            <View>
               {/* Symptoms */}
               <View style={{width: '90%', alignSelf: 'center'}}>
                 <Text
@@ -850,7 +852,7 @@ function ConfirmBoking({navigation}) {
             </View>
           ) : null}
           {!paymentDone ? (
-            <View style={{width: '90%', alignSelf: 'center'}}>
+            <View style={{width: '90%', alignSelf: 'center', marginTop: 10}}>
               <CustomButton
                 text={'Proceed to Payment'}
                 textstyle={{color: 'white', fontSize: 13}}
@@ -860,7 +862,12 @@ function ConfirmBoking({navigation}) {
                   borderRadius: 10,
                 }}
                 onPress={async () => {
-                  await paymentOrderCreate();
+                  if (AppointmentFor != null) await paymentOrderCreate();
+                  else
+                    Alert.alert(
+                      'Incomplete Details',
+                      'Please select for whom are you booking appointment for.',
+                    );
                 }}
               />
               {/* <CustomButton

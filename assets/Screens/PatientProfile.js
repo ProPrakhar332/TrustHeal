@@ -354,7 +354,12 @@ function PatientProfile({navigation}) {
       .post(apiConfig.baseUrl + '/patient/family/save', p)
       .then(response => {
         if (response.status == 200) {
-          Alert.alert('Done', 'Family Member added successfully!');
+          Alert.alert('Done', 'Family Member added successfully!', [
+            {
+              text: 'ok',
+              onPress: () => getFamily(),
+            },
+          ]);
           reset();
           setaddMore(false);
         }
@@ -365,24 +370,22 @@ function PatientProfile({navigation}) {
   };
 
   useEffect(() => {
-    const getFamily = async () => {
-      axios
-        .get(
-          apiConfig.baseUrl +
-            '/patient/family?patientId=' +
-            PatientDet.patientId,
-        )
-        .then(response => {
-          if (response.status == 200) {
-            setfamilyMembers(response.data);
-          }
-        })
-        .catch(error => {
-          Alert.alert('Error Family', `${error}`);
-        });
-    };
     if (familyModal == true) getFamily();
   }, [familyModal]);
+  const getFamily = async () => {
+    axios
+      .get(
+        apiConfig.baseUrl + '/patient/family?patientId=' + PatientDet.patientId,
+      )
+      .then(response => {
+        if (response.status == 200) {
+          setfamilyMembers(response.data);
+        }
+      })
+      .catch(error => {
+        Alert.alert('Error Family', `${error}`);
+      });
+  };
 
   const logout = async () => {
     console.log('Logging out');

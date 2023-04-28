@@ -903,7 +903,7 @@ function SupportDoctor({navigation}) {
                   width: '100%',
                   paddingHorizontal: 15,
                 }}>
-                {'We are upating your details'}
+                {'We are submitting your query'}
               </Text>
             </View>
           </View>

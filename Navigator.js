@@ -51,6 +51,7 @@ import PatientFav from './assets/Screens/PatientFav';
 import PatientHome from './assets/Screens/PatientHome';
 import MyAppointment from './assets/Screens/MyAppointments';
 import DoctorAllAppointments from './assets/Screens/DoctorAllAppointments';
+import PatientAllAppointments from './assets/Screens/PatientAllAppointments';
 import PatientProfile from './assets/Screens/PatientProfile';
 import DoctorHome from './assets/Screens/DoctorHome';
 import DoctorDetails from './assets/Screens/DoctorDetails';
@@ -158,7 +159,7 @@ function PatientTabNavigator() {
           if (route.name === 'Home') {
             iconName = 'home';
           } else if (route.name === 'Appointments') {
-            iconName = 'comment-medical';
+            iconName = 'calendar-alt';
           } else if (route.name === 'Consult') {
             iconName = 'hand-holding-medical';
           } else if (route.name === 'FAQ') {
@@ -434,7 +435,7 @@ function CustomDrawerContent(props) {
         )}
       /> */}
       <DrawerItem
-        label="My Appointments"
+        label="My Consultations"
         labelStyle={styles.labelStyle}
         style={{marginVertical: 0, paddingVertical: 0}}
         onPress={() => props.navigation.navigate('DoctorAllAppointments')}
@@ -653,10 +654,10 @@ function CustomDrawerContentPatient(props) {
         )}
       /> */}
       <DrawerItem
-        label="Appointment"
+        label="My Consultations"
         labelStyle={styles.labelStyle}
         style={{marginVertical: 0, paddingVertical: 0}}
-        onPress={() => props.navigation.navigate('Appointments')}
+        onPress={() => props.navigation.navigate('PatientAllAppointments')}
         icon={({focused, color, size}) => (
           <Image source={appointment} style={{tintColor: '#033158'}} />
         )}
@@ -1082,6 +1083,11 @@ function App() {
         <Stack.Screen
           name="DoctorAllAppointments"
           component={DoctorAllAppointments}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="PatientAllAppointments"
+          component={PatientAllAppointments}
           options={{headerShown: false}}
         />
         <Stack.Screen
