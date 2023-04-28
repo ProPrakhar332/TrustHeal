@@ -648,7 +648,43 @@ function DoctorDetails({navigation}) {
           }}
           showsVerticalScrollIndicator={false}>
           <HeaderPatient showMenu={false} title={'About'} />
-
+          {DocObj != null && DocObj.lastVisitDate != null ? (
+            <View
+              style={{
+                backgroundColor: '#21c47f',
+                padding: 10,
+                borderColor: '#21c47f',
+                borderWidth: 1,
+                width: '95%',
+                alignSelf: 'center',
+                justifyContent: 'center',
+                flexDirection: 'row',
+                borderRadius: 10,
+                marginVertical: 10,
+                paddingHorizontal: 15,
+              }}>
+              <FAIcon
+                name={'info-circle'}
+                color={'white'}
+                size={20}
+                style={{
+                  justifyContent: 'center',
+                  alignSelf: 'center',
+                  marginRight: 10,
+                }}
+              />
+              <Text
+                style={{
+                  justifyContent: 'center',
+                  alignSelf: 'center',
+                  color: 'white',
+                  fontSize: 12,
+                }}>
+                You previously consulted on{' '}
+                {dayjs(DocObj.lastVisitDate).format('DD MMMM')}.
+              </Text>
+            </View>
+          ) : null}
           <DoctorBasicDetails DocDet={DocDet} />
 
           {/* Genreal Information Label*/}
