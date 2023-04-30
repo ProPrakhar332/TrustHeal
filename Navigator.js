@@ -52,6 +52,7 @@ import PatientHome from './assets/Screens/PatientHome';
 import MyAppointment from './assets/Screens/MyAppointments';
 import DoctorAllAppointments from './assets/Screens/DoctorAllAppointments';
 import PatientAllAppointments from './assets/Screens/PatientAllAppointments';
+import PatientCancelAppointments from './assets/Screens/PatientCancelAppointments';
 import PatientProfile from './assets/Screens/PatientProfile';
 import DoctorHome from './assets/Screens/DoctorHome';
 import DoctorDetails from './assets/Screens/DoctorDetails';
@@ -120,6 +121,7 @@ import bell from './assets/DrawerIcons/bell.png';
 import consultD from './assets/DrawerIcons/consult.png';
 import about from './assets/DrawerIcons/about.png';
 import appointment from './assets/DrawerIcons/appointment.png';
+import cancelconsultation from './assets/DrawerIcons/cancelconsultation.png';
 import general from './assets/DrawerIcons/general.png';
 import prescription from './assets/DrawerIcons/prescription.png';
 import help from './assets/DrawerIcons/help.png';
@@ -662,6 +664,15 @@ function CustomDrawerContentPatient(props) {
           <Image source={appointment} style={{tintColor: '#033158'}} />
         )}
       />
+      <DrawerItem
+        label="Cancel Consultations"
+        labelStyle={styles.labelStyle}
+        style={{marginVertical: 0, paddingVertical: 0}}
+        onPress={() => props.navigation.navigate('PatientCancelAppointments')}
+        icon={({focused, color, size}) => (
+          <Image source={cancelconsultation} style={{tintColor: '#033158'}} />
+        )}
+      />
       {/* <DrawerItem
         label="Profile"
         labelStyle={styles.labelStyle}
@@ -1088,6 +1099,11 @@ function App() {
         <Stack.Screen
           name="PatientAllAppointments"
           component={PatientAllAppointments}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="PatientCancelAppointments"
+          component={PatientCancelAppointments}
           options={{headerShown: false}}
         />
         <Stack.Screen

@@ -90,104 +90,35 @@ function PatientAllAppointments({navigation}) {
   const isFocused = useIsFocused();
 
   useEffect(() => {
-    if (isFocused && patientDet != null) {
-      //Update the state you want to be updated
-      getUpcoming();
-      getCompleted();
-    }
-  }, [isFocused, patientDet]);
-
-  useEffect(() => {
     const LoadData = async () => {
       let x = JSON.parse(await AsyncStorage.getItem('UserPatientProfile'));
       setpatientDet(x);
       console.log(x);
+      setisLoading(true);
+      await axios
+        .get(
+          apiConfig.baseUrl +
+            '/patient/consultations?max=100&min=0&patientId=' +
+            x.patientId,
+        )
+        .then(function (response) {
+          console.log(
+            '\n=========================== COMPLETED CONSULTATIONS ====================================\n',
+          );
+          console.log(response.data);
+          if (response.status == 200) {
+            setisLoading(false);
+            setCompletedData(response.data);
+            //setCompletedData(CompletedServiceResponse);
+          }
+        })
+        .catch(error => {
+          Alert.alert('Error Completed', `${error}`);
+        });
+      setisLoading(false);
     };
     LoadData();
   }, []);
-
-  // useEffect(() => {
-  //   if (patientDet != null) {
-  //     getUpcoming();
-  //   }
-  // }, [patientDet]);
-  const getUpcoming = async () => {
-    setisLoading(true);
-    await axios
-      .get(
-        apiConfig.baseUrl +
-          '/patient/upcoming/consultations?patientId=' +
-          patientDet.patientId,
-      )
-      .then(function (response) {
-        console.log(
-          '\n=========================== UPCOMING CONSULTATIONS ====================================\n',
-        );
-        console.log(response.data);
-        if (response.status == 200) {
-          setisLoading(false);
-          setUpcomingData(response.data);
-          //setUpcomingData(UpcomingServiceResponse);
-        }
-      })
-      .catch(error => {
-        Alert.alert('Error Upcoming', `${error}`);
-      });
-    setisLoading(false);
-  };
-
-  // useEffect(() => {
-  //   if (patientDet != null) {
-  //     getCompleted();
-  //   }
-  // }, [patientDet]);
-  const getCompleted = async () => {
-    setisLoading(true);
-    await axios
-      .get(
-        apiConfig.baseUrl +
-          '/patient/complete/consultations?max=5&min=0&patientId=' +
-          patientDet.patientId,
-      )
-      .then(function (response) {
-        console.log(
-          '\n=========================== COMPLETED CONSULTATIONS ====================================\n',
-        );
-        console.log(response.data);
-        if (response.status == 200) {
-          setisLoading(false);
-          setCompletedData(response.data);
-          //setCompletedData(CompletedServiceResponse);
-        }
-      })
-      .catch(error => {
-        Alert.alert('Error Completed', `${error}`);
-      });
-    setisLoading(false);
-  };
-
-  const onJoinPress = (
-    consultationType,
-    callID,
-    doctorId,
-    patientId,
-    patientName,
-    slotId,
-    userName,
-    userType,
-  ) => {
-    navigation.navigate('CallAgora', {
-      consultationType: consultationType,
-      callID: callID,
-      doctorId: doctorId,
-      patientId: patientId,
-      patientName: patientName,
-      slotId: slotId,
-      userName: userName,
-      userType: userType,
-      userId: patientId,
-    });
-  };
 
   const downloadDownloads = async (fileToken, userId, fileName) => {
     // let op = {};
@@ -343,595 +274,6 @@ function PatientAllAppointments({navigation}) {
         'You have not answered any question. Please answer them or press cancel.',
       );
   };
-  const getHistory = async () => {
-    await axios
-      .get(
-        apiConfig.baseUrl +
-          '/docs/last/uploaded?patientId=' +
-          props.navigation.patientObj.patientId,
-      )
-      .then(response => {
-        console.log(response.data);
-        if (response.status == 200) {
-          setdocsList(response.data.documents);
-        }
-      })
-      .catch(error => {
-        Alert.alert('Error', `Error in fetching docs and ques.\n${error}`);
-      });
-  };
-
-  const hasStarted = item => {
-    if (item.slotDate == dayjs().format('YYYY-MM-DD')) {
-      let slotStrtArray = item.slotStartTime.split(':');
-      let slotEndArray = item.slotEndTime.split(':');
-      let now = dayjs().format('HH:mm');
-      let nowArray = now.split(':');
-      // let start =
-      //   Number(slotStrtArray[0]) <= Number(dayjs().format('HH')) &&
-      //   Number(slotEndArray[0]) >= Number(dayjs().format('HH'));
-      // let end =
-      //   Number(slotStrtArray[1]) <= Number(dayjs().format('mm')) &&
-      //   Number(slotEndArray[1]) >= Number(dayjs().format('mm'));
-
-      let start =
-        Number(slotStrtArray[0]) * 60 * 60 +
-        Number(slotStrtArray[1]) * 60 -
-        300;
-      let end =
-        Number(slotEndArray[0]) * 60 * 60 + Number(slotEndArray[1]) * 60;
-      let current = Number(nowArray[0]) * 60 * 60 + Number(nowArray[1]) * 60;
-      console.log('Start', start);
-      console.log('Now', current);
-      console.log('End', end);
-
-      console.log('Compare', current >= start && current <= end);
-
-      return current >= start && current <= end;
-    } else return false;
-  };
-
-  const shouldShow = item => {
-    if (dayjs(item.slotDate).diff(dayjs(), 'd') > 0) return true;
-    else if (dayjs(item.slotDate).diff(dayjs(), 'd') == 0) {
-      if (item.slotDate != dayjs().format('YYYY-MM-DD')) return true;
-      else {
-        let slotEndArray = item.slotEndTime.split(':');
-        if (Number(dayjs().format('HH')) < slotEndArray[0]) return true;
-        else if (Number(dayjs().format('HH')) == slotEndArray[0]) {
-          if (Number(dayjs().format('mm')) <= slotEndArray[1]) return true;
-          else return false;
-        }
-      }
-    }
-  };
-  const shouldShowCancel = item => {
-    if (dayjs(item.slotDate).diff(dayjs(), 'd') > 0) return true;
-    else if (dayjs(item.slotDate).diff(dayjs(), 'd') == 0) {
-      if (item.slotDate != dayjs().format('YYYY-MM-DD')) return true;
-      else {
-        let slotStrtArray = item.slotStartTime.split(':');
-        let slotEndArray = item.slotEndTime.split(':');
-        let now = dayjs().format('HH:mm');
-        let nowArray = now.split(':');
-        let start =
-          Number(slotStrtArray[0]) * 60 * 60 +
-          Number(slotStrtArray[1]) * 60 -
-          300;
-        let end =
-          Number(slotEndArray[0]) * 60 * 60 + Number(slotEndArray[1]) * 60;
-        let current = Number(nowArray[0]) * 60 * 60 + Number(nowArray[1]) * 60;
-        console.log('Cancle show', current <= start);
-        return current <= start;
-      }
-    }
-  };
-
-  const validForRefund = item => {
-    console.log(dayjs(item.slotDate).diff(dayjs().format('YYYY-MM-DD'), 'd'));
-    if (dayjs(item.slotDate).diff(dayjs().format('YYYY-MM-DD'), 'd') > 0)
-      return true;
-    else if (item.slotDate != dayjs().format('YYYY-MM-DD')) {
-      let slotStrtArray = item.slotStartTime.split(':');
-      console.log((Number(dayjs().format('HH')) + 12) % 24);
-      return (Number(dayjs().format('HH')) + 12) % 24 == slotStrtArray[0];
-    } else return false;
-  };
-
-  const renderUpcomingConsultations = ({item}) => {
-    return (
-      <View
-        style={{
-          backgroundColor: 'white',
-          borderRadius: 10,
-          padding: 5,
-          margin: 5,
-          flexDirection: 'column',
-          // width: 290,
-          // height: 80,
-        }}>
-        {item.familyMemberName != null ? (
-          <View style={{flexDirection: 'row', marginVertical: 5}}>
-            <View
-              style={{
-                padding: 5,
-                backgroundColor: '#17CC9C',
-                borderRadius: 10,
-                flexDirection: 'row',
-                flex: 0.45,
-                justifyContent: 'center',
-              }}>
-              <FAIcons
-                name="users"
-                size={15}
-                color={'white'}
-                style={{
-                  alignSelf: 'center',
-                  justifyContent: 'center',
-                  marginRight: 10,
-                }}
-              />
-              <Text style={{color: 'white', alignSelf: 'center', fontSize: 13}}>
-                {item.familyMemberName}
-              </Text>
-            </View>
-          </View>
-        ) : null}
-        <View
-          style={{
-            flexDirection: 'row',
-            alignSelf: 'center',
-            justifyContent: 'space-evenly',
-          }}>
-          {/* Image */}
-          <TouchableOpacity
-            style={{
-              flexDirection: 'column',
-              alignSelf: 'center',
-              margin: 5,
-              flex: 0.3,
-            }}
-            onPress={async () => {
-              console.log(item.doctorName);
-              await AsyncStorage.setItem('viewProfile', JSON.stringify(item));
-              console.log(
-                '======================== All Upcoming ====================================',
-                item,
-              );
-              navigation.navigate('DoctorDetails');
-            }}>
-            <Image
-              source={
-                item.photoPath == 0
-                  ? defaultDoctor
-                  : {
-                      uri: `${apiConfig.baseUrl}/file/download?fileToken=${item.photoPath}&userId=${item.doctorId}`,
-                    }
-              }
-              style={{
-                width: 100,
-                height: 100,
-                borderRadius: 10,
-                alignSelf: 'center',
-              }}
-            />
-          </TouchableOpacity>
-          {/* Details */}
-          <View
-            style={{flex: 0.6, justifyContent: 'space-evenly', marginLeft: 5}}>
-            <Text style={{fontSize: 20, fontWeight: 'bold', color: 'black'}}>
-              {item.doctorName}
-            </Text>
-            {/* <Text style={{fontSize: 12, color: 'gray'}}>
-          {item.specialization}
-        </Text> */}
-            <Text style={{fontSize: 12, color: 'gray', fontWeight: 'bold'}}>
-              {item.specialization.map(index => {
-                return item.specialization.indexOf(index) !=
-                  item.specialization.length - 1
-                  ? index + ', '
-                  : index;
-              })}
-            </Text>
-            <View style={{flexDirection: 'row'}}>
-              <FAIcons
-                name={
-                  item.consultationType == 'PHYSICAL'
-                    ? 'users'
-                    : item.consultationType == 'PHONE_CALL'
-                    ? 'phone-alt'
-                    : 'video'
-                }
-                color={'#2b8ada'}
-                size={12}
-                solid={false}
-                style={{
-                  alignSelf: 'center',
-                  marginRight: 5,
-                }}
-              />
-              <Text style={{fontSize: 12, color: '#2B8ADA'}}>
-                {item.consultationType == 'PHYSICAL'
-                  ? 'P-Consultation'
-                  : 'E-Consultation'}
-              </Text>
-            </View>
-
-            {item.consultationType == 'PHYSICAL' ? (
-              <View style={{flexDirection: 'row'}}>
-                <Text style={{fontSize: 12, color: 'black'}}>
-                  {item.clinicName + ' | ' + item.clinicAddress}
-                </Text>
-              </View>
-            ) : null}
-            <View style={{flexDirection: 'row'}}>
-              <FAIcons
-                name="clock"
-                style={{
-                  alignSelf: 'center',
-                  justifyContent: 'center',
-                  marginRight: 5,
-                }}
-                color={'gray'}
-              />
-              <Text style={{fontSize: 12, fontWeight: 'bold', color: 'gray'}}>
-                {timeformatter(item.slotStartTime)} {' - '}
-                {timeformatter(item.slotEndTime)}
-              </Text>
-            </View>
-            <View style={{flexDirection: 'row'}}>
-              <FAIcons
-                name="calendar-alt"
-                style={{
-                  alignSelf: 'center',
-                  justifyContent: 'center',
-                  marginRight: 5,
-                }}
-                color={'black'}
-              />
-              <Text style={{fontSize: 12, fontWeight: 'bold', color: 'black'}}>
-                {dayjs(item.slotDate).format('DD MMM, YYYY')}
-              </Text>
-            </View>
-            {/* <View style={{flexDirection: 'row', marginVertical: 3}}>
-              {item.slotStartTime == dayjs().format('HH:mm') ? (
-                <TouchableOpacity
-                  style={{
-                    padding: 5,
-                    backgroundColor: '#2B8ADA',
-                    borderRadius: 5,
-                    flexDirection: 'row',
-                  }}>
-                  <Text style={{fontSize: 12, marginLeft: 5, color: 'white'}}>
-                    Consult Now
-                  </Text>
-                </TouchableOpacity>
-              ) : null}
-            </View> */}
-          </View>
-        </View>
-        {/* Buttons */}
-        <View
-          style={{
-            flexDirection: 'column',
-            marginVertical: 5,
-            width: '95%',
-            alignSelf: 'center',
-          }}>
-          <View style={{flexDirection: 'row', justifyContent: 'space-evenly'}}>
-            {/* Files */}
-            <TouchableOpacity
-              style={[
-                {
-                  flex: 0.45,
-                  flexDirection: 'row',
-                  padding: 3,
-                  paddingHorizontal: 5,
-                  justifyContent: 'center',
-                  borderWidth: 1,
-                  borderColor: '#000080',
-                  borderRadius: 5,
-                },
-              ]}
-              onPress={async () => {
-                setconsultationId(item.consultationId);
-                let p = await getFiles(item.consultationId);
-                setdocsModal(true);
-              }}>
-              <FAIcons
-                name="file-pdf"
-                color={'#000080'}
-                size={15}
-                style={{marginRight: 5, alignSelf: 'center'}}
-              />
-              <Text style={{fontSize: 12, color: '#000080'}}>Docs</Text>
-            </TouchableOpacity>
-
-            {/* Preconsultation QuestionAnswers */}
-            <TouchableOpacity
-              style={[
-                {
-                  flex: 0.45,
-                  flexDirection: 'row',
-                  padding: 3,
-                  paddingHorizontal: 5,
-                  borderWidth: 1,
-                  borderColor: '#2b8ada',
-                  borderRadius: 5,
-                  justifyContent: 'center',
-                },
-              ]}
-              onPress={async () => {
-                setconsultationId(item.consultationId);
-                let p = await getFiles(item.consultationId);
-                if (p[1] == 0) {
-                  //await getQuestions(item.doctorId, item.consultationId);
-                  setconsultationId(item.consultationId);
-                  setdoctorId(item.doctorId);
-                  seteditQuestions(false);
-                  setquesAnsModal(true);
-                } else {
-                  setquesAnsModal(true);
-                }
-                //setdocsModal(true);
-              }}>
-              <MIcons
-                name="message-reply-text-outline"
-                color={'#2b8ada'}
-                size={15}
-                style={{alignSelf: 'center', marginRight: 5}}
-              />
-              <Text style={{fontSize: 12, color: '#2b8ada'}}>
-                Questionnaire
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-evenly',
-              marginVertical: 7,
-            }}>
-            {/* Consult Now */}
-
-            {item.consultationType != 'PHYSICAL' ? (
-              <TouchableOpacity
-                style={[
-                  {
-                    flex: 0.95,
-                    justifyContent: 'center',
-                    flexDirection: 'row',
-                    padding: 3,
-                    paddingHorizontal: 5,
-                    alignSelf: 'center',
-                    borderWidth: 1,
-                    //borderColor: '#2b8ada',
-
-                    borderRadius: 5,
-                  },
-                  hasStarted(item)
-                    ? {
-                        backgroundColor: 'limegreen',
-                        borderColor: 'limegreen',
-                      }
-                    : {backgroundColor: '#2b8ada', borderColor: '#2b8ada'},
-                ]}
-                onPress={() => {
-                  console.log(
-                    '================Consultation started==========',
-                    hasStarted(item),
-                  );
-
-                  if (hasStarted(item)) {
-                    let p =
-                      item.familyMemberName != null
-                        ? item.familyMemberName
-                        : patientDet.patientName;
-
-                    onJoinPress(
-                      item.consultationType,
-                      item.consultationId + '',
-                      item.doctorId,
-                      patientDet.patientId,
-                      p,
-                      item.slotId,
-                      p,
-                      'Patient',
-                    );
-                  } else {
-                    Alert.alert(
-                      'Hold on !',
-                      `Your consultaion starts at ${timeformatter(
-                        item.slotStartTime,
-                      )} on ${dayjs(item.slotDate).format(
-                        'DD MMM, YYYY',
-                      )}.\nPlease join at the scheduled time.`,
-                      [
-                        {
-                          text: 'ok',
-                          onPress: async () => {
-                            await getUpcoming();
-                          },
-                        },
-                      ],
-                    );
-                  }
-                }}>
-                <FAIcons
-                  name={
-                    item.consultationType == 'PHYSICAL'
-                      ? 'users'
-                      : item.consultationType == 'PHONE_CALL'
-                      ? 'phone-alt'
-                      : 'video'
-                  }
-                  color={'white'}
-                  size={15}
-                  style={{marginRight: 5}}
-                />
-                <Text style={{fontSize: 12, color: 'white'}}>Consult</Text>
-              </TouchableOpacity>
-            ) : null}
-
-            {/* Reschedule */}
-            {/* <TouchableOpacity
-                style={{
-                  flex: 0.45,
-                  justifyContent: 'center',
-                  flexDirection: 'row',
-                  padding: 3,
-                  paddingHorizontal: 5,
-                  alignSelf: 'center',
-                  borderWidth: 1,
-                  borderColor: '#17CC9C',
-                  backgroundColor: '#17CC9C',
-                  borderRadius: 5,
-                }}
-                onPress={() => {
-                  //item.consultationType == 'PHONE_CALL' ? 'phone-alt' : 'video';
-                  setDoctorItem(item);
-                  Alert.alert(
-                    'Reschedule',
-                    `Are you sure you want to reschedule your consultation with ${item.doctorName}`,
-                    [
-                      {
-                        text: 'Yes',
-                        onPress: async () => {
-                          let temp = item;
-                          temp.isReschedule = true;
-                          console.log(
-                            '============GOING FOR RESCHEDULE=============\n',
-                            temp,
-                          );
-                          await AsyncStorage.setItem(
-                            'bookSlot',
-                            JSON.stringify(temp),
-                          );
-                          navigation.navigate('SelectSlotsE');
-                        },
-                      },
-                      {
-                        text: 'No',
-                        style: 'cancel',
-                      },
-                    ],
-                  );
-                  //setrescheduleModal(true);
-                }}>
-                <FAIcons
-                  name="calendar-alt"
-                  color={'white'}
-                  size={15}
-                  style={{marginRight: 5}}
-                />
-                <Text style={{fontSize: 12, color: 'white'}}>Re-Schedule</Text>
-              </TouchableOpacity> */}
-
-            {/* {shouldShowCancel(item) ? (
-              <TouchableOpacity
-                style={[
-                  {
-                    flex: 0.45,
-                    alignSelf: 'center',
-                    flexDirection: 'row',
-                    padding: 3,
-                    paddingHorizontal: 5,
-                    alignSelf: 'center',
-                    borderWidth: 1,
-                    borderColor: 'red',
-                    //backgroundColor: 'red',
-                    borderRadius: 5,
-                    justifyContent: 'center',
-                  },
-                  item.consultationType == 'PHYSICAL' ? {flex: 0.95} : null,
-                ]}
-                onPress={async () => {
-                  if (shouldShowCancel(item)) {
-                    Alert.alert(
-                      'Cancel Booking',
-                      `Are you sure you want to cancel your appointment with ${item.doctorName}`,
-                      [
-                        {
-                          text: 'ok',
-                          onPress: async () => {
-                            setCancelItem(item);
-                            setCancelModal(true);
-                          },
-                        },
-                        {
-                          text: 'cancel',
-                        },
-                      ],
-                    );
-                  } else {
-                    Alert.alert(
-                      'Sorry!',
-                      'You can not cancel the booking now.',
-                      [
-                        {
-                          text: 'ok',
-                          onPress: async () => {
-                            await getUpcoming();
-                          },
-                        },
-                      ],
-                    );
-                  }
-                }}>
-                <MIcons
-                  name="close"
-                  color={'red'}
-                  size={15}
-                  style={{alignSelf: 'center', marginRight: 5}}
-                />
-                <Text style={{fontSize: 12, color: 'red'}}>Cancel Booking</Text>
-              </TouchableOpacity>
-            ) : null} */}
-          </View>
-
-          {/* <TouchableOpacity
-            style={[
-              {
-                width: '95%',
-                alignSelf: 'center',
-                flexDirection: 'row',
-                padding: 3,
-                paddingHorizontal: 5,
-                borderWidth: 1,
-                borderColor: 'red',
-                // backgroundColor: 'red',
-                borderRadius: 5,
-                justifyContent: 'center',
-                marginTop: 8,
-              },
-            ]}
-            onPress={async () => {
-              Alert.alert(
-                'Cancel Booking',
-                `Are you sure you want to cancel your appointment with ${item.doctorName}`,
-                [
-                  {
-                    text: 'ok',
-                  },
-                  {
-                    text: 'cancel',
-                  },
-                ],
-              );
-            }}>
-            <MIcons
-              name="close"
-              color={'red'}
-              size={15}
-              style={{alignSelf: 'center', marginRight: 5}}
-            />
-            <Text style={{fontSize: 12, color: 'red'}}>Cancel Booking</Text>
-          </TouchableOpacity> */}
-        </View>
-      </View>
-    );
-  };
 
   const renderCompleted = ({item}) => {
     return (
@@ -946,33 +288,74 @@ function PatientAllAppointments({navigation}) {
           // height: 80,
         }}
         key={item.consultationId}>
-        {item.familyMemberName != null ? (
-          <View style={{flexDirection: 'row', marginVertical: 5}}>
+        <View
+          style={{
+            flexDirection: 'row',
+            marginVertical: 5,
+            justifyContent: 'space-between',
+          }}>
+          <View style={{alignSelf: 'flex-start'}}>
+            <Text
+              style={[
+                {
+                  borderRadius: 5,
+                  borderWidth: 2,
+                  fontSize: 12,
+                  fontWeight: 'bold',
+                  padding: 5,
+                  paddingHorizontal: 15,
+                  alignSelf: 'center',
+                  textAlign: 'center',
+                },
+                item.consultationStatus == 'BOOKED'
+                  ? {borderColor: '#2b8ada', color: '#2b8ada'}
+                  : item.consultationStatus == 'PRESCRIPTION_PENDING'
+                  ? {borderColor: '#FCC419', color: '#FCC419'}
+                  : item.consultationStatus == 'COMPLETED'
+                  ? {borderColor: '#17CC9C', color: '#17CC9C'}
+                  : {borderColor: '#E04F5F', color: '#E04F5F'},
+              ]}>
+              {item.consultationStatus == 'BOOKED'
+                ? 'Upcoming'
+                : item.consultationStatus == 'PRESCRIPTION_PENDING'
+                ? 'Prescription Pending'
+                : item.consultationStatus == 'COMPLETED'
+                ? 'Completed'
+                : item.consultationStatus == 'CANCELED_BY_DOCTOR' ||
+                  item.consultationStatus == 'CANCELED_BY_PATIENT' ||
+                  item.consultationStatus == 'CANCELED_BY_ADMIN'
+                ? 'Cancelled'
+                : 'Missed'}
+            </Text>
+          </View>
+          {item.familyMemberName != null ? (
             <View
               style={{
                 padding: 5,
-                backgroundColor: '#17CC9C',
+                paddingHorizontal: 15,
+                borderColor: '#17CC9C',
+                borderWidth: 2,
                 borderRadius: 10,
                 flexDirection: 'row',
-                flex: 0.45,
                 justifyContent: 'center',
               }}>
               <FAIcons
                 name="users"
                 size={15}
-                color={'white'}
+                color={'#17CC9C'}
                 style={{
                   alignSelf: 'center',
                   justifyContent: 'center',
                   marginRight: 10,
                 }}
               />
-              <Text style={{color: 'white', alignSelf: 'center', fontSize: 13}}>
+              <Text
+                style={{color: '#17CC9C', alignSelf: 'center', fontSize: 13}}>
                 {item.familyMemberName}
               </Text>
             </View>
-          </View>
-        ) : null}
+          ) : null}
+        </View>
         <View
           style={{
             flexDirection: 'row',
@@ -1103,34 +486,7 @@ function PatientAllAppointments({navigation}) {
               width: '95%',
               alignSelf: 'center',
             }}>
-            {/* Invoice */}
-            {/* <TouchableOpacity
-            style={{
-              flexDirection: 'row',
-              padding: 3,
-              paddingHorizontal: 5,
-              alignSelf: 'center',
-              borderWidth: 1,
-              borderColor: '#17CC9C',
-              backgroundColor: '#17CC9C',
-              borderRadius: 5,
-            }}
-            onPress={() => {
-              // sethistoryId(
-              //   item.familyId != null ? item.familyId : item.patientId,
-              // );
-              // setHistoryModal(true);
-            }}>
-            <FAIcons
-              name="file-invoice"
-              color={'white'}
-              size={15}
-              style={{marginRight: 5}}
-            />
-            <Text style={{fontSize: 13, color: 'white'}}>Invoices</Text>
-          </TouchableOpacity> */}
-
-            {/* History */}
+            {/* Reports */}
             <TouchableOpacity
               style={{
                 flex: 0.45,
@@ -1138,8 +494,8 @@ function PatientAllAppointments({navigation}) {
                 padding: 3,
                 paddingHorizontal: 5,
                 alignSelf: 'center',
-                borderWidth: 1,
-                borderColor: '#000080',
+                //borderWidth: 1,
+                backgroundColor: '#2b8ada',
                 borderRadius: 5,
                 justifyContent: 'center',
               }}
@@ -1150,11 +506,11 @@ function PatientAllAppointments({navigation}) {
               }}>
               <FAIcons
                 name="file-pdf"
-                color={'#000080'}
+                color={'white'}
                 size={15}
                 style={{marginRight: 5}}
               />
-              <Text style={{fontSize: 13, color: '#000080'}}>Docs</Text>
+              <Text style={{fontSize: 13, color: 'white'}}>Reports</Text>
             </TouchableOpacity>
             {/* Questionnaire */}
             <TouchableOpacity
@@ -1164,8 +520,8 @@ function PatientAllAppointments({navigation}) {
                 padding: 3,
                 paddingHorizontal: 5,
                 alignSelf: 'center',
-                borderWidth: 1,
-                borderColor: '#2b8ada',
+                //borderWidth: 1,
+                backgroundColor: '#2b8ada',
                 borderRadius: 5,
                 justifyContent: 'center',
               }}
@@ -1179,65 +535,65 @@ function PatientAllAppointments({navigation}) {
               }}>
               <MIcons
                 name="message-reply-text-outline"
-                color={'#2b8ada'}
+                color={'white'}
                 size={15}
                 style={{alignSelf: 'center', marginRight: 5}}
               />
-              <Text style={{fontSize: 13, color: '#2b8ada'}}>
-                Questionnaire
-              </Text>
+              <Text style={{fontSize: 13, color: 'white'}}>Questionnaire</Text>
             </TouchableOpacity>
           </View>
-          <View
-            style={{
-              width: '90%',
-              alignSelf: 'center',
-              flexDirection: 'row',
-              marginVertical: 5,
-            }}>
-            {/* Prescription */}
-            <TouchableOpacity
+          {item.consultationStatus == 'COMPLETED' ? (
+            <View
               style={{
-                flex: 1,
-                flexDirection: 'row',
-                padding: 3,
-                paddingHorizontal: 5,
+                width: '90%',
                 alignSelf: 'center',
-                borderWidth: 1,
-                borderColor: '#2b8ada',
-                backgroundColor: '#2b8ada',
-                borderRadius: 5,
-                justifyContent: 'center',
-              }}
-              onPress={async () => {
-                //console.log(item);
-                setdownloadToken(item.prescriptionPath);
-                setdownloadId(item.doctorId);
-                setdownloadFileName(
-                  item.consultationId +
-                    '_Prescription_' +
-                    item.slotDate +
-                    '.pdf',
-                );
-                await downloadCache(
-                  item.prescriptionPath,
-                  item.doctorId,
-                  item.consultationId +
-                    '_Prescription_' +
-                    item.slotDate +
-                    '.pdf',
-                );
-                setPrescriptionModal(true);
+                flexDirection: 'row',
+                marginVertical: 5,
               }}>
-              <FAIcons
-                name="prescription"
-                color={'white'}
-                size={15}
-                style={{marginRight: 5}}
-              />
-              <Text style={{fontSize: 13, color: 'white'}}>Prescription</Text>
-            </TouchableOpacity>
-          </View>
+              {/* Prescription */}
+              <TouchableOpacity
+                style={{
+                  flex: 1,
+                  flexDirection: 'row',
+                  padding: 3,
+                  paddingHorizontal: 5,
+                  alignSelf: 'center',
+                  borderWidth: 1,
+                  borderColor: '#000080',
+                  backgroundColor: '#000080',
+                  borderRadius: 5,
+                  justifyContent: 'center',
+                }}
+                onPress={async () => {
+                  //console.log(item);
+                  setdownloadToken(item.prescriptionPath);
+                  setdownloadId(item.doctorId);
+                  setdownloadFileName(
+                    item.consultationId +
+                      '_Prescription_' +
+                      item.slotDate +
+                      '.pdf',
+                  );
+                  await downloadCache(
+                    item.prescriptionPath,
+                    item.doctorId,
+                    item.consultationId +
+                      '_Prescription_' +
+                      item.slotDate +
+                      '.pdf',
+                  );
+                  setPrescriptionModal(true);
+                }}>
+                <FAIcons
+                  name="prescription"
+                  color={'white'}
+                  size={15}
+                  style={{marginRight: 5}}
+                />
+                <Text style={{fontSize: 13, color: 'white'}}>Prescription</Text>
+              </TouchableOpacity>
+            </View>
+          ) : null}
         </View>
       </View>
     );
@@ -1504,130 +860,20 @@ function PatientAllAppointments({navigation}) {
             backgroundColor: '#e8f0fe',
           }}
           showsVerticalScrollIndicator={false}>
-          <HeaderPatient showMenu={false} title="All Appointments" />
+          <HeaderPatient showMenu={false} title="Consultations" />
 
-          {/* Tab */}
-          <View
-            style={{
-              marginVertical: 10,
-              borderRadius: 30,
-              borderWidth: 1,
-              borderColor: '#2B8ADA',
-              flexDirection: 'row',
-              width: '90%',
-              alignSelf: 'center',
-            }}>
-            <TouchableOpacity
-              onPress={() => {
-                setcompletedActive(!completedActive);
-                setupcomingActive(!upcomingActive);
-              }}
-              style={[
-                {
-                  flex: 1,
-                  borderRadius: 20,
-                  padding: 10,
-                },
-                upcomingActive ? {backgroundColor: '#2B8ADA'} : null,
-              ]}>
-              <Text
-                style={[
-                  {
-                    textAlign: 'center',
-                  },
-                  upcomingActive
-                    ? {color: 'white', fontWeight: 'bold'}
-                    : {color: 'black'},
-                ]}>
-                Upcoming
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {
-                setcompletedActive(!completedActive);
-                setupcomingActive(!upcomingActive);
-              }}
-              style={[
-                {
-                  flex: 1,
-                  borderRadius: 20,
-                  padding: 10,
-                },
-                completedActive ? {backgroundColor: '#2B8ADA'} : null,
-              ]}>
-              <Text
-                style={[
-                  {
-                    textAlign: 'center',
-                  },
-                  completedActive
-                    ? {color: 'white', fontWeight: 'bold'}
-                    : {color: 'black'},
-                ]}>
-                Completed
-              </Text>
-            </TouchableOpacity>
-          </View>
-          {upcomingActive ? (
-            <View style={{alignSelf: 'center', width: '90%'}}>
-              <TouchableOpacity
-                style={{
-                  flexDirection: 'row',
-                  padding: 5,
-                  paddingHorizontal: 10,
-                }}
-                onPress={getUpcoming}>
-                <FAIcons
-                  name="redo-alt"
-                  size={12}
-                  style={{alignSelf: 'center', marginRight: 5}}
-                  color={'#2b8ada'}
-                />
-                <Text style={{color: '#2b8ada', fontSize: 12}}>Refresh</Text>
-              </TouchableOpacity>
-              {UpcomingData != '' ? (
-                <FlatList
-                  data={UpcomingData}
-                  keyExtractor={item => item.consultationId}
-                  renderItem={renderUpcomingConsultations}
-                  style={{marginBottom: 100}}
-                />
-              ) : (
-                <Text style={{alignSelf: 'center', color: 'gray'}}>
-                  No New Upcoming Consulations
-                </Text>
-              )}
-            </View>
+          {CompletedData != '' ? (
+            <FlatList
+              data={CompletedData}
+              keyExtractor={item => item.consultationId}
+              renderItem={renderCompleted}
+              style={{marginBottom: 100, width: '95%', alignSelf: 'center'}}
+            />
           ) : (
-            <View style={{alignSelf: 'center', width: '90%'}}>
-              <TouchableOpacity
-                style={{
-                  flexDirection: 'row',
-                  padding: 5,
-                  paddingHorizontal: 10,
-                }}
-                onPress={getCompleted}>
-                <FAIcons
-                  name="redo-alt"
-                  size={12}
-                  style={{alignSelf: 'center', marginRight: 5}}
-                  color={'#2b8ada'}
-                />
-                <Text style={{color: '#2b8ada', fontSize: 12}}>Refresh</Text>
-              </TouchableOpacity>
-              {CompletedData != '' ? (
-                <FlatList
-                  data={CompletedData}
-                  keyExtractor={item => item.consultationId}
-                  renderItem={renderCompleted}
-                  style={{marginBottom: 100}}
-                />
-              ) : (
-                <Text style={{alignSelf: 'center', color: 'gray'}}>
-                  No Data Found for Completed Consulations
-                </Text>
-              )}
-            </View>
+            <Text
+              style={{alignSelf: 'center', color: 'gray', marginVertical: 30}}>
+              No Data Found for All Consulations
+            </Text>
           )}
         </ScrollView>
 
@@ -2313,230 +1559,6 @@ function PatientAllAppointments({navigation}) {
           </Modal>
         ) : null}
 
-        {cancelModal ? (
-          <Modal
-            animationType="slide"
-            transparent={true}
-            visible={cancelModal}
-            onRequestClose={() => {
-              setCancelModal(!cancelModal);
-            }}>
-            <View
-              style={{
-                height: '100%',
-                backgroundColor: 'rgba(0,0,0,0.8)',
-                flexDirection: 'row',
-                justifyContent: 'center',
-              }}>
-              <View
-                style={[
-                  styles.modalView,
-                  {
-                    borderRadius: 10,
-                  },
-                ]}>
-                <View
-                  style={{
-                    width: '100%',
-                    alignSelf: 'center',
-                    borderBottomWidth: 1,
-                    borderBottomColor: 'gray',
-                  }}>
-                  <Text
-                    style={{
-                      fontWeight: 'bold',
-                      fontSize: 16,
-                      padding: 5,
-                      color: 'black',
-                    }}>
-                    Cancel Booking
-                  </Text>
-                  <FAIcons
-                    name="window-close"
-                    color="black"
-                    size={26}
-                    style={{
-                      position: 'absolute',
-                      top: 0,
-                      right: 0,
-                    }}
-                    onPress={() => {
-                      setCancelModal(false);
-                      setcancelReason('');
-                      setCancelItem(null);
-                    }}
-                  />
-                </View>
-                <View style={{minHeight: 150, width: '100%'}}>
-                  <View style={{width: '100%'}}>
-                    {!validForRefund(cancelItem) ? (
-                      <View
-                        style={{
-                          flex: 1,
-                          flexDirection: 'row',
-                          backgroundColor: 'red',
-                          padding: 10,
-                          borderRadius: 10,
-                          marginTop: 10,
-                          width: '100%',
-                          alignSelf: 'center',
-                        }}>
-                        <FAIcon
-                          name="warning"
-                          size={20}
-                          color={'white'}
-                          style={{
-                            alignSelf: 'center',
-                            justifyContent: 'center',
-                          }}
-                        />
-                        <Text
-                          style={{
-                            alignSelf: 'center',
-                            fontSize: 13,
-                            fontWeight: 'bold',
-                            color: 'white',
-                            paddingHorizontal: 10,
-                          }}>
-                          You are not eligible for getting Refund based on
-                          Organization Policy
-                        </Text>
-                      </View>
-                    ) : (
-                      <View
-                        style={{
-                          flex: 1,
-                          flexDirection: 'row',
-                          backgroundColor: '#17CC9C',
-                          padding: 10,
-                          borderRadius: 10,
-                          marginTop: 10,
-                          width: '100%',
-                          alignSelf: 'center',
-                        }}>
-                        <FAIcon
-                          name="warning"
-                          size={20}
-                          color={'white'}
-                          style={{
-                            alignSelf: 'center',
-                            justifyContent: 'center',
-                          }}
-                        />
-                        <Text
-                          style={{
-                            alignSelf: 'center',
-                            fontSize: 13,
-                            fontWeight: 'bold',
-                            color: 'white',
-                            paddingHorizontal: 10,
-                          }}>
-                          You are eligible for getting Refund based on
-                          Organization Policy
-                        </Text>
-                      </View>
-                    )}
-
-                    <Text
-                      style={{
-                        fontSize: 13,
-                        color: '#2b8ada',
-                        marginVertical: 5,
-                        fontWeight: 'bold',
-                      }}>
-                      Reason for cancellation
-                    </Text>
-                    <View
-                      style={{
-                        backgroundColor: '#e8f0fe',
-                        height: 100,
-                        borderRadius: 10,
-                        marginBottom: 10,
-                      }}>
-                      <TextInput
-                        style={{
-                          padding: 5,
-                          backgroundColor: '#e8f0fe',
-                          paddingHorizontal: 15,
-                          //height: 100,
-                          borderRadius: 10,
-                          fontSize: 12,
-                          textAlign: 'left',
-                          marginTop: 5,
-                        }}
-                        onChangeText={text => setcancelReason(text)}
-                        value={cancelReason}
-                        multiline={true}
-                      />
-                    </View>
-                  </View>
-                  <CustomButton
-                    style={{
-                      backgroundColor: '#2b8ada',
-                      padding: 5,
-                      paddingHorizontal: 15,
-                    }}
-                    text={'Proceed'}
-                    textstyle={{color: 'white', fontSize: 15}}
-                    //onPress={() => setCancelModal(false)}
-                    onPress={async () => {
-                      if (cancelReason != '') {
-                        let p = {
-                          cancelationReason: cancelReason,
-                          //clinicId: 0,
-                          consultationId: cancelItem.consultationId,
-                          consultationType: cancelItem.consultationType,
-                          doctorId: cancelItem.doctorId,
-                          patientId: patientDet.patientId,
-                          patientName: patientDet.patientName,
-                          slotId: cancelItem.slotId,
-                        };
-                        if (cancelItem.clinicId != null)
-                          p.clinicId = cancelItem.clinicId;
-                        if (patientDet.email != null)
-                          p.patientEmail = patientDet.email;
-                        await axios
-                          .post(
-                            apiConfig.baseUrl + '/patient/consultation/cancel',
-                            p,
-                          )
-                          .then(response => {
-                            if (response.status == 200) {
-                              Alert.alert(
-                                'Canceled',
-                                `Your booking with ${cancelItem.doctorName} has been canceled`,
-                                [
-                                  {
-                                    text: 'ok',
-                                    onPress: async () => {
-                                      setCancelModal(false);
-                                      setCancelItem(null);
-                                      setcancelReason('');
-                                      await getUpcoming();
-                                    },
-                                  },
-                                ],
-                              );
-                            }
-                          })
-                          .catch(error => {
-                            Alert.alert('Error', `${error}`);
-                            setCancelModal(false);
-                            setCancelItem(null);
-                            setcancelReason('');
-                          });
-                      } else
-                        Alert.alert(
-                          'Incomplete Details',
-                          'Please enter the reason for cancelling the appointment',
-                        );
-                    }}
-                  />
-                </View>
-              </View>
-            </View>
-          </Modal>
-        ) : null}
         {isLoading && (
           <View
             style={{

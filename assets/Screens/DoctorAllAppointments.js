@@ -85,7 +85,7 @@ const MyUpcomingAppointment = ({navigation}) => {
   const [isFetching, setisFetching] = useState(false);
 
   const [strtCC, setstrtCC] = useState(0);
-  const [endCC, setendCC] = useState(9);
+  const [endCC, setendCC] = useState(100);
   const [endOfList, setendOfList] = useState(false);
   const [zoom, setZoom] = useState(1);
 
@@ -268,436 +268,6 @@ const MyUpcomingAppointment = ({navigation}) => {
     }
   };
 
-  const renderCard = ({item, index}) => {
-    return (
-      <View
-        style={{
-          backgroundColor: 'white',
-          width: '95%',
-          alignSelf: 'center',
-          borderRadius: 10,
-          marginVertical: 5,
-        }}
-        key={index}
-        // onPress={() => console.log(item)}
-      >
-        <View
-          style={{
-            flex: 1,
-            flexDirection: 'row',
-            marginTop: 10,
-            paddingHorizontal: 10,
-            justifyContent: 'space-between',
-          }}>
-          <View
-            styles={{
-              flex: 0.45,
-            }}>
-            <Image
-              source={
-                item.paymentStatus != 'PRE_PAID' &&
-                item.paymentStatus != 'SPECIAL_USER'
-                  ? payonclinic
-                  : prepaid
-              }
-              style={{
-                width: 30,
-                height: 30,
-                tintColor:
-                  item.paymentStatus != 'PRE_PAID' &&
-                  item.paymentStatus != 'SPECIAL_USER'
-                    ? '#2b8ada'
-                    : '#51e80c',
-                marginLeft: 10,
-              }}
-            />
-          </View>
-          {/* Prescription Create */}
-          {/* <View
-            style={{
-              flexDirection: 'row',
-              flex: 0.45,
-              justifyContent: 'flex-end',
-            }}>
-            <FAIcon
-              name="prescription"
-              size={25}
-              style={{alignSelf: 'center'}}
-              onPress={() => {
-                Alert.alert(
-                  'Create Prescription',
-                  `Do you want to create prescription for ` +
-                    (item.familyUserName == null
-                      ? item.patientName
-                      : item.familyUserName) +
-                    ` right now?`,
-                  [
-                    {
-                      text: 'Yes',
-                      onPress: () => {
-                        onPressPrescription(item);
-                        navigation.navigate('CheifComplaints');
-                      },
-                    },
-                    {
-                      text: 'No',
-                      style: 'cancel',
-                    },
-                  ],
-                );
-                //onPressPrescription(item);
-              }}
-            />
-          </View> */}
-        </View>
-        <View
-          style={{
-            flexDirection: 'row',
-            // borderBottomColor: "gray",
-            // borderBottomWidth: 1,
-            // justifyContent: 'space-around',
-          }}>
-          {item.patientPhoto == 0 || item.patientPhoto == null ? (
-            <Image
-              source={pfp1}
-              style={{
-                width: 90,
-                height: 90,
-                alignSelf: 'center',
-                borderRadius: 5,
-                margin: 5,
-                marginHorizontal: 10,
-              }}
-            />
-          ) : (
-            <Image
-              source={{
-                uri: `${apiConfig.baseUrl}/file/download?fileToken=${item.patientPhoto}&userId=${item.patientId}`,
-              }}
-              style={{
-                width: 90,
-                height: 90,
-                alignSelf: 'center',
-                borderRadius: 5,
-                margin: 5,
-                marginHorizontal: 10,
-              }}
-            />
-          )}
-          <View
-            style={{
-              flexDirection: 'column',
-              justifyContent: 'space-around',
-            }}>
-            <Text
-              style={{
-                flexDirection: 'row',
-                fontSize: 20,
-                fontWeight: 'bold',
-                color: 'black',
-              }}>
-              {item.familyUserName == null
-                ? item.patientName
-                : item.familyUserName}
-            </Text>
-            {item.consultationType == 'PHYSICAL' ? (
-              <View style={{flexDirection: 'row'}}>
-                <View
-                  style={{
-                    flexDirection: 'column',
-                    width: '20%',
-                    marginRight: '5%',
-                  }}>
-                  {/* <Text style={styles.cardText}>Clinic</Text> */}
-                  <FAIcon
-                    name="hospital"
-                    size={15}
-                    color={'#2b8ada'}
-                    style={{}}
-                  />
-                </View>
-                <View style={{flexDirection: 'column', width: '60%'}}>
-                  <Text
-                    style={[
-                      styles.cardText,
-                      {color: '#2b8ada', fontWeight: 'bold'},
-                    ]}>
-                    {item.clinicName}
-                    {' | '} {item.clinicAddress}
-                  </Text>
-                </View>
-              </View>
-            ) : null}
-
-            {item.patientDob != null || item.familyUserDob ? (
-              <View style={{flexDirection: 'row'}}>
-                <View
-                  style={{
-                    flexDirection: 'column',
-                    width: '20%',
-                    marginRight: '5%',
-                  }}>
-                  <Text style={styles.cardText}>Age</Text>
-                </View>
-                <View style={{flexDirection: 'column', width: '60%'}}>
-                  <Text style={styles.cardText}>
-                    {item.familyUserDob == null
-                      ? dayjs().diff(dayjs(item.patientDob), 'y')
-                      : dayjs().diff(dayjs(item.familyUserDob), 'y')}
-                  </Text>
-                </View>
-              </View>
-            ) : null}
-
-            {item.patientCity != null || item.familyUsercity ? (
-              <View style={{flexDirection: 'row'}}>
-                <View
-                  style={{
-                    flexDirection: 'column',
-                    width: '20%',
-                    marginRight: '5%',
-                  }}>
-                  <Text style={styles.cardText}>Location</Text>
-                </View>
-                <View style={{flexDirection: 'column', width: '60%'}}>
-                  <Text style={styles.cardText}>
-                    {item.familyUsercity == null
-                      ? item.patientCity
-                      : item.familyUsercity}
-                  </Text>
-                </View>
-              </View>
-            ) : null}
-            {item.symptoms != null ? (
-              <View style={{flexDirection: 'row'}}>
-                <View
-                  style={{
-                    flexDirection: 'column',
-                    flex: 0.2,
-                    marginRight: '5%',
-                  }}>
-                  <Text style={styles.cardText}>Symtoms</Text>
-                </View>
-                <View
-                  style={{
-                    flexDirection: 'column',
-                    flex: 0.6,
-                  }}>
-                  <Text style={styles.cardText}>{item.symptoms}</Text>
-                </View>
-              </View>
-            ) : null}
-            <View style={{flexDirection: 'row'}}>
-              <View
-                style={{
-                  flexDirection: 'column',
-                  width: '20%',
-                  marginRight: '5%',
-                }}>
-                <Text style={styles.cardText}>Date</Text>
-              </View>
-              <View style={{flexDirection: 'column', width: '60%'}}>
-                <Text style={styles.cardText}>
-                  {dayjs(item.slotDate).format('DD MMM, YYYY')}
-                </Text>
-              </View>
-            </View>
-            <View style={{flexDirection: 'row'}}>
-              <View
-                style={{
-                  flexDirection: 'column',
-                  width: '20%',
-                  marginRight: '5%',
-                }}>
-                <Text style={styles.cardText}>Slot</Text>
-              </View>
-              <View style={{flexDirection: 'column', width: '60%'}}>
-                <Text style={styles.cardText}>
-                  {timeformatter(item.slotStartTime)} {' - '}
-                  {timeformatter(item.slotEndTime)}
-                </Text>
-              </View>
-            </View>
-          </View>
-        </View>
-        {/* Buttons */}
-        <View
-          style={{
-            marginVertical: 10,
-            flexDirection: 'row',
-            justifyContent: 'space-evenly',
-            width: '95%',
-            alignSelf: 'center',
-          }}>
-          {item.consultationType !== 'PHYSICAL' ? (
-            <TouchableOpacity
-              style={[
-                {
-                  flex: 0.45,
-                  justifyContent: 'center',
-                  flexDirection: 'row',
-                  padding: 3,
-                  paddingHorizontal: 5,
-                  alignSelf: 'center',
-                  backgroundColor: '#2B8ADA',
-                  borderWidth: 1,
-                  borderColor: '#2B8ADA',
-                  borderRadius: 5,
-                },
-                hasStarted(item)
-                  ? {backgroundColor: 'limegreen', borderColor: 'limegreen'}
-                  : null,
-              ]}
-              onPress={async () => {
-                if (hasStarted(item)) {
-                  await onPressPrescription(item);
-                  console.log(item.slotId);
-
-                  let patientName =
-                    item.familyUserName != null
-                      ? item.familyUserName
-                      : item.patientName;
-
-                  onJoinPress(
-                    item.consultationType,
-                    item.consultationId + '',
-                    doctorObj.doctorId + '',
-                    item.patientId,
-                    patientName,
-                    item.slotId,
-                    doctorObj.doctorName,
-                    'Doctor',
-                  );
-                } else
-                  Alert.alert(
-                    'Hold on',
-                    `Your consultaion starts at ${timeformatter(
-                      item.slotStartTime,
-                    )} on ${dayjs(item.slotDate).format(
-                      'DD MMM, YYYY',
-                    )}.\nPlease join at the scheduled time.`,
-                  );
-              }}>
-              <FAIcon
-                name={
-                  item.consultationType == 'VIDEO_CALL' ? 'video' : 'phone-alt'
-                }
-                color={'white'}
-                size={15}
-                style={{marginRight: 5}}
-              />
-              <Text style={{fontSize: 12, color: 'white'}}>Consult Now</Text>
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity
-              style={{
-                flex: 0.45,
-                justifyContent: 'center',
-                flexDirection: 'row',
-                padding: 3,
-                paddingHorizontal: 5,
-                alignSelf: 'center',
-                backgroundColor: '#2B8ADA',
-                borderWidth: 1,
-                borderColor: '#2B8ADA',
-                borderRadius: 5,
-              }}
-              onPress={async () => {
-                await onPressPrescription(item);
-                navigation.navigate('CheifComplaints');
-              }}>
-              <FAIcon
-                name="hospital"
-                size={15}
-                color={'white'}
-                style={{marginRight: 5}}
-              />
-              <Text style={{fontSize: 12, color: 'white'}}>P-Consultation</Text>
-            </TouchableOpacity>
-          )}
-          {/* <TouchableOpacity
-            style={{
-              flexDirection: 'row',
-              padding: 3,
-              paddingHorizontal: 5,
-              alignSelf: 'center',
-              borderWidth: 1,
-              borderColor: '#000080',
-              borderRadius: 5,
-            }}
-            onPress={() => {
-              sethistoryId(
-                item.familyId != null ? item.familyId : item.patientId,
-              );
-              setHistoryModal(true);
-            }}>
-            <FAIcon
-              name="file-pdf"
-              color={'#000080'}
-              size={15}
-              style={{marginRight: 5}}
-            />
-            <Text style={{fontSize: 12, color: '#000080'}}>History</Text>
-          </TouchableOpacity> */}
-
-          <TouchableOpacity
-            style={{
-              flex: 0.2,
-              justifyContent: 'center',
-              flexDirection: 'row',
-              padding: 3,
-              paddingHorizontal: 5,
-              alignSelf: 'center',
-              borderWidth: 1,
-              borderColor: 'gray',
-              borderRadius: 5,
-            }}
-            onPress={async () => {
-              settodayId(item.consultationId);
-              setpatientId(item.patientId);
-              await getTodaysDocs(item.consultationId);
-              setTodaysModal(true);
-            }}>
-            <FAIcon
-              name="file-pdf"
-              color={'gray'}
-              size={15}
-              style={{marginRight: 5}}
-            />
-            <Text style={{fontSize: 12}}>Files</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              {
-                flex: 0.1,
-                justifyContent: 'center',
-                flexDirection: 'row',
-                padding: 3,
-                paddingHorizontal: 5,
-                borderWidth: 1,
-                borderColor: '#2b8ada',
-                borderRadius: 5,
-              },
-            ]}
-            onPress={async () => {
-              settodayId(item.consultationId);
-              setpatientId(item.patientId);
-              await getTodaysDocs(item.consultationId);
-              setConsultationQuestionnaire(true);
-            }}>
-            <MCIcons
-              name="clipboard-list"
-              color={'#2b8ada'}
-              size={15}
-              style={{alignSelf: 'center'}}
-            />
-            {/* <Text style={{fontSize: 12, color: '#2b8ada'}}>Questionnaire</Text> */}
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
-  };
-
   const renderCardCompleted = ({item}) => {
     return (
       <View
@@ -711,21 +281,41 @@ const MyUpcomingAppointment = ({navigation}) => {
         }}
         // onPress={() => console.log(item.consultationId)}
         key={item.consultationId}>
+        <View style={{alignSelf: 'flex-start'}}>
+          <Text
+            style={[
+              {
+                borderRadius: 5,
+                borderWidth: 2,
+                fontSize: 12,
+                fontWeight: 'bold',
+                padding: 5,
+                alignSelf: 'center',
+                textAlign: 'center',
+              },
+              item.consultationStatus == 'BOOKED'
+                ? {borderColor: '#2b8ada', color: '#2b8ada'}
+                : item.consultationStatus == 'PRESCRIPTION_PENDING'
+                ? {borderColor: '#FCC419', color: '#FCC419'}
+                : item.consultationStatus == 'COMPLETED'
+                ? {borderColor: '#17CC9C', color: '#17CC9C'}
+                : {borderColor: '#E04F5F', color: '#E04F5F'},
+            ]}>
+            {item.consultationStatus == 'BOOKED'
+              ? 'Upcoming'
+              : item.consultationStatus == 'PRESCRIPTION_PENDING'
+              ? 'Prescription Pending'
+              : item.consultationStatus == 'COMPLETED'
+              ? 'Completed'
+              : 'Missed'}
+          </Text>
+        </View>
         <View
           style={{
             flexDirection: 'row',
             // borderBottomColor: "gray",
             // borderBottomWidth: 1,
           }}>
-          <Text
-            style={[
-              styles.tag,
-              {
-                backgroundColor: '#4DB707',
-              },
-            ]}>
-            Completed
-          </Text>
           {item.patientPhoto == 0 || item.patientPhoto == null ? (
             <Image
               source={pfp1}
@@ -948,43 +538,43 @@ const MyUpcomingAppointment = ({navigation}) => {
               size={15}
               style={{marginRight: 5}}
             />
-            <Text style={{fontSize: 13}}>Files</Text>
+            <Text style={{fontSize: 13}}>Reports</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={{
-              flexDirection: 'row',
-              padding: 3,
-              paddingHorizontal: 15,
-              alignSelf: 'center',
-              borderWidth: 1,
-              borderColor: 'gray',
-              borderRadius: 5,
-            }}
-            onPress={() => {
-              // setprescriptionId(item.prescriptionPath);
-              // console.log(
-              //   `${apiConfig.baseUrl}/file/download?fileToken=${item.prescriptionPath}&userId=${doctorId}`,
-              // );
-              // setPrescriptionModal(true);
-              // openURL(
-              //   `${apiConfig.baseUrl}/file/download?fileToken=${item.prescriptionPath}&userId=${doctorId}`,
-              // );
-
-              downloadCache(
-                item.prescriptionPath,
-                doctorId,
-                item.consultationId + '_Prescription_' + item.slotDate + '.pdf',
-              );
-              // setPrescriptionModal(true);
-              //console.log(apiConfig.baseUrl + item.prescriptionPath);
-              // openURL(apiConfig.baseUrl + item.prescriptionPath);
-            }}>
-            <FAIcon
-              name="prescription"
-              size={15}
-              style={{marginHorizontal: 5}}
-            />
-          </TouchableOpacity>
+          {item.consultationStatus != 'MISSED_BY_PATIENT' &&
+          item.consultationStatus != 'MISSED_BY_DOCTOR' &&
+          item.consultationStatus != 'CANCELED_BY_DOCTOR' &&
+          item.consultationStatus != 'CANCELED_BY_PATIENT' &&
+          item.consultationStatus != 'CANCELED_BY_ADMIN' &&
+          item.consultationStatus != 'NONE_JOIN' &&
+          item.consultationStatus != 'RESCHEDULE_BY_PATIENT' &&
+          item.consultationStatus != 'PRESCRIPTION_PENDING' ? (
+            <TouchableOpacity
+              style={{
+                flexDirection: 'row',
+                padding: 3,
+                paddingHorizontal: 15,
+                alignSelf: 'center',
+                borderWidth: 1,
+                borderColor: 'gray',
+                borderRadius: 5,
+              }}
+              onPress={() => {
+                downloadCache(
+                  item.prescriptionPath,
+                  doctorId,
+                  item.consultationId +
+                    '_Prescription_' +
+                    item.slotDate +
+                    '.pdf',
+                );
+              }}>
+              <FAIcon
+                name="prescription"
+                size={15}
+                style={{marginHorizontal: 5}}
+              />
+            </TouchableOpacity>
+          ) : null}
         </View>
       </View>
     );
@@ -1155,7 +745,7 @@ const MyUpcomingAppointment = ({navigation}) => {
       setdoctorId(x.doctorId);
     };
     onLoadScreen();
-    //getUpcomingData();
+    getUpcomingData();
   }, []);
 
   const getUpcomingData = async () => {
@@ -1246,19 +836,19 @@ const MyUpcomingAppointment = ({navigation}) => {
       });
   };
 
-  const loadMoreItem = () => {
-    if (!endOfList) {
-      setstrtCC(endCC + 1);
-      setendCC(endCC + 10);
-      console.log('       START       :         ', strtCC);
-      console.log('       END         :         ', endCC);
-    }
-    console.log('End of list reached');
-    //getUpcomingData();
-  };
-  useEffect(() => {
-    getUpcomingData();
-  }, [endCC]);
+  // const loadMoreItem = () => {
+  //   if (!endOfList) {
+  //     setstrtCC(endCC + 1);
+  //     setendCC(endCC + 10);
+  //     console.log('       START       :         ', strtCC);
+  //     console.log('       END         :         ', endCC);
+  //   }
+  //   console.log('End of list reached');
+  //   //getUpcomingData();
+  // };
+  // useEffect(() => {
+  //   getUpcomingData();
+  // }, [endCC]);
 
   return (
     <KeyboardAvoidingView
@@ -1281,7 +871,7 @@ const MyUpcomingAppointment = ({navigation}) => {
             alignSelf: 'center',
             // marginTop: 30,
           }}>
-          <Header showMenu={false} title={'Appointments'} />
+          <Header showMenu={false} title={'Consultations'} />
           <View style={{width: '95%', alignSelf: 'center'}}>
             {/* Search Bar */}
             {/* <View style={styles.searchBar}>
@@ -1313,8 +903,8 @@ const MyUpcomingAppointment = ({navigation}) => {
               <FlatList
                 data={UpcomingData}
                 keyExtractor={item => item.consultationId}
-                renderItem={renderCard}
-                onEndReached={loadMoreItem}
+                renderItem={renderCardCompleted}
+                //onEndReached={loadMoreItem}
                 onEndReachedThreshold={0}
               />
             ) : (

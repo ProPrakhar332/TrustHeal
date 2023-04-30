@@ -3,6 +3,7 @@ import {useNavigation} from '@react-navigation/native';
 
 import {
   Alert,
+  Share,
   View,
   Image,
   StyleSheet,
@@ -210,6 +211,25 @@ const Header = ({title, showMenu}) => {
     setvalidOTP(false);
     setShareModal(false);
   };
+  const onShare = async () => {
+    try {
+      const result = await Share.share({
+        message:
+          'I am using TrustHeal app. Please download to start using app https://play.google.com/store/apps/details?id=com.trusthealapp',
+      });
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          // shared with activity type of result.activityType
+        } else {
+          // shared
+        }
+      } else if (result.action === Share.dismissedAction) {
+        // dismissed
+      }
+    } catch (error) {
+      Alert.alert(error.message);
+    }
+  };
 
   const Item = ({id, time}) => (
     <View
@@ -305,9 +325,10 @@ const Header = ({title, showMenu}) => {
               <Image style={styles.icon} source={location} color="white" />
             </TouchableOpacity> */}
             <TouchableOpacity
-              onPress={() => {
+              onPress={async () => {
                 console.log('Share');
-                setShareModal(true);
+                await onShare();
+                //setShareModal(true);
               }}>
               <FAIcon
                 style={styles.icon}
