@@ -176,22 +176,28 @@ function ConfirmBoking({navigation}) {
   const updateFees = () => {
     console.log('Checking Effective Fees');
     let temp = [];
-    for (var i = 0; i < PrevPageData.doctorObj.followUpEligibles.length; ++i) {
-      if (AppointmentFor.patientName != null) {
-        if (
-          PrevPageData.doctorObj.followUpEligibles[i].familyMemberName == null
-        )
-          temp.push(
-            PrevPageData.doctorObj.followUpEligibles[i].followUpEligibleDate,
-          );
-      } else if (AppointmentFor.name != null) {
-        if (
-          PrevPageData.doctorObj.followUpEligibles[i].familyMemberName ==
-          AppointmentFor.name
-        )
-          temp.push(
-            PrevPageData.doctorObj.followUpEligibles[i].followUpEligibleDate,
-          );
+    if (PrevPageData.doctorObj != null) {
+      for (
+        var i = 0;
+        i < PrevPageData.doctorObj.followUpEligibles.length;
+        ++i
+      ) {
+        if (AppointmentFor.patientName != null) {
+          if (
+            PrevPageData.doctorObj.followUpEligibles[i].familyMemberName == null
+          )
+            temp.push(
+              PrevPageData.doctorObj.followUpEligibles[i].followUpEligibleDate,
+            );
+        } else if (AppointmentFor.name != null) {
+          if (
+            PrevPageData.doctorObj.followUpEligibles[i].familyMemberName ==
+            AppointmentFor.name
+          )
+            temp.push(
+              PrevPageData.doctorObj.followUpEligibles[i].followUpEligibleDate,
+            );
+        }
       }
     }
     console.log(

@@ -190,26 +190,6 @@ const Header = ({title, showMenu}) => {
     // console.log(questionareList);
   };
 
-  const onShare = async () => {
-    try {
-      const result = await Share.share({
-        message:
-          'I am using TrustHeal app. Please download to start using app https://play.google.com/store/apps/details?id=com.trusthealapp',
-      });
-      if (result.action === Share.sharedAction) {
-        if (result.activityType) {
-          // shared with activity type of result.activityType
-        } else {
-          // shared
-        }
-      } else if (result.action === Share.dismissedAction) {
-        // dismissed
-      }
-    } catch (error) {
-      Alert.alert(error.message);
-    }
-  };
-
   const RenderNotifications = () => {
     return NotificationList.map((NotificationList, index) => {
       return (
@@ -538,8 +518,8 @@ const Header = ({title, showMenu}) => {
             color="white"
             onPress={async () => {
               console.log('Share');
-              //setShareModal(true);
-              await onShare();
+              setShareModal(true);
+              //await onShare();
             }}
           />
 

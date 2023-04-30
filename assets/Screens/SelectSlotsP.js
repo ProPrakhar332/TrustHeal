@@ -33,201 +33,6 @@ import apiConfig from '../API/apiConfig';
 import clinicMaker from '../API/ClincMaker';
 import DoctorBasicDetails from '../Components/DoctorBasicDetails';
 
-const data = {
-  name: 'Dr. Imran Singh',
-  spl: 'Psychiatry',
-  exp: '10 Years of experience',
-  deg: 'MBBS, MD, FID, CCLHA',
-  city: 'New Delhi',
-  email: 'Imran@gmail.com',
-  pres: '',
-  age: 36,
-  dob: '03/02/1973',
-  img: doctor_m,
-  doctorConsultationFeesDTO: {
-    eConsulationFees: 500,
-    followUpFees: 0,
-    physicalConsulationFees: 800,
-  },
-  doctorEducationsDTOs: [
-    {
-      degree: 'MBBS',
-      degreePath: 'string',
-      doctorEducationPkId: 0,
-      passingYear: '1986',
-      specialization: ['Psychiatry', 'Diabetologist', 'General Physician'],
-      totalExperiencedInMonths: 0,
-      university: 'IGNOU',
-    },
-  ],
-  doctorClinicDetailsDTOs: [
-    {
-      doctorclinicpkid: 1,
-      clinicName: 'ABCD',
-      clinicAddress: 'Ashok Road',
-      specialInstruction: 'wear mask',
-    },
-    {
-      doctorclinicpkid: 2,
-      clinicName: 'XYZ',
-      clinicAddress: 'rohtak road',
-      specialInstruction: 'wear mask',
-    },
-    {
-      doctorclinicpkid: 3,
-      clinicName: 'QWERTY',
-      clinicAddress:
-        'Rajpur Road cjsabckasbc ashchjsabc bashv ahsbvchasbch jabschbashc jkbkhscbkas hbahs',
-      specialInstruction: 'wear mask',
-    },
-  ],
-};
-
-const dataClinic = [
-  {key: '1', value: 'ABCD | Rajpur Road cjsabckasbc ashchjsabc bashv '},
-  {key: '2', value: 'XYZ'},
-  {key: '3', value: 'QWERTY'},
-];
-
-const date = {
-  availableDates: ['2023-01-30', '2023-01-31'],
-};
-const slotsresponse = [
-  {
-    slotId: 38,
-    startTime: '09:00:00',
-    endTime: '09:30:00',
-    slotDate: '2023-01-30',
-    typeOfEConsultation: 'PHONE_CALL',
-    slotStatus: 'CREATED',
-  },
-  {
-    slotId: 39,
-    startTime: '09:50:00',
-    endTime: '10:20:00',
-    slotDate: '2023-01-30',
-    typeOfEConsultation: 'PHONE_CALL',
-    slotStatus: 'CREATED',
-  },
-  {
-    slotId: 40,
-    startTime: '10:40:00',
-    endTime: '11:10:00',
-    slotDate: '2023-01-30',
-    typeOfEConsultation: 'PHONE_CALL',
-    slotStatus: 'CREATED',
-  },
-  {
-    slotId: 41,
-    startTime: '11:30:00',
-    endTime: '12:00:00',
-    slotDate: '2023-01-30',
-    typeOfEConsultation: 'PHONE_CALL',
-    slotStatus: 'CREATED',
-  },
-  {
-    slotId: 42,
-    startTime: '09:00:00',
-    endTime: '09:30:00',
-    slotDate: '2023-01-31',
-    typeOfEConsultation: 'PHONE_CALL',
-    slotStatus: 'CREATED',
-  },
-  {
-    slotId: 43,
-    startTime: '09:50:00',
-    endTime: '10:20:00',
-    slotDate: '2023-01-31',
-    typeOfEConsultation: 'PHONE_CALL',
-    slotStatus: 'CREATED',
-  },
-  {
-    slotId: 44,
-    startTime: '10:40:00',
-    endTime: '11:10:00',
-    slotDate: '2023-01-31',
-    typeOfEConsultation: 'PHONE_CALL',
-    slotStatus: 'CREATED',
-  },
-  {
-    slotId: 45,
-    startTime: '11:30:00',
-    endTime: '12:00:00',
-    slotDate: '2023-01-31',
-    typeOfEConsultation: 'PHONE_CALL',
-    slotStatus: 'CREATED',
-  },
-  {
-    slotId: 46,
-    startTime: '11:50:00',
-    endTime: '12:20:00',
-    slotDate: '2023-01-31',
-    typeOfEConsultation: 'PHONE_CALL',
-    slotStatus: 'CREATED',
-  },
-];
-
-const DATA = [
-  {
-    date: '19/09/2022',
-    day: 'Monday',
-    slots: [
-      '06:45 AM',
-      '07:15 AM',
-      '08:45 AM',
-      '09:30 AM',
-      '09:50 AM',
-      '10:30 AM',
-      '11:00 AM',
-      '11:45 AM',
-      '12:45 AM',
-    ],
-  },
-  {
-    date: '20/09/2022',
-    day: 'Tuesday',
-    slots: [
-      '10:00 AM',
-      '11:00 AM',
-      '12:00 PM',
-      '01:00 PM',
-      '02:00 PM',
-      '03:00 PM',
-    ],
-  },
-  {
-    date: '21/09/2022',
-    day: 'Wednesday',
-    slots: [
-      '06:45 PM',
-      '07:15 PM',
-      '08:45 PM',
-      '09:30 PM',
-      '09:50 PM',
-      '10:30 PM',
-      '11:00 PM',
-      '11:45 PM',
-    ],
-  },
-  {
-    date: '22/09/2022',
-    day: 'Thursday',
-    slots: ['08:00 AM', '08:30 AM'],
-  },
-  {
-    date: '23/09/2022',
-    day: 'Friday',
-    slots: [
-      '12:00 PM',
-      '12:30 PM',
-      '01:00 PM',
-      '01:30 PM',
-      '02:00 PM',
-      '02:30 PM',
-    ],
-  },
-];
-
 function SelectSlotsP({navigation}) {
   const [selectedPDate, setSelectedPDate] = useState(null);
   const [selectedPSlotTime, setSelectedPSlotTime] = useState(null);
@@ -253,7 +58,28 @@ function SelectSlotsP({navigation}) {
 
       setDocDet(x);
       setpatientDet(y);
-
+      console.log(
+        apiConfig.baseUrl +
+          '/patient/doctor/details?doctorId=' +
+          x.doctorId +
+          '&patientId=' +
+          y.patientId,
+      );
+      axios
+        .get(
+          apiConfig.baseUrl +
+            '/patient/doctor/details?doctorId=' +
+            x.doctorId +
+            '&patientId=' +
+            y.patientId,
+        )
+        .then(response => {
+          console.log('\n\nDoctor Details\n\n', response.data);
+          if (response.status == 200) setDocObj(response.data);
+        })
+        .catch(error => {
+          Alert.alert('Error Fetching', `${error}`);
+        });
       axios
         .get(apiConfig.baseUrl + '/slot/clinic/details?doctorId=' + x.doctorId)
         .then(response => {

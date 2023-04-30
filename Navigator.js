@@ -1,5 +1,6 @@
 import * as React from 'react';
 import {
+  Share,
   View,
   Text,
   Button,
@@ -133,6 +134,7 @@ import terms from './assets/DrawerIcons/terms.png';
 import refund from './assets/DrawerIcons/refund.png';
 import privacy from './assets/DrawerIcons/privacy.png';
 import support from './assets/DrawerIcons/support.png';
+import invite from './assets/DrawerIcons/invite.png';
 import FAIcons from 'react-native-vector-icons/FontAwesome5';
 
 const Tab = createBottomTabNavigator();
@@ -332,6 +334,24 @@ const openURL = async url => {
 const viewTermsConditions = () => {
   openURL('http://trustheal.in/TrustHeal_Agreement_with_Doctor.pdf');
 };
+const onShare = async () => {
+  try {
+    const result = await Share.share({
+      message: `Hey there! TrustHeal is the perfect app for virtual consultations. It's secure, convenient, and easy to use. Download TrustHeal here: https://play.google.com/store/apps/details?id=com.trusthealapp and start connecting with your patients today.`,
+    });
+    if (result.action === Share.sharedAction) {
+      if (result.activityType) {
+        // shared with activity type of result.activityType
+      } else {
+        // shared
+      }
+    } else if (result.action === Share.dismissedAction) {
+      // dismissed
+    }
+  } catch (error) {
+    Alert.alert(error.message);
+  }
+};
 
 function CustomDrawerContent(props) {
   //const {DoctorName,DoctorId} = route.params.DoctorName
@@ -507,6 +527,19 @@ function CustomDrawerContent(props) {
         }}
         icon={({focused, color, size}) => (
           <Image source={terms} style={{tintColor: '#033158'}} />
+        )}
+      />
+      <DrawerItem
+        label="Invite Others"
+        labelStyle={styles.labelStyle}
+        style={{marginVertical: 0, paddingVertical: 0}}
+        onPress={async () => {
+          // viewTermsConditions();
+          await onShare();
+          //props.navigation.navigate('TCDoctor');
+        }}
+        icon={({focused, color, size}) => (
+          <Image source={invite} style={{tintColor: '#033158'}} />
         )}
       />
       <View style={styles.Heading}>

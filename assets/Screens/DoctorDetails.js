@@ -976,7 +976,7 @@ function DoctorDetails({navigation}) {
                   <View style={{flexDirection: 'column'}}>
                     <Text style={styles.subLabel}>Select Clinic</Text>
                     <SelectList
-                      defaultOption={ClinicsDropDown[0].key}
+                      //defaultOption={ClinicsDropDown[0].key}
                       placeholder={' '}
                       setSelected={val => {
                         setclinicName(val);

@@ -214,8 +214,7 @@ const Header = ({title, showMenu}) => {
   const onShare = async () => {
     try {
       const result = await Share.share({
-        message:
-          'I am using TrustHeal app. Please download to start using app https://play.google.com/store/apps/details?id=com.trusthealapp',
+        message: `Hey there! I've been using TrustHeal for Health Consultation and it's been amazing. If you're looking for a convenient and secure way to manage all your health care needs, check it out! Download TrustHeal here:  https://play.google.com/store/apps/details?id=com.trusthealapp`,
       });
       if (result.action === Share.sharedAction) {
         if (result.activityType) {

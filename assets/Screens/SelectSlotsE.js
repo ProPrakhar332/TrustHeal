@@ -179,6 +179,28 @@ function SelectSlotsE({navigation}) {
       if (x.isReschedule != null) {
         setisReschedule(true);
       }
+      console.log(
+        apiConfig.baseUrl +
+          '/patient/doctor/details?doctorId=' +
+          x.doctorId +
+          '&patientId=' +
+          y.patientId,
+      );
+      axios
+        .get(
+          apiConfig.baseUrl +
+            '/patient/doctor/details?doctorId=' +
+            x.doctorId +
+            '&patientId=' +
+            y.patientId,
+        )
+        .then(response => {
+          console.log('\n\nDoctor Details\n\n', response.data);
+          if (response.status == 200) setDocObj(response.data);
+        })
+        .catch(error => {
+          Alert.alert('Error Fetching', `${error}`);
+        });
 
       axios
         .get(apiConfig.baseUrl + '/slot/eslot/dates?doctorId=' + x.doctorId)
@@ -554,7 +576,7 @@ function SelectSlotsE({navigation}) {
                               consultationType: consultationType,
                               doctorObj: DocObj,
                               doctorDet: DocDet,
-                              mode: consultationType,
+                              mode: 'E_CONSULTATION',
                               slotDate: selectedDate,
                               slotId: selectedSlotId,
                               slotStartTime: selectedSlotTime,
