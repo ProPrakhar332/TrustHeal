@@ -514,7 +514,7 @@ const DoctorHome = ({navigation}) => {
                     flex: 0.2,
                     marginRight: '5%',
                   }}>
-                  <Text style={styles.cardText}>Symtoms</Text>
+                  <Text style={styles.cardText}>Symptoms</Text>
                 </View>
                 <View
                   style={{
@@ -1001,7 +1001,7 @@ const DoctorHome = ({navigation}) => {
                     flex: 0.2,
                     marginRight: '5%',
                   }}>
-                  <Text style={styles.cardText}>Symtoms</Text>
+                  <Text style={styles.cardText}>Symptoms</Text>
                 </View>
                 <View
                   style={{
@@ -1329,7 +1329,7 @@ const DoctorHome = ({navigation}) => {
                     width: '20%',
                     marginRight: '5%',
                   }}>
-                  <Text style={styles.cardText}>Symtoms</Text>
+                  <Text style={styles.cardText}>Symptoms</Text>
                 </View>
                 <View style={{flexDirection: 'column', width: '60%'}}>
                   <Text style={styles.cardText}>{item.symptoms}</Text>
@@ -1612,7 +1612,7 @@ const DoctorHome = ({navigation}) => {
                     width: '20%',
                     marginRight: '5%',
                   }}>
-                  <Text style={styles.cardText}>Symtoms</Text>
+                  <Text style={styles.cardText}>Symptoms</Text>
                 </View>
                 <View style={{flexDirection: 'column', width: '60%'}}>
                   <Text style={styles.cardText}>{item.symptoms}</Text>

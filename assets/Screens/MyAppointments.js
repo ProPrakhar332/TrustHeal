@@ -1246,9 +1246,9 @@ function MyAppointment({navigation}) {
                 style={{marginRight: 5}}
               />
               <Text style={{fontSize: 13, color: 'white'}}>
-                {item.consultationStatus != 'COMPLETED'
-                  ? 'Prescription Pending'
-                  : 'Prescription'}
+                {item.consultationStatus == 'COMPLETED'
+                  ? 'Prescription'
+                  : 'Pending Prescription'}
               </Text>
             </TouchableOpacity>
           </View>

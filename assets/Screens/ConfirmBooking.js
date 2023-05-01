@@ -176,7 +176,10 @@ function ConfirmBoking({navigation}) {
   const updateFees = () => {
     console.log('Checking Effective Fees');
     let temp = [];
-    if (PrevPageData.doctorObj != null) {
+    if (
+      PrevPageData.doctorObj != null &&
+      PrevPageData.doctorObj.followUpEligibles != null
+    ) {
       for (
         var i = 0;
         i < PrevPageData.doctorObj.followUpEligibles.length;
