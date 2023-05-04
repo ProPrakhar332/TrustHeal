@@ -549,6 +549,52 @@ const FirstScreen = ({route, navigation}) => {
               </Text>
             </View> */}
           </View>
+          {isLoading && (
+            <View
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor: 'rgba(0,0,0,0.4)',
+              }}>
+              <View
+                style={{
+                  backgroundColor: 'white',
+                  alignSelf: 'center',
+                  borderRadius: 20,
+                  width: 150,
+                  height: 150,
+                  justifyContent: 'center',
+                  flexDirection: 'column',
+                }}>
+                <Image
+                  source={waiting}
+                  style={{
+                    alignSelf: 'center',
+                    width: 80,
+                    height: 80,
+                    // borderRadius: 150,
+                  }}
+                />
+                <Text
+                  style={{
+                    alignSelf: 'center',
+                    textAlign: 'center',
+                    color: '#2B8ADA',
+                    fontSize: 15,
+                    fontWeight: 'bold',
+                    width: '100%',
+                    // padding: 10,
+                  }}>
+                  Please Wait...
+                </Text>
+              </View>
+            </View>
+          )}
         </ScrollView>
         {modalVisible ? (
           <Modal
@@ -773,52 +819,6 @@ const FirstScreen = ({route, navigation}) => {
             </View>
           </Modal>
         ) : null}
-        {isLoading && (
-          <View
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              justifyContent: 'center',
-              alignItems: 'center',
-              backgroundColor: 'rgba(0,0,0,0.4)',
-            }}>
-            <View
-              style={{
-                backgroundColor: 'white',
-                alignSelf: 'center',
-                borderRadius: 20,
-                width: 150,
-                height: 150,
-                justifyContent: 'center',
-                flexDirection: 'column',
-              }}>
-              <Image
-                source={waiting}
-                style={{
-                  alignSelf: 'center',
-                  width: 80,
-                  height: 80,
-                  // borderRadius: 150,
-                }}
-              />
-              <Text
-                style={{
-                  alignSelf: 'center',
-                  textAlign: 'center',
-                  color: '#2B8ADA',
-                  fontSize: 15,
-                  fontWeight: 'bold',
-                  width: '100%',
-                  // padding: 10,
-                }}>
-                Please Wait...
-              </Text>
-            </View>
-          </View>
-        )}
       </SafeAreaView>
     </KeyboardAvoidingView>
   );
