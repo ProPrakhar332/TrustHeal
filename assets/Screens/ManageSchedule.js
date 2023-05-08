@@ -124,7 +124,7 @@ const ManageSchedule = () => {
   const [DeleteSlotsList, setDeleteSlotsList] = useState([]);
 
   //CREATE P-CONSULTATION TAB
-  const [CreatePConsultations, setCreatePConsultations] = useState(true);
+  const [CreatePConsultations, setCreatePConsultations] = useState(false);
   const [PCDate, setPCDate] = useState('');
   const [PCinTime, setPCinTime] = useState('');
   const [PCinTimeHH, setPCinTimeHH] = useState('');
@@ -139,7 +139,7 @@ const ManageSchedule = () => {
   const [PCCreateClinicAddress, setPCCreateClinicAddress] = useState('');
   //const [PCData, setPCData] = useState([]);
   //CREATE E-CONSULTATION TAB
-  const [CreateEConsultations, setCreateEConsultations] = useState(false);
+  const [CreateEConsultations, setCreateEConsultations] = useState(true);
   const [ECDate, setECDate] = useState('');
   const [EconsultMode, setEconsultMode] = useState('');
   const [ECinTime, setECinTime] = useState('');
@@ -4346,7 +4346,7 @@ const styles = StyleSheet.create({
     fontSize: 11,
     borderRadius: 15,
     marginVertical: 5,
-    width: '90%',
+    width: '100%',
   },
   bubbleTitleActive: {
     color: '#fff',

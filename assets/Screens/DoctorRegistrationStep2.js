@@ -1015,8 +1015,9 @@ const DoctorRegistration2 = ({navigation}) => {
               //   'UserDoctorProfile',
               //   JSON.stringify(x),
               // );
-              await AsyncStorage.multiRemove(await AsyncStorage.getAllKeys());
-              navigation.navigate('RoleScreen');
+
+              // await AsyncStorage.multiRemove(await AsyncStorage.getAllKeys());
+              // navigation.navigate('RoleScreen');
             }
           })
           .catch(function (error) {
@@ -1275,9 +1276,18 @@ const DoctorRegistration2 = ({navigation}) => {
                 color={'#2b8ada'}
                 style={{marginRight: 10}}
                 onPress={async () => {
-                  setDisplayPhotoToken(Experience.experiencePhoto);
-                  console.log(Experience.experiencePhoto);
-                  setImageViewer(true);
+                  if (
+                    Experience.experiencePhoto != null &&
+                    Experience.experiencePhoto != 0
+                  ) {
+                    setDisplayPhotoToken(Experience.experiencePhoto);
+                    console.log(Experience.experiencePhoto);
+                    setImageViewer(true);
+                  } else
+                    Alert.alert(
+                      'No File',
+                      'You have not uploaded experience certificate for this practice center.',
+                    );
                 }}
               />
               <FAIcon
@@ -3339,11 +3349,11 @@ const DoctorRegistration2 = ({navigation}) => {
                                 'Incomplete Details!',
                                 'Please select practice end date',
                               );
-                            else if (expPhotoPath == 0)
-                              Alert.alert(
-                                'Incomplete Details!',
-                                'Please upload experience certificate.',
-                              );
+                            // else if (expPhotoPath == 0)
+                            //   Alert.alert(
+                            //     'Incomplete Details!',
+                            //     'Please upload experience certificate.',
+                            //   );
                             else {
                               let p = {
                                 currentlyThere: checkPresent,

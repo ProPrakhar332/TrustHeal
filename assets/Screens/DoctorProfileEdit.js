@@ -1435,9 +1435,18 @@ const EditProfile = ({navigation}) => {
                     ExpDetEdit ? {marginRight: 10} : null,
                   ]}
                   onPress={async () => {
-                    setDisplayPhotoToken(Exp.experiencePhoto);
-                    console.log(Exp);
-                    setImageViewer(true);
+                    if (
+                      Exp.experiencePhoto != 0 &&
+                      Exp.experiencePhoto != null
+                    ) {
+                      setDisplayPhotoToken(Exp.experiencePhoto);
+                      console.log(Exp);
+                      setImageViewer(true);
+                    } else
+                      Alert.alert(
+                        'No File',
+                        `You have not uploaded experience certificate for ${Exp.practiceAt}.`,
+                      );
                   }}
                 />
 

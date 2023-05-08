@@ -270,29 +270,6 @@ const DoctorRegistrationStep1 = ({navigation}) => {
       setmobile(await AsyncStorage.getItem('mobileNumber'));
     };
 
-    // const getAvailableSpecialities = async () => {
-    //   axios
-    //     .get(
-    //       apiConfig.baseUrl + '/suggest/specialization/dropdown?max=100&min=0',
-    //     )
-    //     .then(response => {
-    //       if (response.status == 200) {
-    //         //console.log('From Service\n\n', response.data);
-    //         let p = [];
-    //         response.data.forEach(item => {
-    //           // console.log(item);
-    //           p.push({key: item.specialization, value: item.specialization});
-    //         });
-    //         p.push({key: 'Other', value: 'Other'});
-    //         console.log('Modify\n\n', p);
-    //         setavailableSpeciality(p);
-    //       }
-    //     })
-    //     .catch(error => {
-    //       Alert.alert('Error', `${error}`);
-    //     });
-    // };
-
     const getAvailableLanguages = async () => {
       axios
         .get(apiConfig.baseUrl + '/suggest/language/dropdown?max=100&min=0')

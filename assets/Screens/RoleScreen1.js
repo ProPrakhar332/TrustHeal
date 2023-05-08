@@ -30,7 +30,7 @@ import logo from '../Resources/TH_trans1.png';
 import ForegroundHandler from '../API/ForegroundHandler';
 //import logo from '../Resources/Logo.jpg';
 
-const RoleScreen = ({navigation}) => {
+const RoleScreen1 = ({navigation}) => {
   const [check, setChecked] = useState(false);
   const [activeP, setactiveP] = useState(false);
   const [activeD, setactiveD] = useState(true);
@@ -330,4 +330,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default RoleScreen;
+export default RoleScreen1;
